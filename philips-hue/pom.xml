@@ -3,8 +3,8 @@
 		xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>nl.ewjmulder.smarthome</groupId>
-		<artifactId>smart-home</artifactId>
+		<groupId>nl.ewjmulder.programyourhome</groupId>
+		<artifactId>program-your-home</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>philips-hue</artifactId>

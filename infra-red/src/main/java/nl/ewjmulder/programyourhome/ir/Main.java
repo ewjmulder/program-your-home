@@ -1,4 +1,4 @@
-package nl.ewjmulder.smarthome.ir;
+package nl.ewjmulder.programyourhome.ir;
 
 import java.util.Arrays;
 import java.util.List;

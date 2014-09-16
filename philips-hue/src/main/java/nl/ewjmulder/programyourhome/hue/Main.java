@@ -1,4 +1,4 @@
-package nl.ewjmulder.smarthome.hue;
+package nl.ewjmulder.programyourhome.hue;
 
 import com.philips.lighting.hue.sdk.PHAccessPoint;
 import com.philips.lighting.hue.sdk.PHHueSDK;

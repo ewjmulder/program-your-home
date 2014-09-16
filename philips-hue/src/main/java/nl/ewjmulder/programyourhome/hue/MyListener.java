@@ -1,4 +1,4 @@
-package nl.ewjmulder.smarthome.hue;
+package nl.ewjmulder.programyourhome.hue;
 
 import java.util.Date;
 import java.util.Hashtable;

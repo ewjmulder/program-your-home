@@ -1,4 +1,4 @@
-package nl.ewjmulder.smarthome.hue;
+package nl.ewjmulder.programyourhome.hue;
 
 public class MyThread extends Thread {
 

@@ -9,5 +9,6 @@
     <module>philips-hue</module>
     <module>infra-red</module>
     <module>voice-control</module>
+    <module>eneco-toon</module>
   </modules>
 </project>

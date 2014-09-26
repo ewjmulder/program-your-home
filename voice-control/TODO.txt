@@ -1,0 +1,27 @@
+TODO: document and include installation for voicecommand:
+
+http://diyhacking.com/best-voice-recognition-software-for-raspberry-pi/ (follow steps on website)
+-- for the lib, choose 'y' only for dependencies and voicecommand
+
+-> also run:
+sudo apt-get install libboost-dev libboost-regex-dev youtube-dl axel curl xterm libcurl4-gnutls-dev mpg123 flac sox
+not needed: youtube-dl
+not working atm: libcurl4-gnutls-dev (voicecommand runs without it)
+
+
+USB sound card as default device:
+http://raspberrypi.stackexchange.com/questions/19705/usb-card-as-my-default-audio-device
+
+Turns out that the OP was thinking along the correct path with his trying
+$ sudo nano /etc/modprobe.d/alsa-base.conf
+and changing the index from -2 to 0 via adding options snd-usb-audio index=0 to the file. However, this wasn't working.
+The correct way to do it is to add options snd-usb-audio index=0 followed by options snd_bcm2835 index=1.
+Essentially what doing this is forcing the default sound module (snd_bcm2835) to be disabled while the usb sound module (snd-usb-audio) is enabled.
+What I believe was previously happening with just adding options snd-usb-audio index=0 was that the snd-usb-audio module and the snd_bcm2835 were conflicting, with both being enabled.
+
+afterwards: sudo alsa force-reload
+
+LET OP: hierdoor wordt je mic wel plughw:0,0 ipv plughw:1,0 !!
+
+NB: Na inspectie van de sources van voicecommand, lijkt het vooral een slim aan elkaar geknoopt werkje van system commands,
+dat prima na te maken moet zijn in Java, dus leuker / beter om dit zelf ter hand te nemen! :)

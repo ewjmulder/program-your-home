@@ -1,0 +1,10 @@
+Grappige / leuke ideeen / TODO:
+- Licht aan bij bewegingsdetectie + donker detectie
+- Barcode scanner + printertje in voorraadkast
+- Wifi repeater reset (stroom uit/aan) na outage van experia box (internet connectie down?)
+- Telefoon opladers auto aan/uit
+- Laptop voedingen auto aan/uit
+- Toon integratie: https://github.com/rvdm/toon
+  - Verwarming uit bij geen beweging voor bepaalde tijd
+- Licht effecten bij bepaalde events (afspraken / mail oid)
+- Muziek keuken aansturen

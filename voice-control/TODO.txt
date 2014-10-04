@@ -1,3 +1,19 @@
+Actually, we can do this better!
+Voicecommand is just chaining some command line calls to record audio and send it to Google Voice API.
+You could do the same in Java, but you could improve on it a lot too!
+The key is to use the java Sound API, which uses byte[] Streams for sound data. This gives you
+much more fine grained control over the processing. Ideas:
+- Leave mic open all the time (if command started)
+- Process audio stream and upon hitting a certain volume (treshold) start streaming to google immediately
+- Or trigger with for instance 3 claps doing just local peak processing
+- Or trigger with button directly on device (abstract away button, just trigger - event bus?)
+- When command is spoken, cut off stream after 0.5/1 sec of silence (below treshold) instead of fixed time
+- Use supporting Java API's, like:
+  - http://www.beadsproject.net/
+  - https://code.google.com/p/java-audio-utils/
+
+
+
 TODO: document and include installation for voicecommand:
 
 http://diyhacking.com/best-voice-recognition-software-for-raspberry-pi/ (follow steps on website)

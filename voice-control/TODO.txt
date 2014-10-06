@@ -11,6 +11,50 @@ much more fine grained control over the processing. Ideas:
 - Use supporting Java API's, like:
   - http://www.beadsproject.net/
   - https://code.google.com/p/java-audio-utils/
+- NOTE: check to see if it makes sense to record 2 channels, probably not,
+  since we don't have stereo mics and it probably is faster / smaller footprint to use 1 channel
+
+Text to speech example, no key required, gives back an mp3*:
+http://translate.google.com/translate_tts?tl=nl-nl&q=Dit%20is%20een%20test&ie=UTF-8
+Non-official by the way, but hey: http://www.hung-truong.com/blog/2013/04/26/hacking-googles-text-to-speech-api/
+BTW: also here, you can start playing as soon as the first bits arrive. Only requirement is that
+the network speed is fast enough to get the rest of the data at least at real time speed.
+Might be interesting: https://code.google.com/p/java-google-translate-text-to-speech/
+* playing mp3 in Java is not trivial, you might need javafx: http://stackoverflow.com/questions/6045384/playing-mp3-and-wav-in-java
+  or use a 3rd party lib, like jlayer: http://introcs.cs.princeton.edu/java/faq/mp3/mp3.html
+                          or: http://www.morgenstille.at/blog/how-to-play-a-mp3-file-in-java-simple-and-beautiful/
+
+Google Speech API tryout + documentation:
+https://github.com/gillesdemey/google-speech-v2
+
+example: curl -X POST --data-binary @/dev/shm/out.flac --user-agent 'Mozilla/5.0' --header 'Content-Type: audio/x-flac; rate=16000;' "https://www.google.com/speech-api/v2/recognize?output=json&lang=$lang&key=AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw&client=Mozilla/5.0"
+(client maybe 'chromium', maybe faster?)
+
+Speech API requires FLAC, which is not bad, since it compresses WAV, but lossless (in contrast to for instance mp3)
+We do want to use direct streaming translation (in memory) instead of file based. This can be done
+with javaflacencoder: http://javaflacencoder.sourceforge.net/
+(NOTE: also try WAV or other stuff uploaded to Google Speech API and find real API description from Google)
+Probable usage (TODO: find howto or tutorial or trial/error test):
+- create new FlacEncoder
+- set stream config to match wave recording
+- for test: write to file
+- for real: set output stream to be either byte[] which will be uploaded afterwards, or even better:
+  as soon as you know the microphone stream should be speech recognized, from that point create a
+  pipeline Microphone TargetDataLine -> Audio Input Stream -> Flac Compression Stream -> HTTP Post Output Stream.
+  Oh, the beauty of it all... :)
+   
+
+Fun other stuff with voice: general knowledge questions to Wolfram Alpha.
+There is a key to use with HTTP web requests, API description see:
+http://products.wolframalpha.com/docs/WolframAlpha-API-Reference.pdf
+Easy for text only: speak -> google speech -> query wolfram alpha -> get result -> google text to speech
+Possible fun extra's: reply 'This answer / result contains graphical data / image(s). Do you want to view these on the TV? -> reply with 'yes' or 'no' -> speech api -> do or don't depending on result (or even do a local processing depending on if it best matches 'yes' or 'no' - binary result)
+
+Also possible to use google for simple question/answers:
+https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=<searching for...>
+Hmm, maybe not, it does not include the 1 result as an answer
+But you could still try to screen grab that, or find a lib that does that, but a lot less clean.
+
 
 
 

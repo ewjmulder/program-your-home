@@ -56,6 +56,9 @@ Hmm, maybe not, it does not include the 1 result as an answer
 But you could still try to screen grab that, or find a lib that does that, but a lot less clean.
 
 
+Ideas:
+- Display number of current detected volume in the room on LED number display
+
 
 
 TODO: document and include installation for voicecommand:

@@ -8,3 +8,4 @@ Grappige / leuke ideeen / TODO:
   - Verwarming uit bij geen beweging voor bepaalde tijd
 - Licht effecten bij bepaalde events (afspraken / mail oid)
 - Muziek keuken aansturen
+- NS API voor actuele vertrektijden / storingen in Driebergen Zeist

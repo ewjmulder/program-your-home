@@ -9,3 +9,10 @@ Grappige / leuke ideeen / TODO:
 - Licht effecten bij bepaalde events (afspraken / mail oid)
 - Muziek keuken aansturen
 - NS API voor actuele vertrektijden / storingen in Driebergen Zeist
+- Leuke extra's: veel meer publieke API's:
+  - publicapis.com
+  - wiki: http://en.wikipedia.org/w/api.php
+  - Movies
+    - IMDB (omdbapi.com?)
+    - http://developer.rottentomatoes.com/
+    - http://www.themoviedb.org/documentation/api - https://github.com/Omertron/api-themoviedb

@@ -1,0 +1,26 @@
+{
+  "AppDescription": {
+    "en": "Program Your Home"
+  },
+  "AppIcon": {
+  },
+  "AppName": {
+    "en": "Program Your Home"
+  },
+  "BundleIdentifier": "program-your-home",
+  "BundleType": "Application",
+  "BundleVersion": "0.0.1",
+  "Dependencies": {
+    "api": "1.0.0",
+    "views": "1.10.0"
+  },
+  "RequiredPermissions": [
+  ],
+  "SupportedDeviceClasses": [
+    "Desktop"
+  ],
+  "SupportedLanguages": [
+    "en"
+  ],
+  "VendorIdentifier": "com.programyourhome"
+}

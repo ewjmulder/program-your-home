@@ -1,0 +1,7 @@
+- Rename all packages from nl.ewjmulder to com.programyourhome
+- Next to dependency management, maybe include some dependencies in the parent pom directly?
+  - Or probably better: use a separate impl parent pom, because the api modules shouldn't have any dependencies
+- Spring wiring: seperate project that uses maven dependecies to include the actual impl's for the api's instead of in the server pom itself!?!
+- Event bus next to api's or even only event bus?
+
+- Use JSON Schema - http://json-schema.org/ and Java validation library: https://github.com/fge/json-schema-validator

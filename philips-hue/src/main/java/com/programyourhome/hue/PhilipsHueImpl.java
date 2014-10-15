@@ -2,8 +2,6 @@ package com.programyourhome.hue;
 
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.hue.PhilipsHue;
-
 @Component
 public class PhilipsHueImpl implements PhilipsHue {
 

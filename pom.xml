@@ -17,6 +17,8 @@
         <module>voice-control</module>
         <module>spotify</module>
         <module>eneco-toon</module>
+
+        <module>bootstrap</module>
     </modules>
 
     <properties>

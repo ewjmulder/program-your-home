@@ -10,8 +10,8 @@ import com.programyourhome.ComponentScanBase;
 @EnableAutoConfiguration
 public class ProgramYourHomeServer {
 
-    public static void main(final String[] args) {
-        SpringApplication.run(ProgramYourHomeServer.class, args);
+    public static void startServer() {
+        SpringApplication.run(ProgramYourHomeServer.class, new String[0]);
     }
 
 }

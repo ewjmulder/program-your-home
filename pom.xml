@@ -9,11 +9,11 @@
 
     <modules>
         <module>model</module>
-        
+
         <module>server</module>
-        
+
         <module>philips-hue-api</module>
-        
+
         <module>philips-hue</module>
         <module>infra-red</module>
         <module>voice-control</module>
@@ -26,6 +26,21 @@
     <properties>
         <spring.version>4.1.1.RELEASE</spring.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <debug>true</debug>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencyManagement>
         <dependencies>

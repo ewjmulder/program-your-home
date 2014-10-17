@@ -1,0 +1,2 @@
+Technical / architecture TODO:
+- Add checkstyle plugin / eclipse settings for lots of stuff including javadoc

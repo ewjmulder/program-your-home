@@ -1,4 +1,4 @@
-Grappige / leuke ideeen / TODO:
+Grappige / leuke ideeen:
 - Licht aan bij bewegingsdetectie + donker detectie
 - Barcode scanner + printertje in voorraadkast
 - Wifi repeater reset (stroom uit/aan) na outage van experia box (internet connectie down?)

@@ -2,13 +2,25 @@ package com.programyourhome.hue.model;
 
 public enum Mood {
 
-    // TODO: These are the ones that Philips provides, but all Kelvin color temps in a certain range (2000-6500) can be set,
-    // so maybe change / extens this interface to reflect that
-    // TODO: test what the color temps are for the default moods and try values in between to see if it is useful to take those as well.
+    /*
+     * Interestingly, when we set ct ourselves eg to read-343 it'll be 340 after recalculation at the bridge/lamp.
+     * But if we let the Philips app set the read-343 it'll stay that way. Probably it actually sets the x,y to a slightly different point
+     * that'll give 343 on the ct side after reculculation. Take this into account?
+     */
 
-    CONCENTRATE,
-    ENERGIZE,
-    READ,
-    RELAX;
+    ENERGY(155),
+    FOCUS(234),
+    READ(343),
+    RELAX(467);
+
+    private int mirek;
+
+    private Mood(final int mirek) {
+        this.mirek = mirek;
+    }
+
+    public int getMirek() {
+        return this.mirek;
+    }
 
 }

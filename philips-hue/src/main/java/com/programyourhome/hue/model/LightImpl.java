@@ -22,4 +22,7 @@ public class LightImpl implements Light {
         return this.type;
     }
 
+    // TODO: add all color, dim, etc properties from last known light state
+    // calculate RGB color value: PHUtilities.colorFromXY
+
 }

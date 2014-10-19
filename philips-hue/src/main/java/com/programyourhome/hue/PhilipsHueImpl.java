@@ -13,7 +13,6 @@ import com.philips.lighting.hue.sdk.PHHueSDK;
 import com.philips.lighting.model.PHBridge;
 import com.philips.lighting.model.PHBridgeResourcesCache;
 import com.philips.lighting.model.PHLight;
-import com.philips.lighting.model.PHLightState;
 import com.programyourhome.hue.model.Light;
 import com.programyourhome.hue.model.LightImpl;
 import com.programyourhome.hue.model.LightType;
@@ -23,6 +22,14 @@ import com.programyourhome.hue.model.PlugImpl;
 
 @Component
 public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
+
+    // TODO: There is a rate limit on the bridge, limiting the amount of requests it can handle / you can send
+    // per second / time interval. Probably a good idea to have some safety mechanism to prevent command dropping.
+    // For instance: a queue with the command to be executed on it and a small (0.1 sec or smaller) sleep (use times) in between.
+
+    // Man, don't ever, ever! call setters on objects you get directly from the SDK, esp on cache items!! Because you get internal direct object access,
+    // you can easily screw up the inner workings and create weird or unexpected behaviour.
+    // Best practice: always create a new LightState object!
 
     @Autowired
     private SDKListener sdkListener;
@@ -49,8 +56,6 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
         this.sdk.connect(this.accessPoint);
 
         // TODO: proper shutdown, sdk, bridge, heartbeat.
-        // To stop the heartbeat you can use either of the below
-        // heartbeatManager.disableLightsHeartbeat(bridge);
         // heartbeatManager.disableAllHeartbeats(bridge);
     }
 
@@ -100,15 +105,13 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
         this.switchLight(lightName, false);
     }
 
+    // Note: will now always a command, but in case no change it will be empty, refactor?
+    // Only update 'on' state when it will actually change something. This might run into race conditions between multiple commands
+    // and the heartbeat update frequency. This could be changed to always execute the on/off command if such problems arise.
+    // TODO: Do not send anything upon no 'on' change?
+    // System.out.println("On/off switch command received for the same state.");
     private void switchLight(final String lightName, final boolean on) {
-        final PHLight phLight = this.getPHLight(lightName);
-        final PHLightState lightState = phLight.getLastKnownLightState();
-        // TODO: Or do it always anyway, last known state might be out of date?
-        if (lightState.isOn() != on) {
-            lightState.setOn(on);
-            // TODO: use listener, or not at all useful? maybe use 1 general light listener that 'displays' (fires events) upon error/succes/state change?
-            this.getBridge().updateLightState(phLight, lightState);
-        }
+        this.applyNewState(new PHLightStateBuilder(this.getPHLight(lightName), on));
     }
 
     @Override
@@ -123,45 +126,50 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
 
     }
 
+    private PHLightStateBuilder createBuilder(final String lightName) {
+        return new PHLightStateBuilder(this.getPHLight(lightName));
+    }
+
+    private void applyNewState(final PHLightStateBuilder builder) {
+        this.getBridge().updateLightState(builder.getPHLight(), builder.build(), this.sdkListener);
+    }
+
     @Override
     public void dimLight(final String lightName, final double fraction) {
-        final PHLight phLight = this.getPHLight(lightName);
-        final PHLightState lightState = phLight.getLastKnownLightState();
-        // The maximum value accepted is 254 (instead of the 255 suggested by the documentation).
-        lightState.setBrightness((int) (fraction * 254));
-        this.getBridge().updateLightState(phLight, lightState);
+        this.applyNewState(this.createBuilder(lightName)
+                .dim(fraction));
     }
 
     @Override
     public void setColor(final String lightName, final Color color) {
-        // TODO Auto-generated method stub
-
-        /*
-         * float xy[] = PHUtilities.calculateXYFromRGB(255, 0, 255, light.getModelNumber());
-         * PHLightState lightState = new PHLightState();
-         * lightState.setX(xy[0]);
-         * lightState.setY(xy[1]);
-         * bridge.updateLightState(light, lightState . . .
-         */
-
+        this.applyNewState(this.createBuilder(lightName)
+                .colorRGB(color));
     }
 
     @Override
     public void setMood(final String lightName, final Mood mood) {
-        // TODO Auto-generated method stub
-
+        this.applyNewState(this.createBuilder(lightName)
+                .mood(mood));
     }
 
     @Override
-    public void setLight(final String lightName, final double dimFraction, final Color color) {
-        // TODO Auto-generated method stub
-
+    public void setColorTemperature(final String lightName, final int mirek) {
+        this.applyNewState(this.createBuilder(lightName)
+                .colorTemperature(mirek));
     }
 
     @Override
-    public void setLight(final String lightName, final double dimFraction, final Mood mood) {
-        // TODO Auto-generated method stub
+    public void dimToColor(final String lightName, final double dimFraction, final Color color) {
+        this.applyNewState(this.createBuilder(lightName)
+                .dim(dimFraction)
+                .colorRGB(color));
+    }
 
+    @Override
+    public void dimToMood(final String lightName, final double dimFraction, final Mood mood) {
+        this.applyNewState(this.createBuilder(lightName)
+                .dim(dimFraction)
+                .mood(mood));
     }
 
 }

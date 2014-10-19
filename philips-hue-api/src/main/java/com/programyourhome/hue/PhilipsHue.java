@@ -99,6 +99,14 @@ public interface PhilipsHue {
     public void setMood(String lightName, Mood mood);
 
     /**
+     * Set the color temperature to the specified mirek value [153, 500].
+     *
+     * @param lightName the name of the light
+     * @param mirek the amount of mirek (http://en.wikipedia.org/wiki/Mired) in the range of 153 (coolest) to 500 (warmest)
+     */
+    public void setColorTemperature(String lightName, int mirek);
+
+    /**
      * Combination of dimming the light and setting it's color.
      *
      * Note: if this light is currently off, it will be turned on.
@@ -106,7 +114,7 @@ public interface PhilipsHue {
      * @see dimmLight
      * @see setColor
      */
-    public void setLight(String lightName, double dimFraction, Color color);
+    public void dimToColor(String lightName, double dimFraction, Color color);
 
     /**
      * Combination of dimming the light and setting it's mood.
@@ -116,6 +124,6 @@ public interface PhilipsHue {
      * @see dimmLight
      * @see setColor
      */
-    public void setLight(String lightName, double dimFraction, Mood mood);
+    public void dimToMood(String lightName, double dimFraction, Mood mood);
 
 }

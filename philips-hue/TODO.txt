@@ -1,2 +1,6 @@
 Check out this: http://www.developers.meethue.com/documentation/configuration-api
 to see if it contains any interesting stuff
+
+Nothing major, you can set the name of the bridge, not sure where that pops up.
+Nice feature to tryout, you seem to be able to set the pushlink state, so that it seems someone pressed the button.
+Might be a nice user friendly feature of connecting new Program Your Home users to the ... oh, never mind, they go through the PYH server anyway...

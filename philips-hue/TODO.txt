@@ -1,0 +1,2 @@
+Check out this: http://www.developers.meethue.com/documentation/configuration-api
+to see if it contains any interesting stuff

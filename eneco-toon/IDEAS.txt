@@ -1,0 +1,36 @@
+IDEA: Trick Toon into thinking it gets data from the internet, while it's actually coming from me!
+And with that trick, use the new Hue support to actually control the PYH server with that! (scenes -> activities...)
+
+--> That works and you can see the network packets of the Toon device. Unfortunately it's all HTTPS to a single server: 95.142.102.183
+
+IP Lookup Result for 95.142.102.183 - 
+
+IP Address:
+95.142.102.183 
+
+Host of this IP:
+a3985.homeautomationeurope.atom86.net 
+
+Organization:
+Schuberg Philis B.V.
+
+--> Indeed Schuberg Philis does IT business for Eneco
+
+So no possibility to soft-hack the Toon with that network traffic (like wheather, etc)
+Or maybe it's possible to fake an SSL connection with 95.142.102.183, but that probably requires a real signed certificate and maybe it actually checks
+the expected certificate on the Toon device, etc. So no use there to go into that much trouble for a almost certain death path.
+Although this still leaves open the option of soft-hacking Hue support, since that works on a local connection and only HTTP
+
+
+
+Steps to set up the shared network: (Wireless connection 3 should still be there to re-enable)
+https://www.youtube.com/watch?v=zFHIvCMTqbQ
+(commands should be run in an Administrator command prompt)
+
+C:\Windows\system32>netsh wlan set hostednetwork mode=allow ssid=SparrenBrid key=12345678
+The hosted network mode has been set to allow.
+The SSID of the hosted network has been successfully changed.
+The user key passphrase of the hosted network has been successfully changed.
+
+C:\Windows\system32>netsh wlan start hostednetwork
+The hosted network started.

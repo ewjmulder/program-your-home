@@ -4,7 +4,7 @@
     xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>nl.ewjmulder.programyourhome</groupId>
+        <groupId>com.programyourhome</groupId>
         <artifactId>program-your-home</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -14,12 +14,17 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>nl.ewjmulder.programyourhome</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>philips-hue</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>nl.ewjmulder.programyourhome</groupId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>infra-red</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>server</artifactId>
             <version>${project.version}</version>
         </dependency>

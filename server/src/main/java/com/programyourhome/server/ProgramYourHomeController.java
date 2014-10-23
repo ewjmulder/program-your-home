@@ -12,6 +12,7 @@ import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Light;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.model.Plug;
+import com.programyourhome.ir.InfraRed;
 
 @RestController
 public class ProgramYourHomeController {
@@ -41,6 +42,9 @@ public class ProgramYourHomeController {
 
     @Autowired
     private PhilipsHue philipsHue;
+
+    @Autowired
+    private InfraRed infraRed;
 
     @RequestMapping("/hue/lights")
     // TODO: filtering on known plug-lights on server side with config
@@ -102,6 +106,23 @@ public class ProgramYourHomeController {
     // TODO: filtering on known plug-lights on server side with config
     public void setMood(@PathVariable("name") final String name, @PathVariable("moodName") final String moodName) {
         this.philipsHue.setMood(name, Mood.valueOf(moodName.toUpperCase()));
+    }
+
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // or have some way to split this Class? It'll become really big!
+
+    // TODO: Have internal state of devices, to check if this makes sense.
+    @RequestMapping("/ir/devices/{name}/on")
+    public void turnDeviceOn(@PathVariable("name") final String name) {
+        // TODO: update device list on other laptop
+        this.infraRed.sendCommand("YAMAHA-RAV338-MAIN_ZONE", "POWER");
+    }
+
+    @RequestMapping("/ir/devices/{name}/off")
+    public void turnDeviceOff(@PathVariable("name") final String name) {
+        this.infraRed.sendCommand("YAMAHA-RAV338-MAIN_ZONE", "POWER");
     }
 
 }

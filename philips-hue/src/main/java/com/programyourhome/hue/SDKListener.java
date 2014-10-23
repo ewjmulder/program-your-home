@@ -214,6 +214,7 @@ public class SDKListener implements PHSDKListener, PHLightListener {
         // TODO: This happens quite a lot, after the server is running for a while. Looking at the source code, this is probably caused by
         // the bridge not responding (fast enough) twice (does not have to be in a row). Probably the easiest fix is just to reconnect upon
         // a connection lost.
+        // BTW: Not resetting the nrRetries to 0 in the Heartbeat class is probably a bug!
     }
 
     @Override

@@ -45,13 +45,17 @@ public class PHLightStateBuilder {
         return this.phLight;
     }
 
-    public PHLightStateBuilder dim(final double fraction) {
-        // The maximum value accepted is 254 (instead of the 255 suggested by the documentation).
-        this.phLightState.setBrightness((int) (fraction * 254));
+    public PHLightStateBuilder dim(final double dimFraction) {
+        return this.dim(ValueUtil.fractionToBrightness(dimFraction));
+    }
+
+    public PHLightStateBuilder dim(final int brightness) {
+        this.phLightState.setBrightness(brightness);
         return this;
     }
 
     public PHLightStateBuilder colorRGB(final Color color) {
+        // TODO: keep here or move to utility class?
         final float xy[] = PHUtilities.calculateXYFromRGB(color.getRed(), color.getGreen(), color.getBlue(), this.phLight.getModelNumber());
         return this.colorXY(xy[0], xy[1]);
     }
@@ -63,6 +67,10 @@ public class PHLightStateBuilder {
         return this;
     }
 
+    public PHLightStateBuilder colorHueSaturation(final double hueFraction, final double saturationFraction) {
+        return this.colorHueSaturation(ValueUtil.fractionToHue(hueFraction), ValueUtil.fractionToSaturation(saturationFraction));
+    }
+
     public PHLightStateBuilder colorHueSaturation(final int hue, final int saturation) {
         this.phLightState.setColorMode(PHLightColorMode.COLORMODE_HUE_SATURATION);
         this.phLightState.setHue(hue);
@@ -70,14 +78,18 @@ public class PHLightStateBuilder {
         return this;
     }
 
-    public PHLightStateBuilder colorTemperature(final int mirek) {
+    public PHLightStateBuilder colorTemperature(final double temperatureFraction) {
+        return this.colorTemperature(ValueUtil.fractionToColorTemperature(temperatureFraction));
+    }
+
+    public PHLightStateBuilder colorTemperature(final int temperature) {
         this.phLightState.setColorMode(PHLightColorMode.COLORMODE_CT);
-        this.phLightState.setCt(mirek);
+        this.phLightState.setCt(temperature);
         return this;
     }
 
     public PHLightStateBuilder mood(final Mood mood) {
-        return this.colorTemperature(mood.getMirek());
+        return this.colorTemperature(mood.getTemperature());
     }
 
     /**

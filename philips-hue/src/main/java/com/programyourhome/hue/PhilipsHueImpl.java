@@ -55,6 +55,19 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
 
         this.sdk.connect(this.accessPoint);
 
+        // new Thread(new Runnable() {
+        // @Override
+        // public void run() {
+        // try {
+        // Thread.sleep(5000);
+        // } catch (final InterruptedException e) {
+        // }
+        // // PhilipsHueImpl.this.setColor("Bureau", Color.BLUE);
+        // PhilipsHueImpl.this.applyNewState(PhilipsHueImpl.this.createBuilder("Bank")
+        // .colorHueSaturation(37129, 113));
+        //
+        // }
+        // }).start();
         // TODO: proper shutdown, sdk, bridge, heartbeat.
         // heartbeatManager.disableAllHeartbeats(bridge);
     }
@@ -105,7 +118,7 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
         this.switchLight(lightName, false);
     }
 
-    // Note: will now always a command, but in case no change it will be empty, refactor?
+    // Note: will now always send a command, but in case no change it will be empty, refactor? -> stop in sending method if new state empty
     // Only update 'on' state when it will actually change something. This might run into race conditions between multiple commands
     // and the heartbeat update frequency. This could be changed to always execute the on/off command if such problems arise.
     // TODO: Do not send anything upon no 'on' change?
@@ -135,13 +148,13 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
     }
 
     @Override
-    public void dimLight(final String lightName, final double fraction) {
+    public void dim(final String lightName, final double dimFraction) {
         this.applyNewState(this.createBuilder(lightName)
-                .dim(fraction));
+                .dim(dimFraction));
     }
 
     @Override
-    public void setColor(final String lightName, final Color color) {
+    public void setColorRGB(final String lightName, final Color color) {
         this.applyNewState(this.createBuilder(lightName)
                 .colorRGB(color));
     }
@@ -153,16 +166,49 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
     }
 
     @Override
-    public void setColorTemperature(final String lightName, final int mirek) {
+    public void setColorXY(final String lightName, final float x, final float y) {
         this.applyNewState(this.createBuilder(lightName)
-                .colorTemperature(mirek));
+                .colorXY(x, y));
     }
 
     @Override
-    public void dimToColor(final String lightName, final double dimFraction, final Color color) {
+    public void setColorHueSaturation(final String lightName, final double hueFraction, final double saturationFraction) {
+        this.applyNewState(this.createBuilder(lightName)
+                .colorHueSaturation(hueFraction, saturationFraction));
+    }
+
+    @Override
+    public void setColorTemperature(final String lightName, final double temperatureFraction) {
+        this.applyNewState(this.createBuilder(lightName)
+                .colorTemperature(temperatureFraction));
+    }
+
+    @Override
+    public void dimToColorRGB(final String lightName, final double dimFraction, final Color color) {
         this.applyNewState(this.createBuilder(lightName)
                 .dim(dimFraction)
                 .colorRGB(color));
+    }
+
+    @Override
+    public void dimToColorXY(final String lightName, final double dimFraction, final float x, final float y) {
+        this.applyNewState(this.createBuilder(lightName)
+                .dim(dimFraction)
+                .colorXY(x, y));
+    }
+
+    @Override
+    public void dimToColorHueSaturation(final String lightName, final double dimFraction, final double hueFraction, final double saturationFraction) {
+        this.applyNewState(this.createBuilder(lightName)
+                .dim(dimFraction)
+                .colorHueSaturation(hueFraction, saturationFraction));
+    }
+
+    @Override
+    public void dimToColorTemperature(final String lightName, final double dimFraction, final double temperatureFraction) {
+        this.applyNewState(this.createBuilder(lightName)
+                .dim(dimFraction)
+                .colorTemperature(temperatureFraction));
     }
 
     @Override

@@ -43,6 +43,17 @@ public class SDKListener implements PHSDKListener, PHLightListener {
     // that cannot be set from the outside that prevented the onCacheUpdate, because the notifyBridgeAPIError code path stops further processing.
     // TODO: this really is more of a bug than a feature. Try to find a way to contact the Philips Java API developers and file some bug reports.
 
+    // Correction by lamp done on setting a value, setting the correction value gives another correction, but always the same values
+    // example: set Color.RED = x: 0,674 y: 0,322 -> correction to x: 0.6736, y: 0,3221 setting those gives correction to: x: 0.6725, y: 0,3223
+    // Setting those last corrected values gives the same values back, so no correction.
+    // Second example: Color.BLUE = x: 0.168, y: 0.041 -> correction to x: 0,1684, y: 0,0416 setting those gives correction to x: 0.1684, y: 0.0417
+    // Setting those gives another correction to: x: 0.1692, y: 0.0429, followed by another correction: x: 0.1693, y: 0.043 -> x: 0.1701, y: 0.0443
+    // After that finally stays the same (but hue is corrected from 47127 to 47126 :)
+    // Setting hue/sat directly does not result in a hue/sat correction, only updated values for other color params (if needed)
+    // Color temp settings are corrected, e.g. READ = 343 is corrected to 340 -> corrected to 337 -> 334 -> 331 -> 328
+    // Another example 499 -> 497 -> 492 -> 488 (always the same)
+    // Seems to be the same for every lamp for all params (a few 'steekproeven': for 2 lamps exacty the same resuls!)
+
     private final PHHueSDK sdk;
 
     public SDKListener() {

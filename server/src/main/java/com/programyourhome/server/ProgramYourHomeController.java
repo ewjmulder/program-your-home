@@ -37,6 +37,7 @@ public class ProgramYourHomeController {
 
     // TODO: exception handling for parameter parsing.
     // Choice: request map all probably better, so you can give a 'usage' error instead of general 404. (see e.g. dim fraction and color)
+    // TODO: Related to the point described above, the number parsing now is locale dependent, so we should take that out of Spring into our own hands anyway.
 
     @Autowired
     private PhilipsHue philipsHue;
@@ -65,29 +66,42 @@ public class ProgramYourHomeController {
         this.philipsHue.turnOffLight(name);
     }
 
-    @RequestMapping("/hue/lights/{name}/dim/{fraction:[0-9\\.]+}")
+    @RequestMapping("/hue/lights/{name}/dim/{dim:[0-9\\.]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void dimLight(@PathVariable("name") final String name, @PathVariable("fraction") final double fraction) {
-        this.philipsHue.dimLight(name, fraction);
+    public void dimLight(@PathVariable("name") final String name, @PathVariable("dim") final double dimFraction) {
+        this.philipsHue.dim(name, dimFraction);
     }
 
-    @RequestMapping("/hue/lights/{name}/color/{red:[0-9]+}-{green:[0-9]+}-{blue:[0-9]+}")
+    @RequestMapping("/hue/lights/{name}/colorRGB/{red:[0-9]+},{green:[0-9]+},{blue:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
     public void setColor(@PathVariable("name") final String name,
             @PathVariable("red") final int red, @PathVariable("green") final int green, @PathVariable("blue") final int blue) {
-        this.philipsHue.setColor(name, new Color(red, green, blue));
+        this.philipsHue.setColorRGB(name, new Color(red, green, blue));
+    }
+
+    @RequestMapping("/hue/lights/{name}/colorXY/{x:[0-9\\.]},{y:[0-9\\.]}")
+    // TODO: filtering on known plug-lights on server side with config
+    public void setColorXY(@PathVariable("name") final String name, @PathVariable("x") final float x, @PathVariable("y") final float y) {
+        this.philipsHue.setColorXY(name, x, y);
+    }
+
+    @RequestMapping("/hue/lights/{name}/colorHueSaturation/{hue:[0-9\\.]},{saturation:[0-9\\.]}")
+    // TODO: filtering on known plug-lights on server side with config
+    public void setColorHueSaturation(@PathVariable("name") final String name, @PathVariable("hue") final double hueFraction,
+            @PathVariable("saturation") final double saturationFraction) {
+        this.philipsHue.setColorHueSaturation(name, hueFraction, saturationFraction);
+    }
+
+    @RequestMapping("/hue/lights/{name}/colorTemperature/{temperature:[0-9\\.]+}")
+    // TODO: filtering on known plug-lights on server side with config
+    public void setColorTemperature(@PathVariable("name") final String name, @PathVariable("temperature") final double temperatureFraction) {
+        this.philipsHue.setColorTemperature(name, temperatureFraction);
     }
 
     @RequestMapping("/hue/lights/{name}/mood/{moodName}")
     // TODO: filtering on known plug-lights on server side with config
     public void setMood(@PathVariable("name") final String name, @PathVariable("moodName") final String moodName) {
         this.philipsHue.setMood(name, Mood.valueOf(moodName.toUpperCase()));
-    }
-
-    @RequestMapping("/hue/lights/{name}/colorTemperature/{mirek}")
-    // TODO: filtering on known plug-lights on server side with config
-    public void setColorTemperature(@PathVariable("name") final String name, @PathVariable("mirek") final int mirek) {
-        this.philipsHue.setColorTemperature(name, mirek);
     }
 
 }

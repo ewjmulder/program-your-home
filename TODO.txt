@@ -1,2 +1,3 @@
 Technical / architecture TODO:
 - Add checkstyle plugin / eclipse settings for lots of stuff including javadoc
+- Set JAVA_HOME back to Java 8 after Scala Coursera is done

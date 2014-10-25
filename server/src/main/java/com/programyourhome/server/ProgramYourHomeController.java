@@ -13,6 +13,7 @@ import com.programyourhome.hue.model.Light;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.model.Plug;
 import com.programyourhome.ir.InfraRed;
+import com.programyourhome.ir.model.Remote;
 
 @RestController
 public class ProgramYourHomeController {
@@ -113,16 +114,15 @@ public class ProgramYourHomeController {
     // TODO: ASCII ART SEPERATION OF STUFF
     // or have some way to split this Class? It'll become really big!
 
-    // TODO: Have internal state of devices, to check if this makes sense.
-    @RequestMapping("/ir/devices/{name}/on")
-    public void turnDeviceOn(@PathVariable("name") final String name) {
+    @RequestMapping("/ir/remotes")
+    public Collection<Remote> getRemotes() {
         // TODO: update device list on other laptop
-        this.infraRed.sendCommand("YAMAHA-RAV338-MAIN_ZONE", "POWER");
+        return this.infraRed.getRemotes();
     }
 
-    @RequestMapping("/ir/devices/{name}/off")
-    public void turnDeviceOff(@PathVariable("name") final String name) {
-        this.infraRed.sendCommand("YAMAHA-RAV338-MAIN_ZONE", "POWER");
+    @RequestMapping("/ir/remotes/{name}/{key}")
+    public void getRemote(@PathVariable("name") final String name, @PathVariable("key") final String key) {
+        this.infraRed.pressRemoteKey(name, key);
     }
 
 }

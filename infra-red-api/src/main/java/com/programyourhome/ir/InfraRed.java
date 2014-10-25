@@ -1,14 +1,13 @@
 package com.programyourhome.ir;
 
-import java.util.List;
+import java.util.Collection;
 
-import com.programyourhome.ir.model.IRDevice;
+import com.programyourhome.ir.model.Remote;
 
 public interface InfraRed {
 
-    public List<IRDevice> getDevices();
+    public Collection<Remote> getRemotes();
 
-    // TODO: Use more abstracted methodes in interface.
-    public void sendCommand(String remote, String key);
+    public void pressRemoteKey(String remoteName, String key);
 
 }

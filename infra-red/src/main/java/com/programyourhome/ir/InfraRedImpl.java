@@ -1,12 +1,13 @@
 package com.programyourhome.ir;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.ir.model.IRDevice;
+import com.programyourhome.ir.model.Remote;
 
 @Component
 public class InfraRedImpl implements InfraRed, InitializingBean {
@@ -21,14 +22,15 @@ public class InfraRedImpl implements InfraRed, InitializingBean {
     }
 
     @Override
-    public List<IRDevice> getDevices() {
-        // TODO TODOTODO
-        return null;
+    public Collection<Remote> getRemotes() {
+        // Use this construction so we don't have issues with generics.
+        return this.irClient.getRemotes().stream()
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void sendCommand(final String remote, final String key) {
-        this.irClient.sendIRCommand(remote, key);
+    public void pressRemoteKey(final String remoteName, final String key) {
+        this.irClient.pressRemoteKey(remoteName, key);
     }
 
 }

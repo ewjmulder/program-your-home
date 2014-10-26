@@ -24,5 +24,7 @@ public class LightImpl implements Light {
 
     // TODO: add all color, dim, etc properties from last known light state
     // calculate RGB color value: PHUtilities.colorFromXY
+    // Do so according to 'own' chosen domain, like expressed in the API URL's and params, esp:
+    // - param names and ranges should match
 
 }

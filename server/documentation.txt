@@ -1,0 +1,57 @@
+Program Your Home Server / Architecture:
+The server is aware of all the modules that exist for it. A module itself is independent of the server and knows nothing about it.
+As opposed to the plugin architecture, where the server is unaware of the existing plugins, but the plugins know that they 'are' a plugin
+for a certain server. This choise makes sense, since the modules do work completely independent: setting a light to a certain state
+has nothing to do with powering on a TV. That combination only makes sense to the user in the way he or she configured the server
+to provide an activity that combines those states. So the server is dumb with regards to implementation, it only references
+the module api's. But it does know how to translate activity settings to API calls for all of the modules and it does know
+how to define and manage an activity. Also it can provide fine grained access to the individual modules.
+
+One individual module:
+Consists of an implementation of the API of that module. Usually it has one or more getters for the (current) state of the items in
+that module and several ways to perform an action / set a state for those items. These can range from very 'low-level' controls to
+more 'high-level' actions, such as 'ensure this state for that item'
+
+Configuration implementation:
+Both the server (activity) configuration and the internal module configuration are nicest to do in XML according to a strict XSD.
+This will provide 1 common definition (XSD) and has the possibility to have more than 1 UI that enables the user to change the config.
+On the module side, this will concern details about how the module works, on the server side this will contain the activities that
+a user has and what those activities mean for the state of things in a certain module. The XSD cannot contain f.i. light name enumerations
+or remote names enumeration, so those must be 'free' strings. The UI can make these into drop downs, since it can know what the possible
+light and remote names are.
+So the server must also read out and understand the configuration of the modules. For instance, to provide a ... hmm maybe that isn't true,
+no, that shouldn't be true. All info a server needs for proper activity configuration should be accessable through the API of that module.
+For for IR this means that the list of remotes/devices with names should be available, the capabilities they have should also be, but not any
+key mapping or timeout features. So that does mean that for a proper 'type safe' server activity configuration, you must have a running
+server, so it can 'ask' the module API's for meaningful data on the possibilities for the activitities. Manually editing a config XML 'offline'
+is always an option of course, but meaningful server side (of through a client UI) editing only makes sense on a running server (not so weird
+actually, makes sense for most applications. This though, means that there is a dependency between a module config / state and a server config.
+For instance, if you use a remote in an activitity, but at a certain point in time the module does not offer that remote any more,
+the activity becomes invalid. This could be checked upon activating an activity: is the stuff I'd like from the module still possible?
+A certain kind of activity validation, that could be shared between server activity config time and server activity 'runtime' (activation time).
+
+IR module:
+Configuration contains all remotes and their capabilities. For instance: OnOffable, InputSelectable, OutputSelectable, Channellable,
+Playbackable, etc. These need to be mapped to the actual Remote keys that represent them. Furthermore, you should be able to
+provide a timeout that needs to be respected e.g. after a power on. That time is needed for the device to do it's thing and
+be able to receive new commands afterwards.
+Idea: use a naming convention, so you could just say:
+'I'm using the naming convention' without any further mapping. Naming convention should be something like
+'INPUT_...', 'DIGIT_....' (or CHANNEL_...), 'PLAYBACK_PLAY/PAUSE/STOP' etc. Pressing a certain key should still be possible
+as fine grained control. On the Java side these capabilities could have interfaces with button mapping implementations.
+e.g. PowerOnOffable could have powerOn(), powerOff() and powerSwitch() where switch would just 'press' the power button,
+and 'on' and 'off' would use the internal state cache to determine if any and which action is necessary.
+e.g. Channalable would have setChannel(int channel), channelUp(), channelDown()
+e.g. Inputtable would have setInput(String name)
+With regard to WinLIRC data, that should be used to verify if the given config is correct. Also during config, this can
+be a drop down from existing data from conf files and/or running WinLIRC server.
+
+State caching:
+Only modules will cache state! The server will only provide state to clients upon request and just calls all modules state getters at that point.
+The module implementation can decide to reply out of internal cache or do a 'real' refresh. The module will provide an event to the server
+if there is a cache update, so the server can tell the client to refresh it's UI (from that module). Modules will use their state cache to
+handle state update requests in a 'smart' way: not turn on devices that are already on etc.
+
+Client / UI:
+Will get a list of possible activities from the server. Actually more general will get a list of things that it can do, also module specific stuff.
+Most basic client only handles activities (with name/image) in tree structure. Optionally have module specific UI controls.

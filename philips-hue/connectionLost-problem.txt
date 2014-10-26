@@ -1,0 +1,42 @@
+        // Test code that regularly prints debug info
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(500);
+                        final PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
+                        final Field hbTimerField = heartbeatManager.getClass().getDeclaredField("hbTimer");
+                        hbTimerField.setAccessible(true);
+                        final PHHeartbeatTimer heartbeatTimer = (PHHeartbeatTimer) hbTimerField.get(null);
+                        final Field mapField = heartbeatTimer.getClass().getDeclaredField("heartbeatMap");
+                        mapField.setAccessible(true);
+                        final HashMap map = (HashMap) mapField.get(heartbeatTimer);
+                        final PHHeartbeatProcessor heartbeatProcessor = (PHHeartbeatProcessor) ((ArrayList) map.values().iterator().next()).get(0);
+                        final Field retryField = heartbeatProcessor.getClass().getDeclaredField("currentTry");
+                        retryField.setAccessible(true);
+                        final int retryValue = retryField.getInt(heartbeatProcessor);
+                        final Field resumeField = heartbeatProcessor.getClass().getDeclaredField("notifyConnectionResume");
+                        resumeField.setAccessible(true);
+                        final boolean resumeValue = resumeField.getBoolean(heartbeatProcessor);
+
+                        final PHBridgeResourcesCacheImpl cacheImpl = (PHBridgeResourcesCacheImpl) PhilipsHueImpl.this.getBridge().getResourceCache();
+                        final PHBridgeConfiguration bridgeConfig = cacheImpl.getBridgeConfiguration();
+
+                        final String ipAddress = bridgeConfig.getIpAddress();
+                        final String username = bridgeConfig.getUsername();
+                        final String url = "http://" + ipAddress + "/api/" + username + "/lights";
+
+                        final PHHueHttpConnection httpConnection = new PHHueHttpConnection();
+                        final String data = resumeValue ? "No-get-on-status-ok" : httpConnection.getData(url);
+
+                        System.out.println("Retry: " + retryValue + ", resume: " + resumeValue + ", IP address: " + ipAddress
+                                + ", username: " + username + ", data: " + data);
+                        System.out.println("lostCount: " + PhilipsHueImpl.this.sdkListener.lostCount);
+
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();

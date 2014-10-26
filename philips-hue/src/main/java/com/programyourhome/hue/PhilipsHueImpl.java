@@ -31,6 +31,23 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
     // you can easily screw up the inner workings and create weird or unexpected behaviour.
     // Best practice: always create a new LightState object!
 
+    // Problem - solution description
+    //
+    // When running the Philips Hue SDK with heartbeat, it always failed after a few minutes to max half an hour. Every heartbeat
+    // resulted in a connection lost event. The only solution was a reboot of the server.
+    //
+    // The problem seems to be a combination of Java using IPv6 as default since JDK7, and some Windows configuration
+    // preventing IPv6 communication in some cases. This can be because a part of used the software does not support IPv6
+    // at all and the connection will fail every time. This is not the case here, since most of the api requests run without problems.
+    // Also Windows Firewall, Virus scanners, Routers, etc. can interfere and cause problems. Maybe something like that is going on
+    // and after some time an interference happens and subsequent requests in that JVM will fail from that point onwards. Indeed, a reboot
+    // of the server fixes the problem. A workaround that works is setting a VM flag that forces the use of IPv4 over IPv6.
+    // A possible final solution is in the right setup and configuration of the Windows environment. Possibly removing any firewall
+    // rules regarding java executables.
+    // Exception that is causing the problem: java.net.SocketException: Permission denied: connect
+    // Bug report with comments: https://www.java.net/node/703177
+    // JVM arg workaround: -Djava.net.preferIPv4Stack=true
+
     @Autowired
     private SDKListener sdkListener;
 
@@ -39,6 +56,8 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
 
     public PhilipsHueImpl() {
         this.sdk = PHHueSDK.getInstance();
+        // Use this to enable SDK debug logging
+        // PHLog.setSdkLogLevel(PHLog.DEBUG);
         this.accessPoint = new PHAccessPoint();
         // TODO: add to config?
         // TODO: document how to create the user (http://192.168.2.100/debug/clip.html):
@@ -54,20 +73,6 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
         this.sdk.getNotificationManager().registerSDKListener(this.sdkListener);
 
         this.sdk.connect(this.accessPoint);
-
-        // new Thread(new Runnable() {
-        // @Override
-        // public void run() {
-        // try {
-        // Thread.sleep(5000);
-        // } catch (final InterruptedException e) {
-        // }
-        // // PhilipsHueImpl.this.setColor("Bureau", Color.BLUE);
-        // PhilipsHueImpl.this.applyNewState(PhilipsHueImpl.this.createBuilder("Bank")
-        // .colorHueSaturation(37129, 113));
-        //
-        // }
-        // }).start();
         // TODO: proper shutdown, sdk, bridge, heartbeat.
         // heartbeatManager.disableAllHeartbeats(bridge);
     }

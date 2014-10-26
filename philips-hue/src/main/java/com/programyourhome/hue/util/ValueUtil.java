@@ -1,4 +1,4 @@
-package com.programyourhome.hue;
+package com.programyourhome.hue.util;
 
 public class ValueUtil {
 

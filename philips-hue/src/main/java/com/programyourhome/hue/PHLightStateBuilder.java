@@ -7,6 +7,7 @@ import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLight.PHLightColorMode;
 import com.philips.lighting.model.PHLightState;
 import com.programyourhome.hue.model.Mood;
+import com.programyourhome.hue.util.ValueUtil;
 
 /**
  * TODO: Javadoc and explain why to use this and never to use an object gotten from the cache directly! and nore this will always turn the light on.

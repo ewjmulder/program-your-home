@@ -1,0 +1,3 @@
+Actually, WinLIRC data should always be checken on conf files in classpath and it should fail if there is no match.
+Or future: If WinLIRC is not running yet / not having the right config: provide functionality to (auto) stop/start it and
+update it's configuration according to the conf files on the classpath (or config path)

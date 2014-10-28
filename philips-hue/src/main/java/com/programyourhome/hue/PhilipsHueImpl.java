@@ -1,7 +1,10 @@
 package com.programyourhome.hue;
 
 import java.awt.Color;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -10,7 +13,14 @@ import org.springframework.stereotype.Component;
 
 import com.philips.lighting.hue.sdk.PHAccessPoint;
 import com.philips.lighting.hue.sdk.PHHueSDK;
+import com.philips.lighting.hue.sdk.bridge.impl.PHBridgeResourcesCacheImpl;
+import com.philips.lighting.hue.sdk.connection.impl.PHHueHttpConnection;
+import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager;
+import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatProcessor;
+import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatTimer;
+import com.philips.lighting.hue.sdk.utilities.impl.PHLog;
 import com.philips.lighting.model.PHBridge;
+import com.philips.lighting.model.PHBridgeConfiguration;
 import com.philips.lighting.model.PHBridgeResourcesCache;
 import com.philips.lighting.model.PHLight;
 import com.programyourhome.hue.model.Light;
@@ -31,23 +41,6 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
     // you can easily screw up the inner workings and create weird or unexpected behaviour.
     // Best practice: always create a new LightState object!
 
-    // Problem - solution description
-    //
-    // When running the Philips Hue SDK with heartbeat, it always failed after a few minutes to max half an hour. Every heartbeat
-    // resulted in a connection lost event. The only solution was a reboot of the server.
-    //
-    // The problem seems to be a combination of Java using IPv6 as default since JDK7, and some Windows configuration
-    // preventing IPv6 communication in some cases. This can be because a part of used the software does not support IPv6
-    // at all and the connection will fail every time. This is not the case here, since most of the api requests run without problems.
-    // Also Windows Firewall, Virus scanners, Routers, etc. can interfere and cause problems. Maybe something like that is going on
-    // and after some time an interference happens and subsequent requests in that JVM will fail from that point onwards. Indeed, a reboot
-    // of the server fixes the problem. A workaround that works is setting a VM flag that forces the use of IPv4 over IPv6.
-    // A possible final solution is in the right setup and configuration of the Windows environment. Possibly removing any firewall
-    // rules regarding java executables.
-    // Exception that is causing the problem: java.net.SocketException: Permission denied: connect
-    // Bug report with comments: https://www.java.net/node/703177
-    // JVM arg workaround: -Djava.net.preferIPv4Stack=true
-
     @Autowired
     private SDKListener sdkListener;
 
@@ -56,8 +49,7 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
 
     public PhilipsHueImpl() {
         this.sdk = PHHueSDK.getInstance();
-        // Use this to enable SDK debug logging
-        // PHLog.setSdkLogLevel(PHLog.DEBUG);
+        PHLog.setSdkLogLevel(PHLog.DEBUG);
         this.accessPoint = new PHAccessPoint();
         // TODO: add to config?
         // TODO: document how to create the user (http://192.168.2.100/debug/clip.html):
@@ -73,6 +65,58 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
         this.sdk.getNotificationManager().registerSDKListener(this.sdkListener);
 
         this.sdk.connect(this.accessPoint);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(500);
+                        final PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
+                        final Field hbTimerField = heartbeatManager.getClass().getDeclaredField("hbTimer");
+                        hbTimerField.setAccessible(true);
+                        final PHHeartbeatTimer heartbeatTimer = (PHHeartbeatTimer) hbTimerField.get(null);
+                        final Field mapField = heartbeatTimer.getClass().getDeclaredField("heartbeatMap");
+                        mapField.setAccessible(true);
+                        final HashMap map = (HashMap) mapField.get(heartbeatTimer);
+                        final PHHeartbeatProcessor heartbeatProcessor = (PHHeartbeatProcessor) ((ArrayList) map.values().iterator().next()).get(0);
+                        final Field retryField = heartbeatProcessor.getClass().getDeclaredField("currentTry");
+                        retryField.setAccessible(true);
+                        final int retryValue = retryField.getInt(heartbeatProcessor);
+                        final Field resumeField = heartbeatProcessor.getClass().getDeclaredField("notifyConnectionResume");
+                        resumeField.setAccessible(true);
+                        final boolean resumeValue = resumeField.getBoolean(heartbeatProcessor);
+
+                        final PHBridgeResourcesCacheImpl cacheImpl = (PHBridgeResourcesCacheImpl) PhilipsHueImpl.this.getBridge().getResourceCache();
+                        final PHBridgeConfiguration bridgeConfig = cacheImpl.getBridgeConfiguration();
+
+                        final String ipAddress = bridgeConfig.getIpAddress();
+                        final String username = bridgeConfig.getUsername();
+                        final String url = "http://" + ipAddress + "/api/" + username + "/lights";
+
+                        final PHHueHttpConnection httpConnection = new PHHueHttpConnection();
+                        final String data = resumeValue ? "No-get-on-status-ok" : httpConnection.getData(url);
+
+                        // Test result: after first connection lost, no more HTTP requests are sent!
+                        // Conclusion: bug/status issue inside PHHueHttpConnectionImpl and not a Bridge issue!
+                        // But maybe not: question is: are the last requests in wireshark the last requests from the SDK while everything was working or already
+                        // when a null was received?
+
+                        // Java bug?
+                        // https://www.java.net/node/703177
+                        // -Djava.net.preferIPv4Stack=true in VMargs
+                        // Also seems to be Windows Firewall related, try to set all Java exes to allow all traffic
+
+                        System.out.println("Retry: " + retryValue + ", resume: " + resumeValue + ", IP address: " + ipAddress
+                                + ", username: " + username + ", data: " + data);
+                        System.out.println("lostCount: " + PhilipsHueImpl.this.sdkListener.lostCount);
+
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
         // TODO: proper shutdown, sdk, bridge, heartbeat.
         // heartbeatManager.disableAllHeartbeats(bridge);
     }

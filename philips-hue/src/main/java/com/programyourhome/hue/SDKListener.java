@@ -3,6 +3,7 @@ package com.programyourhome.hue;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.philips.lighting.hue.listener.PHLightListener;
@@ -15,6 +16,7 @@ import com.philips.lighting.model.PHBridgeResource;
 import com.philips.lighting.model.PHHueError;
 import com.philips.lighting.model.PHHueParsingError;
 import com.philips.lighting.model.PHLight;
+import com.philips.lighting.model.PHLightState;
 
 @Component
 public class SDKListener implements PHSDKListener, PHLightListener {
@@ -74,18 +76,57 @@ public class SDKListener implements PHSDKListener, PHLightListener {
         System.out.println("onAuthenticationRequired: " + accessPoint);
     }
 
+    private PHLightState stateBeforeEvent1;
+    private PHLightState stateBeforeEvent2;
+    private PHLightState stateBeforeEvent3;
+    private PHLightState stateBeforeEvent4;
+    private PHLightState stateBeforeEvent5;
+    private PHLightState stateBeforeEvent6;
+    private PHLightState stateBeforeEvent7;
+    private PHLightState stateBeforeEvent8;
+
     @Override
     public void onBridgeConnected(final PHBridge bridge) {
         System.out.println("onBridgeConnected: " + bridge);
         this.sdk.setSelectedBridge(bridge);
         // TODO: Add other heartbeats when / if necessary
-        // this.sdk.enableHeartbeat(bridge, PHHueSDK.HB_INTERVAL);
         // TODO: check everyhue.com forum for replies on javadoc and error message bug report
         // TODO: Pick nice value for lights heartbeat (250 seems ok, 4 timer per second updae should be enough)
         final PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
         heartbeatManager.enableLightsHeartbeat(bridge, 100);
+        // this.sdk.enableHeartbeat(bridge, PHHueSDK.HB_INTERVAL);
+
+        this.stateBeforeEvent1 = new PHLightState(bridge.getResourceCache().getLights().get("1").getLastKnownLightState());
+        this.stateBeforeEvent2 = new PHLightState(bridge.getResourceCache().getLights().get("2").getLastKnownLightState());
+        this.stateBeforeEvent3 = new PHLightState(bridge.getResourceCache().getLights().get("3").getLastKnownLightState());
+        this.stateBeforeEvent4 = new PHLightState(bridge.getResourceCache().getLights().get("4").getLastKnownLightState());
+        this.stateBeforeEvent5 = new PHLightState(bridge.getResourceCache().getLights().get("5").getLastKnownLightState());
+        this.stateBeforeEvent6 = new PHLightState(bridge.getResourceCache().getLights().get("6").getLastKnownLightState());
+        this.stateBeforeEvent7 = new PHLightState(bridge.getResourceCache().getLights().get("7").getLastKnownLightState());
+        this.stateBeforeEvent8 = new PHLightState(bridge.getResourceCache().getLights().get("8").getLastKnownLightState());
 
         this.bridge = bridge;
+
+        // This shows the cache state is actually successfully updated, even though the cacheupdate heartbeat events are coming in much slower
+        // or not at all?
+        // new Thread(new Runnable() {
+        // @Override
+        // public void run() {
+        // while (true) {
+        // final boolean on = SDKListener.this.sdk.getSelectedBridge().getResourceCache().getLights().get("3").getLastKnownLightState().isOn();
+        // final int bri = SDKListener.this.sdk.getSelectedBridge().getResourceCache().getLights().get("3").getLastKnownLightState().getBrightness();
+        // System.out.println(on + ", state: "
+        // + SDKListener.this.sdk.getSelectedBridge().getResourceCache().getLights().get("3").getLastKnownLightState().toString() +
+        // "  light: "
+        // + SDKListener.this.sdk.getSelectedBridge().getResourceCache().getLights().get("3").hashCode());
+        // try {
+        // Thread.sleep(200);
+        // } catch (final InterruptedException e) {
+        // }
+        // }
+        // }
+        // }).start();
+
     }
 
     @Override
@@ -96,9 +137,50 @@ public class SDKListener implements PHSDKListener, PHLightListener {
         // System.out.println("Lights Cache Updated ");
         // }
         // System.out.println("onCacheUpdated: " + cacheNotificationsList + ", " + bridge);
+
+        System.out.println("Previous state: 1 " + this.toString(this.stateBeforeEvent1));
+        System.out.println("New state:      1 " + this.toString(bridge.getResourceCache().getLights().get("1").getLastKnownLightState()));
+        System.out.println("Previous state: 2 " + this.toString(this.stateBeforeEvent2));
+        System.out.println("New state:      2 " + this.toString(bridge.getResourceCache().getLights().get("2").getLastKnownLightState()));
+        System.out.println("Previous state: 3 " + this.toString(this.stateBeforeEvent3));
+        System.out.println("New state:      3 " + this.toString(bridge.getResourceCache().getLights().get("3").getLastKnownLightState()));
+        System.out.println("Previous state: 4 " + this.toString(this.stateBeforeEvent4));
+        System.out.println("New state:      4 " + this.toString(bridge.getResourceCache().getLights().get("4").getLastKnownLightState()));
+        System.out.println("Previous state: 5 " + this.toString(this.stateBeforeEvent5));
+        System.out.println("New state:      5 " + this.toString(bridge.getResourceCache().getLights().get("5").getLastKnownLightState()));
+        System.out.println("Previous state: 6 " + this.toString(this.stateBeforeEvent6));
+        System.out.println("New state:      6 " + this.toString(bridge.getResourceCache().getLights().get("6").getLastKnownLightState()));
+        System.out.println("Previous state: 7 " + this.toString(this.stateBeforeEvent7));
+        System.out.println("New state:      7 " + this.toString(bridge.getResourceCache().getLights().get("7").getLastKnownLightState()));
+        System.out.println("Previous state: 8 " + this.toString(this.stateBeforeEvent8));
+        System.out.println("New state:      8 " + this.toString(bridge.getResourceCache().getLights().get("8").getLastKnownLightState()));
+        System.out.println();
+        this.stateBeforeEvent1 = new PHLightState(bridge.getResourceCache().getLights().get("1").getLastKnownLightState());
+        this.stateBeforeEvent2 = new PHLightState(bridge.getResourceCache().getLights().get("2").getLastKnownLightState());
+        this.stateBeforeEvent3 = new PHLightState(bridge.getResourceCache().getLights().get("3").getLastKnownLightState());
+        this.stateBeforeEvent4 = new PHLightState(bridge.getResourceCache().getLights().get("4").getLastKnownLightState());
+        this.stateBeforeEvent5 = new PHLightState(bridge.getResourceCache().getLights().get("5").getLastKnownLightState());
+        this.stateBeforeEvent6 = new PHLightState(bridge.getResourceCache().getLights().get("6").getLastKnownLightState());
+        this.stateBeforeEvent7 = new PHLightState(bridge.getResourceCache().getLights().get("7").getLastKnownLightState());
+        this.stateBeforeEvent8 = new PHLightState(bridge.getResourceCache().getLights().get("8").getLastKnownLightState());
     }
 
     private PHBridge bridge;
+
+    private String toString(final PHLightState state) {
+        return "On: " + StringUtils.leftPad("" + state.isOn(), 5) +
+                ", bri: " + StringUtils.leftPad("" + state.getBrightness(), 3) +
+                ", cm: " + StringUtils.leftPad("" + state.getColorMode(), 25) +
+                ", hue: " + StringUtils.leftPad("" + state.getHue(), 5) +
+                ", sat: " + StringUtils.leftPad("" + state.getSaturation(), 3) +
+                ", x: " + StringUtils.leftPad("" + state.getX(), 6) +
+                ", y: " + StringUtils.leftPad("" + state.getY(), 6) +
+                ", ct: " + StringUtils.leftPad("" + state.getCt(), 3) +
+                ", reach: " + StringUtils.leftPad("" + state.isReachable(), 5) +
+                ", trans: " + StringUtils.leftPad("" + state.getTransitionTime(), 4) +
+                ", alert: " + StringUtils.leftPad("" + state.getAlertMode(), 10) +
+                ", effect: " + StringUtils.leftPad("" + state.getEffectMode(), 10);
+    }
 
     @Override
     public void onReceivingLightDetails(final PHLight paramPHLight) {
@@ -125,14 +207,21 @@ public class SDKListener implements PHSDKListener, PHLightListener {
         System.out.println("onSuccess");
     }
 
+    public int lostCount = 0;
+
     @Override
     public void onConnectionLost(final PHAccessPoint accessPoint) {
-        // Bridge disconnected / HTTP request to bridge failed
+        // Bridge disconnected
         System.out.println("onConnectionLost: " + accessPoint);
-        // The previous trouble with this event is solved (or at least 'workarounded').
-        // It still seems to happen once in a while, but after that the normal processing continues with successful connections.
-        // TODO: when receiving this event, we could start a timer that checks if this event is thrown again (several times) within
-        // a certain timespan. If so, reboot the API to try to fix the problem and/or report this failure back to the main server (event).
+        // TODO: This happens quite a lot, after the server is running for a while. Looking at the source code, this is probably caused by
+        // the bridge not responding (fast enough) twice (does not have to be in a row). Probably the easiest fix is just to reconnect upon
+        // a connection lost.
+        // BTW: Not resetting the nrRetries to 0 in the Heartbeat class is probably a bug!
+
+        this.lostCount++;
+        if (this.lostCount > 30) {
+            System.exit(-1);
+        }
     }
 
     @Override
@@ -152,5 +241,82 @@ public class SDKListener implements PHSDKListener, PHLightListener {
         // Any JSON parsing errors are returned here. Typically your program should never return these.
         System.out.println("onParsingErrors: " + parsingErrorsList);
     }
+
+    // TODO: Remove this old code after it's no longer an interesting resource.
+    // while (true) {
+    // for (PHLight light : bridge.getResourceCache().getLights().values()) {
+    // if (new Random().nextDouble() > 0.5) {
+
+    // TODO: Hoe kunnen we living color lights aansturen anders dan met scenes?
+    // TODO: source van de jars erbij pakken met JD-Eclipse: http://jd.benow.ca/
+
+    // System.out.println("Update light: " + light.getName());
+    // System.out.println("brightness: " + light.getLastKnownLightState().getBrightness());
+    // System.out.println("ct: " + light.getLastKnownLightState().getCt());
+    // System.out.println("hue: " + light.getLastKnownLightState().getHue());
+    // System.out.println("sat: " + light.getLastKnownLightState().getSaturation());
+    // System.out.println("color mode: " + light.getLastKnownLightState().getColorMode());
+    // PHLightState state = new PHLightState(light.getLastKnownLightState());
+    // state.setOn(!state.isOn());
+    // state.setColorMode(PHLightColorMode.COLORMODE_HUE_SATURATION);
+    // bridge.updateLightState(light, state, new PHLightListener() {
+    //
+    // public void onSuccess() {
+    // System.out.println("onSuccess");
+    // }
+    // public void onStateUpdate(Hashtable<String, String> arg0,
+    // List<PHHueError> arg1) {
+    // System.out.println("onStateUpdate");
+    // }
+    // public void onError(int arg0, String arg1) {
+    // System.out.println("onError");
+    // System.out.println("arg0: " + arg0);
+    // System.out.println("arg1: " + arg1);
+    // }
+    // @Override
+    // public void onReceivingLightDetails(PHLight light) {
+    // System.out.println("onReceivingLightDetails");
+    // }
+    // @Override
+    // public void onSearchComplete() {
+    // System.out.println("onSearchComplete");
+    // }
+    // });
+    // }
+    // try { Thread.sleep(500); } catch (InterruptedException e) {}
+    // }
+    // }
+
+    // bridge. AllScenes(new PHSceneListener() {
+    //
+    // public void onSuccess() {
+    // // TODO Auto-generated method stub
+    //
+    // }
+    //
+    // public void onStateUpdate(Hashtable<String, String> arg0,
+    // List<PHHueError> arg1) {
+    // // TODO Auto-generated method stub
+    //
+    // }
+    //
+    // public void onError(int arg0, String arg1) {
+    // // TODO Auto-generated method stub
+    //
+    // }
+    //
+    // @Override
+    // public void onScenesReceived(List<PHScene> sceneList) {
+    // for (PHScene scene : sceneList) {
+    // try {
+    // System.out.println(scene.getName());
+    // bridge.activateScene(scene.getSceneIdentifier(), "1", null);
+    // try { Thread.sleep(2000); } catch (InterruptedException e) {}
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // }
+    // }
+    // });
 
 }

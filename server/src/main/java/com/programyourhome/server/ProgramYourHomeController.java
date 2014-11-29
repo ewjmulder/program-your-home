@@ -1,6 +1,7 @@
 package com.programyourhome.server;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.programyourhome.activities.model.Activity;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Light;
 import com.programyourhome.hue.model.Mood;
@@ -44,7 +46,7 @@ public class ProgramYourHomeController {
     @Autowired
     private PhilipsHue philipsHue;
 
-    @Autowired
+    // @Autowired
     private InfraRed infraRed;
 
     @RequestMapping("/hue/lights")
@@ -121,8 +123,58 @@ public class ProgramYourHomeController {
     }
 
     @RequestMapping("/ir/remotes/{name}/{key}")
-    public void getRemote(@PathVariable("name") final String name, @PathVariable("key") final String key) {
+    public void pressRemoteKey(@PathVariable("name") final String name, @PathVariable("key") final String key) {
         this.infraRed.pressRemoteKey(name, key);
+    }
+
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // or have some way to split this Class? It'll become really big!
+    // TODO: Result values for action method calls with info about success / error / message / overrides / etc
+
+    // TODO: put activities in seperate module?
+    @RequestMapping("/main/activities")
+    public Collection<Activity> getActivities() {
+        // TODO: Get from some kind of config
+        return Arrays.asList(
+                new Activity("Watch TV", "Watch TV with relaxed light"),
+                new Activity("Music Kitchen", "Listen to music in the kitchen"));
+    }
+
+    @RequestMapping("/main/activities/{name}/start")
+    public void startActivity(@PathVariable("name") final String name) {
+        // TODO: Get from some kind of config / script
+        // TODO: Stop activities that conflict
+        if (name.equals("Watch TV")) {
+            this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
+            this.sleep(200);
+            this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
+            this.sleep(200);
+            this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
+            this.sleep(4000);
+            this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "INPUT_HDMI1");
+        }
+    }
+
+    @RequestMapping("/main/activities/{name}/stop")
+    public void stopActivity(@PathVariable("name") final String name) {
+        // TODO: Get from some kind of config / script
+        // TODO: is that activity actually running?
+        if (name.equals("Watch TV")) {
+            this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
+            this.sleep(200);
+            this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
+            this.sleep(200);
+            this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
+        }
+    }
+
+    private void sleep(final int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (final InterruptedException e) {
+        }
     }
 
 }

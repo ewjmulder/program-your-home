@@ -18,7 +18,6 @@ import com.philips.lighting.hue.sdk.connection.impl.PHHueHttpConnection;
 import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager;
 import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatProcessor;
 import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatTimer;
-import com.philips.lighting.hue.sdk.utilities.impl.PHLog;
 import com.philips.lighting.model.PHBridge;
 import com.philips.lighting.model.PHBridgeConfiguration;
 import com.philips.lighting.model.PHBridgeResourcesCache;
@@ -49,7 +48,7 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
 
     public PhilipsHueImpl() {
         this.sdk = PHHueSDK.getInstance();
-        PHLog.setSdkLogLevel(PHLog.DEBUG);
+        // PHLog.setSdkLogLevel(PHLog.DEBUG);
         this.accessPoint = new PHAccessPoint();
         // TODO: add to config?
         // TODO: document how to create the user (http://192.168.2.100/debug/clip.html):
@@ -107,9 +106,9 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
                         // -Djava.net.preferIPv4Stack=true in VMargs
                         // Also seems to be Windows Firewall related, try to set all Java exes to allow all traffic
 
-                        System.out.println("Retry: " + retryValue + ", resume: " + resumeValue + ", IP address: " + ipAddress
-                                + ", username: " + username + ", data: " + data);
-                        System.out.println("lostCount: " + PhilipsHueImpl.this.sdkListener.lostCount);
+                        // System.out.println("Retry: " + retryValue + ", resume: " + resumeValue + ", IP address: " + ipAddress
+                        // + ", username: " + username + ", data: " + data);
+                        // System.out.println("lostCount: " + PhilipsHueImpl.this.sdkListener.lostCount);
 
                     } catch (final Exception e) {
                         e.printStackTrace();

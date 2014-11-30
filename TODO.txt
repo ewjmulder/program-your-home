@@ -1,3 +1,23 @@
 Technical / architecture TODO:
 - Add checkstyle plugin / eclipse settings for lots of stuff including javadoc
-- Set JAVA_HOME back to Java 8 after Scala Coursera is done
+X Set JAVA_HOME back to Java 8 after Scala Coursera is done
+
+- Naming scheme:
+
+Module names and abbreviations:
+Sync usage of these over the whole of PYH:
+Full name in documentation (Javadoc etc), ...
+Module id in maven module names, XML config tags, ...
+Abbreviation in package names, XML namespace declarations, ...
+
+
+Full name         - module id         - abbreviation
+
+Server            - server            - server
+Philips Hue       - philips-hue       - hue
+Infrared          - infra-red         - ir
+Eneco Toon        - eneco-toon        - toon
+Spotify Music     - spotify-music     - spotify
+Sound Interaction - sound-interaction - sound
+
+Possible future modules: Netflix, Uitzending Gemist, Shopping list / 'voorraadbeheer' / ...

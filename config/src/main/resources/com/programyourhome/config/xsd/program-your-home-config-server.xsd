@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://programyourhome.com/config" targetNamespace="http://programyourhome.com/config"
+    elementFormDefault="qualified">
+    <xsd:include schemaLocation="modules/program-your-home-config-philips-hue.xsd" />
+    <xsd:include schemaLocation="modules/program-your-home-config-infra-red.xsd" />
+    <xsd:element name="config-server">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="activities">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="activity" type="activity" minOccurs="0" maxOccurs="unbounded" />
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:complexType name="activity">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="icon" minOccurs="0" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The file name of the icon image, located in the icons folder in the config root
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="modules">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="philips-hue" type="config-philips-hue" minOccurs="0" />
+                        <xsd:element name="infra-red" type="config-infra-red" minOccurs="0" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

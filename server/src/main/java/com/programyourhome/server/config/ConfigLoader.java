@@ -24,10 +24,6 @@ public class ConfigLoader {
     private static final String ICON_BASE_PATH = CONFIG_BASE_PATH + "icons/";
     private static final String XML_FILENAME = "program-your-home-config-server.xml";
 
-    public static void main(final String[] args) throws Exception {
-        final ServerConfig serverConfig = new ConfigLoader().loadConfig();
-    }
-
     @Autowired
     private PhilipsHue philipsHue;
 

@@ -3,6 +3,7 @@
     <activities>
         <activity>
             <name>Watch TV</name>
+            <description>Watch Live TV channels, under a relaxing light.</description>
             <icon>television.png</icon>
             <modules>
                 <philipsHue>
@@ -28,6 +29,7 @@
         </activity>
         <activity>
             <name>Go to sleep</name>
+            <description>Turn off any running media devices. Slowly start dimming the lights downstairs. Turn off the heater.</description>
             <icon>night.png</icon>
             <modules>
             </modules>

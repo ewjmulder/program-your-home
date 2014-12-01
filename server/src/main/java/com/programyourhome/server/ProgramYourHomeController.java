@@ -1,8 +1,10 @@
 package com.programyourhome.server;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,12 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.activities.model.Activity;
+import com.programyourhome.config.ServerConfig;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Light;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.model.Plug;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.ir.model.Remote;
+import com.programyourhome.server.config.ConfigLoader;
 
 @RestController
 public class ProgramYourHomeController {
@@ -48,6 +52,15 @@ public class ProgramYourHomeController {
 
     // @Autowired
     private InfraRed infraRed;
+
+    @Autowired
+    private ConfigLoader configLoader;
+    private ServerConfig serverConfig;
+
+    @PostConstruct
+    private void init() {
+        this.serverConfig = this.configLoader.loadConfig();
+    }
 
     @RequestMapping("/hue/lights")
     // TODO: filtering on known plug-lights on server side with config
@@ -136,10 +149,9 @@ public class ProgramYourHomeController {
     // TODO: put activities in seperate module?
     @RequestMapping("/main/activities")
     public Collection<Activity> getActivities() {
-        // TODO: Get from some kind of config
-        return Arrays.asList(
-                new Activity("Watch TV", "Watch TV with relaxed light"),
-                new Activity("Music Kitchen", "Listen to music in the kitchen"));
+        return this.serverConfig.getActivities().stream()
+                .map(activity -> new Activity(activity.getName(), "TODO: description"))
+                .collect(Collectors.toList());
     }
 
     @RequestMapping("/main/activities/{name}/start")

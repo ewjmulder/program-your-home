@@ -1,0 +1,8 @@
+- Move from inside player app to some SDK.
+  - At the moment only the Android SDK seems like a good candidate (since Libspotify is C-based)
+  - So how to run an Android app inside a windows machine?
+    - Read this and try out: http://lifehacker.com/how-to-run-android-apps-inside-chrome-on-any-desktop-op-1637564101
+      - First try the normal Spotify app on it, then create your own to run here
+    - Also a nice thing to test: take the spotify SDK jar and use and run it inside a 'normal' JDK. Probably fails though, since
+      Android specific classes are expected.
+

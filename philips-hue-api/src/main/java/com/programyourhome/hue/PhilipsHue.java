@@ -67,16 +67,16 @@ public interface PhilipsHue {
     public void turnOffPlug(String plugName);
 
     /**
-     * Dim this light to the indicated fraction [0,1].
+     * Dim this light to the indicated basis points [0, 10000].
      * Dimming to 0 is possible, this is not the same as off.
-     * Dimming to 1 means setting the light to it's maximum capacity.
+     * Dimming to 10000 means setting the light to it's maximum capacity.
      *
      * Note: if this light is currently off, it will be turned on.
      *
      * @param lightName the name of the light
-     * @param dimFraction the dimming fraction, a decimal number between 0 (inclusive) and 1 (inclusive)
+     * @param dimBasisPoints the dimming basis points, an integer between 0 (inclusive) and 10000 (inclusive)
      */
-    public void dim(String lightName, double dimFraction);
+    public void dim(String lightName, int dimBasisPoints);
 
     /**
      * Set the color of this light to the indicated color, defined with RGB values.
@@ -106,29 +106,29 @@ public interface PhilipsHue {
     public void setColorXY(String lightName, float x, float y);
 
     /**
-     * Set the color of this light to the specified hue and saturation fractions [0, 1].
-     * A hue of 0 translates to an internal value of 0 and 1 translates to 65535. This in turn is translated
+     * Set the color of this light to the specified hue and saturation basis points [0, 10000].
+     * A hue of 0 translates to an internal value of 0 and 10000 translates to 65535. This in turn is translated
      * to a specific 'base' color with that hue value, see also http://en.wikipedia.org/wiki/Hue.
-     * A saturation of 0 means the most 'white' (neutral) color, while 1 means the most intense, saturated color.
+     * A saturation of 0 means the most 'white' (neutral) color, while 10000 means the most intense, saturated color.
      *
      * Note: if this light is currently off, it will be turned on.
      *
      * @param lightName the name of the light
-     * @param hueFraction the hue fraction, a decimal number between 0 (inclusive) and 1 (inclusive)
-     * @param saturationFraction the saturation fraction, a decimal number between 0 (inclusive) and 1 (inclusive)
+     * @param hueBasisPoints the hue basis points, an integer between 0 (inclusive) and 10000 (inclusive)
+     * @param saturationBasisPoints the saturation basis points, an integer between 0 (inclusive) and 10000 (inclusive)
      */
-    public void setColorHueSaturation(String lightName, double hueFraction, double saturationFraction);
+    public void setColorHueSaturation(String lightName, int hueBasisPoints, int saturationBasisPoints);
 
     /**
-     * Set the color temperature of this light to the specified fraction [0, 1] where 0 is the coldest and 1 is the warmest possible color.
+     * Set the color temperature of this light to the specified basis points [0, 10000] where 0 is the coldest and 10000 is the warmest possible color.
      * This will translate (linearly) to an amount of mirek (http://en.wikipedia.org/wiki/Mired) in the range of 153 (coolest) to 500 (warmest).
      *
      * Note: if this light is currently off, it will be turned on.
      *
      * @param lightName the name of the light
-     * @param temperatureFraction the temperature fraction, a decimal number between 0 (inclusive) and 1 (inclusive)
+     * @param temperatureBasisPoints the temperature basis points, an integer between 0 (inclusive) and 10000 (inclusive)
      */
-    public void setColorTemperature(String lightName, double temperatureFraction);
+    public void setColorTemperature(String lightName, int temperatureBasisPoints);
 
     /**
      * Set the mood of this light to the indicated mood.
@@ -148,7 +148,7 @@ public interface PhilipsHue {
      * @see dim
      * @see setColorRGB
      */
-    public void dimToColorRGB(String lightName, double dimFraction, Color color);
+    public void dimToColorRGB(String lightName, int dimBasisPoints, Color color);
 
     /**
      * Combination of dimming the light and setting it's color XY.
@@ -158,7 +158,7 @@ public interface PhilipsHue {
      * @see dim
      * @see setColorXY
      */
-    public void dimToColorXY(String lightName, double dimFraction, float x, float y);
+    public void dimToColorXY(String lightName, int dimBasisPoints, float x, float y);
 
     /**
      * Combination of dimming the light and setting it's color hue saturation.
@@ -168,7 +168,7 @@ public interface PhilipsHue {
      * @see dim
      * @see setColorHueSaturation
      */
-    public void dimToColorHueSaturation(String lightName, double dimFraction, double hueFraction, double saturationFraction);
+    public void dimToColorHueSaturation(String lightName, int dimBasisPoints, int hueBasisPoints, int saturationBasisPoints);
 
     /**
      * Combination of dimming the light and setting it's color temperature.
@@ -178,7 +178,7 @@ public interface PhilipsHue {
      * @see dim
      * @see setColorTemperature
      */
-    public void dimToColorTemperature(String lightName, double dimFraction, double temperatureFraction);
+    public void dimToColorTemperature(String lightName, int dimBasisPoints, int temperatureBasisPoints);
 
     /**
      * Combination of dimming the light and setting it's mood.
@@ -188,6 +188,6 @@ public interface PhilipsHue {
      * @see dim
      * @see setMood
      */
-    public void dimToMood(String lightName, double dimFraction, Mood mood);
+    public void dimToMood(String lightName, int dimBasisPoints, Mood mood);
 
 }

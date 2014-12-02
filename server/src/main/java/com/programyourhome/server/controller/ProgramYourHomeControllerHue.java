@@ -44,10 +44,10 @@ public class ProgramYourHomeControllerHue extends AbstractProgramYourHomeControl
         this.philipsHue.turnOffLight(name);
     }
 
-    @RequestMapping("lights/{name}/dim/{dim:[0-9\\.]+}")
+    @RequestMapping("lights/{name}/dim/{dim:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void dimLight(@PathVariable("name") final String name, @PathVariable("dim") final double dimFraction) {
-        this.philipsHue.dim(name, dimFraction);
+    public void dimLight(@PathVariable("name") final String name, @PathVariable("dim") final int dimBasisPoints) {
+        this.philipsHue.dim(name, dimBasisPoints);
     }
 
     @RequestMapping("lights/{name}/colorRGB/{red:[0-9]+},{green:[0-9]+},{blue:[0-9]+}")
@@ -63,17 +63,17 @@ public class ProgramYourHomeControllerHue extends AbstractProgramYourHomeControl
         this.philipsHue.setColorXY(name, x, y);
     }
 
-    @RequestMapping("lights/{name}/colorHueSaturation/{hue:[0-9\\.]},{saturation:[0-9\\.]}")
+    @RequestMapping("lights/{name}/colorHueSaturation/{hue:[0-9]+},{saturation:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void setColorHueSaturation(@PathVariable("name") final String name, @PathVariable("hue") final double hueFraction,
-            @PathVariable("saturation") final double saturationFraction) {
-        this.philipsHue.setColorHueSaturation(name, hueFraction, saturationFraction);
+    public void setColorHueSaturation(@PathVariable("name") final String name, @PathVariable("hue") final int hueBasisPoints,
+            @PathVariable("saturation") final int saturationBasisPoints) {
+        this.philipsHue.setColorHueSaturation(name, hueBasisPoints, saturationBasisPoints);
     }
 
-    @RequestMapping("lights/{name}/colorTemperature/{temperature:[0-9\\.]+}")
+    @RequestMapping("lights/{name}/colorTemperature/{temperature:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void setColorTemperature(@PathVariable("name") final String name, @PathVariable("temperature") final double temperatureFraction) {
-        this.philipsHue.setColorTemperature(name, temperatureFraction);
+    public void setColorTemperature(@PathVariable("name") final String name, @PathVariable("temperature") final int temperatureBasisPoints) {
+        this.philipsHue.setColorTemperature(name, temperatureBasisPoints);
     }
 
     @RequestMapping("lights/{name}/mood/{moodName}")

@@ -196,9 +196,9 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
     }
 
     @Override
-    public void dim(final String lightName, final double dimFraction) {
+    public void dim(final String lightName, final int dimBasisPoints) {
         this.applyNewState(this.createBuilder(lightName)
-                .dim(dimFraction));
+                .dim(dimBasisPoints));
     }
 
     @Override
@@ -220,49 +220,49 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
     }
 
     @Override
-    public void setColorHueSaturation(final String lightName, final double hueFraction, final double saturationFraction) {
+    public void setColorHueSaturation(final String lightName, final int hueBasisPoints, final int saturationBasisPoints) {
         this.applyNewState(this.createBuilder(lightName)
-                .colorHueSaturation(hueFraction, saturationFraction));
+                .colorHueSaturation(hueBasisPoints, saturationBasisPoints));
     }
 
     @Override
-    public void setColorTemperature(final String lightName, final double temperatureFraction) {
+    public void setColorTemperature(final String lightName, final int temperatureBasisPoints) {
         this.applyNewState(this.createBuilder(lightName)
-                .colorTemperature(temperatureFraction));
+                .colorTemperature(temperatureBasisPoints));
     }
 
     @Override
-    public void dimToColorRGB(final String lightName, final double dimFraction, final Color color) {
+    public void dimToColorRGB(final String lightName, final int dimBasisPoints, final Color color) {
         this.applyNewState(this.createBuilder(lightName)
-                .dim(dimFraction)
+                .dim(dimBasisPoints)
                 .colorRGB(color));
     }
 
     @Override
-    public void dimToColorXY(final String lightName, final double dimFraction, final float x, final float y) {
+    public void dimToColorXY(final String lightName, final int dimBasisPoints, final float x, final float y) {
         this.applyNewState(this.createBuilder(lightName)
-                .dim(dimFraction)
+                .dim(dimBasisPoints)
                 .colorXY(x, y));
     }
 
     @Override
-    public void dimToColorHueSaturation(final String lightName, final double dimFraction, final double hueFraction, final double saturationFraction) {
+    public void dimToColorHueSaturation(final String lightName, final int dimBasisPoints, final int hueBasisPoints, final int saturationBasisPoints) {
         this.applyNewState(this.createBuilder(lightName)
-                .dim(dimFraction)
-                .colorHueSaturation(hueFraction, saturationFraction));
+                .dim(dimBasisPoints)
+                .colorHueSaturation(hueBasisPoints, saturationBasisPoints));
     }
 
     @Override
-    public void dimToColorTemperature(final String lightName, final double dimFraction, final double temperatureFraction) {
+    public void dimToColorTemperature(final String lightName, final int dimBasisPoints, final int temperatureBasisPoints) {
         this.applyNewState(this.createBuilder(lightName)
-                .dim(dimFraction)
-                .colorTemperature(temperatureFraction));
+                .dim(dimBasisPoints)
+                .colorTemperature(temperatureBasisPoints));
     }
 
     @Override
-    public void dimToMood(final String lightName, final double dimFraction, final Mood mood) {
+    public void dimToMood(final String lightName, final int dimBasisPoints, final Mood mood) {
         this.applyNewState(this.createBuilder(lightName)
-                .dim(dimFraction)
+                .dim(dimBasisPoints)
                 .mood(mood));
     }
 

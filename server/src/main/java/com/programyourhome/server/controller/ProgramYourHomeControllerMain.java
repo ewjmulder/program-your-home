@@ -1,6 +1,7 @@
 package com.programyourhome.server.controller;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.programyourhome.activities.model.Activity;
+import com.programyourhome.activities.model.PyhActivity;
+import com.programyourhome.config.Activity;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
+import com.programyourhome.server.activities.ActivityCenter;
 
 @RestController
 @RequestMapping("main")
@@ -47,41 +50,62 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     // @Autowired
     private InfraRed infraRed;
 
+    @Autowired
+    private ActivityCenter activityCenter;
+
     // TODO: put activities in seperate module?
     @RequestMapping("activities")
-    public Collection<Activity> getActivities() {
-        return this.getServerConfig().getActivities().stream()
-                .map(activity -> new Activity(activity.getName(), activity.getDescription(), "http://192.168.2.28:3737/img/icons/" + activity.getIcon()))
+    public Collection<PyhActivity> getActivities() {
+        return this
+                .getServerConfig()
+                .getActivities()
+                .stream()
+                .map(activity -> new PyhActivity(activity.getId(), activity.getName(), activity.getDescription(), "http://192.168.2.28:3737/img/icons/"
+                        + activity.getIcon()))
                 .collect(Collectors.toList());
     }
 
-    @RequestMapping("activities/{name}/start")
-    public void startActivity(@PathVariable("name") final String name) {
-        // TODO: Get from some kind of config / script
-        // TODO: Stop activities that conflict
-        if (name.equals("Watch TV")) {
-            this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
-            this.sleep(200);
-            this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
-            this.sleep(200);
-            this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
-            this.sleep(4000);
-            this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "INPUT_HDMI1");
+    @RequestMapping("activities/{id}/start")
+    public void startActivity(@PathVariable("id") final int id) {
+        final Optional<Activity> activity = this.getActivity(id);
+        if (!activity.isPresent()) {
+            // TODO: error 'page'
+            throw new IllegalArgumentException("Activity: '" + id + "' not found in config.");
+        } else {
+            this.activityCenter.startActivity(activity.get());
         }
     }
 
-    @RequestMapping("activities/{name}/stop")
-    public void stopActivity(@PathVariable("name") final String name) {
-        // TODO: Get from some kind of config / script
-        // TODO: is that activity actually running?
-        if (name.equals("Watch TV")) {
-            this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
-            this.sleep(200);
-            this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
-            this.sleep(200);
-            this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
-        }
+    @RequestMapping("activities/{id}/stop")
+    public void stopActivity(@PathVariable("id") final int id) {
     }
+
+    private Optional<Activity> getActivity(final int id) {
+        return this.getServerConfig().getActivities().stream().filter(activity -> activity.getId() == id).findFirst();
+    }
+
+    // TODO: IR stuff
+
+    // // TODO: Get from some kind of config / script
+    // // TODO: Stop activities that conflict
+    // if (name.equals("Watch TV")) {
+    // this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
+    // this.sleep(200);
+    // this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
+    // this.sleep(200);
+    // this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
+    // this.sleep(4000);
+    // this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "INPUT_HDMI1");
+    // }
+    // // TODO: Get from some kind of config / script
+    // // TODO: is that activity actually running?
+    // if (name.equals("Watch TV")) {
+    // this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
+    // this.sleep(200);
+    // this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
+    // this.sleep(200);
+    // this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
+    // }
 
     private void sleep(final int millis) {
         try {

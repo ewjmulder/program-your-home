@@ -19,6 +19,7 @@ public class ConfigHolder {
         this.serverConfig = this.configLoader.loadConfig();
     }
 
+    // TODO: caching done, also dynamic loading of underlying xml when changed? (what to do on error? -> not replace)
     public ServerConfig getServerConfig() {
         return this.serverConfig;
     }

@@ -1,0 +1,3 @@
+- Use id's instead of names for identification?
+  - Pro: no search and replace everywhere upon name changes
+  - Cons: less readable xml files, since the number doesn't say anything. (but eventually you want this GUI based anyway)

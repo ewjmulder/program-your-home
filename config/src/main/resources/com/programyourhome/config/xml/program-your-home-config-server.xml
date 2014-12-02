@@ -2,21 +2,25 @@
 <serverConfig xmlns="http://programyourhome.com/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config ../xsd/program-your-home-config-server.xsd">
     <activities>
         <activity>
-            <name>Watch TV</name>
-            <description>Watch Live TV channels, under a relaxing light.</description>
-            <icon>television.png</icon>
+            <id>1</id>
+            <name>Program Your Home</name>
+            <description>Work on the Program Your Home project from the Bureau.</description>
             <modules>
                 <philipsHue>
                     <lights>
                         <light>
-                            <turnOn />
-                            <name>Bank</name>
-                            <dim>100</dim>
-                            <colorMood>relax</colorMood>
+                            <name>Bureau</name>
+                            <turnOn>true</turnOn>
+                            <dim>10000</dim>
+                            <colorMood>focus</colorMood>
                         </light>
                         <light>
-                            <turnOff />
+                            <name>Bank</name>
+                            <turnOff>true</turnOff>
+                        </light>
+                        <light>
                             <name>Box</name>
+                            <turnOff>true</turnOff>
                         </light>
                     </lights>
                 </philipsHue>
@@ -28,6 +32,42 @@
             </modules>
         </activity>
         <activity>
+            <id>2</id>
+            <name>Watch TV</name>
+            <description>Watch Live TV channels, under a relaxing light.</description>
+            <icon>television.png</icon>
+            <modules>
+                <philipsHue>
+                    <lights>
+                        <light>
+                            <name>Bank</name>
+                            <turnOn>true</turnOn>
+                            <dim>7500</dim>
+                            <colorMood>relax</colorMood>
+                        </light>
+                        <light>
+                            <name>Box</name>
+                            <turnOn>true</turnOn>
+                            <dim>5000</dim>
+                            <colorMood>relax</colorMood>
+                        </light>
+                        <light>
+                            <name>Bureau</name>
+                            <turnOn>true</turnOn>
+                            <dim>5000</dim>
+                            <colorMood>relax</colorMood>
+                        </light>
+                    </lights>
+                </philipsHue>
+                <infraRed>
+                    <pyhir>
+                        <ir>6</ir>
+                    </pyhir>
+                </infraRed>
+            </modules>
+        </activity>
+        <activity>
+            <id>3</id>
             <name>Go to sleep</name>
             <description>Turn off any running media devices. Slowly start dimming the lights downstairs. Turn off the heater.</description>
             <icon>night.png</icon>

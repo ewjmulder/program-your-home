@@ -18,6 +18,7 @@
     </xsd:element>
     <xsd:complexType name="activity">
         <xsd:sequence>
+            <xsd:element name="id" type="xsd:int" />
             <xsd:element name="name" type="xsd:string" />
             <xsd:element name="description" type="xsd:string" />
             <xsd:element name="icon" minOccurs="0" type="xsd:string">

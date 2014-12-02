@@ -46,12 +46,8 @@ public class PHLightStateBuilder {
         return this.phLight;
     }
 
-    public PHLightStateBuilder dim(final double dimFraction) {
-        return this.dim(ValueUtil.fractionToBrightness(dimFraction));
-    }
-
-    public PHLightStateBuilder dim(final int brightness) {
-        this.phLightState.setBrightness(brightness);
+    public PHLightStateBuilder dim(final int dimBasisPoints) {
+        this.phLightState.setBrightness(ValueUtil.basisPointsToBrightness(dimBasisPoints));
         return this;
     }
 
@@ -68,29 +64,25 @@ public class PHLightStateBuilder {
         return this;
     }
 
-    public PHLightStateBuilder colorHueSaturation(final double hueFraction, final double saturationFraction) {
-        return this.colorHueSaturation(ValueUtil.fractionToHue(hueFraction), ValueUtil.fractionToSaturation(saturationFraction));
-    }
-
-    public PHLightStateBuilder colorHueSaturation(final int hue, final int saturation) {
+    public PHLightStateBuilder colorHueSaturation(final int hueBasisPoints, final int saturationBasisPoints) {
         this.phLightState.setColorMode(PHLightColorMode.COLORMODE_HUE_SATURATION);
-        this.phLightState.setHue(hue);
-        this.phLightState.setSaturation(saturation);
+        this.phLightState.setHue(ValueUtil.basisPointsToHue(hueBasisPoints));
+        this.phLightState.setSaturation(ValueUtil.basisPointsToSaturation(saturationBasisPoints));
         return this;
     }
 
-    public PHLightStateBuilder colorTemperature(final double temperatureFraction) {
-        return this.colorTemperature(ValueUtil.fractionToColorTemperature(temperatureFraction));
+    public PHLightStateBuilder colorTemperature(final int temperatureBasisPoints) {
+        return this.setColorTemperature(ValueUtil.basisPointsToColorTemperature(temperatureBasisPoints));
     }
 
-    public PHLightStateBuilder colorTemperature(final int temperature) {
+    private PHLightStateBuilder setColorTemperature(final int temperature) {
         this.phLightState.setColorMode(PHLightColorMode.COLORMODE_CT);
         this.phLightState.setCt(temperature);
         return this;
     }
 
     public PHLightStateBuilder mood(final Mood mood) {
-        return this.colorTemperature(mood.getTemperature());
+        return this.setColorTemperature(mood.getTemperature());
     }
 
     /**

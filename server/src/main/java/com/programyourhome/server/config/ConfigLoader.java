@@ -66,6 +66,13 @@ public class ConfigLoader {
         final List<Activity> activities = serverConfig.getActivities();
 
         final long activityCount = activities.size();
+
+        // TODO: more generic doubles check
+        final long uniqueIdsCount = activities.stream().map(Activity::getId).distinct().count();
+        if (activityCount != uniqueIdsCount) {
+            throw new ConfigurationException("Activities should have a unique id.");
+        }
+
         final long uniqueNamesCount = activities.stream().map(Activity::getName).distinct().count();
         if (activityCount != uniqueNamesCount) {
             throw new ConfigurationException("Activities should have a unique name.");

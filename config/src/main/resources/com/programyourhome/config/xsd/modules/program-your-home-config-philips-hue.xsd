@@ -11,24 +11,25 @@
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="light">
-        <xsd:choice>
-            <xsd:sequence>
-                <xsd:element name="turnOff" type="empty" />
-                <xsd:element name="name" type="xsd:string" />
-            </xsd:sequence>
-            <xsd:sequence>
-                <xsd:element name="turnOn" type="empty" />
-                <xsd:element name="name" type="xsd:string" />
-                <xsd:element name="dim" type="basisPoint" />
-                <xsd:choice>
-                    <xsd:element name="colorRGB" type="colorRGB" />
-                    <xsd:element name="colorXY" type="colorXY" />
-                    <xsd:element name="colorHueSaturation" type="colorHueSaturation" />
-                    <xsd:element name="colorTemperature" type="basisPoint" />
-                    <xsd:element name="colorMood" type="colorMood" />
-                </xsd:choice>
-            </xsd:sequence>
-        </xsd:choice>
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:choice>
+                <xsd:sequence>
+                    <xsd:element name="turnOff" type="turnOff" />
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element name="turnOn" type="turnOn" />
+                    <xsd:element name="dim" type="basisPoint" />
+                    <xsd:choice>
+                        <xsd:element name="colorRGB" type="colorRGB" />
+                        <xsd:element name="colorXY" type="colorXY" />
+                        <xsd:element name="colorHueSaturation" type="colorHueSaturation" />
+                        <xsd:element name="colorTemperature" type="basisPoint" />
+                        <xsd:element name="colorMood" type="colorMood" />
+                    </xsd:choice>
+                </xsd:sequence>
+            </xsd:choice>
+        </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="colorRGB">
         <xsd:sequence>
@@ -49,19 +50,14 @@
             <xsd:element name="saturation" type="basisPoint" />
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:simpleType name="lightStateOff">
+    <xsd:simpleType name="turnOn">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="off"></xsd:enumeration>
+            <xsd:enumeration value="true"></xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
-    <xsd:simpleType name="lightStateOn">
+    <xsd:simpleType name="turnOff">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="on"></xsd:enumeration>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="empty">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value=""></xsd:enumeration>
+            <xsd:enumeration value="true"></xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="basisPoint">

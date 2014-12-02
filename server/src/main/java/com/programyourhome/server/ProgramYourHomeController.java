@@ -1,14 +1,17 @@
 package com.programyourhome.server;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.activities.model.Activity;
@@ -150,7 +153,7 @@ public class ProgramYourHomeController {
     @RequestMapping("/main/activities")
     public Collection<Activity> getActivities() {
         return this.serverConfig.getActivities().stream()
-                .map(activity -> new Activity(activity.getName(), "TODO: description"))
+                .map(activity -> new Activity(activity.getName(), activity.getDescription(), "http://192.168.2.28:3737/img/icons/" + activity.getIcon()))
                 .collect(Collectors.toList());
     }
 
@@ -180,6 +183,16 @@ public class ProgramYourHomeController {
             this.sleep(200);
             this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
         }
+    }
+
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // TODO: ASCII ART SEPERATION OF STUFF
+    // or have some way to split this Class? It'll become really big!
+
+    @RequestMapping(value = "/img/icons/{filename:.*}", method = RequestMethod.GET)
+    public byte[] getIcon(@PathVariable("filename") final String filename) throws IOException {
+        return IOUtils.toByteArray(this.getClass().getResourceAsStream("/com/programyourhome/config/icons/" + filename));
     }
 
     private void sleep(final int millis) {

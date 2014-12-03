@@ -1,25 +1,19 @@
 package com.programyourhome.hue;
 
 import java.awt.Color;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import com.philips.lighting.hue.sdk.PHAccessPoint;
 import com.philips.lighting.hue.sdk.PHHueSDK;
-import com.philips.lighting.hue.sdk.bridge.impl.PHBridgeResourcesCacheImpl;
-import com.philips.lighting.hue.sdk.connection.impl.PHHueHttpConnection;
-import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager;
-import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatProcessor;
-import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatTimer;
 import com.philips.lighting.model.PHBridge;
-import com.philips.lighting.model.PHBridgeConfiguration;
 import com.philips.lighting.model.PHBridgeResourcesCache;
 import com.philips.lighting.model.PHLight;
 import com.programyourhome.hue.model.Light;
@@ -30,7 +24,8 @@ import com.programyourhome.hue.model.Plug;
 import com.programyourhome.hue.model.PlugImpl;
 
 @Component
-public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
+@PropertySource("classpath:philips-hue.properties")
+public class PhilipsHueImpl implements PhilipsHue {
 
     // TODO: There is a rate limit on the bridge, limiting the amount of requests it can handle / you can send
     // per second / time interval. Probably a good idea to have some safety mechanism to prevent command dropping.
@@ -40,8 +35,25 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
     // you can easily screw up the inner workings and create weird or unexpected behaviour.
     // Best practice: always create a new LightState object!
 
+    // TODO: Document these test results somewhere
+    // Test result: after first connection lost, no more HTTP requests are sent!
+    // Conclusion: bug/status issue inside PHHueHttpConnectionImpl and not a Bridge issue!
+    // But maybe not: question is: are the last requests in wireshark the last requests from the SDK while everything was working or already
+    // when a null was received?
+
+    // Java bug?
+    // https://www.java.net/node/703177
+    // -Djava.net.preferIPv4Stack=true in VMargs
+    // Also seems to be Windows Firewall related, try to set all Java exes to allow all traffic
+
     @Autowired
     private SDKListener sdkListener;
+
+    @Value("${bridge.ip}")
+    private String bridgeIp;
+
+    @Value("${api.username}")
+    private String username;
 
     private final PHHueSDK sdk;
     private final PHAccessPoint accessPoint;
@@ -50,72 +62,21 @@ public class PhilipsHueImpl implements PhilipsHue, InitializingBean {
         this.sdk = PHHueSDK.getInstance();
         // PHLog.setSdkLogLevel(PHLog.DEBUG);
         this.accessPoint = new PHAccessPoint();
+    }
+
+    @PostConstruct
+    public void afterPropertiesSet() {
         // TODO: add to config?
         // TODO: document how to create the user (http://192.168.2.100/debug/clip.html):
         // POST on /api with {"devicetype": "Program Your Home Server","username": "program-your-home"}
-        this.accessPoint.setIpAddress("192.168.2.100");
-        this.accessPoint.setUsername("program-your-home");
-    }
+        this.accessPoint.setIpAddress(this.bridgeIp);
+        this.accessPoint.setUsername(this.username);
 
-    @Override
-    public void afterPropertiesSet() {
         this.sdk.setAppName("Program Your Home");
         this.sdk.setDeviceName("Program Your Home Server");
         this.sdk.getNotificationManager().registerSDKListener(this.sdkListener);
 
         this.sdk.connect(this.accessPoint);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep(500);
-                        final PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
-                        final Field hbTimerField = heartbeatManager.getClass().getDeclaredField("hbTimer");
-                        hbTimerField.setAccessible(true);
-                        final PHHeartbeatTimer heartbeatTimer = (PHHeartbeatTimer) hbTimerField.get(null);
-                        final Field mapField = heartbeatTimer.getClass().getDeclaredField("heartbeatMap");
-                        mapField.setAccessible(true);
-                        final HashMap map = (HashMap) mapField.get(heartbeatTimer);
-                        final PHHeartbeatProcessor heartbeatProcessor = (PHHeartbeatProcessor) ((ArrayList) map.values().iterator().next()).get(0);
-                        final Field retryField = heartbeatProcessor.getClass().getDeclaredField("currentTry");
-                        retryField.setAccessible(true);
-                        final int retryValue = retryField.getInt(heartbeatProcessor);
-                        final Field resumeField = heartbeatProcessor.getClass().getDeclaredField("notifyConnectionResume");
-                        resumeField.setAccessible(true);
-                        final boolean resumeValue = resumeField.getBoolean(heartbeatProcessor);
-
-                        final PHBridgeResourcesCacheImpl cacheImpl = (PHBridgeResourcesCacheImpl) PhilipsHueImpl.this.getBridge().getResourceCache();
-                        final PHBridgeConfiguration bridgeConfig = cacheImpl.getBridgeConfiguration();
-
-                        final String ipAddress = bridgeConfig.getIpAddress();
-                        final String username = bridgeConfig.getUsername();
-                        final String url = "http://" + ipAddress + "/api/" + username + "/lights";
-
-                        final PHHueHttpConnection httpConnection = new PHHueHttpConnection();
-                        final String data = resumeValue ? "No-get-on-status-ok" : httpConnection.getData(url);
-
-                        // Test result: after first connection lost, no more HTTP requests are sent!
-                        // Conclusion: bug/status issue inside PHHueHttpConnectionImpl and not a Bridge issue!
-                        // But maybe not: question is: are the last requests in wireshark the last requests from the SDK while everything was working or already
-                        // when a null was received?
-
-                        // Java bug?
-                        // https://www.java.net/node/703177
-                        // -Djava.net.preferIPv4Stack=true in VMargs
-                        // Also seems to be Windows Firewall related, try to set all Java exes to allow all traffic
-
-                        // System.out.println("Retry: " + retryValue + ", resume: " + resumeValue + ", IP address: " + ipAddress
-                        // + ", username: " + username + ", data: " + data);
-                        // System.out.println("lostCount: " + PhilipsHueImpl.this.sdkListener.lostCount);
-
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
         // TODO: proper shutdown, sdk, bridge, heartbeat.
         // heartbeatManager.disableAllHeartbeats(bridge);
     }

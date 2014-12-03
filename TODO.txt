@@ -2,14 +2,17 @@ Technical / architecture TODO:
 - Add checkstyle plugin / eclipse settings for lots of stuff including javadoc
 X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Naming convention for PYH domain classes: PyhSomething, to avoid conflicts with other API's like Philips and own config JAXB classes
-
+- Document all various comments in some kind of format (Github Flavored MD?)
+- Document configuration decisions: properties file for technical stuff (connection info, account info, datasources, etc.)
+- XSD/XML at server level for 'filling' the server with content en behaviour (activities, rules, etc)
+- XSD/XML per module with non-technical, or at least more subject related stuff, like devices for IR, etc.
 - Naming scheme:
 
 Module names and abbreviations:
 Sync usage of these over the whole of PYH:
 Full name in documentation (Javadoc etc), ...
-Module id in maven module names, XML config tags, ...
-Abbreviation in package names, XML namespace declarations, ...
+Module id in maven module names, XML config tags, properties files, ...
+Abbreviation in package names, ...
 
 
 Full name         - module id         - abbreviation

@@ -57,9 +57,11 @@ public class ConfigLoader {
      * @param serverConfig
      */
     // TODO: have a 'formal' list of consistency checks somewhere? (ugh, requirements, really...? :)
+    // --> how about separate small classes / lambda objects that can validate a certain piece of information? like predicates
     // TODO: unit tests for these rules!!
     private void validateConfig(final ServerConfig serverConfig) {
         this.validateMain(serverConfig);
+        // TODO: validate modules
     }
 
     private void validateMain(final ServerConfig serverConfig) {

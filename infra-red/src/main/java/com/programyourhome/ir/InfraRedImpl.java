@@ -30,12 +30,29 @@ public class InfraRedImpl implements InfraRed {
         this.irClient.connect(this.winlircHost, this.winlircPort);
     }
 
+    /**
+     * TODO: load xml configuration and validate:(non-Javadoc)
+     * 
+     * <pre>
+     * - Internal XML:
+     *   - Unique device names (PYH common utils thingy, since has overlap with server stuff (is ok, see as apache commons alternative))
+     *   - Unique key names per device
+     *   - Prototypes vs actual key type mapping
+     * - Consistency check with winlirc data
+     *   - Remote name mapping
+     *   - (winlirc) Key name mapping
+     * </pre>
+     */
+
     @Override
     public Collection<PyhRemote> getRemotes() {
         // Use this construction so we don't have issues with generics.
         return this.irClient.getRemotes().stream()
                 .collect(Collectors.toList());
     }
+
+    // TODO: provide more generic control over devices, making use of the defined types like power, input, volume, channel.
+    // This module then translates that to the required key presses.
 
     @Override
     // TODO: make asychronous, with internal queueing machanism that waits a small time between IR commands of different

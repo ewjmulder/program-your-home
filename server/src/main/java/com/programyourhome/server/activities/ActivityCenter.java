@@ -35,13 +35,13 @@ public class ActivityCenter {
     private void activateHueModule(final PhilipsHueConfig hueConfig) {
         for (final Light light : hueConfig.getLights()) {
             if (light.getTurnOff() != null) {
-                this.philipsHue.turnOffLight(light.getName());
+                this.philipsHue.turnOffLight(light.getId());
             } else {
                 if (light.getColorHueSaturation() != null) {
-                    this.philipsHue.dimToColorHueSaturation(light.getName(), light.getDim(), light.getColorHueSaturation().getHue(), light
+                    this.philipsHue.dimToColorHueSaturation(light.getId(), light.getDim(), light.getColorHueSaturation().getHue(), light
                             .getColorHueSaturation().getSaturation());
                 } else if (light.getColorMood() != null) {
-                    this.philipsHue.dimToMood(light.getName(), light.getDim(), Mood.valueOf(light.getColorMood().toString()));
+                    this.philipsHue.dimToMood(light.getId(), light.getDim(), Mood.valueOf(light.getColorMood().toString()));
                 }
             }
         }

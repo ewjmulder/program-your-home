@@ -21,7 +21,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.ir.model.Remote;
+import com.programyourhome.ir.model.PyhRemote;
 import com.programyourhome.ir.model.RemoteImpl;
 import com.programyourhome.ir.model.ServerReply;
 
@@ -53,8 +53,6 @@ public class WinLIRCClient {
     // actual refresh
     // If not sighup, print the received data and quit, since that is an unknown state atm. If no data ready to be read, that refresh action is done.
 
-    private String host;
-    private int port;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
@@ -77,8 +75,6 @@ public class WinLIRCClient {
     }
 
     public void connect(final String host, final int port) throws IOException {
-        this.host = host;
-        this.port = port;
         this.socket = new Socket(host, port);
         this.out = new PrintWriter(this.socket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -92,19 +88,21 @@ public class WinLIRCClient {
             this.version = this.retrieveVersion();
             this.remotes.clear();
             this.remotes.putAll(this.retrieveRemoteNames().stream()
-                    .map(remoteIdentifier -> new RemoteImpl(remoteIdentifier, this.getDevice(remoteIdentifier)))
+                    // FIXME: Id's for remotes should be mapped by the device config XML (which is TODO).
+                    .map(remoteIdentifier -> new RemoteImpl(1, remoteIdentifier, this.getDevice(remoteIdentifier)))
                     .collect(Collectors.toMap(remote -> remote.getName(), remote -> remote)));
             // Classic for-loop, because the Iterable forEach needs extra exception handling.
             for (final RemoteImpl remote : this.remotes.values()) {
                 remote.addAllKeys(this.retrieveKeys(remote));
             }
         } catch (final IOException e) {
-            // TODO: throw event of dome sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
+            // TODO: throw event of some sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
             e.printStackTrace();
         }
     }
 
     // TODO: document file pattern FullRemoteIdentification(User Friendly Device Name).conf
+    // TODO: No, this should come from the XML config instead!
     private String getDevice(final String remoteName) {
         String deviceName = "<unknown>";
         try {
@@ -118,7 +116,7 @@ public class WinLIRCClient {
                     .getFilename();
             deviceName = filename.substring(filename.indexOf('(') + 1, filename.indexOf(')'));
         } catch (final IOException e) {
-            // TODO: throw event of dome sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
+            // TODO: throw event of some sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
             e.printStackTrace();
         }
         return deviceName;
@@ -132,11 +130,13 @@ public class WinLIRCClient {
         return this.sendCommand(COMMAND_VERSION).getData().get(0);
     }
 
+    // TODO: validation of these values against the internal config
     private List<String> retrieveRemoteNames() throws IOException {
         return this.sendCommand(COMMAND_LIST).getData();
     }
 
-    private List<String> retrieveKeys(final Remote remote) throws IOException {
+    // TODO: validation of these values against the internal config
+    private List<String> retrieveKeys(final PyhRemote remote) throws IOException {
         return this.sendCommand(COMMAND_LIST + " " + remote.getName()).getData();
     }
 

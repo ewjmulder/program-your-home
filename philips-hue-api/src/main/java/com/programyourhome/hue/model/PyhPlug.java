@@ -1,6 +1,6 @@
 package com.programyourhome.hue.model;
 
-public interface Plug {
+public interface PyhPlug {
 
     /**
      * The name of the plug. Must be unique.

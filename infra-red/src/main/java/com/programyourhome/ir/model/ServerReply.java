@@ -23,10 +23,10 @@ import org.apache.commons.lang3.StringUtils;
  *   - then the actual data lines.
  * - In case of an error, there will typically be 1 data line with the error message.
  * - In case of a successful LIST command, the data lines will contain the result of the listing (remote or key names).
- *
- *
+ * 
+ * 
  * The description above is summarized in the following grammar description of a WinLIRC server reply.
- *
+ * 
  * Reply:
  *   BEGIN Newline Content Newline END
  * Content:
@@ -43,13 +43,14 @@ import org.apache.commons.lang3.StringUtils;
  *   .*
  * Newline:
  *   \n
- *
+ * 
  * Note: A known exception to this is when WinLIRC has too many connected clients (64 is the limit).
  * Then it will reply with: "Sorry the server is full."
  * </pre>
  */
 // TODO: slightly weird that this is not an Impl class, since there is no corresponding interface at the api side.
 // TODO: Change naming convention for Impl classes?
+// TODO: This screams for some unit tests!
 public class ServerReply {
 
     public static final String REPLY_BEGIN = "BEGIN";

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://programyourhome.com/config" targetNamespace="http://programyourhome.com/config"
     elementFormDefault="qualified">
     <xsd:include schemaLocation="modules/program-your-home-config-philips-hue.xsd" />
@@ -6,19 +6,18 @@
     <xsd:element name="serverConfig">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="activities">
-                    <xsd:complexType>
-                        <xsd:sequence>
-                            <xsd:element name="activity" type="activity" minOccurs="0" maxOccurs="unbounded" />
-                        </xsd:sequence>
-                    </xsd:complexType>
-                </xsd:element>
+                <xsd:element name="activities" type="activities" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
+    <xsd:complexType name="activities">
+        <xsd:sequence>
+            <xsd:element name="activity" type="activity" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="activity">
         <xsd:sequence>
-            <xsd:element name="id" type="xsd:int" />
+            <xsd:element name="id" type="id" />
             <xsd:element name="name" type="xsd:string" />
             <xsd:element name="description" type="xsd:string" />
             <xsd:element name="icon" minOccurs="0" type="xsd:string">

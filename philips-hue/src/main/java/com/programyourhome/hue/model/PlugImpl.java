@@ -1,10 +1,10 @@
 package com.programyourhome.hue.model;
 
-public class PlugImpl implements Plug {
+public class PlugImpl implements PyhPlug {
 
     private final String name;
 
-    public PlugImpl(final Light light) {
+    public PlugImpl(final PyhLight light) {
         this.name = light.getName();
     }
 

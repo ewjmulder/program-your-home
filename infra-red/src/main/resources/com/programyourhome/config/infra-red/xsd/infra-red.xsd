@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://programyourhome.com/config/infra-red" targetNamespace="http://programyourhome.com/config/infra-red"
+    elementFormDefault="qualified">
+    <xsd:element name="infraRed">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="devices" type="devices" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:complexType name="devices">
+        <xsd:sequence>
+            <xsd:element name="device" type="device" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="device">
+        <xsd:sequence>
+            <xsd:element name="id" type="id" />
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="description" type="xsd:string" />
+            <xsd:element name="defaultDelay" type="delay" />
+            <xsd:element name="prototypes" type="prototypes" />
+            <xsd:element name="remote" type="remote" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="prototypes">
+        <xsd:sequence>
+            <xsd:element name="power" type="xsd:boolean" />
+            <xsd:element name="input" type="xsd:boolean" />
+            <xsd:element name="volume" type="xsd:boolean" />
+            <xsd:element name="channel" type="xsd:boolean" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="remote">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="keyMapping" type="keyMapping" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keyMapping">
+        <xsd:annotation>
+            <xsd:documentation>Both key groups and 'separate' keys can be listed under the key mapping of a remote.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="keyGroups" type="keyGroups" minOccurs="0" />
+            <xsd:element name="keys" type="keys" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keyGroups">
+        <xsd:sequence>
+            <xsd:element name="keyGroup" type="keyGroup" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keyGroup">
+        <xsd:annotation>
+            <xsd:documentation>
+                A key group can be used to put a logical set of keys together under a name.
+                Furthermore, every group can default the values of
+                type and delay for all keys specified under that group.
+                For instance, now you can easily create a group for all channel keys and give them a
+                certain appropriate delay.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="groupType" type="keyType" />
+            <xsd:element name="groupDelay" type="delay" />
+            <xsd:element name="keys" type="keys" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keys">
+        <xsd:sequence>
+            <xsd:element name="key" type="key" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="key">
+        <xsd:sequence>
+            <xsd:element name="id" type="id" />
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="winlircName" type="xsd:string" />
+            <xsd:element name="type" type="keyType" minOccurs="0" />
+            <xsd:element name="delay" type="delay" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:simpleType name="id">
+        <xsd:restriction base="xsd:unsignedShort" />
+    </xsd:simpleType>
+    <xsd:simpleType name="delay">
+        <xsd:restriction base="xsd:unsignedInt">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Delay is the amount of milliseconds to pause after 'pressing' this key, before pressing the next key on the same remote.
+                    This
+                    is required for functions that take some time on the device before it is responsive again, like powering on.
+                    If not specified for a key
+                    individually, the required default value for the whole device will be used.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="keyType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="power"></xsd:enumeration>
+            <xsd:enumeration value="input"></xsd:enumeration>
+            <xsd:enumeration value="volumeUp"></xsd:enumeration>
+            <xsd:enumeration value="volumeDown"></xsd:enumeration>
+            <xsd:enumeration value="volumeMute"></xsd:enumeration>
+            <xsd:enumeration value="channel0"></xsd:enumeration>
+            <xsd:enumeration value="channel1"></xsd:enumeration>
+            <xsd:enumeration value="channel2"></xsd:enumeration>
+            <xsd:enumeration value="channel3"></xsd:enumeration>
+            <xsd:enumeration value="channel4"></xsd:enumeration>
+            <xsd:enumeration value="channel5"></xsd:enumeration>
+            <xsd:enumeration value="channel6"></xsd:enumeration>
+            <xsd:enumeration value="channel7"></xsd:enumeration>
+            <xsd:enumeration value="channel8"></xsd:enumeration>
+            <xsd:enumeration value="channel9"></xsd:enumeration>
+            <xsd:enumeration value="channelUp"></xsd:enumeration>
+            <xsd:enumeration value="channelDown"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

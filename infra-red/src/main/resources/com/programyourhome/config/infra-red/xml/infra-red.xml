@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infraRed xmlns="http://programyourhome.com/config/infra-red" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config/infra-red ../xsd/infra-red.xsd">
+    <devices>
+        <device>
+            <id>1</id>
+            <name>Tuner</name>
+            <description>Main tuner for all audio and video throughput</description>
+            <defaultDelay>100</defaultDelay>
+            <prototypes>
+                <power>true</power>
+                <input>true</input>
+                <volume>true</volume>
+                <channel>false</channel>
+            </prototypes>
+            <remote>
+                <name>YAMAHA-RAV338-MAIN-ZONE</name>
+                <keyMapping>
+                    <keys>
+                        <key>
+                            <id>1</id>
+                            <name>Power</name>
+                            <winlircName>POWER</winlircName>
+                            <type>power</type>
+                            <delay>2000</delay>
+                        </key>
+                        <key>
+                            <id>2</id>
+                            <name>Volume Up</name>
+                            <winlircName>VOLUME_UP</winlircName>
+                            <type>volumeUp</type>
+                        </key>
+                        <key>
+                            <id>3</id>
+                            <name>Volume Down</name>
+                            <winlircName>VOLUME_DOWN</winlircName>
+                            <type>volumeDown</type>
+                        </key>
+                        <key>
+                            <id>4</id>
+                            <name>Mute</name>
+                            <winlircName>VOLUME_MUTE</winlircName>
+                            <type>volumeMute</type>
+                        </key>
+                        <key>
+                            <id>5</id>
+                            <name>HDMI 1</name>
+                            <winlircName>INPUT_HDMI1</winlircName>
+                            <type>input</type>
+                            <delay>500</delay>
+                        </key>
+                    </keys>
+                </keyMapping>
+            </remote>
+        </device>
+        <device>
+            <id>2</id>
+            <name>Tuner Kitchen</name>
+            <description>Kitchen tuner for audio signal to kitchen speaker</description>
+            <defaultDelay>100</defaultDelay>
+            <prototypes>
+                <power>true</power>
+                <input>true</input>
+                <volume>true</volume>
+                <channel>false</channel>
+            </prototypes>
+            <remote>
+                <name>YAMAHA-RAV338-ZONE2</name>
+                <keyMapping>
+                    <keys>
+                        <key>
+                            <id>1</id>
+                            <name>Power</name>
+                            <winlircName>POWER</winlircName>
+                            <type>power</type>
+                            <delay>1000</delay>
+                        </key>
+                        <key>
+                            <id>2</id>
+                            <name>Volume Up</name>
+                            <winlircName>VOLUME_UP</winlircName>
+                            <type>volumeUp</type>
+                        </key>
+                        <key>
+                            <id>3</id>
+                            <name>Volume Down</name>
+                            <winlircName>VOLUME_DOWN</winlircName>
+                            <type>volumeDown</type>
+                        </key>
+                        <key>
+                            <id>4</id>
+                            <name>Mute</name>
+                            <winlircName>VOLUME_MUTE</winlircName>
+                            <type>volumeMute</type>
+                        </key>
+                        <key>
+                            <id>5</id>
+                            <name>AV 5</name>
+                            <winlircName>INPUT_AV5</winlircName>
+                            <type>input</type>
+                        </key>
+                    </keys>
+                </keyMapping>
+            </remote>
+        </device>
+        <device>
+            <id>3</id>
+            <name>TV</name>
+            <description>Television screen</description>
+            <defaultDelay>200</defaultDelay>
+            <prototypes>
+                <power>true</power>
+                <input>false</input> <!-- TODO: how to process input selection on tv if there is no direct key for it? (could be simulated of course)
+                If simulated: find a way to configure it here, since there is no other way to get that input -->
+                <volume>true</volume>
+                <channel>true</channel>
+            </prototypes>
+            <remote>
+                <name>SAMSUNG-BN59-00685A</name>
+                <keyMapping>
+                    <keys>
+                        <key>
+                            <id>1</id>
+                            <name>Power</name>
+                            <winlircName>POWER</winlircName>
+                            <type>power</type>
+                            <delay>5000</delay>
+                        </key>
+                        <key>
+                            <id>2</id>
+                            <name>Volume Up</name>
+                            <winlircName>VOLUME_UP</winlircName>
+                            <type>volumeUp</type>
+                        </key>
+                        <key>
+                            <id>3</id>
+                            <name>Volume Down</name>
+                            <winlircName>VOLUME_DOWN</winlircName>
+                            <type>volumeDown</type>
+                        </key>
+                        <key>
+                            <id>4</id>
+                            <name>Mute</name>
+                            <winlircName>VOLUME_MUTE</winlircName>
+                            <type>volumeMute</type>
+                        </key>
+                    </keys>
+                </keyMapping>
+            </remote>
+        </device>
+        <device>
+            <id>4</id>
+            <name>ITV</name>
+            <description>Interactive TV receiver</description>
+            <defaultDelay>200</defaultDelay>
+            <prototypes>
+                <power>true</power>
+                <input>false</input>
+                <volume>false</volume>
+                <channel>true</channel>
+            </prototypes>
+            <remote>
+                <name>MOTOROLA-VIP1853</name>
+                <keyMapping>
+                    <keys>
+                        <key>
+                            <id>1</id>
+                            <name>Power</name>
+                            <winlircName>POWER</winlircName>
+                            <type>power</type>
+                            <delay>2000</delay>
+                        </key>
+                    </keys>
+                </keyMapping>
+            </remote>
+        </device>
+        <device>
+            <id>5</id>
+            <name>DVD Player</name>
+            <description>Harddisk recorder and DVD player</description>
+            <defaultDelay>200</defaultDelay>
+            <prototypes>
+                <power>true</power>
+                <input>false</input> <!-- TODO: how to process input selection on player if there is no direct key for it? (could be simulated maybe?) Check working of Logitech remote for this -->
+                <volume>false</volume>
+                <channel>false</channel>
+            </prototypes>
+            <remote>
+                <name>PANASONIC-EUR7659Y60</name>
+                <keyMapping>
+                    <keys>
+                        <key>
+                            <id>1</id>
+                            <name>Power</name>
+                            <winlircName>POWER</winlircName>
+                            <type>power</type>
+                            <delay>2000</delay>
+                        </key>
+                    </keys>
+                </keyMapping>
+            </remote>
+        </device>
+    </devices>
+</infraRed>

@@ -1,6 +1,13 @@
 package com.programyourhome.hue.model;
 
-public interface Light {
+public interface PyhLight {
+
+    /**
+     * The id of the light.
+     *
+     * @return the id of the light
+     */
+    public int getId();
 
     /**
      * The name of the light. Must be unique.

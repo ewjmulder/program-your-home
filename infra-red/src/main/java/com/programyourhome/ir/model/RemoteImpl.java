@@ -4,16 +4,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class RemoteImpl implements Remote {
+public class RemoteImpl implements PyhRemote {
 
+    private final int id;
     private final String name;
-    private final String device;
+    private final String deviceName;
     private final List<String> keys;
 
-    public RemoteImpl(final String name, final String device) {
+    public RemoteImpl(final int id, final String name, final String deviceName) {
+        this.id = id;
         this.name = name;
-        this.device = device;
+        this.deviceName = deviceName;
         this.keys = new ArrayList<>();
+    }
+
+    @Override
+    public int getId() {
+        return this.id;
     }
 
     @Override
@@ -22,8 +29,8 @@ public class RemoteImpl implements Remote {
     }
 
     @Override
-    public String getDevice() {
-        return this.device;
+    public String getDeviceName() {
+        return this.deviceName;
     }
 
     @Override

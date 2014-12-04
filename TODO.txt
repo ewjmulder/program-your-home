@@ -8,6 +8,9 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - XSD/XML per module with non-technical, or at least more subject related stuff, like devices for IR, etc.
 - Naming scheme:
 
+- Think about and make consistent: the xsd namespaces for main config and module configs
+  -> name 'clash' for tags infraRed / infraRedConfig in main/server and infrared spcific config files
+
 Module names and abbreviations:
 Sync usage of these over the whole of PYH:
 Full name in documentation (Javadoc etc), ...

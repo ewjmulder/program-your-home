@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xsd:include schemaLocation="program-your-home-config-common.xsd" />
     <xsd:complexType name="philipsHueConfig">
         <xsd:sequence>
             <xsd:element name="lights" type="lights" />
@@ -12,7 +13,7 @@
     </xsd:complexType>
     <xsd:complexType name="light">
         <xsd:sequence>
-            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="id" type="id" />
             <xsd:choice>
                 <xsd:sequence>
                     <xsd:element name="turnOff" type="turnOff" />
@@ -50,16 +51,6 @@
             <xsd:element name="saturation" type="basisPoint" />
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:simpleType name="turnOn">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="true"></xsd:enumeration>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="turnOff">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="true"></xsd:enumeration>
-        </xsd:restriction>
-    </xsd:simpleType>
     <xsd:simpleType name="basisPoint">
         <xsd:restriction base="xsd:int">
             <xsd:minInclusive value="0" />

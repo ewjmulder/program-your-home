@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.ir.InfraRed;
-import com.programyourhome.ir.model.Remote;
+import com.programyourhome.ir.model.PyhRemote;
 
 @RestController
 @RequestMapping("ir")
@@ -17,7 +17,7 @@ public class ProgramYourHomeControllerIr extends AbstractProgramYourHomeControll
     private InfraRed infraRed;
 
     @RequestMapping("remotes")
-    public Collection<Remote> getRemotes() {
+    public Collection<PyhRemote> getRemotes() {
         // TODO: update device list on other laptop
         return this.infraRed.getRemotes();
     }

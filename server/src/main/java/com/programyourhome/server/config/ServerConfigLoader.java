@@ -48,6 +48,12 @@ public class ServerConfigLoader extends ConfigLoader<ServerConfig> {
     protected void validateConfig(final ServerConfig serverConfig) throws ConfigurationException {
         this.validateMain(serverConfig);
         // TODO: module specific validation.
+        // Philips Hue:
+        // - check light id's against existing lights
+        // - check used light settings against light type
+        // IR:
+        // - check device id's against existing devices
+        // - check used device input's against existing device inputs
     }
 
     private void validateMain(final ServerConfig serverConfig) {

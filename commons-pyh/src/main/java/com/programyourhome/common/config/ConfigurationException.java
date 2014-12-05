@@ -1,4 +1,4 @@
-package com.programyourhome.server.config;
+package com.programyourhome.common.config;
 
 public class ConfigurationException extends RuntimeException {
 

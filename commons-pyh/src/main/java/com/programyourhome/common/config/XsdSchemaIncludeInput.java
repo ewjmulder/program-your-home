@@ -1,4 +1,4 @@
-package com.programyourhome.config;
+package com.programyourhome.common.config;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

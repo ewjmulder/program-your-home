@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<infraRed xmlns="http://programyourhome.com/config/infra-red" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config/infra-red ../xsd/infra-red.xsd">
+<infraRedConfig xmlns="http://programyourhome.com/config/infra-red" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config/infra-red ../xsd/infra-red.xsd">
     <devices>
         <device>
             <id>1</id>
@@ -200,4 +200,4 @@
             </remote>
         </device>
     </devices>
-</infraRed>
+</infraRedConfig>

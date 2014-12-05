@@ -14,6 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+    <!-- TODO: put in profile in parent and activate profile for default build for children that also have config? but how about schemaDir? -->
 	<build>
 		<plugins>
 			<plugin>
@@ -29,10 +30,8 @@
 				</executions>
 				<configuration>
 					<verbose>true</verbose>
-					<!-- TODO: Other output dir? -->
-					<!-- <generateDirectory>${project.build.sourceDirectory}</generateDirectory> -->
 					<schemaDirectory>src/main/resources/com/programyourhome/config/xsd</schemaDirectory>
-					<packageName>com.programyourhome.config</packageName>
+					<generatePackage>com.programyourhome.config</generatePackage>
 
 					<extension>true</extension>
 					<args>
@@ -65,11 +64,6 @@
 			<groupId>org.jvnet.jaxb2_commons</groupId>
 			<artifactId>jaxb2-basics</artifactId>
 			<version>0.9.0</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
 		</dependency>
 	</dependencies>
 

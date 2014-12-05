@@ -1,4 +1,4 @@
-package com.programyourhome.ir;
+package com.programyourhome.ir.winlirc;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,14 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
-
-import com.programyourhome.ir.model.PyhRemote;
-import com.programyourhome.ir.model.RemoteImpl;
-import com.programyourhome.ir.model.ServerReply;
 
 @Component
 public class WinLIRCClient {
@@ -58,7 +50,7 @@ public class WinLIRCClient {
     private BufferedReader in;
 
     private String version;
-    private final Map<String, RemoteImpl> remotes;
+    private final Map<String, WinLIRCRemote> remotes;
     private final ScheduledExecutorService refreshService;
 
     public WinLIRCClient() {
@@ -70,7 +62,7 @@ public class WinLIRCClient {
         return this.version;
     }
 
-    public synchronized Collection<RemoteImpl> getRemotes() {
+    public synchronized Collection<WinLIRCRemote> getRemotes() {
         return this.remotes.values();
     }
 
@@ -88,38 +80,16 @@ public class WinLIRCClient {
             this.version = this.retrieveVersion();
             this.remotes.clear();
             this.remotes.putAll(this.retrieveRemoteNames().stream()
-                    // FIXME: Id's for remotes should be mapped by the device config XML (which is TODO).
-                    .map(remoteIdentifier -> new RemoteImpl(1, remoteIdentifier, this.getDevice(remoteIdentifier)))
+                    .map(remoteIdentifier -> new WinLIRCRemote(remoteIdentifier))
                     .collect(Collectors.toMap(remote -> remote.getName(), remote -> remote)));
             // Classic for-loop, because the Iterable forEach needs extra exception handling.
-            for (final RemoteImpl remote : this.remotes.values()) {
+            for (final WinLIRCRemote remote : this.remotes.values()) {
                 remote.addAllKeys(this.retrieveKeys(remote));
             }
         } catch (final IOException e) {
             // TODO: throw event of some sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
             e.printStackTrace();
         }
-    }
-
-    // TODO: document file pattern FullRemoteIdentification(User Friendly Device Name).conf
-    // TODO: No, this should come from the XML config instead!
-    private String getDevice(final String remoteName) {
-        String deviceName = "<unknown>";
-        try {
-            final ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            final Resource[] resources = resolver.getResources("classpath*:/remotes-conf/*.conf");
-            // TODO: what if not found?
-            final String filename = Arrays.stream(resources)
-                    .filter(resource -> resource.getFilename().startsWith(remoteName))
-                    .findFirst()
-                    .get()
-                    .getFilename();
-            deviceName = filename.substring(filename.indexOf('(') + 1, filename.indexOf(')'));
-        } catch (final IOException e) {
-            // TODO: throw event of some sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
-            e.printStackTrace();
-        }
-        return deviceName;
     }
 
     public boolean isConnected() {
@@ -136,7 +106,7 @@ public class WinLIRCClient {
     }
 
     // TODO: validation of these values against the internal config
-    private List<String> retrieveKeys(final PyhRemote remote) throws IOException {
+    private List<String> retrieveKeys(final WinLIRCRemote remote) throws IOException {
         return this.sendCommand(COMMAND_LIST + " " + remote.getName()).getData();
     }
 

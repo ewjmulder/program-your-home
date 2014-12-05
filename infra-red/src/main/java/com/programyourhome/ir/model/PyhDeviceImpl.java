@@ -1,0 +1,99 @@
+package com.programyourhome.ir.model;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.programyourhome.ir.config.Device;
+import com.programyourhome.ir.config.Key;
+import com.programyourhome.ir.config.KeyType;
+
+public class PyhDeviceImpl implements PyhDevice {
+
+    private final int id;
+    private final String name;
+    private final String description;
+    private final boolean isPowerDevice;
+    private final boolean isInputDevice;
+    private final boolean isVolumeDevice;
+    private final boolean isChannelDevice;
+    private final List<String> inputs;
+    private final List<String> extraKeys;
+
+    public PyhDeviceImpl(final Device device) {
+        this.id = device.getId();
+        this.name = device.getName();
+        this.description = device.getDescription();
+        this.isPowerDevice = device.getPrototypes().isPower();
+        this.isInputDevice = device.getPrototypes().isInput();
+        this.isVolumeDevice = device.getPrototypes().isVolume();
+        this.isChannelDevice = device.getPrototypes().isChannel();
+
+        // TODO: Generify these two, possibly use some (statis) util where this key getting pattern is placed.
+        this.inputs = device.getRemote().getKeyMapping().getKeyGroups().stream()
+                .filter(keyGroup -> keyGroup.getGroupType() == KeyType.INPUT)
+                .flatMap(keyGroup -> keyGroup.getKeys().stream())
+                .map(Key::getName)
+                .collect(Collectors.toList());
+        this.inputs.addAll(device.getRemote().getKeyMapping().getKeys().stream()
+                .filter(key -> key.getType() == KeyType.INPUT)
+                .map(Key::getName)
+                .collect(Collectors.toList()));
+
+        this.extraKeys = device.getRemote().getKeyMapping().getKeyGroups().stream()
+                .filter(keyGroup -> keyGroup.getGroupType() == null)
+                .flatMap(keyGroup -> keyGroup.getKeys().stream())
+                .map(Key::getName)
+                .collect(Collectors.toList());
+        this.extraKeys.addAll(device.getRemote().getKeyMapping().getKeys().stream()
+                .filter(key -> key.getType() == null)
+                .map(Key::getName)
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public int getId() {
+        return this.id;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
+
+    @Override
+    public boolean isPowerDevice() {
+        return this.isPowerDevice;
+    }
+
+    @Override
+    public boolean isInputDevice() {
+        return this.isInputDevice;
+    }
+
+    @Override
+    public boolean isVolumeDevice() {
+        return this.isVolumeDevice;
+    }
+
+    @Override
+    public boolean isChannelDevice() {
+        return this.isChannelDevice;
+    }
+
+    @Override
+    public List<String> getInputs() {
+        return null;
+    }
+
+    @Override
+    public List<String> getExtraKeys() {
+        return new ArrayList<String>(this.extraKeys);
+    }
+
+}

@@ -10,17 +10,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.ir.model.PyhRemote;
+import com.programyourhome.ir.config.InfraRedConfigHolder;
+import com.programyourhome.ir.model.PyhDevice;
+import com.programyourhome.ir.model.PyhDeviceImpl;
+import com.programyourhome.ir.winlirc.WinLIRCClient;
 
 @Component
 @PropertySource("classpath:com/programyourhome/config/infra-red/properties/infra-red.properties")
 public class InfraRedImpl implements InfraRed {
+
+    // TODO: make asychronous, with internal queueing machanism that waits a small time between IR commands of different devices and
+    // a configured time between IR command of the same device (general wait and possible override per key (like POWER)
 
     @Value("${winlirc.host}")
     private String winlircHost;
 
     @Value("${winlirc.port}")
     private int winlircPort;
+
+    @Autowired
+    private InfraRedConfigHolder configHolder;
 
     @Autowired
     private WinLIRCClient irClient;
@@ -30,36 +39,70 @@ public class InfraRedImpl implements InfraRed {
         this.irClient.connect(this.winlircHost, this.winlircPort);
     }
 
-    /**
-     * TODO: load xml configuration and validate:(non-Javadoc)
-     * 
-     * <pre>
-     * - Internal XML:
-     *   - Unique device names (PYH common utils thingy, since has overlap with server stuff (is ok, see as apache commons alternative))
-     *   - Unique key names per device
-     *   - Prototypes vs actual key type mapping
-     * - Consistency check with winlirc data
-     *   - Remote name mapping
-     *   - (winlirc) Key name mapping
-     * </pre>
-     */
-
     @Override
-    public Collection<PyhRemote> getRemotes() {
-        // Use this construction so we don't have issues with generics.
-        return this.irClient.getRemotes().stream()
+    public Collection<PyhDevice> getDevices() {
+        return this.configHolder.getConfig().getDevices().stream()
+                .map(device -> new PyhDeviceImpl(device))
                 .collect(Collectors.toList());
     }
 
-    // TODO: provide more generic control over devices, making use of the defined types like power, input, volume, channel.
-    // This module then translates that to the required key presses.
+    @Override
+    public void turnOn(final int deviceId) {
+        // TODO Auto-generated method stub
+
+    }
 
     @Override
-    // TODO: make asychronous, with internal queueing machanism that waits a small time between IR commands of different
-    // devices and
-    // a configured time between IR command of the same device (general wait and possible override per key (like POWER)
-    public void pressRemoteKey(final String remoteName, final String key) {
-        this.irClient.pressRemoteKey(remoteName, key);
+    public void turnOff(final int deviceId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setInput(final int deviceId, final String input) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void volumeUp(final int deviceId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void volumeDown(final int deviceId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void volumeMute(final int deviceId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void channelUp(final int deviceId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void channelDown(final int deviceId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setChannel(final int deviceId, final int channel) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void pressKeyOnRemote(final int deviceId, final int keyId) {
+        // this.irClient.pressRemoteKey(remoteName, key);
     }
 
 }

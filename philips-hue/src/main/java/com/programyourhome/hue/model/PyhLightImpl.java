@@ -2,13 +2,13 @@ package com.programyourhome.hue.model;
 
 import com.philips.lighting.model.PHLight;
 
-public class LightImpl implements PyhLight {
+public class PyhLightImpl implements PyhLight {
 
     private final int id;
     private final String name;
     private final LightType type;
 
-    public LightImpl(final PHLight phLight) {
+    public PyhLightImpl(final PHLight phLight) {
         this.id = Integer.parseInt(phLight.getIdentifier());
         this.name = phLight.getName();
         this.type = LightType.fromModelAbbreviation(phLight.getModelNumber().substring(0, 3));

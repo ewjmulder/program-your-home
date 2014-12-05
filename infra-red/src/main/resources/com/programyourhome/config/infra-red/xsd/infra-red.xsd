@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://programyourhome.com/config/infra-red" targetNamespace="http://programyourhome.com/config/infra-red"
     elementFormDefault="qualified">
-    <xsd:element name="infraRed">
+    <xsd:element name="infraRedConfig">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="devices" type="devices" />
@@ -90,10 +90,8 @@
             <xsd:annotation>
                 <xsd:documentation>
                     Delay is the amount of milliseconds to pause after 'pressing' this key, before pressing the next key on the same remote.
-                    This
-                    is required for functions that take some time on the device before it is responsive again, like powering on.
-                    If not specified for a key
-                    individually, the required default value for the whole device will be used.
+                    This is required for functions that take some time on the device before it is responsive again, like powering on.
+                    If not specified for a key individually, the required default value for the whole device will be used.
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:restriction>

@@ -16,7 +16,7 @@ import com.philips.lighting.hue.sdk.PHHueSDK;
 import com.philips.lighting.model.PHBridge;
 import com.philips.lighting.model.PHBridgeResourcesCache;
 import com.philips.lighting.model.PHLight;
-import com.programyourhome.hue.model.LightImpl;
+import com.programyourhome.hue.model.PyhLightImpl;
 import com.programyourhome.hue.model.LightType;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.model.PlugImpl;
@@ -100,7 +100,7 @@ public class PhilipsHueImpl implements PhilipsHue {
     @Override
     public Collection<PyhLight> getLights() {
         return this.getCache().getAllLights().stream()
-                .map(phLight -> new LightImpl(phLight))
+                .map(phLight -> new PyhLightImpl(phLight))
                 .collect(Collectors.toList());
     }
 

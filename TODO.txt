@@ -4,12 +4,17 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Naming convention for PYH domain classes: PyhSomething, to avoid conflicts with other API's like Philips and own config JAXB classes
 - Document all various comments in some kind of format (Github Flavored MD?)
 - Document configuration decisions: properties file for technical stuff (connection info, account info, datasources, etc.)
+- PYH Utils: extract the common module functionality
+- Put git ignore of common stuff (.project, .classpath, .settings, target) at a higher level, so they are not needed per project
+- Config XSD/XML files: why in separate module for server, but not for modules themselves? -> accept or move server config inside server module
 - XSD/XML at server level for 'filling' the server with content en behaviour (activities, rules, etc)
 - XSD/XML per module with non-technical, or at least more subject related stuff, like devices for IR, etc.
+- Internally in modules: use mapping from id to model impl value object to easily do existence checks and retrieve data
 - Naming scheme:
 
 - Think about and make consistent: the xsd namespaces for main config and module configs
   -> name 'clash' for tags infraRed / infraRedConfig in main/server and infrared spcific config files
+- When to use camel case, when dashes '-'?
 
 Module names and abbreviations:
 Sync usage of these over the whole of PYH:

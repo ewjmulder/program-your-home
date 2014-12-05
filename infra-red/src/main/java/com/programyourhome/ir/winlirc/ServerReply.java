@@ -1,4 +1,4 @@
-package com.programyourhome.ir.model;
+package com.programyourhome.ir.winlirc;
 
 import java.util.ArrayList;
 import java.util.List;

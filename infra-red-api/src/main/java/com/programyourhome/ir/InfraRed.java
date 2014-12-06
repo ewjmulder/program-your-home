@@ -8,6 +8,10 @@ public interface InfraRed {
 
     public Collection<PyhDevice> getDevices();
 
+    // TODO: have the possibility to get a device type, e.g.: getVolumeDevice(int deviceId) ??
+
+    // TODO: Add extra device types: play/pause/forward thingy and menu-thingy (menu/back/enter/arrows)
+
     public void turnOn(int deviceId);
 
     public void turnOff(int deviceId);

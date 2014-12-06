@@ -6,6 +6,11 @@
             <xsd:element name="devices" type="devices" />
             <xsd:element name="volumeControl" type="id" minOccurs="0" />
             <xsd:element name="channelControl" type="id" minOccurs="0" />
+            <xsd:element name="playControl" type="id" minOccurs="0" />
+            <xsd:element name="skipControl" type="id" minOccurs="0" />
+            <xsd:element name="recordControl" type="id" minOccurs="0" />
+            <xsd:element name="menuControl" type="id" minOccurs="0" />
+            <xsd:element name="keys" type ="keys" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="devices">
@@ -25,6 +30,17 @@
                     <xsd:element name="input" type="xsd:string" minOccurs="0" />
                 </xsd:sequence>
             </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keys">
+        <xsd:sequence>
+            <xsd:element name="key" type="key" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="key">
+        <xsd:sequence>
+            <xsd:element name="device" type="id" />
+            <xsd:element name="id" type="id" />
         </xsd:sequence>
     </xsd:complexType>
 </xsd:schema>

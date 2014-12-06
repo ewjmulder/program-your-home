@@ -64,7 +64,6 @@
                         <device>
                             <id>2</id>
                             <turnOn>true</turnOn>
-                            <input>HDMI1</input>
                         </device>
                         <device>
                             <id>3</id>
@@ -77,6 +76,19 @@
                     </devices>
                     <volumeControl>1</volumeControl>
                     <channelControl>3</channelControl>
+                    <playControl>3</playControl>
+                    <recordControl>3</recordControl>
+                    <menuControl>3</menuControl>
+                    <keys>
+                        <key>
+                            <device>3</device>
+                            <id>72</id>
+                        </key>
+                        <key>
+                            <device>3</device>
+                            <id>73</id>
+                        </key>
+                    </keys>
                 </infraRed>
             </modules>
         </activity>

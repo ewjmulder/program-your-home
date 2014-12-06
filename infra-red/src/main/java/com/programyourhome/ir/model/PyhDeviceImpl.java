@@ -17,6 +17,10 @@ public class PyhDeviceImpl implements PyhDevice {
     private final boolean isInputDevice;
     private final boolean isVolumeDevice;
     private final boolean isChannelDevice;
+    private final boolean isPlayDevice;
+    private final boolean isSkipDevice;
+    private final boolean isRecordDevice;
+    private final boolean isMenuDevice;
     private final List<String> inputs;
     private final List<String> extraKeys;
 
@@ -28,6 +32,10 @@ public class PyhDeviceImpl implements PyhDevice {
         this.isInputDevice = device.getPrototypes().isInput();
         this.isVolumeDevice = device.getPrototypes().isVolume();
         this.isChannelDevice = device.getPrototypes().isChannel();
+        this.isPlayDevice = device.getPrototypes().isPlay();
+        this.isSkipDevice = device.getPrototypes().isSkip();
+        this.isRecordDevice = device.getPrototypes().isRecord();
+        this.isMenuDevice = device.getPrototypes().isMenu();
 
         // TODO: Generify these two, possibly use some (statis) util where this key getting pattern is placed.
         this.inputs = device.getRemote().getKeyMapping().getKeyGroups().stream()
@@ -87,13 +95,33 @@ public class PyhDeviceImpl implements PyhDevice {
     }
 
     @Override
+    public boolean isPlayDevice() {
+        return this.isPlayDevice;
+    }
+
+    @Override
+    public boolean isSkipDevice() {
+        return this.isSkipDevice;
+    }
+
+    @Override
+    public boolean isRecordDevice() {
+        return this.isRecordDevice;
+    }
+
+    @Override
+    public boolean isMenuDevice() {
+        return this.isMenuDevice;
+    }
+
+    @Override
     public List<String> getInputs() {
-        return null;
+        return new ArrayList<>(this.inputs);
     }
 
     @Override
     public List<String> getExtraKeys() {
-        return new ArrayList<String>(this.extraKeys);
+        return new ArrayList<>(this.extraKeys);
     }
 
 }

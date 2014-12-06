@@ -18,6 +18,14 @@ public interface PyhDevice {
 
     public boolean isChannelDevice();
 
+    public boolean isPlayDevice();
+
+    public boolean isSkipDevice();
+
+    public boolean isRecordDevice();
+
+    public boolean isMenuDevice();
+
     public List<String> getInputs();
 
     public List<String> getExtraKeys();

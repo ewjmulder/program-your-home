@@ -29,6 +29,10 @@
             <xsd:element name="input" type="xsd:boolean" />
             <xsd:element name="volume" type="xsd:boolean" />
             <xsd:element name="channel" type="xsd:boolean" />
+            <xsd:element name="play" type="xsd:boolean" />
+            <xsd:element name="skip" type="xsd:boolean" />
+            <xsd:element name="record" type="xsd:boolean" />
+            <xsd:element name="menu" type="xsd:boolean" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="remote">
@@ -115,6 +119,22 @@
             <xsd:enumeration value="channel9"></xsd:enumeration>
             <xsd:enumeration value="channelUp"></xsd:enumeration>
             <xsd:enumeration value="channelDown"></xsd:enumeration>
+            <xsd:enumeration value="play"></xsd:enumeration>
+            <xsd:enumeration value="pause"></xsd:enumeration>
+            <xsd:enumeration value="playPause"></xsd:enumeration>
+            <xsd:enumeration value="stop"></xsd:enumeration>
+            <xsd:enumeration value="fastForward"></xsd:enumeration>
+            <xsd:enumeration value="rewind"></xsd:enumeration>
+            <xsd:enumeration value="skipNext"></xsd:enumeration>
+            <xsd:enumeration value="skipPrevious"></xsd:enumeration>
+            <xsd:enumeration value="record"></xsd:enumeration>
+            <xsd:enumeration value="menuToggle"></xsd:enumeration>
+            <xsd:enumeration value="menuSelect"></xsd:enumeration>
+            <xsd:enumeration value="menuBack"></xsd:enumeration>
+            <xsd:enumeration value="menuArrowUp"></xsd:enumeration>
+            <xsd:enumeration value="menuArrowDown"></xsd:enumeration>
+            <xsd:enumeration value="menuArrowLeft"></xsd:enumeration>
+            <xsd:enumeration value="menuArrowRight"></xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
 </xsd:schema>

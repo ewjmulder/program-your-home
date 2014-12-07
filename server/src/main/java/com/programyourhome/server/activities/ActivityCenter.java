@@ -5,11 +5,13 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.config.Activity;
+import com.programyourhome.config.Device;
 import com.programyourhome.config.InfraRedConfig;
 import com.programyourhome.config.Light;
 import com.programyourhome.config.PhilipsHueConfig;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Mood;
+import com.programyourhome.ir.InfraRed;
 
 @Component
 public class ActivityCenter {
@@ -21,6 +23,9 @@ public class ActivityCenter {
 
     @Autowired
     private PhilipsHue philipsHue;
+
+    @Autowired
+    private InfraRed infraRed;
 
     public void startActivity(final Activity activity) {
         // TODO: make modules into some kind of collection? hmm, but then how to call right activator?
@@ -48,7 +53,16 @@ public class ActivityCenter {
     }
 
     private void activateIrModule(final InfraRedConfig irConfig) {
-        // TODO
+        for (final Device device : irConfig.getDevices()) {
+            if (device.getTurnOff() != null) {
+                this.infraRed.turnOff(device.getId());
+            } else {
+                this.infraRed.turnOn(device.getId());
+                if (device.getInput() != null) {
+                    this.infraRed.setInput(device.getId(), device.getInput());
+                }
+            }
+        }
     }
 
 }

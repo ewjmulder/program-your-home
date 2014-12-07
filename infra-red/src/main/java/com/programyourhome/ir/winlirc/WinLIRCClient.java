@@ -110,7 +110,7 @@ public class WinLIRCClient {
         return this.sendCommand(COMMAND_LIST + " " + remote.getName()).getData();
     }
 
-    public void pressRemoteKey(final String remoteName, final String key) {
+    public synchronized void pressRemoteKey(final String remoteName, final String key) {
         if (!this.remotes.containsKey(remoteName)) {
             throw new IllegalArgumentException("Unknown remote: '" + remoteName + "'.");
         }
@@ -125,7 +125,7 @@ public class WinLIRCClient {
         }
     }
 
-    private ServerReply sendCommand(final String command) throws IOException {
+    private synchronized ServerReply sendCommand(final String command) throws IOException {
         this.out.println(command);
         final ServerReply reply = ServerReply.parse(this.readServerReply());
         if (!reply.isSuccess()) {

@@ -10,7 +10,8 @@ public class ConfigUtil {
     public static Collection<Key> extractAllKeys(final Device device) {
         final Set<Key> allKeys = new HashSet<Key>();
         allKeys.addAll(device.getRemote().getKeyMapping().getKeyGroups().stream()
-                .flatMap(keyGroup -> keyGroup.getKeys().stream().map(key -> extractKey(keyGroup, key)))
+                // TODO: remove this Eclipse compiler hint when on Eclipse Mars.
+                .<Key> flatMap(keyGroup -> keyGroup.getKeys().stream().map(key -> extractKey(keyGroup, key)))
                 .collect(Collectors.toSet()));
         allKeys.addAll(device.getRemote().getKeyMapping().getKeys());
         return allKeys;

@@ -24,7 +24,7 @@ import com.programyourhome.hue.model.PyhLight;
 import com.programyourhome.hue.model.PyhPlug;
 
 @Component
-@PropertySource("classpath:com/programyourhome/config/infra-red/properties/philips-hue.properties")
+@PropertySource("classpath:com/programyourhome/config/philips-hue/properties/philips-hue.properties")
 public class PhilipsHueImpl implements PhilipsHue {
 
     // TODO: There is a rate limit on the bridge, limiting the amount of requests it can handle / you can send

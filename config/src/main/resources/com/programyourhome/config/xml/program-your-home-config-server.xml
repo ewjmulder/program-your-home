@@ -59,7 +59,7 @@
                         <device>
                             <id>1</id>
                             <turnOn>true</turnOn>
-                            <input>HDMI1</input>
+                            <input>HDMI 1</input>
                         </device>
                         <device>
                             <id>2</id>

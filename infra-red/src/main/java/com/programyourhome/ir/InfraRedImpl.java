@@ -1,8 +1,14 @@
 package com.programyourhome.ir;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -29,11 +35,18 @@ public class InfraRedImpl implements InfraRed {
     // TODO: make asychronous, with internal queueing machanism that waits a small time between IR commands of different devices and
     // a configured time between IR command of the same device (general wait and possible override per key (like POWER)
 
+    private final ScheduledExecutorService pressRemoteKeyService;
+    // TODO: document: a queue with keys to press for every device. always retains the last key pressed, to be able to check if the required delay has passed.
+    private final Map<String, Queue<RemoteKeyPress>> keyPressQueues;
+
     @Value("${winlirc.host}")
     private String winlircHost;
 
     @Value("${winlirc.port}")
     private int winlircPort;
+
+    @Value("${keyPressInterval}")
+    private int keyPressInterval;
 
     @Autowired
     private InfraRedConfigHolder configHolder;
@@ -45,14 +58,41 @@ public class InfraRedImpl implements InfraRed {
 
     public InfraRedImpl() {
         this.deviceStates = new HashMap<>();
+        this.pressRemoteKeyService = Executors.newScheduledThreadPool(1);
+        this.keyPressQueues = new HashMap<>();
     }
 
     @PostConstruct
     public void init() throws Exception {
-        this.winLircClient.connect(this.winlircHost, this.winlircPort);
-        // Assume all devices are turned off at server startup time.
+        // TODO: temp turned off to be able to test without winlirc.
+        // this.winLircClient.connect(this.winlircHost, this.winlircPort);
+        // Fake a non-blocking last key press to start off each queue.
+        final RemoteKeyPress dummyKeyPress = new RemoteKeyPress("dummy", "dummy", 0);
+        dummyKeyPress.press();
         for (final Device device : this.configHolder.getConfig().getDevices()) {
+            // Assume all devices are turned off at server startup time.
             this.deviceStates.put(device.getId(), new DeviceState());
+            this.keyPressQueues.put(device.getName(), new LinkedList<>(Arrays.asList(dummyKeyPress)));
+        }
+        this.pressRemoteKeyService.scheduleAtFixedRate(this::pressKeys, this.keyPressInterval, this.keyPressInterval, TimeUnit.MILLISECONDS);
+    }
+
+    private void pressKeys() {
+        for (final String deviceName : this.keyPressQueues.keySet()) {
+            final Queue<RemoteKeyPress> queue = this.keyPressQueues.get(deviceName);
+            if (queue.size() > 1) {
+                final RemoteKeyPress lastKeyPress = queue.peek();
+                // Can we press the next key yet? True if the current time is past the last key pressed time + the required delay.
+                if (System.currentTimeMillis() > lastKeyPress.getPressedOn() + lastKeyPress.getDelay()) {
+                    // Remove the last pressed key.
+                    queue.poll();
+                    // The new head is our next key to press.
+                    final RemoteKeyPress nextKeyPress = queue.peek();
+                    nextKeyPress.press();
+                    System.out.println("pressRemoteKey(" + nextKeyPress.getRemoteName() + ", " + nextKeyPress.getKeyName() + ")");
+                    // this.winLircClient.pressRemoteKey(nextKeyPress.getRemoteName(), nextKeyPress.getKeyName());
+                }
+            }
         }
     }
 
@@ -64,8 +104,18 @@ public class InfraRedImpl implements InfraRed {
     }
 
     private Device getDevice(final int deviceId) {
+        return this.getDeviceByPredicate(device -> device.getId() == deviceId);
+    }
+
+    private Device getDevice(final String deviceName) {
+        return this.getDeviceByPredicate(device -> device.getName().equals(deviceName));
+    }
+
+    // TODO: generify even this method by getXbyPred<X> with generic stream/collection -> google if it might already exists in the Java API.
+    // If own implementation, move to PyhUtils
+    private Device getDeviceByPredicate(final Predicate<Device> predicate) {
         return this.configHolder.getConfig().getDevices().stream()
-                .filter(device -> device.getId() == deviceId)
+                .filter(predicate)
                 .findFirst()
                 .get();
     }
@@ -75,28 +125,36 @@ public class InfraRedImpl implements InfraRed {
     }
 
     private String getKeyNameOfType(final int deviceId, final KeyType keyType) {
-        return this.getKeyNameForPredicate(deviceId, key -> key.getType() == keyType);
+        return this.getKeyNameByPredicate(deviceId, key -> key.getType() == keyType);
     }
 
     private String getKeyName(final int deviceId, final int keyId) {
-        return this.getKeyNameForPredicate(deviceId, key -> key.getId() == keyId);
+        return this.getKeyNameByPredicate(deviceId, key -> key.getId() == keyId);
     }
 
-    private String getKeyNameForPredicate(final int deviceId, final Predicate<Key> predicate) {
+    private Key getKeyByName(final int deviceId, final String keyName) {
+        return this.getKeyByPredicate(deviceId, key -> key.getName().equals(keyName));
+    }
+
+    private String getKeyNameByPredicate(final int deviceId, final Predicate<Key> predicate) {
+        return this.getKeyByPredicate(deviceId, predicate).getName();
+    }
+
+    private Key getKeyByPredicate(final int deviceId, final Predicate<Key> predicate) {
         return ConfigUtil.extractAllKeys(this.getDevice(deviceId)).stream()
                 .filter(predicate)
                 .findFirst()
-                .get().getName();
+                .get();
     }
 
     private void pressRemoteKeyType(final int deviceId, final KeyType keyType) {
-        // TODO: Put the key pressing on a queue that takes devices and delays into account, see TODO on top of this class.
         this.pressRemoteKeyName(deviceId, this.getKeyNameOfType(deviceId, keyType));
     }
 
     private void pressRemoteKeyName(final int deviceId, final String keyName) {
-        // TODO: Put the key pressing on a queue that takes devices and delays into account, see TODO on top of this class.
-        this.winLircClient.pressRemoteKey(this.getRemoteName(deviceId), keyName);
+        final Key key = this.getKeyByName(deviceId, keyName);
+        // Put the key press on the queue for that device.
+        this.keyPressQueues.get(this.getDevice(deviceId).getName()).add(new RemoteKeyPress(this.getRemoteName(deviceId), key.getName(), key.getDelay()));
     }
 
     @Override

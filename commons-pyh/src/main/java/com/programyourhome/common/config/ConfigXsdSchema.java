@@ -26,7 +26,11 @@ public class ConfigXsdSchema {
                 // The systemId contains the path as it is encountered in the <xsd:include> tag.
                 // So if we take the base path of the XSD, we can find the right file to include.
                 // Note: this only suffices if there are no sub-includes in the included files themselves.
-                final String basePath = path.substring(0, path.lastIndexOf('/'));
+                // FIXME: Fix this in a nice way!
+                String basePath = path.substring(0, path.lastIndexOf('/') + 1);
+                if (baseURI != null && baseURI.contains("modules")) {
+                    basePath += "modules/";
+                }
                 final InputStream resourceAsStream = ConfigXsdSchema.this.getStream(basePath + systemId);
                 return new XsdSchemaIncludeInput(publicId, systemId, resourceAsStream);
             }

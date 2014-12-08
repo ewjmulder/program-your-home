@@ -17,7 +17,7 @@ import com.programyourhome.ir.InfraRed;
 public class ServerConfigLoader extends ConfigLoader<ServerConfig> {
 
     private static final String CONFIG_BASE_PATH = "/com/programyourhome/config/";
-    private static final String XSD_BASE_PATH = CONFIG_BASE_PATH + "xml/";
+    private static final String XSD_BASE_PATH = CONFIG_BASE_PATH + "xsd/";
     private static final String XML_BASE_PATH = CONFIG_BASE_PATH + "xml/";
     private static final String ICON_BASE_PATH = CONFIG_BASE_PATH + "icons/";
     private static final String XSD_FILENAME = "program-your-home-config-server.xsd";

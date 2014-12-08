@@ -9,8 +9,8 @@ import com.programyourhome.ir.InfraRed;
 @Component
 public class InfraRedConfigLoader extends ConfigLoader<InfraRedConfig> {
 
-    private static final String CONFIG_BASE_PATH = "/com/programyourhome/config/infra-red";
-    private static final String XSD_BASE_PATH = CONFIG_BASE_PATH + "xml/";
+    private static final String CONFIG_BASE_PATH = "/com/programyourhome/config/infra-red/";
+    private static final String XSD_BASE_PATH = CONFIG_BASE_PATH + "xsd/";
     private static final String XML_BASE_PATH = CONFIG_BASE_PATH + "xml/";
     private static final String XSD_FILENAME = "infra-red.xsd";
     private static final String XML_FILENAME = "infra-red.xml";

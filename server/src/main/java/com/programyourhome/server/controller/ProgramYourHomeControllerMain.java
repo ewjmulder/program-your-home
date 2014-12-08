@@ -47,7 +47,7 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     @Autowired
     private PhilipsHue philipsHue;
 
-    // @Autowired
+    @Autowired
     private InfraRed infraRed;
 
     @Autowired
@@ -62,7 +62,7 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
                 .stream()
                 .map(activity -> new PyhActivity(activity.getId(), activity.getName(), activity.getDescription(), "http://192.168.2.28:3737/img/icons/"
                         + activity.getIcon()))
-                .collect(Collectors.toList());
+                        .collect(Collectors.toList());
     }
 
     @RequestMapping("activities/{id}/start")

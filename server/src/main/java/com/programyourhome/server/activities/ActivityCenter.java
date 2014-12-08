@@ -30,7 +30,7 @@ public class ActivityCenter {
     public void startActivity(final Activity activity) {
         // TODO: make modules into some kind of collection? hmm, but then how to call right activator?
         if (activity.getModules().getPhilipsHue() != null) {
-            this.taskExecutor.execute(() -> this.activateHueModule(activity.getModules().getPhilipsHue()));
+            // this.taskExecutor.execute(() -> this.activateHueModule(activity.getModules().getPhilipsHue()));
         }
         if (activity.getModules().getInfraRed() != null) {
             this.taskExecutor.execute(() -> this.activateIrModule(activity.getModules().getInfraRed()));

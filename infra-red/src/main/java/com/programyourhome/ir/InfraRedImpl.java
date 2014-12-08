@@ -37,6 +37,7 @@ public class InfraRedImpl implements InfraRed {
 
     private final ScheduledExecutorService pressRemoteKeyService;
     // TODO: document: a queue with keys to press for every device. always retains the last key pressed, to be able to check if the required delay has passed.
+    // TODO: move queueing mechanism to seperate class?
     private final Map<String, Queue<RemoteKeyPress>> keyPressQueues;
 
     @Value("${winlirc.host}")
@@ -158,17 +159,19 @@ public class InfraRedImpl implements InfraRed {
     }
 
     @Override
-    public void turnOn(final int deviceId) {
+    public synchronized void turnOn(final int deviceId) {
         // Only hit the power key if the device is currently off.
         if (this.deviceStates.get(deviceId).isTurnedOff()) {
+            this.deviceStates.get(deviceId).turnOn();
             this.pressRemoteKeyType(deviceId, KeyType.POWER);
         }
     }
 
     @Override
-    public void turnOff(final int deviceId) {
+    public synchronized void turnOff(final int deviceId) {
         // Only hit the power key if the device is currently on.
         if (this.deviceStates.get(deviceId).isTurnedOn()) {
+            this.deviceStates.get(deviceId).turnOff();
             this.pressRemoteKeyType(deviceId, KeyType.POWER);
         }
     }

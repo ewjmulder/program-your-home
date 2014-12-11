@@ -67,6 +67,10 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}/start")
     public void startActivity(@PathVariable("id") final int id) {
+        // TODO: generalize! (see below). How about a general 'ensure' for Option<T> with a message if not. But how to get that to the client?
+        // I guess I should have a custom Result type with ok or error, just like the in the Scala talks. Then all server/controller methods
+        // should return that and have some monadic way of not proceeding when a failure was encountered. Can that even be done in Java?
+        // Otherwise just custom or with helper method in common or so.
         final Optional<Activity> activity = this.getActivity(id);
         if (!activity.isPresent()) {
             // TODO: error 'page'
@@ -78,6 +82,13 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}/stop")
     public void stopActivity(@PathVariable("id") final int id) {
+        final Optional<Activity> activity = this.getActivity(id);
+        if (!activity.isPresent()) {
+            // TODO: error 'page' -> double, see above.
+            throw new IllegalArgumentException("Activity: '" + id + "' not found in config.");
+        } else {
+            this.activityCenter.stopActivity(activity.get());
+        }
     }
 
     private Optional<Activity> getActivity(final int id) {

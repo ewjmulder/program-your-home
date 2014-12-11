@@ -10,11 +10,27 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - XSD/XML at server level for 'filling' the server with content en behaviour (activities, rules, etc)
 - XSD/XML per module with non-technical, or at least more subject related stuff, like devices for IR, etc.
 - Internally in modules: use mapping from id to model impl value object to easily do existence checks and retrieve data
+- POM file management
+  - right scopes for obvious dependencies in parent pom: e.g. test for junit
+  - bom dependencies in parent, e.g. Spring
 - Naming scheme:
 
 - Think about and make consistent: the xsd namespaces for main config and module configs
   -> name 'clash' for tags infraRed / infraRedConfig in main/server and infrared spcific config files
 - When to use camel case, when dashes '-'?
+
+- Default lightning conditions - schedule (different from normal scheduling mechanism)
+            // Is setting a certain lighting condition considered an activity? Or maybe there should be some sort of default behavior
+            // with some options, that is considered the default for that day for instance. Just like a thermostate actually.
+            //EG: when at home: do this, when not:do this
+            // and do this could be either time based or 'darkness based' or combo setting scenes
+            // you could even expand that to e.g. auto-starting the news every (work)day at 8 :) -> scheduled activity activation
+            // Hmm, more generically this sounds like a scheduling feature, which is of course something that should be added.
+            // But maybe specifically for the lighting it makes sense to have a default. e.g.:
+            // - when dark -> turn light on at mood level depending on the current time, between energy (16:00) and relax (20:00)
+            // From 20:00 onward (max), stay at relax, but slowly decrease brightness till 24:00 (lowest brightness)
+            // Turning off completely still will be a manual action.
+
 
 Module names and abbreviations:
 Sync usage of these over the whole of PYH:

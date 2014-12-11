@@ -37,6 +37,16 @@ public class ActivityCenter {
         }
     }
 
+    public void stopActivity(final Activity activity) {
+        // TODO: make modules into some kind of collection? hmm, but then how to call right activator?
+        if (activity.getModules().getPhilipsHue() != null) {
+            // this.taskExecutor.execute(() -> this.deactivateHueModule(activity.getModules().getPhilipsHue()));
+        }
+        if (activity.getModules().getInfraRed() != null) {
+            this.taskExecutor.execute(() -> this.deactivateIrModule(activity.getModules().getInfraRed()));
+        }
+    }
+
     private void activateHueModule(final PhilipsHueConfig hueConfig) {
         for (final Light light : hueConfig.getLights()) {
             if (light.getTurnOff() != null) {
@@ -55,12 +65,36 @@ public class ActivityCenter {
     private void activateIrModule(final InfraRedConfig irConfig) {
         for (final Device device : irConfig.getDevices()) {
             if (device.getTurnOff() != null) {
+                // TODO: should there even be an option to explicitely turn off devices? Or only when interfering with other activities?
+                // Maybe keep that freedom, if you really want to turn off a certain device, even though it might not interfere otherwise
                 this.infraRed.turnOff(device.getId());
             } else {
                 this.infraRed.turnOn(device.getId());
                 if (device.getInput() != null) {
                     this.infraRed.setInput(device.getId(), device.getInput());
                 }
+            }
+        }
+    }
+
+    private void deactivateHueModule(final PhilipsHueConfig hueConfig) {
+        for (final Light light : hueConfig.getLights()) {
+            // TODO: what does it mean to deactivate an activity when talking about Hue?
+            // Maybe go back to previous state? Or default state? Or default depending on time of day(light). -> yes, see general todo.
+            // Only deactivate lights that were explicitely overridden by this activity. And re-activate overridden lights from other
+            // (still active) activities.
+        }
+    }
+
+    private void deactivateIrModule(final InfraRedConfig irConfig) {
+        for (final Device device : irConfig.getDevices()) {
+            if (device.getTurnOff() != null) {
+                // TODO: Do not turn on devices again? probably best if there is a conflict in activities
+                // for devices that you must stop the other activity (or for all?) lighting might have a use.
+                // How about this: conflicts will just be overridden by default and not restored. Can always change in the future.
+            } else {
+                // The devices that should be turned on for this activity, now should be turned off.
+                this.infraRed.turnOff(device.getId());
             }
         }
     }

@@ -7,6 +7,8 @@ Grappige / leuke ideeen:
 - Toon integratie: https://github.com/rvdm/toon
   - Verwarming uit bij geen beweging voor bepaalde tijd
 - Licht effecten bij bepaalde events (afspraken / mail oid)
+- Aansturen via stem / geluidspieken
+  - Gebruik Java RxStream: stream / skipwhile / takewhile etc voor peak detection in sound stream
 - Muziek keuken aansturen
 - Elke nacht wifi repeaters rebooten
 - NS API voor actuele vertrektijden / storingen in Driebergen Zeist

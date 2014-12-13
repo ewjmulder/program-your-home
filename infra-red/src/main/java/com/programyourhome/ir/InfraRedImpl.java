@@ -1,5 +1,6 @@
 package com.programyourhome.ir;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,6 +9,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -59,14 +62,33 @@ public class InfraRedImpl implements InfraRed {
 
     public InfraRedImpl() {
         this.deviceStates = new HashMap<>();
-        this.pressRemoteKeyService = Executors.newScheduledThreadPool(1);
+
+        // TODO: put somewhere else and reuse
+        final ThreadFactory factory = new ThreadFactory() {
+
+            @Override
+            public Thread newThread(final Runnable target) {
+                final Thread thread = new Thread(target);
+                thread.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+
+                    @Override
+                    public void uncaughtException(final Thread t, final Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                });
+                return thread;
+            }
+
+        };
+
+        this.pressRemoteKeyService = Executors.newScheduledThreadPool(1, factory);
         this.keyPressQueues = new HashMap<>();
     }
 
     @PostConstruct
     public void init() throws Exception {
-        // TODO: temp turned off to be able to test without winlirc.
-        // this.winLircClient.connect(this.winlircHost, this.winlircPort);
+        this.winLircClient.connect(this.winlircHost, this.winlircPort);
         // Fake a non-blocking last key press to start off each queue.
         final RemoteKeyPress dummyKeyPress = new RemoteKeyPress("dummy", "dummy", 0);
         dummyKeyPress.press();
@@ -75,7 +97,25 @@ public class InfraRedImpl implements InfraRed {
             this.deviceStates.put(device.getId(), new DeviceState());
             this.keyPressQueues.put(device.getName(), new LinkedList<>(Arrays.asList(dummyKeyPress)));
         }
-        this.pressRemoteKeyService.scheduleAtFixedRate(this::pressKeys, this.keyPressInterval, this.keyPressInterval, TimeUnit.MILLISECONDS);
+        final ScheduledFuture future = this.pressRemoteKeyService.scheduleAtFixedRate(this::pressKeys, this.keyPressInterval, this.keyPressInterval,
+                TimeUnit.MILLISECONDS);
+        // this.pressRemoteKeyService.execute(new Runnable() {
+        //
+        // @Override
+        // public void run() {
+        // try {
+        // future.get();
+        // // dead code here?
+        // } catch (final InterruptedException e) {
+        // e.printStackTrace();
+        // } catch (final CancellationException e) {
+        // e.printStackTrace();
+        // } catch (final ExecutionException e) {
+        // e.printStackTrace();
+        // }
+        // }
+        //
+        // });
     }
 
     private void pressKeys() {
@@ -90,8 +130,8 @@ public class InfraRedImpl implements InfraRed {
                     // The new head is our next key to press.
                     final RemoteKeyPress nextKeyPress = queue.peek();
                     nextKeyPress.press();
-                    System.out.println("pressRemoteKey(" + nextKeyPress.getRemoteName() + ", " + nextKeyPress.getKeyName() + ")");
-                    // this.winLircClient.pressRemoteKey(nextKeyPress.getRemoteName(), nextKeyPress.getKeyName());
+                    // System.out.println("pressRemoteKey(" + nextKeyPress.getRemoteName() + ", " + nextKeyPress.getKeyName() + ")");
+                    this.winLircClient.pressRemoteKey(nextKeyPress.getRemoteName(), nextKeyPress.getKeyName());
                 }
             }
         }
@@ -155,7 +195,7 @@ public class InfraRedImpl implements InfraRed {
     private void pressRemoteKeyName(final int deviceId, final String keyName) {
         final Key key = this.getKeyByName(deviceId, keyName);
         // Put the key press on the queue for that device.
-        this.keyPressQueues.get(this.getDevice(deviceId).getName()).add(new RemoteKeyPress(this.getRemoteName(deviceId), key.getName(), key.getDelay()));
+        this.keyPressQueues.get(this.getDevice(deviceId).getName()).add(new RemoteKeyPress(this.getRemoteName(deviceId), key.getWinlircName(), key.getDelay()));
     }
 
     @Override

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Program You Home - Web App</title>
+		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.structure.min.css">
+		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.theme.min.css">
+		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var request = new XMLHttpRequest();
+				request.onreadystatechange = function() {
+					if (request.readyState == 4 && request.status == 200) {
+						$("#debug").html(request.responseText);
+						var activities = JSON.parse(request.responseText);
+						$("#activities").html("");
+						for (var i = 0; i < activities.length; i++) {
+							$("#activities").append(buildActivity(activities[i]));
+						}
+					}
+				}
+				request.open("GET","http://192.168.2.28:3737/main/activities", true);
+				request.send();
+			});
+			function escapeHTML(s) {
+				return String(s).replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+			};
+			function buildActivity(activity) {
+				return "<div>" + activity.name + "<br /><a href='http://192.168.2.28:3737/main/activities/" + activity.id + "/start'>" +
+				"<img src='" + activity.iconUrl + "' width='128' height='128' title='" + escapeHTML(activity.description) + "' />" +
+				"</a></div>";
+			};
+		</script>
+	</head>
+	<body>
+		Welcome to the <b>Program You Home - Web App</b> test page!<br />
+		<br />
+		<div id="activities">
+			Loading activities...<br />
+		</div>
+		<br />
+		<br />
+		<div id="debug">
+		</div>
+	</body>
+</html>

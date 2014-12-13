@@ -24,6 +24,8 @@
         <module>eneco-toon</module>
 
         <module>bootstrap</module>
+        
+        <module>web-app</module>
     </modules>
 
     <properties>

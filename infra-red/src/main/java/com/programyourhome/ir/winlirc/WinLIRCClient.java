@@ -110,14 +110,17 @@ public class WinLIRCClient {
         return this.sendCommand(COMMAND_LIST + " " + remote.getName()).getData();
     }
 
-    public synchronized void pressRemoteKey(final String remoteName, final String key) {
+    public void pressRemoteKey(final String remoteName, final String key) {
         if (!this.remotes.containsKey(remoteName)) {
+            System.out.println("Unknown remote: '" + remoteName + "'.");
             throw new IllegalArgumentException("Unknown remote: '" + remoteName + "'.");
         }
         if (!this.remotes.get(remoteName).getKeys().contains(key)) {
+            System.out.println("Remote: '" + remoteName + "' does not contain the key: '" + key + "'.");
             throw new IllegalArgumentException("Remote: '" + remoteName + "' does not contain the key: '" + key + "'.");
         }
         try {
+            System.out.println("About to send command: " + remoteName + "->" + key);
             this.sendCommand(COMMAND_SEND + " " + remoteName + " " + key);
         } catch (final IOException e) {
             // TODO: throw event of dome sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)

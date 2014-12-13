@@ -1,5 +1,7 @@
 package com.programyourhome.activities.model;
 
+import com.programyourhome.config.Activity;
+
 //TODO: Abstract with interfaces?
 public class PyhActivity {
 
@@ -8,11 +10,17 @@ public class PyhActivity {
     private final String description;
     private final String iconUrl;
 
-    public PyhActivity(final int id, final String name, final String description, final String iconUrl) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.iconUrl = iconUrl;
+    public PyhActivity(final Activity activity, final String defaultIconFilename) {
+        this.id = activity.getId();
+        this.name = activity.getName();
+        this.description = activity.getDescription();
+        final String iconFilename;
+        if (activity.getIcon() != null) {
+            iconFilename = activity.getIcon();
+        } else {
+            iconFilename = defaultIconFilename;
+        }
+        this.iconUrl = "http://192.168.2.28:3737/img/icons/" + iconFilename;
     }
 
     public int getId() {

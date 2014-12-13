@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serverConfig xmlns="http://programyourhome.com/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config ../xsd/program-your-home-config-server.xsd">
+    <defaultIcon>default.png</defaultIcon>
     <activities>
         <activity>
             <id>1</id>
@@ -62,23 +63,19 @@
                             <input>HDMI 1</input>
                         </device>
                         <device>
-                            <id>2</id>
-                            <turnOn>true</turnOn>
-                        </device>
-                        <device>
                             <id>3</id>
                             <turnOn>true</turnOn>
                         </device>
                         <device>
                             <id>4</id>
-                            <turnOff>true</turnOff>
+                            <turnOn>true</turnOn>
                         </device>
                     </devices>
                     <volumeControl>1</volumeControl>
-                    <channelControl>3</channelControl>
-                    <playControl>3</playControl>
-                    <recordControl>3</recordControl>
-                    <menuControl>3</menuControl>
+                    <channelControl>4</channelControl>
+                    <playControl>4</playControl>
+                    <recordControl>4</recordControl>
+                    <menuControl>4</menuControl>
                     <keys>
                         <key>
                             <device>3</device>

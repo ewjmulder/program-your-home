@@ -1,3 +1,7 @@
+Finally the Toon update has arrived and we can start to hack the hue support! First we need to find out what the Hue Bridge discovery
+method is that Toon uses, so we can spoof being a Hue Bridge. See this page: http://www.developers.meethue.com/documentation/hue-bridge-discovery
+for more info on the possible methods. Probably it will use at least UPnP, so the Java lib http://4thline.org/projects/cling/ is probably a nice one to start with.
+
 IDEA: Trick Toon into thinking it gets data from the internet, while it's actually coming from me!
 And with that trick, use the new Hue support to actually control the PYH server with that! (scenes -> activities...)
 

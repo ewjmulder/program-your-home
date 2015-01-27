@@ -64,6 +64,7 @@ public class InfraRedImpl implements InfraRed {
         this.deviceStates = new HashMap<>();
 
         // TODO: put somewhere else and reuse
+        // FIXME: this does not work, see online explanation of why not and how to fix. Maybe use our own wrapper catch all that logs properly?
         final ThreadFactory factory = new ThreadFactory() {
 
             @Override

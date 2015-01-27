@@ -88,38 +88,34 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         }
     }
 
+    @RequestMapping("activities/{id}/volumeUp")
+    public void activityVolumeUp(@PathVariable("id") final int id) {
+        final Optional<Activity> activity = this.getActivity(id);
+        if (!activity.isPresent()) {
+            // TODO: error 'page' -> double, see above.
+            throw new IllegalArgumentException("Activity: '" + id + "' not found in config.");
+            // TODO: no else, well just use the optional way in a smart way.
+        } else {
+            // TODO: Another step in the cycle: optional usage really wanted here (read online how to)
+            final Optional<Integer> volumeDevice = this.getVolumeDeviceId(activity.get());
+            if (!volumeDevice.isPresent()) {
+                // TODO: error 'page' -> double, see above.
+                throw new IllegalArgumentException("Activity: '" + id + "' has no volume device.");
+            }
+            this.infraRed.volumeUp(volumeDevice.get());
+        }
+    }
+
     private Optional<Activity> getActivity(final int id) {
         return this.getServerConfig().getActivities().stream().filter(activity -> activity.getId() == id).findFirst();
     }
 
-    // TODO: IR stuff
-
-    // // TODO: Get from some kind of config / script
-    // // TODO: Stop activities that conflict
-    // if (name.equals("Watch TV")) {
-    // this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
-    // this.sleep(200);
-    // this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
-    // this.sleep(200);
-    // this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
-    // this.sleep(4000);
-    // this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "INPUT_HDMI1");
-    // }
-    // // TODO: Get from some kind of config / script
-    // // TODO: is that activity actually running?
-    // if (name.equals("Watch TV")) {
-    // this.infraRed.pressRemoteKey("SAMSUNG-BN59-00685A", "POWER");
-    // this.sleep(200);
-    // this.infraRed.pressRemoteKey("YAMAHA-RAV338-MAIN-ZONE", "POWER");
-    // this.sleep(200);
-    // this.infraRed.pressRemoteKey("MOTOROLA-VIP1853", "POWER");
-    // }
-
-    private void sleep(final int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (final InterruptedException e) {
+    private Optional<Integer> getVolumeDeviceId(final Activity activity) {
+        Optional<Integer> volumeDevice = Optional.empty();
+        if (activity.getModules().getInfraRed() != null) {
+            volumeDevice = Optional.ofNullable(activity.getModules().getInfraRed().getVolumeControl());
         }
+        return volumeDevice;
     }
 
 }

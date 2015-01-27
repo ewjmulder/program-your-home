@@ -71,21 +71,17 @@
                             <turnOn>true</turnOn>
                         </device>
                     </devices>
+                    <keys>
+                        <key>
+                            <device>4</device>
+                            <id>72</id>
+                        </key>
+                    </keys>
                     <volumeControl>1</volumeControl>
                     <channelControl>4</channelControl>
                     <playControl>4</playControl>
                     <recordControl>4</recordControl>
                     <menuControl>4</menuControl>
-                    <keys>
-                        <key>
-                            <device>3</device>
-                            <id>72</id>
-                        </key>
-                        <key>
-                            <device>3</device>
-                            <id>73</id>
-                        </key>
-                    </keys>
                 </infraRed>
             </modules>
         </activity>

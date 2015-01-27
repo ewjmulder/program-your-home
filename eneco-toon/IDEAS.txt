@@ -2,6 +2,48 @@ Finally the Toon update has arrived and we can start to hack the hue support! Fi
 method is that Toon uses, so we can spoof being a Hue Bridge. See this page: http://www.developers.meethue.com/documentation/hue-bridge-discovery
 for more info on the possible methods. Probably it will use at least UPnP, so the Java lib http://4thline.org/projects/cling/ is probably a nice one to start with.
 
+Notes: Toon seems to cache the bridge IP, because after a succesful bridge discovery, it will claim that a bridge has been found,
+even though there is no bridge on the network anymore and even thoughthe toon itself has no internet anymore!
+
+Steps taken: factory reset to find out what happens the first time when toon tries to connect to the bridge
+First all setup steps have to be 'walked though', takes quite some time...
+Nefit Ecomline Classic 2003
+
+Clone of Hue Bridge behaviour:
+https://github.com/sagen/hue-upnp
+
+Can't seem to snif the Toon UPnP search query / the Hue response and the hue broadcast.
+Maybe snif on the bridge side?
+Must be some communication between Toon and Hue, but what and how to pinpoint it in the best way?
+After initial bridge discovery, the IP is very probably saved at the Toon side and cannot be redetermined
+(although there might be some background (re)checking going on)
+
+UPnP response(s) from Hue:
+
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=100
+EXT:
+LOCATION: http://192.168.2.100:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+ST: upnp:rootdevice
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b::upnp:rootdevice
+
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=100
+EXT:
+LOCATION: http://192.168.2.100:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+ST: uuid:2f402f80-da50-11e1-9b23-00178818572b
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b
+
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=100
+EXT:
+LOCATION: http://192.168.2.100:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+ST: urn:schemas-upnp-org:device:basic:1
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b
+
 IDEA: Trick Toon into thinking it gets data from the internet, while it's actually coming from me!
 And with that trick, use the new Hue support to actually control the PYH server with that! (scenes -> activities...)
 

@@ -1,12 +1,16 @@
 package com.programyourhome.server.activities;
 
+import java.awt.Color;
+import java.util.Set;
+import java.util.concurrent.Executor;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.config.Activity;
 import com.programyourhome.config.Device;
 import com.programyourhome.config.InfraRedConfig;
+import com.programyourhome.config.Key;
 import com.programyourhome.config.Light;
 import com.programyourhome.config.PhilipsHueConfig;
 import com.programyourhome.hue.PhilipsHue;
@@ -16,10 +20,8 @@ import com.programyourhome.ir.InfraRed;
 @Component
 public class ActivityCenter {
 
-    // TODO: keep state somewhere, take that into account when activating activities.
-
     @Autowired
-    private TaskExecutor taskExecutor;
+    private Executor taskExecutor;
 
     @Autowired
     private PhilipsHue philipsHue;
@@ -27,8 +29,16 @@ public class ActivityCenter {
     @Autowired
     private InfraRed infraRed;
 
-    public void startActivity(final Activity activity) {
-        // TODO: make modules into some kind of collection? hmm, but then how to call right activator?
+    // TODO: naming: active / started / running / ongoing?
+    private Set<Activity> activeActivities;
+
+    // TODO: probable race condition: quickly starting/stopping activities one after the other.
+    // Possible solution: make (de)activation actions guaranteed in order / remove from active after all modules completed deactivation
+    public synchronized void startActivity(final Activity activity) {
+        if (this.activeActivities.contains(activity)) {
+            throw new IllegalStateException("Activity already active");
+        }
+        this.activeActivities.add(activity);
         if (activity.getModules().getPhilipsHue() != null) {
             this.taskExecutor.execute(() -> this.activateHueModule(activity.getModules().getPhilipsHue()));
         }
@@ -37,8 +47,11 @@ public class ActivityCenter {
         }
     }
 
-    public void stopActivity(final Activity activity) {
-        // TODO: make modules into some kind of collection? hmm, but then how to call right activator?
+    public synchronized void stopActivity(final Activity activity) {
+        if (!this.activeActivities.contains(activity)) {
+            throw new IllegalStateException("Activity is not active");
+        }
+        this.activeActivities.remove(activity);
         if (activity.getModules().getPhilipsHue() != null) {
             this.taskExecutor.execute(() -> this.deactivateHueModule(activity.getModules().getPhilipsHue()));
         }
@@ -52,9 +65,16 @@ public class ActivityCenter {
             if (light.getTurnOff() != null) {
                 this.philipsHue.turnOffLight(light.getId());
             } else {
-                if (light.getColorHueSaturation() != null) {
+                if (light.getColorRGB() != null) {
+                    this.philipsHue.dimToColorRGB(light.getId(), light.getDim(),
+                            new Color(light.getColorRGB().getRed(), light.getColorRGB().getGreen(), light.getColorRGB().getBlue()));
+                } else if (light.getColorXY() != null) {
+                    this.philipsHue.dimToColorXY(light.getId(), light.getDim(), light.getColorXY().getX(), light.getColorXY().getY());
+                } else if (light.getColorHueSaturation() != null) {
                     this.philipsHue.dimToColorHueSaturation(light.getId(), light.getDim(), light.getColorHueSaturation().getHue(), light
                             .getColorHueSaturation().getSaturation());
+                } else if (light.getColorTemperature() != null) {
+                    this.philipsHue.dimToColorTemperature(light.getId(), light.getDim(), light.getColorTemperature());
                 } else if (light.getColorMood() != null) {
                     this.philipsHue.dimToMood(light.getId(), light.getDim(), Mood.valueOf(light.getColorMood().toString()));
                 }
@@ -65,8 +85,6 @@ public class ActivityCenter {
     private void activateIrModule(final InfraRedConfig irConfig) {
         for (final Device device : irConfig.getDevices()) {
             if (device.getTurnOff() != null) {
-                // TODO: should there even be an option to explicitely turn off devices? Or only when interfering with other activities?
-                // Maybe keep that freedom, if you really want to turn off a certain device, even though it might not interfere otherwise
                 this.infraRed.turnOff(device.getId());
             } else {
                 this.infraRed.turnOn(device.getId());
@@ -74,6 +92,9 @@ public class ActivityCenter {
                     this.infraRed.setInput(device.getId(), device.getInput());
                 }
             }
+        }
+        for (final Key key : irConfig.getKeys()) {
+            this.infraRed.pressKeyOnRemote(key.getDevice(), key.getId());
         }
     }
 

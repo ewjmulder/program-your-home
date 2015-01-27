@@ -54,6 +54,7 @@ public class ServerConfigLoader extends ConfigLoader<ServerConfig> {
         // IR:
         // - check device id's against existing devices
         // - check used device input's against existing device inputs
+        // - check if keys from activity devices are actually devices that should be turned on
     }
 
     private void validateMain(final ServerConfig serverConfig) {

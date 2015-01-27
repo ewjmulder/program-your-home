@@ -4,13 +4,13 @@
     <xsd:complexType name="infraRedConfig">
         <xsd:sequence>
             <xsd:element name="devices" type="devices" />
+            <xsd:element name="keys" type ="keys" minOccurs="0" />
             <xsd:element name="volumeControl" type="id" minOccurs="0" />
             <xsd:element name="channelControl" type="id" minOccurs="0" />
             <xsd:element name="playControl" type="id" minOccurs="0" />
             <xsd:element name="skipControl" type="id" minOccurs="0" />
             <xsd:element name="recordControl" type="id" minOccurs="0" />
             <xsd:element name="menuControl" type="id" minOccurs="0" />
-            <xsd:element name="keys" type ="keys" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="devices">

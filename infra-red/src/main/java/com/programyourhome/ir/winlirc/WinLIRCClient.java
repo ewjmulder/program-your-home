@@ -26,6 +26,7 @@ public class WinLIRCClient {
     private static final String COMMAND_SEND = "SEND_ONCE";
 
     // TODO: move to properties of some kind
+    // TODO: rewrite to class duration or so?
     private static final long REFRESH_INITIAL_DELAY = 500;
     private static final long REFRESH_INTERVAL = 5 * 60 * 1000;
 

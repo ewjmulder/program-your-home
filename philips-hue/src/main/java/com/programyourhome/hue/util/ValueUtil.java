@@ -2,7 +2,7 @@ package com.programyourhome.hue.util;
 
 public class ValueUtil {
 
-    private static final double MAX_BASIS_POINTS = 10000D;
+    private static final int MAX_BASIS_POINTS = 10000;
 
     public static final int BRIGHTNESS_MIN_VALUE = 0;
     public static final int BRIGHTNESS_MAX_VALUE = 254;
@@ -36,7 +36,7 @@ public class ValueUtil {
     }
 
     private static int basisPointsToInt(final int basisPoints, final int minValue, final int maxValue) {
-        return minValue + (int) ((basisPoints / MAX_BASIS_POINTS) * (maxValue - minValue));
+        return minValue + (int) ((((double) basisPoints) / MAX_BASIS_POINTS) * (maxValue - minValue));
     }
 
 }

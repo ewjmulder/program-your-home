@@ -3,7 +3,11 @@ method is that Toon uses, so we can spoof being a Hue Bridge. See this page: htt
 for more info on the possible methods. Probably it will use at least UPnP, so the Java lib http://4thline.org/projects/cling/ is probably a nice one to start with.
 
 Notes: Toon seems to cache the bridge IP, because after a succesful bridge discovery, it will claim that a bridge has been found,
-even though there is no bridge on the network anymore and even thoughthe toon itself has no internet anymore!
+even though there is no bridge on the network anymore and even though the toon itself has no internet anymore!
+
+Idea: try to 'take over' the Hue IP and provide the custom 'light info' from your own server under the old Hue IP.
+Meanwhile, let the Hue continue on a new ip, so that keeps working.
+Result -> Works for a while, but Toon 'detects' the new Hue IP and switches to that. Probably because of the UPnP notify's of the Hue.
 
 Steps taken: factory reset to find out what happens the first time when toon tries to connect to the bridge
 First all setup steps have to be 'walked though', takes quite some time...
@@ -17,8 +21,38 @@ Maybe snif on the bridge side?
 Must be some communication between Toon and Hue, but what and how to pinpoint it in the best way?
 After initial bridge discovery, the IP is very probably saved at the Toon side and cannot be redetermined
 (although there might be some background (re)checking going on)
+No -> if you change the bridge IP, it will auto-discover this and use the new one.
+Also, if you disconnected the bridge in Toon and re-discover, it'll say a (new) bridge has been found.
+Question remains: how does Toon find Hue? It seems there is no actual Upnp search, at least not after the first
+succesful connection. Probably it just waits for the Hue broadcast and respons the that?
+-> no, now I remember, Toon will cache the MAC address of the Hue and after an ARP ... hmm no, also not water tight reasoning
 
-UPnP response(s) from Hue:
+Let's reboot are thoughts and also Toon and see what happens then
+First it NBNS itself on the network as ENECO-001 and TOON
+Then it actually does do a active UPnP M-SEARCH on the network!
+A small time later our dear Hue bridge responds with it's known UPnP reply (see below).
+Not much later Toon HTTP gets the description from Hue and now knows it has found a bridge!
+Note: this is all during the config screens for the user
+After config screen finish the popup on the Toon screen notifies the user of the hue bridge and when pressing connect it will
+only do a post on the /api to discover the button needs to be presse, no further discovery
+When you actually connect with the button, it will do another post (prob. every 5 secs for some time) with only a device type
+Hue will respond with success and provide a (random) username
+Then Toon continues with the main json info page from Hue and acts as a 'normal' Hue client
+
+If Toon comes online after factory reset, it does one M-SEARCH, as noted above.
+When no Hue is present on the network at the time of boot, there will obviously be no Hue popup
+When you manually select search for bridge, Toon will actually do nothing! (at least no public broadcast)
+Probably it just waits for the bridge broadcast?
+Twice in a row no bridge found, while Hue was already connected for some time.
+Just after stopping the search and stopping capturing, Toon did show the popup.
+Try again, no Hue at boot time, connect hue, wait for popup on Toon.
+Does popup after a while, although the NOTIFY from the bridge was some 20 seconds earlier
+Again it was preceded by an ARP "Who has 192.168.2.102?" Why do that if you already know the IP?
+- Default way the network works first time connecting to an IP?
+- Getting the MAC address a bridge identification information?
+- Or really an important step in the discovery process?
+
+UPnP response(s) from Hue: -> Note: aren't these just broadcasts? -> No, these are responses!
 
 HTTP/1.1 200 OK
 CACHE-CONTROL: max-age=100
@@ -43,6 +77,155 @@ LOCATION: http://192.168.2.100:80/description.xml
 SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
 ST: urn:schemas-upnp-org:device:basic:1
 USN: uuid:2f402f80-da50-11e1-9b23-00178818572b
+
+
+HTTP description.xml response:
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+<specVersion>
+<major>1</major>
+<minor>0</minor>
+</specVersion>
+<URLBase>http://192.168.2.102:80/</URLBase>
+<device>
+<deviceType>urn:schemas-upnp-org:device:Basic:1</deviceType>
+<friendlyName>Philips hue (192.168.2.102)</friendlyName>
+<manufacturer>Royal Philips Electronics</manufacturer>
+<manufacturerURL>http://www.philips.com</manufacturerURL>
+<modelDescription>Philips hue Personal Wireless Lighting</modelDescription>
+<modelName>Philips hue bridge 2012</modelName>
+<modelNumber>929000226503</modelNumber>
+<modelURL>http://www.meethue.com</modelURL>
+<serialNumber>00178818572b</serialNumber>
+<UDN>uuid:2f402f80-da50-11e1-9b23-00178818572b</UDN>
+<presentationURL>index.html</presentationURL>
+<iconList>
+<icon>
+<mimetype>image/png</mimetype>
+<height>48</height>
+<width>48</width>
+<depth>24</depth>
+<url>hue_logo_0.png</url>
+</icon>
+<icon>
+<mimetype>image/png</mimetype>
+<height>120</height>
+<width>120</width>
+<depth>24</depth>
+<url>hue_logo_3.png</url>
+</icon>
+</iconList>
+</device>
+</root>
+
+
+These are broadcasts, groups of 6 (3 doubles of different UPnP devices), with an interval of approx. 1 minute:
+
+NOTIFY * HTTP/1.1
+HOST: 239.255.255.250:1900
+CACHE-CONTROL: max-age=100
+LOCATION: http://192.168.2.102:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+NTS: ssdp:alive
+NT: upnp:rootdevice
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b::upnp:rootdevice
+
+NOTIFY * HTTP/1.1
+HOST: 239.255.255.250:1900
+CACHE-CONTROL: max-age=100
+LOCATION: http://192.168.2.102:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+NTS: ssdp:alive
+NT: upnp:rootdevice
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b::upnp:rootdevice
+
+NOTIFY * HTTP/1.1
+HOST: 239.255.255.250:1900
+CACHE-CONTROL: max-age=100
+LOCATION: http://192.168.2.102:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+NTS: ssdp:alive
+NT: uuid:2f402f80-da50-11e1-9b23-00178818572b
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b
+
+NOTIFY * HTTP/1.1
+HOST: 239.255.255.250:1900
+CACHE-CONTROL: max-age=100
+LOCATION: http://192.168.2.102:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+NTS: ssdp:alive
+NT: uuid:2f402f80-da50-11e1-9b23-00178818572b
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b
+
+NOTIFY * HTTP/1.1
+HOST: 239.255.255.250:1900
+CACHE-CONTROL: max-age=100
+LOCATION: http://192.168.2.102:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+NTS: ssdp:alive
+NT: urn:schemas-upnp-org:device:basic:1
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b
+
+NOTIFY * HTTP/1.1
+HOST: 239.255.255.250:1900
+CACHE-CONTROL: max-age=100
+LOCATION: http://192.168.2.102:80/description.xml
+SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/0.1
+NTS: ssdp:alive
+NT: urn:schemas-upnp-org:device:basic:1
+USN: uuid:2f402f80-da50-11e1-9b23-00178818572b
+
+
+When simulating the above, Toon will actually pick up our Hue Bridge simulation!!
+It gets the description.xml and displays the MAC address,
+which it gets from the <serialNumber> tag in the description.xml (so not the real one from the network card)
+With actual Hue also connected, it only displays simulator. Maybe UPnP communicated id's needs uniqueness as well.
+So next goal: get them both on the Toon radar and be able to choose which one to connect to.
+Yes!! Making those unique worked and Toon now sais there are 2 Hue Bridges on the network!
+It displays the name (friendly name from description.xml without ip?) and MAC address (serial number from description.xml)
+Connecting to real bridge with toon, disconnecting and reconnect again shows 2 bridges!
+
+TODO:
+- Normal Toon - Hue connect, no 2nd bridge, add 2nd bridge to network, disconnect, see 2?
+  - Unfortunately, this is not possible. After you successfully connected to a bridge once, Toon will keep that MAC address
+    and suggest to reconnect to that bridge again, even if another (simulated) bridge has entered the network since then.
+    Possible workaround: spoof the MAC of the original bridge and disconnect original bridge
+      - Toon should pick up the new ip from the description.xml of the 'new' bridge
+      - works even better when also spoofing the original IP
+      - might work, at least the description on the new IP is actually read by Toon, but no post on API when trying to reconnect
+      - stopped trying this, because it has a big downside:
+        the original bridge can never be active simultaneously, otherwise they would clash
+        And you do want the original bridge still active, for instance for the Hue smartphone app ...
+        wait, of course it should still be there, who else is going to turn the lights on and off!! :)
+      - Ok, this one does not make sense at all!
+    Actually a good workaround is to connect Toon to another, separate wifi network that only has the simulated bridge on it.
+    This does require quite some extra network configuration though.
+    
+    Ok, the above does not work was based on a test with a non running Apache, so no description.xml getting. Let's try again.
+    Yeeha, it does work! It is a little fragile though, couse not only (of course) do you need to provide a description.xml,
+    the friendly name should also include the original text 'Philips hue (ip.ip.ip.ip)'. Otherwise the Toon does read the description.xml,
+    but does not display the bridge in the list of possible bridges to connect to.
+    
+    The only unique things are the IP and the MAC. The MAC you can choose yourself, and it is funny to pick something HEXSPEAK,
+    so the simulated bridge is still easy to spot.
+    Links with HEX SPEAK:
+    http://en.wikipedia.org/wiki/Hexspeak
+    https://reminiscential.wordpress.com/2008/09/03/hexspeak-word-list/
+    
+    hex speak key:
+    a b c d e f 1=i/l 0=o 5=s
+
+    Funny suggestions:
+    ACCE551B1E
+    CA5EACCE55ED
+    FEA51B1ECA5E     <-- this one I'm going to use = feasible case :-)
+      
+- What is the minimal set that is needed? Or not really relevant, real simulation is prob. best.
+- What prop in description xml shows up as name on Toon?
+- Expand simulator with UPnP reply behaviour of MSEARCH? - see https://github.com/sagen/hue-upnp
+- Hack away the bridge lights on the simulator! :-)
+
 
 IDEA: Trick Toon into thinking it gets data from the internet, while it's actually coming from me!
 And with that trick, use the new Hue support to actually control the PYH server with that! (scenes -> activities...)

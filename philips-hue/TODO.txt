@@ -1,3 +1,9 @@
+There now is an official Hue forum:
+http://www.developers.meethue.com/forum
+Go check it out and make your bug reports / points:
+- Bugs about events / reconnects
+- Why not open source?
+
 Check out this: http://www.developers.meethue.com/documentation/configuration-api
 to see if it contains any interesting stuff
 

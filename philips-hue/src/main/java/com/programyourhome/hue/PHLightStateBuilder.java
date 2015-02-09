@@ -53,7 +53,7 @@ public class PHLightStateBuilder {
 
     public PHLightStateBuilder colorRGB(final Color color) {
         // TODO: keep here or move to utility class?
-        final float xy[] = PHUtilities.calculateXYFromRGB(color.getRed(), color.getGreen(), color.getBlue(), this.phLight.getModelNumber());
+        final float[] xy = PHUtilities.calculateXYFromRGB(color.getRed(), color.getGreen(), color.getBlue(), this.phLight.getModelNumber());
         return this.colorXY(xy[0], xy[1]);
     }
 

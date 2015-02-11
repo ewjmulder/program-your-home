@@ -106,10 +106,6 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         }
     }
 
-    private Optional<Activity> getActivity(final int id) {
-        return this.getServerConfig().getActivities().stream().filter(activity -> activity.getId() == id).findFirst();
-    }
-
     private Optional<Integer> getVolumeDeviceId(final Activity activity) {
         Optional<Integer> volumeDevice = Optional.empty();
         if (activity.getModules().getInfraRed() != null) {

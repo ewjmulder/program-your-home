@@ -1,6 +1,7 @@
 package com.programyourhome.server.activities;
 
 import java.awt.Color;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -30,12 +31,20 @@ public class ActivityCenter {
     private InfraRed infraRed;
 
     // TODO: naming: active / started / running / ongoing?
-    private Set<Activity> activeActivities;
+    private final Set<Activity> activeActivities;
+
+    public ActivityCenter() {
+        this.activeActivities = new HashSet<Activity>();
+    }
+
+    public synchronized boolean isActive(final Activity activity) {
+        return this.activeActivities.contains(activity);
+    }
 
     // TODO: probable race condition: quickly starting/stopping activities one after the other.
     // Possible solution: make (de)activation actions guaranteed in order / remove from active after all modules completed deactivation
     public synchronized void startActivity(final Activity activity) {
-        if (this.activeActivities.contains(activity)) {
+        if (this.isActive(activity)) {
             throw new IllegalStateException("Activity already active");
         }
         this.activeActivities.add(activity);
@@ -48,7 +57,7 @@ public class ActivityCenter {
     }
 
     public synchronized void stopActivity(final Activity activity) {
-        if (!this.activeActivities.contains(activity)) {
+        if (!this.isActive(activity)) {
             throw new IllegalStateException("Activity is not active");
         }
         this.activeActivities.remove(activity);

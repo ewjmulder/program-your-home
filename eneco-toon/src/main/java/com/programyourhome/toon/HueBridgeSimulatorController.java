@@ -1,32 +1,49 @@
 package com.programyourhome.toon;
 
 import java.awt.Color;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.programyourhome.config.Activity;
 import com.programyourhome.huebridgesimulator.model.menu.MenuItem;
 import com.programyourhome.huebridgesimulator.model.menu.SimColor;
+import com.programyourhome.server.activities.ActivityCenter;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 
 @RestController
 @RequestMapping("huebridgesimulator")
-public class HueBridgeSimulatorController {
+public class HueBridgeSimulatorController extends AbstractProgramYourHomeController {
 
-    private String item1 = "Test name";
-    private String item2 = "Other test";
+    @Autowired
+    private ActivityCenter activityCenter;
 
     @RequestMapping(value = "currentMenu", method = RequestMethod.GET)
     public MenuItem[] getCurrentMenu() {
-        return new MenuItem[] { new MenuItem(this.item1, new SimColor(Color.RED), true), new MenuItem(this.item2, new SimColor(Color.BLUE), false) };
+        return this.getServerConfig().getActivities().stream()
+                .map(activity -> new MenuItem(activity.getName(), new SimColor(Color.GREEN), this.activityCenter.isActive(activity)))
+                .collect(Collectors.toList())
+                .toArray(new MenuItem[0]);
     }
 
-    @RequestMapping(value = "menuItemSelected/{name}", method = RequestMethod.PUT)
-    public void menuItemSelected(@PathVariable("name") final String itemName) {
-        final String temp = this.item1;
-        this.item1 = this.item2;
-        this.item2 = temp;
+    @RequestMapping(value = "menuItemClicked/{name}/{on}", method = RequestMethod.PUT)
+    public void menuItemClicked(@PathVariable("name") final String activityName, @PathVariable("on") final boolean on) {
+        final Optional<Activity> activity = this.getActivity(activityName);
+        if (activity.isPresent()) {
+            if (on) {
+                this.activityCenter.startActivity(activity.get());
+            } else {
+                this.activityCenter.stopActivity(activity.get());
+            }
+        } else {
+            // TODO: How to process an error here?
+            throw new IllegalArgumentException("Activity: '" + activityName + "' does not exist.");
+        }
     }
 
 }

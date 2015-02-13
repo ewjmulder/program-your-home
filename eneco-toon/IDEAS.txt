@@ -223,8 +223,15 @@ TODO:
       
 - What is the minimal set that is needed? Or not really relevant, real simulation is prob. best.
 - What prop in description xml shows up as name on Toon?
+  - I now got it working using 'Philips hue simulator' in the friendly name. It seems that either it should be
+    exactly 'Philips hue (ip.ip.ip.ip)' the first time you connect. Or it should at least start with 'Philips hue'.
+    That least idea makes sense, cause the Toon programmers might have used something like 'if (friendlyName.startsWith('Philips hue')) { displayName = // cut off bracketed part }
+    It is a good test case though to see if this new friendly name works directly out of the box or that once connected
+    it is more lenient. Would be a bit weird though.
 - Expand simulator with UPnP reply behaviour of MSEARCH? - see https://github.com/sagen/hue-upnp
 - Hack away the bridge lights on the simulator! :-)
+  - Yeeha, done, including connection to the main program your home server, see sep. github project hue-bridge-simulator
+
 
 
 IDEA: Trick Toon into thinking it gets data from the internet, while it's actually coming from me!

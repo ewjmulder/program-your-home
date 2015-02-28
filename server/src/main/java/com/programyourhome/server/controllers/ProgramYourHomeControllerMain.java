@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,12 +54,18 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     @Autowired
     private ActivityCenter activityCenter;
 
+    @Value("${server.address}")
+    private String host;
+
+    @Value("${server.port}")
+    private int port;
+
     // TODO: put activities in separate module?
     @RequestMapping("activities")
     public Collection<PyhActivity> getActivities() {
         final String defaultIcon = this.getServerConfig().getDefaultIcon();
         return this.getServerConfig().getActivities().stream()
-                .map(activity -> new PyhActivity(activity, defaultIcon))
+                .map(activity -> new PyhActivity(activity, "http://" + this.host + ":" + this.port + "/", defaultIcon))
                 .collect(Collectors.toList());
     }
 

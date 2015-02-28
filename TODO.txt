@@ -1,18 +1,20 @@
 Technical / architecture TODO:
 - Add checkstyle plugin / eclipse settings for lots of stuff including javadoc
 X Set JAVA_HOME back to Java 8 after Scala Coursera is done
-- Check usage of synchronized, same thread can (of course) still enter synchronized methods of the same class!
+- Property files only need to be imported once, and it can be any (Spring) class. Plus Spring boot config can be in there as well!
+- Check usage of synchronized, same thread can (of course) still enter synchronized methods of the same class! (particularly with looping and adding/removing)
 - Naming convention for PYH domain classes: PyhSomething, to avoid conflicts with other API's like Philips and own config JAXB classes
 - Document all various comments in some kind of format (Github Flavored MD?)
 - Document configuration decisions: properties file for technical stuff (connection info, account info, datasources, etc.)
 - PYH Utils: extract the common module functionality
+- UTF-8 property is inherited from parent right? So no need to repeat it in all child projects everywhere.
 - Put git ignore of common stuff (.project, .classpath, .settings, target) at a higher level, so they are not needed per project
 - Config XSD/XML files: why in separate module for server, but not for modules themselves? -> accept or move server config inside server module
 - XSD/XML at server level for 'filling' the server with content en behaviour (activities, rules, etc)
 - XSD/XML per module with non-technical, or at least more subject related stuff, like devices for IR, etc.
 - Internally in modules: use mapping from id to model impl value object to easily do existence checks and retrieve data
 - POM file management
-  - right scopes for obvious dependencies in parent pom: e.g. test for junit
+  - right scopes for obvious dependencies in parent pom: e.g. test for junit (hmm, or not, not really clear on child project what the scope is)
   - bom dependencies in parent, e.g. Spring
 - Naming scheme:
 

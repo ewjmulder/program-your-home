@@ -10,7 +10,8 @@ public class PyhActivity {
     private final String description;
     private final String iconUrl;
 
-    public PyhActivity(final Activity activity, final String defaultIconFilename) {
+    // TODO: Weird to provide baseUrl to activity, make a separate icon/image class?
+    public PyhActivity(final Activity activity, final String baseUrl, final String defaultIconFilename) {
         this.id = activity.getId();
         this.name = activity.getName();
         this.description = activity.getDescription();
@@ -20,7 +21,7 @@ public class PyhActivity {
         } else {
             iconFilename = defaultIconFilename;
         }
-        this.iconUrl = "http://192.168.2.28:3737/img/icons/" + iconFilename;
+        this.iconUrl = baseUrl + "/img/icons/" + iconFilename;
     }
 
     public int getId() {

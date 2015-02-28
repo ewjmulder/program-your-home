@@ -34,19 +34,19 @@ public class ProgramYourHomeControllerHue extends AbstractProgramYourHomeControl
 
     @RequestMapping("lights/{id}/on")
     // TODO: filtering on known plug-lights on server side with config
-    public void turnOnLight(@PathVariable("id") final int id) {
+    public void turnOn(@PathVariable("id") final int id) {
         this.philipsHue.turnOnLight(id);
     }
 
     @RequestMapping("lights/{id}/off")
     // TODO: filtering on known plug-lights on server side with config
-    public void turnOffLight(@PathVariable("id") final int id) {
+    public void turnOff(@PathVariable("id") final int id) {
         this.philipsHue.turnOffLight(id);
     }
 
     @RequestMapping("lights/{id}/dim/{dim:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void dimLight(@PathVariable("id") final int id, @PathVariable("dim") final int dimBasisPoints) {
+    public void dim(@PathVariable("id") final int id, @PathVariable("dim") final int dimBasisPoints) {
         this.philipsHue.dim(id, dimBasisPoints);
     }
 

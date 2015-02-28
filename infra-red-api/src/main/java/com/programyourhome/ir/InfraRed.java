@@ -8,10 +8,6 @@ public interface InfraRed {
 
     public Collection<PyhDevice> getDevices();
 
-    // TODO: have the possibility to get a device type, e.g.: getVolumeDevice(int deviceId) ??
-
-    // TODO: Add extra device types: play/pause/forward thingy and menu-thingy (menu/back/enter/arrows)
-
     public void turnOn(int deviceId);
 
     public void turnOff(int deviceId);
@@ -30,6 +26,36 @@ public interface InfraRed {
     public void channelDown(int deviceId);
 
     public void setChannel(int deviceId, int channel);
+
+    public void play(int deviceId);
+
+    public void pause(int deviceId);
+
+    public void stop(int deviceId);
+
+    public void fastForward(int deviceId);
+
+    public void rewind(int deviceId);
+
+    public void skipNext(int deviceId);
+
+    public void skipPrevious(int deviceId);
+
+    public void record(int deviceId);
+
+    public void menuToggle(int deviceId);
+
+    public void menuSelect(int deviceId);
+
+    public void menuBack(int deviceId);
+
+    public void menuUp(int deviceId);
+
+    public void menuDown(int deviceId);
+
+    public void menuLeft(int deviceId);
+
+    public void menuRight(int deviceId);
 
     public void pressKeyOnRemote(int deviceId, int keyId);
 

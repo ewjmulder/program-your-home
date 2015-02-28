@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,6 +38,8 @@ public class InfraRedImpl implements InfraRed {
 
     // TODO: make asychronous, with internal queueing machanism that waits a small time between IR commands of different devices and
     // a configured time between IR command of the same device (general wait and possible override per key (like POWER)
+
+    // TODO: failover possiblilities for non existing key types / names? (instead of Optional.get())
 
     private final ScheduledExecutorService pressRemoteKeyService;
     // TODO: document: a queue with keys to press for every device. always retains the last key pressed, to be able to check if the required delay has passed.
@@ -166,6 +169,10 @@ public class InfraRedImpl implements InfraRed {
         return this.getDevice(deviceId).getRemote().getName();
     }
 
+    private boolean hasKeyOfType(final int deviceId, final KeyType keyType) {
+        return this.getOptionKeyByPredicate(deviceId, key -> key.getType() == keyType).isPresent();
+    }
+
     private String getKeyNameOfType(final int deviceId, final KeyType keyType) {
         return this.getKeyNameByPredicate(deviceId, key -> key.getType() == keyType);
     }
@@ -183,10 +190,13 @@ public class InfraRedImpl implements InfraRed {
     }
 
     private Key getKeyByPredicate(final int deviceId, final Predicate<Key> predicate) {
+        return this.getOptionKeyByPredicate(deviceId, predicate).get();
+    }
+
+    private Optional<Key> getOptionKeyByPredicate(final int deviceId, final Predicate<Key> predicate) {
         return ConfigUtil.extractAllKeys(this.getDevice(deviceId)).stream()
                 .filter(predicate)
-                .findFirst()
-                .get();
+                .findFirst();
     }
 
     private void pressRemoteKeyType(final int deviceId, final KeyType keyType) {
@@ -255,6 +265,90 @@ public class InfraRedImpl implements InfraRed {
         for (final char c : digitsToPress.toCharArray()) {
             this.pressRemoteKeyType(deviceId, KeyType.fromValue("channel" + c));
         }
+    }
+
+    // TODO: keep track of play / pause state? (or in main activity)
+    @Override
+    public void play(final int deviceId) {
+        if (this.hasKeyOfType(deviceId, KeyType.PLAY)) {
+            this.pressRemoteKeyType(deviceId, KeyType.PLAY);
+        } else {
+            this.pressRemoteKeyType(deviceId, KeyType.PLAY_PAUSE);
+        }
+    }
+
+    @Override
+    public void pause(final int deviceId) {
+        if (this.hasKeyOfType(deviceId, KeyType.PAUSE)) {
+            this.pressRemoteKeyType(deviceId, KeyType.PAUSE);
+        } else {
+            this.pressRemoteKeyType(deviceId, KeyType.PLAY_PAUSE);
+        }
+    }
+
+    @Override
+    public void stop(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.STOP);
+    }
+
+    @Override
+    public void fastForward(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.FAST_FORWARD);
+    }
+
+    @Override
+    public void rewind(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.REWIND);
+    }
+
+    @Override
+    public void skipNext(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.SKIP_NEXT);
+    }
+
+    @Override
+    public void skipPrevious(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.SKIP_PREVIOUS);
+    }
+
+    @Override
+    public void record(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.RECORD);
+    }
+
+    @Override
+    public void menuToggle(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.MENU_TOGGLE);
+    }
+
+    @Override
+    public void menuSelect(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.MENU_SELECT);
+    }
+
+    @Override
+    public void menuBack(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.MENU_BACK);
+    }
+
+    @Override
+    public void menuUp(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.MENU_ARROW_UP);
+    }
+
+    @Override
+    public void menuDown(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.MENU_ARROW_DOWN);
+    }
+
+    @Override
+    public void menuLeft(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.MENU_ARROW_LEFT);
+    }
+
+    @Override
+    public void menuRight(final int deviceId) {
+        this.pressRemoteKeyType(deviceId, KeyType.MENU_ARROW_RIGHT);
     }
 
     @Override

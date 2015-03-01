@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.activities.model.PyhActivity;
-import com.programyourhome.config.Activity;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
+import com.programyourhome.server.config.model.Activity;
 
 @RestController
 @RequestMapping("main")

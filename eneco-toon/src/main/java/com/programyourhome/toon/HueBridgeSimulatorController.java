@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.programyourhome.config.Activity;
 import com.programyourhome.huebridgesimulator.model.menu.MenuItem;
 import com.programyourhome.huebridgesimulator.model.menu.SimColor;
 import com.programyourhome.server.activities.ActivityCenter;
+import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 
 @RestController

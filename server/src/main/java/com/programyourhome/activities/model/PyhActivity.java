@@ -1,6 +1,6 @@
 package com.programyourhome.activities.model;
 
-import com.programyourhome.config.Activity;
+import com.programyourhome.server.config.model.Activity;
 
 //TODO: Abstract with interfaces?
 public class PyhActivity {

@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.config.ConfigLoader;
 import com.programyourhome.common.config.ConfigurationException;
-import com.programyourhome.config.Activity;
-import com.programyourhome.config.ServerConfig;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
+import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.config.model.ServerConfig;
 
 @Component
 public class ServerConfigLoader extends ConfigLoader<ServerConfig> {
 
-    private static final String CONFIG_BASE_PATH = "/com/programyourhome/config/";
+    private static final String CONFIG_BASE_PATH = "/com/programyourhome/config/server/";
     private static final String XSD_BASE_PATH = CONFIG_BASE_PATH + "xsd/";
     private static final String XML_BASE_PATH = CONFIG_BASE_PATH + "xml/";
     private static final String ICON_BASE_PATH = CONFIG_BASE_PATH + "icons/";
@@ -26,7 +26,7 @@ public class ServerConfigLoader extends ConfigLoader<ServerConfig> {
     @Autowired
     private PhilipsHue philipsHue;
 
-    // @Autowired
+    @Autowired
     private InfraRed infraRed;
 
     @Override

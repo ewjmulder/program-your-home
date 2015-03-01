@@ -8,15 +8,15 @@ import java.util.concurrent.Executor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.config.Activity;
-import com.programyourhome.config.Device;
-import com.programyourhome.config.InfraRedConfig;
-import com.programyourhome.config.Key;
-import com.programyourhome.config.Light;
-import com.programyourhome.config.PhilipsHueConfig;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.ir.InfraRed;
+import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.config.model.Device;
+import com.programyourhome.server.config.model.InfraRedConfig;
+import com.programyourhome.server.config.model.Key;
+import com.programyourhome.server.config.model.Light;
+import com.programyourhome.server.config.model.PhilipsHueConfig;
 
 @Component
 public class ActivityCenter {

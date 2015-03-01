@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.programyourhome.config.Activity;
-import com.programyourhome.config.ServerConfig;
 import com.programyourhome.server.config.ServerConfigHolder;
+import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.config.model.ServerConfig;
 
 public abstract class AbstractProgramYourHomeController {
 

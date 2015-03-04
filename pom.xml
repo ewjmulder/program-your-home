@@ -12,7 +12,6 @@
         <module>model</module>
 
         <module>server</module>
-        <module>config</module>
 
         <module>philips-hue-api</module>
         <module>infra-red-api</module>

@@ -14,7 +14,7 @@ public class ProgramYourHomeControllerImg extends AbstractProgramYourHomeControl
 
     @RequestMapping(value = "icons/{filename:.*}", method = RequestMethod.GET)
     public byte[] getIcon(@PathVariable("filename") final String filename) throws IOException {
-        return IOUtils.toByteArray(this.getClass().getResourceAsStream("/com/programyourhome/config/icons/" + filename));
+        return IOUtils.toByteArray(this.getClass().getResourceAsStream("/com/programyourhome/config/server/icons/" + filename));
     }
 
 }

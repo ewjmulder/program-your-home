@@ -4,27 +4,24 @@
     <activities>
         <activity>
             <id>1</id>
-            <name>Program Your Home</name>
-            <description>Work on the Program Your Home project from the Bureau.</description>
+            <name>Laptop on TV</name>
+            <description>Show the laptop screen on the TV.</description>
+            <icon>laptop.png</icon>
             <modules>
-                <philipsHue>
-                    <lights>
-                        <light>
+                <infraRed>
+                    <devices>
+                        <device>
+                            <id>1</id>
+                            <turnOn>true</turnOn>
+                            <input>HDMI 2</input>
+                        </device>
+                        <device>
                             <id>3</id>
                             <turnOn>true</turnOn>
-                            <dim>10000</dim>
-                            <colorMood>focus</colorMood>
-                        </light>
-                        <light>
-                            <id>2</id>
-                            <turnOff>true</turnOff>
-                        </light>
-                        <light>
-                            <id>1</id>
-                            <turnOff>true</turnOff>
-                        </light>
-                    </lights>
-                </philipsHue>
+                        </device>
+                    </devices>
+                    <volumeControl>1</volumeControl>
+                </infraRed>
             </modules>
         </activity>
         <activity>
@@ -71,12 +68,6 @@
                             <turnOn>true</turnOn>
                         </device>
                     </devices>
-                    <keys>
-                        <key>
-                            <device>4</device>
-                            <id>72</id>
-                        </key>
-                    </keys>
                     <volumeControl>1</volumeControl>
                     <channelControl>4</channelControl>
                     <playControl>4</playControl>

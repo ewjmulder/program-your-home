@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programyourhome.activities.model.PyhActivity;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
+import com.programyourhome.server.ProgramYourHomeServer;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.config.model.Activity;
 
@@ -119,6 +120,14 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
             volumeDevice = Optional.ofNullable(activity.getModules().getInfraRed().getVolumeControl());
         }
         return volumeDevice;
+    }
+
+    /**
+     * Feature: shutdown the server with a REST request.
+     */
+    @RequestMapping("server/shutdown")
+    public void shutdownServer() {
+        ProgramYourHomeServer.stopServer();
     }
 
 }

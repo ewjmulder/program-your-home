@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.programyourhome.huebridgesimulator</groupId>
-            <artifactId>huebridgesimulator-rest-api</artifactId>
+            <artifactId>rest-api</artifactId>
             <version>0.5-SNAPSHOT</version>
         </dependency>
         <dependency>

@@ -29,6 +29,7 @@
                     <executable>java</executable>
                     <arguments>
                         <argument>-Djava.net.preferIPv4Stack=true</argument>
+                        <argument>-Dpyh.properties.location=${pyh.properties.location}</argument>
                         <argument>-classpath</argument>
                         <classpath />
                         <argument>com.programyourhome.bootstrap.ProgramYourHome</argument>

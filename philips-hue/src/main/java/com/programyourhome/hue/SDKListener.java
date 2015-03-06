@@ -82,7 +82,7 @@ public class SDKListener implements PHSDKListener, PHLightListener {
         // TODO: check everyhue.com forum for replies on javadoc and error message bug report
         // TODO: Pick nice value for lights heartbeat (250 seems ok, 4 timer per second updae should be enough)
         final PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
-        heartbeatManager.enableLightsHeartbeat(bridge, 100);
+        heartbeatManager.enableLightsHeartbeat(bridge, 1000);
         // this.sdk.enableHeartbeat(bridge, PHHueSDK.HB_INTERVAL);
     }
 

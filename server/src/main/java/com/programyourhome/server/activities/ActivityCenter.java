@@ -43,6 +43,7 @@ public class ActivityCenter {
 
     // TODO: probable race condition: quickly starting/stopping activities one after the other.
     // Possible solution: make (de)activation actions guaranteed in order / remove from active after all modules completed deactivation
+    // Isn't that just what the task executor per module will take care of?
     public synchronized void startActivity(final Activity activity) {
         if (this.isActive(activity)) {
             throw new IllegalStateException("Activity already active");

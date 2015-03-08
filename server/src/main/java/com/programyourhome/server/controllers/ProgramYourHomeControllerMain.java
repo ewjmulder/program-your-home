@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.programyourhome.activities.model.PyhActivity;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.ProgramYourHomeServer;
 import com.programyourhome.server.activities.ActivityCenter;
+import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
 
 @RestController
@@ -64,8 +64,8 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     // TODO: put activities in separate module?
     @RequestMapping("activities")
     public Collection<PyhActivity> getActivities() {
-        final String defaultIcon = this.getServerConfig().getDefaultIcon();
-        return this.getServerConfig().getActivities().stream()
+        final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
+        return this.getServerConfig().getActivitiesConfig().getActivities().stream()
                 .map(activity -> new PyhActivity(activity, "http://" + this.host + ":" + this.port + "/", defaultIcon))
                 .collect(Collectors.toList());
     }

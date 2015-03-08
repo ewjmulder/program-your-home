@@ -1,88 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serverConfig xmlns="http://programyourhome.com/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config ../xsd/program-your-home-config-server.xsd">
-    <defaultIcon>default.png</defaultIcon>
-    <activities>
-        <activity>
-            <id>1</id>
-            <name>Laptop on TV</name>
-            <description>Show the laptop screen on the TV.</description>
-            <icon>laptop.png</icon>
-            <modules>
-                <infraRed>
-                    <devices>
-                        <device>
-                            <id>1</id>
-                            <turnOn>true</turnOn>
-                            <input>HDMI 2</input>
-                        </device>
-                        <device>
-                            <id>3</id>
-                            <turnOn>true</turnOn>
-                        </device>
-                    </devices>
-                    <volumeControl>1</volumeControl>
-                </infraRed>
-            </modules>
-        </activity>
-        <activity>
-            <id>2</id>
-            <name>Watch TV</name>
-            <description>Watch Live TV channels, under a relaxing light.</description>
-            <icon>television.png</icon>
-            <modules>
-                <philipsHue>
-                    <lights>
-                        <light>
-                            <id>2</id>
-                            <turnOn>true</turnOn>
-                            <dim>7500</dim>
-                            <colorMood>relax</colorMood>
-                        </light>
-                        <light>
-                            <id>1</id>
-                            <turnOn>true</turnOn>
-                            <dim>5000</dim>
-                            <colorMood>relax</colorMood>
-                        </light>
-                        <light>
-                            <id>3</id>
-                            <turnOn>true</turnOn>
-                            <dim>5000</dim>
-                            <colorMood>relax</colorMood>
-                        </light>
-                    </lights>
-                </philipsHue>
-                <infraRed>
-                    <devices>
-                        <device>
-                            <id>1</id>
-                            <turnOn>true</turnOn>
-                            <input>HDMI 1</input>
-                        </device>
-                        <device>
-                            <id>3</id>
-                            <turnOn>true</turnOn>
-                        </device>
-                        <device>
-                            <id>4</id>
-                            <turnOn>true</turnOn>
-                        </device>
-                    </devices>
-                    <volumeControl>1</volumeControl>
-                    <channelControl>4</channelControl>
-                    <playControl>4</playControl>
-                    <recordControl>4</recordControl>
-                    <menuControl>4</menuControl>
-                </infraRed>
-            </modules>
-        </activity>
-        <activity>
-            <id>3</id>
-            <name>Go to sleep</name>
-            <description>Turn off any running media devices. Slowly start dimming the lights downstairs. Turn off the heater.</description>
-            <icon>night.png</icon>
-            <modules>
-            </modules>
-        </activity>
-    </activities>
+    <activitiesConfig>
+        <defaultIcon>default.png</defaultIcon>
+        <activities>
+            <activity>
+                <id>1</id>
+                <name>Laptop on TV</name>
+                <description>Show the laptop screen on the TV.</description>
+                <icon>laptop.png</icon>
+                <modules>
+                    <infraRed>
+                        <devices>
+                            <device>
+                                <id>1</id>
+                                <turnOn>true</turnOn>
+                                <input>HDMI 2</input>
+                            </device>
+                            <device>
+                                <id>3</id>
+                                <turnOn>true</turnOn>
+                            </device>
+                        </devices>
+                        <volumeControl>1</volumeControl>
+                    </infraRed>
+                </modules>
+            </activity>
+            <activity>
+                <id>2</id>
+                <name>Watch TV</name>
+                <description>Watch Live TV channels, under a relaxing light.</description>
+                <icon>television.png</icon>
+                <modules>
+                    <philipsHue>
+                        <lights>
+                            <light>
+                                <id>2</id>
+                                <turnOn>true</turnOn>
+                                <dim>7500</dim>
+                                <colorMood>relax</colorMood>
+                            </light>
+                            <light>
+                                <id>1</id>
+                                <turnOn>true</turnOn>
+                                <dim>5000</dim>
+                                <colorMood>relax</colorMood>
+                            </light>
+                            <light>
+                                <id>3</id>
+                                <turnOn>true</turnOn>
+                                <dim>5000</dim>
+                                <colorMood>relax</colorMood>
+                            </light>
+                        </lights>
+                    </philipsHue>
+                    <infraRed>
+                        <devices>
+                            <device>
+                                <id>1</id>
+                                <turnOn>true</turnOn>
+                                <input>HDMI 1</input>
+                            </device>
+                            <device>
+                                <id>3</id>
+                                <turnOn>true</turnOn>
+                            </device>
+                            <device>
+                                <id>4</id>
+                                <turnOn>true</turnOn>
+                            </device>
+                        </devices>
+                        <volumeControl>1</volumeControl>
+                        <channelControl>4</channelControl>
+                        <playControl>4</playControl>
+                        <recordControl>4</recordControl>
+                        <menuControl>4</menuControl>
+                    </infraRed>
+                </modules>
+            </activity>
+            <activity>
+                <id>3</id>
+                <name>Go to sleep</name>
+                <description>Turn off any running media devices. Slowly start dimming the lights downstairs. Turn off the heater.</description>
+                <icon>night.png</icon>
+                <modules>
+                </modules>
+            </activity>
+        </activities>
+    </activitiesConfig>
 </serverConfig>

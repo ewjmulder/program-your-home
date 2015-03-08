@@ -1,5 +1,6 @@
 package com.programyourhome.server.controllers;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,16 @@ public abstract class AbstractProgramYourHomeController {
         return this.configHolder.getConfig();
     }
 
+    private List<Activity> getActivities() {
+        return this.getServerConfig().getActivitiesConfig().getActivities();
+    }
+
     protected Optional<Activity> getActivity(final int id) {
-        return this.getServerConfig().getActivities().stream().filter(activity -> activity.getId() == id).findFirst();
+        return this.getActivities().stream().filter(activity -> activity.getId() == id).findFirst();
     }
 
     protected Optional<Activity> getActivity(final String name) {
-        return this.getServerConfig().getActivities().stream().filter(activity -> activity.getName().equals(name)).findFirst();
+        return this.getActivities().stream().filter(activity -> activity.getName().equals(name)).findFirst();
     }
 
 }

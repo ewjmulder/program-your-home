@@ -4,7 +4,7 @@ Grappige / leuke ideeen:
 - Wifi repeater reset (stroom uit/aan) na outage van experia box (internet connectie down?)
 - Telefoon opladers auto aan/uit
 - Laptop voedingen auto aan/uit
-- Toon integratie: https://github.com/rvdm/toon
+- Toon integratie: https://github.com/rvdm/toon -> Nee, hier komt een officiele Toon API voor!
   - Verwarming uit bij geen beweging voor bepaalde tijd
 - Licht effecten bij bepaalde events (afspraken / mail oid)
 - Aansturen via stem / geluidspieken

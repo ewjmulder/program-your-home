@@ -25,7 +25,7 @@ public class HueBridgeSimulatorController extends AbstractProgramYourHomeControl
 
     @RequestMapping(value = "currentMenu", method = RequestMethod.GET)
     public MenuItem[] getCurrentMenu() {
-        return this.getServerConfig().getActivities().stream()
+        return this.getServerConfig().getActivitiesConfig().getActivities().stream()
                 .map(activity -> new MenuItem(activity.getName(), this.activityCenter.isActive(activity), new SimColor(Color.GREEN)))
                 .collect(Collectors.toList())
                 .toArray(new MenuItem[0]);

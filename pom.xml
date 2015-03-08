@@ -15,9 +15,11 @@
 
         <module>philips-hue-api</module>
         <module>infra-red-api</module>
+        <module>sensors-api</module>
 
         <module>philips-hue</module>
         <module>infra-red</module>
+        <module>sensors</module>
         <module>voice-control</module>
         <module>spotify</module>
         <module>eneco-toon</module>

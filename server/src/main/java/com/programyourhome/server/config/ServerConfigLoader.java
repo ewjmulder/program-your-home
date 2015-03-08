@@ -58,7 +58,7 @@ public class ServerConfigLoader extends ConfigLoader<ServerConfig> {
     }
 
     private void validateMain(final ServerConfig serverConfig) {
-        final List<Activity> activities = serverConfig.getActivities();
+        final List<Activity> activities = serverConfig.getActivitiesConfig().getActivities();
 
         final long activityCount = activities.size();
 

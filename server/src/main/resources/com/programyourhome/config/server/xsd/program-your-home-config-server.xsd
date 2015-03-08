@@ -6,11 +6,16 @@
     <xsd:element name="serverConfig">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="defaultIcon" type="xsd:string" />
-                <xsd:element name="activities" type="activities" />
+                <xsd:element name="activitiesConfig" type="activitiesConfig" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
+    <xsd:complexType name="activitiesConfig">
+        <xsd:sequence>
+            <xsd:element name="defaultIcon" type="xsd:string" />
+            <xsd:element name="activities" type="activities" />
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="activities">
         <xsd:sequence>
             <xsd:element name="activity" type="activity" minOccurs="0" maxOccurs="unbounded" />

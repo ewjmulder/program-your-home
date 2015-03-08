@@ -1,4 +1,4 @@
-package com.programyourhome.activities.model;
+package com.programyourhome.server.activities.model;
 
 import com.programyourhome.server.config.model.Activity;
 

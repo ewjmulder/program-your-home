@@ -18,44 +18,26 @@ public class SunriseSunsetForDate {
     private static final BigDecimal DEGREE_MIN = DEGREE_MAX.negate();
     private static final BigDecimal DEGREE_STEP = BigDecimal.valueOf(0.1);
 
-    private final LocalDate date;
+    private final LocalDate today;
     private final SortedMap<LocalTime, SunSnapshot> sunSnapshots;
-    private final LocalTime astronomicalSunrise;
-    private final LocalTime nauticalSunrise;
-    private final LocalTime civilSunrise;
-    private final LocalTime officialSunrise;
-    private final LocalTime officialSunset;
-    private final LocalTime civilSunset;
-    private final LocalTime nauticalSunset;
-    private final LocalTime astronomicalSunset;
+    private final SunriseSunsetCalculator calculator;
 
     public SunriseSunsetForDate(final LocalDate date, final double longitude, final double latitude, final TimeZone timeZone) {
-        this.date = date;
+        this.today = date;
         this.sunSnapshots = new TreeMap<LocalTime, SunSnapshot>();
-
-        final SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(new Location(longitude, latitude), TimeZone.getDefault());
-        final Calendar calendarOfDate = new GregorianCalendar(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
-
-        this.astronomicalSunrise = this.toLocalTime(calculator.getAstronomicalSunriseForDate(calendarOfDate));
-        this.nauticalSunrise = this.toLocalTime(calculator.getNauticalSunriseForDate(calendarOfDate));
-        this.civilSunrise = this.toLocalTime(calculator.getCivilSunriseForDate(calendarOfDate));
-        this.officialSunrise = this.toLocalTime(calculator.getOfficialSunriseForDate(calendarOfDate));
-        this.officialSunset = this.toLocalTime(calculator.getOfficialSunsetForDate(calendarOfDate));
-        this.civilSunset = this.toLocalTime(calculator.getCivilSunsetForDate(calendarOfDate));
-        this.nauticalSunset = this.toLocalTime(calculator.getNauticalSunsetForDate(calendarOfDate));
-        this.astronomicalSunset = this.toLocalTime(calculator.getAstronomicalSunsetForDate(calendarOfDate));
+        this.calculator = new SunriseSunsetCalculator(new Location(longitude, latitude), timeZone);
 
         // Calculate the sunrise / sunset times for all possible degrees. Put them all together in a sorted map.
         for (BigDecimal degree = DEGREE_MIN; degree.compareTo(DEGREE_MAX) <= 0; degree = degree.add(DEGREE_STEP)) {
-            final Calendar sunriseCalendar = SunriseSunsetCalculator.getSunrise(longitude, latitude, timeZone, calendarOfDate,
-                    degree.doubleValue());
+            final Calendar sunriseCalendar = SunriseSunsetCalculator
+                    .getSunrise(longitude, latitude, timeZone, this.getTodayAsCalendar(), degree.doubleValue());
             if (sunriseCalendar != null) {
                 final LocalTime sunriseTime = LocalTime.of(sunriseCalendar.get(Calendar.HOUR_OF_DAY), sunriseCalendar.get(Calendar.MINUTE));
                 this.sunSnapshots.put(sunriseTime, new SunSnapshot(longitude, latitude, timeZone, date, sunriseTime, degree, true));
             }
 
-            final Calendar sunsetCalendar = SunriseSunsetCalculator.getSunset(longitude, latitude, timeZone, calendarOfDate,
-                    degree.doubleValue());
+            final Calendar sunsetCalendar = SunriseSunsetCalculator
+                    .getSunset(longitude, latitude, timeZone, this.getTodayAsCalendar(), degree.doubleValue());
             if (sunsetCalendar != null) {
                 final LocalTime sunsetTime = LocalTime.of(sunsetCalendar.get(Calendar.HOUR_OF_DAY), sunsetCalendar.get(Calendar.MINUTE));
                 this.sunSnapshots.put(sunsetTime, new SunSnapshot(longitude, latitude, timeZone, date, sunsetTime, degree, false));
@@ -78,6 +60,38 @@ public class SunriseSunsetForDate {
         }
     }
 
+    private Calendar getDayShiftAsCalendar(final DayShift dayShift) {
+        Calendar calendar;
+        if (dayShift == DayShift.YESTERDAY) {
+            calendar = this.getYesterdayAsCalendar();
+        } else if (dayShift == DayShift.TODAY) {
+            calendar = this.getTodayAsCalendar();
+        } else if (dayShift == DayShift.TOMORROW) {
+            calendar = this.getTomorrowAsCalendar();
+        } else {
+            throw new IllegalStateException("Unknown day shift: '" + dayShift);
+        }
+        return calendar;
+    }
+
+    private Calendar getTodayAsCalendar() {
+        return new GregorianCalendar(this.today.getYear(), this.today.getMonthValue() - 1, this.today.getDayOfMonth());
+    }
+
+    private Calendar getYesterdayAsCalendar() {
+        return this.getDayShiftAsCalendar(-1);
+    }
+
+    private Calendar getTomorrowAsCalendar() {
+        return this.getDayShiftAsCalendar(1);
+    }
+
+    private Calendar getDayShiftAsCalendar(final int amount) {
+        final Calendar calendar = this.getTodayAsCalendar();
+        calendar.add(Calendar.DAY_OF_YEAR, amount);
+        return calendar;
+    }
+
     private LocalTime toLocalTime(final String timeAsString) {
         final LocalTime localTime;
         if (timeAsString == null) {
@@ -89,15 +103,23 @@ public class SunriseSunsetForDate {
     }
 
     public LocalDate getDate() {
-        return this.date;
+        return this.today;
     }
 
     public LocalTime getAstronomicalSunrise() {
-        return this.astronomicalSunrise;
+        return this.getAstronomicalSunrise(DayShift.TODAY);
+    }
+
+    public LocalTime getAstronomicalSunrise(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getAstronomicalSunriseForDate(this.getDayShiftAsCalendar(dayShift)));
     }
 
     public LocalTime getNauticalSunrise() {
-        return this.nauticalSunrise;
+        return this.getNauticalSunrise(DayShift.TODAY);
+    }
+
+    public LocalTime getNauticalSunrise(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getNauticalSunriseForDate(this.getDayShiftAsCalendar(dayShift)));
     }
 
     public LocalTime getCivilSunrise() {

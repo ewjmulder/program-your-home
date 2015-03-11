@@ -11,10 +11,13 @@ public interface SunDegreeSensor {
      */
     public BigDecimal getSunDegree();
 
+    // TODO: document: 0-9, because the lowest time distance between 2 'events' is 20 minutes, on 3/9-21 on the equator.
+    // This way, no two events can return true at the same time, which makes sense.
+
     /**
      * Is now the astronomical sunrise? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the astronomical sunrise is now (true) or not (false)
      */
     public boolean isAstronomicalSunrise(int margin);
@@ -22,7 +25,7 @@ public interface SunDegreeSensor {
     /**
      * Is now the nautical sunrise? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the nautical sunrise is now (true) or not (false)
      */
     public boolean isNauticalSunrise(int margin);
@@ -30,7 +33,7 @@ public interface SunDegreeSensor {
     /**
      * Is now the civil sunrise? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the civil sunrise is now (true) or not (false)
      */
     public boolean isCivilSunrise(int margin);
@@ -38,7 +41,7 @@ public interface SunDegreeSensor {
     /**
      * Is now the official sunrise? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the official sunrise is now (true) or not (false)
      */
     public boolean isOfficialSunrise(int margin);
@@ -46,7 +49,7 @@ public interface SunDegreeSensor {
     /**
      * Is now the official sunset? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the official sunset is now (true) or not (false)
      */
     public boolean isOfficialSunset(int margin);
@@ -54,7 +57,7 @@ public interface SunDegreeSensor {
     /**
      * Is now the civil sunset? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the civil sunset is now (true) or not (false)
      */
     public boolean isCivilSunset(int margin);
@@ -62,7 +65,7 @@ public interface SunDegreeSensor {
     /**
      * Is now the nautical sunset? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the nautical sunset is now (true) or not (false)
      */
     public boolean isNauticalSunset(int margin);
@@ -70,7 +73,7 @@ public interface SunDegreeSensor {
     /**
      * Is now the astronomical sunset? The answer will be based on the calculated time +/- the margin given.
      *
-     * @param margin the margin in minutes to take into account, within the range [0, 10]
+     * @param margin the margin in minutes to take into account, within the range [0, 9]
      * @return the astronomical sunset is now (true) or not (false)
      */
     public boolean isAstronomicalSunset(int margin);

@@ -3,14 +3,14 @@ package com.programyourhome.server.rules;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.sensors.DaylightSensor;
+import com.programyourhome.sensors.SunDegreeSensor;
 import com.programyourhome.server.rules.model.PyhRule;
 
 @Component
 public class DaylightLightingRule implements PyhRule {
 
     @Autowired
-    private DaylightSensor daylightSensor;
+    private SunDegreeSensor sunDegreeSensor;
 
     @Override
     public String getName() {
@@ -30,6 +30,6 @@ public class DaylightLightingRule implements PyhRule {
 
     @Override
     public void executeAction() {
-        this.daylightSensor.getDaylight();
+        this.sunDegreeSensor.getSunDegree();
     }
 }

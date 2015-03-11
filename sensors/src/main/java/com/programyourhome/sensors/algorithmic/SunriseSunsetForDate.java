@@ -45,6 +45,15 @@ public class SunriseSunsetForDate {
         this.nauticalSunset = this.toLocalTime(calculator.getNauticalSunsetForDate(calendarOfDate));
         this.astronomicalSunset = this.toLocalTime(calculator.getAstronomicalSunsetForDate(calendarOfDate));
 
+        System.out.println("astronomicalSunrise: " + this.astronomicalSunrise);
+        System.out.println("nauticalSunrise: " + this.nauticalSunrise);
+        System.out.println("civilSunrise: " + this.civilSunrise);
+        System.out.println("officialSunrise: " + this.officialSunrise);
+        System.out.println("officialSunset: " + this.officialSunset);
+        System.out.println("civilSunset: " + this.civilSunset);
+        System.out.println("nauticalSunset: " + this.nauticalSunset);
+        System.out.println("astronomicalSunset: " + this.astronomicalSunset);
+
         // Calculate the sunrise / sunset times for all possible degrees. Put them all together in a sorted map.
         for (BigDecimal degree = DEGREE_MIN; degree.compareTo(DEGREE_MAX) <= 0; degree = degree.add(DEGREE_STEP)) {
             final Calendar sunriseCalendar = SunriseSunsetCalculator.getSunrise(longitude, latitude, timeZone, calendarOfDate,

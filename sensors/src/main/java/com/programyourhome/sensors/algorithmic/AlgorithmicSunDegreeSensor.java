@@ -28,7 +28,8 @@ public class AlgorithmicSunDegreeSensor implements SunDegreeSensor {
     }
 
     private boolean isWithinMargin(final LocalTime astronomicalSunrise) {
-        return LocalTime.now().???;
+        // return LocalTime.now().???;
+        return false;
     }
 
     @Override

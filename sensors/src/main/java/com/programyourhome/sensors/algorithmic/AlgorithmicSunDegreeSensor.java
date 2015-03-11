@@ -12,7 +12,6 @@ import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.sensors.SunDegreeSensor;
@@ -26,10 +25,12 @@ public class AlgorithmicSunDegreeSensor implements SunDegreeSensor {
     // TODO: make timezone configurable?
     private final TimeZone timeZone = TimeZone.getDefault();
 
-    @Autowired
-    private Clock clock;
-
+    private final Clock clock;
     private SunriseSunsetForDate sunriseSunsetForDate;
+
+    public AlgorithmicSunDegreeSensor() {
+        this.clock = Clock.systemDefaultZone();
+    }
 
     @PostConstruct
     public void init() {

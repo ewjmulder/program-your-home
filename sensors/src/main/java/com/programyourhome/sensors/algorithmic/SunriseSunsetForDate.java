@@ -122,29 +122,53 @@ public class SunriseSunsetForDate {
         return this.toLocalTime(this.calculator.getNauticalSunriseForDate(this.getDayShiftAsCalendar(dayShift)));
     }
 
-    // public LocalTime getCivilSunrise() {
-    // return this.civilSunrise;
-    // }
-    //
-    // public LocalTime getOfficialSunrise() {
-    // return this.officialSunrise;
-    // }
-    //
-    // public LocalTime getOfficialSunset() {
-    // return this.officialSunset;
-    // }
-    //
-    // public LocalTime getCivilSunset() {
-    // return this.civilSunset;
-    // }
-    //
-    // public LocalTime getNauticalSunset() {
-    // return this.nauticalSunset;
-    // }
-    //
-    // public LocalTime getAstronomicalSunset() {
-    // return this.astronomicalSunset;
-    // }
+    public LocalTime getCivilSunrise() {
+        return this.getCivilSunrise(DayShift.TODAY);
+    }
+
+    public LocalTime getCivilSunrise(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getCivilSunriseForDate(this.getDayShiftAsCalendar(dayShift)));
+    }
+
+    public LocalTime getOfficialSunrise() {
+        return this.getOfficialSunrise(DayShift.TODAY);
+    }
+
+    public LocalTime getOfficialSunrise(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getOfficialSunriseForDate(this.getDayShiftAsCalendar(dayShift)));
+    }
+
+    public LocalTime getOfficialSunset() {
+        return this.getOfficialSunset(DayShift.TODAY);
+    }
+
+    public LocalTime getOfficialSunset(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getOfficialSunsetForDate(this.getDayShiftAsCalendar(dayShift)));
+    }
+
+    public LocalTime getCivilSunset() {
+        return this.getCivilSunset(DayShift.TODAY);
+    }
+
+    public LocalTime getCivilSunset(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getCivilSunsetForDate(this.getDayShiftAsCalendar(dayShift)));
+    }
+
+    public LocalTime getNauticalSunset() {
+        return this.getNauticalSunset(DayShift.TODAY);
+    }
+
+    public LocalTime getNauticalSunset(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getNauticalSunsetForDate(this.getDayShiftAsCalendar(dayShift)));
+    }
+
+    public LocalTime getAstronomicalSunset() {
+        return this.getAstronomicalSunset(DayShift.TODAY);
+    }
+
+    public LocalTime getAstronomicalSunset(final DayShift dayShift) {
+        return this.toLocalTime(this.calculator.getAstronomicalSunsetForDate(this.getDayShiftAsCalendar(dayShift)));
+    }
 
     public SunSnapshot getSunSnapshot(final LocalTime localTime) {
         return this.sunSnapshots.get(localTime);

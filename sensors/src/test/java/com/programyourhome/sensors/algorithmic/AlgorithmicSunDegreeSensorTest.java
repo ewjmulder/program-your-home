@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.programyourhome.sensors.SunDegreeSensor;
+
 public class AlgorithmicSunDegreeSensorTest {
 
     private AlgorithmicSunDegreeSensor sensor;
@@ -36,7 +38,7 @@ public class AlgorithmicSunDegreeSensorTest {
         this.assertMarginToday("12:00", "12:06", 5, false);
         this.assertMarginToday("12:00", "11:55", 5, true);
         this.assertMarginToday("12:00", "11:54", 5, false);
-        this.assertMarginToday("12:00", "12:00", 9, true);
+        this.assertMarginToday("12:00", "12:00", SunDegreeSensor.MAX_MARGIN, true);
 
         this.assertMarginToday("12:00", null, 5, false);
     }
@@ -47,21 +49,23 @@ public class AlgorithmicSunDegreeSensorTest {
         this.assertMarginYesterdayTodayTomorrow("00:01", "23:59", "12:00", "12:00", 1, false);
         this.assertMarginYesterdayTodayTomorrow("00:00", "23:58", "12:00", "12:00", 1, false);
         this.assertMarginYesterdayTodayTomorrow("00:00", null, "12:00", "12:00", 1, false);
+        this.assertMarginYesterdayTodayTomorrow("00:00", "23:59", null, null, 1, true);
 
         this.assertMarginYesterdayTodayTomorrow("23:59", "12:00", "12:00", "00:00", 1, true);
         this.assertMarginYesterdayTodayTomorrow("23:58", "12:00", "12:00", "00:00", 1, false);
         this.assertMarginYesterdayTodayTomorrow("23:59", "12:00", "12:00", "00:01", 1, false);
         this.assertMarginYesterdayTodayTomorrow("23:59", "12:00", "12:00", null, 1, false);
+        this.assertMarginYesterdayTodayTomorrow("23:59", null, null, "00:00", 1, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMarginOutOfLowerBounds() {
-        this.assertMarginToday("12:00", "12:00", -10, true);
+        this.assertMarginToday("12:00", "12:00", -1, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMarginOutOfHigherBounds() {
-        this.assertMarginToday("12:00", "12:00", 10, true);
+        this.assertMarginToday("12:00", "12:00", SunDegreeSensor.MAX_MARGIN + 1, true);
     }
 
     private void assertMarginToday(final String timeNow, final String timeEvent, final int margin, final boolean eventWithinMargin) {

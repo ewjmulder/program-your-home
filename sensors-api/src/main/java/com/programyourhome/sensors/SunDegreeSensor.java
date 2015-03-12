@@ -4,15 +4,16 @@ import java.math.BigDecimal;
 
 public interface SunDegreeSensor {
 
+    // TODO: document: 0-9, because the lowest time distance between 2 'events' is 20 minutes, on 3/9-21 on the equator.
+    // This way, no two events can return true at the same time, which makes sense.
+    public static final int MAX_MARGIN = 9;
+
     /**
      * Gets the degree of the sun in the sky as it currently is. The returned value can be either positive (day) or negative (night)
      *
      * @return the degree of the sun in the sky, within the range [-89.9, 89.9]
      */
     public BigDecimal getSunDegree();
-
-    // TODO: document: 0-9, because the lowest time distance between 2 'events' is 20 minutes, on 3/9-21 on the equator.
-    // This way, no two events can return true at the same time, which makes sense.
 
     /**
      * Is now the astronomical sunrise? The answer will be based on the calculated time +/- the margin given.

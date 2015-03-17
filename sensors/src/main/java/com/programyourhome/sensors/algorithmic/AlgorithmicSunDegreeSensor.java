@@ -98,31 +98,31 @@ public class AlgorithmicSunDegreeSensor implements SunDegreeSensor {
 
     @Override
     public boolean isCivilSunrise(final int margin) {
-        return false;
+        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getCivilSunrise(dayShift), margin);
     }
 
     @Override
     public boolean isOfficialSunrise(final int margin) {
-        return false;
+        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getOfficialSunrise(dayShift), margin);
     }
 
     @Override
     public boolean isOfficialSunset(final int margin) {
-        return false;
+        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getOfficialSunset(dayShift), margin);
     }
 
     @Override
     public boolean isCivilSunset(final int margin) {
-        return false;
+        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getCivilSunset(dayShift), margin);
     }
 
     @Override
     public boolean isNauticalSunset(final int margin) {
-        return false;
+        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getNauticalSunset(dayShift), margin);
     }
 
     @Override
     public boolean isAstronomicalSunset(final int margin) {
-        return false;
+        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getAstronomicalSunset(dayShift), margin);
     }
 }

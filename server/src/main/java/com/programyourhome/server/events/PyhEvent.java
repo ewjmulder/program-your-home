@@ -2,6 +2,7 @@ package com.programyourhome.server.events;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.context.ApplicationEvent;
 
 //TODO: Document: subclasses should have (at least some) fields that define their identity, because of use of hashcode and equals builder
@@ -28,6 +29,11 @@ public class PyhEvent extends ApplicationEvent {
     @Override
     public boolean equals(final Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj, REFLECTION_BUILDER_EXCLUDED_FIELDS);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }

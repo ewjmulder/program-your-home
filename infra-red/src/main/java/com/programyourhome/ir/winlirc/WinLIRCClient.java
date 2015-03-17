@@ -7,14 +7,15 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +28,7 @@ public class WinLIRCClient {
 
     // TODO: move to properties of some kind
     // TODO: rewrite to class duration or so?
-    private static final long REFRESH_INITIAL_DELAY = 500;
+    private static final int REFRESH_INITIAL_DELAY = 500;
     private static final long REFRESH_INTERVAL = 5 * 60 * 1000;
 
     // TODO: switch to nio?
@@ -46,17 +47,18 @@ public class WinLIRCClient {
     // actual refresh
     // If not sighup, print the received data and quit, since that is an unknown state atm. If no data ready to be read, that refresh action is done.
 
+    @Autowired
+    private TaskScheduler refreshScheduler;
+
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
 
     private String version;
     private final Map<String, WinLIRCRemote> remotes;
-    private final ScheduledExecutorService refreshService;
 
     public WinLIRCClient() {
         this.remotes = new HashMap<>();
-        this.refreshService = Executors.newScheduledThreadPool(1);
     }
 
     public String getVersion() {
@@ -72,8 +74,7 @@ public class WinLIRCClient {
         this.out = new PrintWriter(this.socket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         // TODO: Maybe if we facilitate refreshing the remotes with RNA on the WinLIRC app we can replace this?
-        this.refreshService.scheduleAtFixedRate(this::refresh, REFRESH_INITIAL_DELAY,
-                REFRESH_INTERVAL, TimeUnit.MILLISECONDS);
+        this.refreshScheduler.scheduleAtFixedRate(this::refresh, DateUtils.addMilliseconds(new Date(), REFRESH_INITIAL_DELAY), REFRESH_INTERVAL);
     }
 
     private synchronized void refresh() {
@@ -124,7 +125,7 @@ public class WinLIRCClient {
             System.out.println("About to send command: " + remoteName + "->" + key);
             this.sendCommand(COMMAND_SEND + " " + remoteName + " " + key);
         } catch (final IOException e) {
-            // TODO: throw event of dome sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
+            // TODO: throw event of some sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
             e.printStackTrace();
         }
     }

@@ -1,8 +1,8 @@
 package com.programyourhome.server.events.pollers;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,11 +22,10 @@ public class SunDegreePoller implements Poller {
     @Autowired
     private SunDegreeSensor sunDegreeSensor;
 
-    // TODO: find right data structure to cache
-    private final Map<LocalDate, SunDegreeEvent> publishedEvents;
+    private final Set<SunDegreeEvent> publishedEvents;
 
     public SunDegreePoller() {
-        this.publishedEvents = new HashMap<LocalDate, SunDegreeEvent>();
+        this.publishedEvents = new HashSet<>();
     }
 
     @Override
@@ -69,10 +68,11 @@ public class SunDegreePoller implements Poller {
             type = null;
         }
         if (moment != null && type != null) {
-            final SunDegreeEvent event = new SunDegreeEvent(moment, type);
             final LocalDate today = LocalDate.now();
-            if (!event.equals(this.publishedEvents.get(today))) {
-                this.publishedEvents.put(today, event);
+            final SunDegreeEvent event = new SunDegreeEvent(today, moment, type);
+            // Prevent double events.
+            if (!this.publishedEvents.contains(event)) {
+                this.publishedEvents.add(event);
                 this.eventPublisher.publishEvent(event);
             }
         }

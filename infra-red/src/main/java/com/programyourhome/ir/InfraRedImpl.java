@@ -1,26 +1,23 @@
 package com.programyourhome.ir;
 
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.ir.config.ConfigUtil;
@@ -41,7 +38,9 @@ public class InfraRedImpl implements InfraRed {
 
     // TODO: failover possiblilities for non existing key types / names? (instead of Optional.get())
 
-    private final ScheduledExecutorService pressRemoteKeyService;
+    @Autowired
+    private TaskScheduler pressRemoteKeyScheduler;
+
     // TODO: document: a queue with keys to press for every device. always retains the last key pressed, to be able to check if the required delay has passed.
     // TODO: move queueing mechanism to seperate class?
     private final Map<String, Queue<RemoteKeyPress>> keyPressQueues;
@@ -65,28 +64,6 @@ public class InfraRedImpl implements InfraRed {
 
     public InfraRedImpl() {
         this.deviceStates = new HashMap<>();
-
-        // TODO: put somewhere else and reuse
-        // FIXME: this does not work, see online explanation of why not and how to fix. Maybe use our own wrapper catch all that logs properly?
-        final ThreadFactory factory = new ThreadFactory() {
-
-            @Override
-            public Thread newThread(final Runnable target) {
-                final Thread thread = new Thread(target);
-                thread.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
-                    @Override
-                    public void uncaughtException(final Thread t, final Throwable e) {
-                        e.printStackTrace();
-                    }
-
-                });
-                return thread;
-            }
-
-        };
-
-        this.pressRemoteKeyService = Executors.newScheduledThreadPool(1, factory);
         this.keyPressQueues = new HashMap<>();
     }
 
@@ -101,25 +78,8 @@ public class InfraRedImpl implements InfraRed {
             this.deviceStates.put(device.getId(), new DeviceState());
             this.keyPressQueues.put(device.getName(), new LinkedList<>(Arrays.asList(dummyKeyPress)));
         }
-        final ScheduledFuture future = this.pressRemoteKeyService.scheduleAtFixedRate(this::pressKeys, this.keyPressInterval, this.keyPressInterval,
-                TimeUnit.MILLISECONDS);
-        // this.pressRemoteKeyService.execute(new Runnable() {
-        //
-        // @Override
-        // public void run() {
-        // try {
-        // future.get();
-        // // dead code here?
-        // } catch (final InterruptedException e) {
-        // e.printStackTrace();
-        // } catch (final CancellationException e) {
-        // e.printStackTrace();
-        // } catch (final ExecutionException e) {
-        // e.printStackTrace();
-        // }
-        // }
-        //
-        // });
+        this.pressRemoteKeyScheduler.scheduleAtFixedRate(this::pressKeys,
+                DateUtils.addMilliseconds(new Date(), this.keyPressInterval), this.keyPressInterval);
     }
 
     private void pressKeys() {
@@ -134,7 +94,6 @@ public class InfraRedImpl implements InfraRed {
                     // The new head is our next key to press.
                     final RemoteKeyPress nextKeyPress = queue.peek();
                     nextKeyPress.press();
-                    // System.out.println("pressRemoteKey(" + nextKeyPress.getRemoteName() + ", " + nextKeyPress.getKeyName() + ")");
                     this.winLircClient.pressRemoteKey(nextKeyPress.getRemoteName(), nextKeyPress.getKeyName());
                 }
             }

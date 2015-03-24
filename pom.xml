@@ -30,7 +30,8 @@
     </modules>
 
     <properties>
-        <spring.version>4.1.1.RELEASE</spring.version>
+        <spring.version>4.1.5.RELEASE</spring.version>
+        <spring.boot.version>1.2.2.RELEASE</spring.boot.version>
     </properties>
 
     <build>
@@ -58,7 +59,12 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-web</artifactId>
-                <version>1.1.8.RELEASE</version>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring.boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>

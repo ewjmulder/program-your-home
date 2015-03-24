@@ -1,4 +1,5 @@
 server.address				= 192.168.2.32
 server.port					= 3737
 
-logging.file				= log.txt
+environment.mock			= false
+environment.live			= true

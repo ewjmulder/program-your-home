@@ -14,8 +14,11 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -30,8 +33,12 @@ import com.programyourhome.ir.model.PyhDeviceImpl;
 import com.programyourhome.ir.winlirc.WinLIRCClient;
 
 @Component
+@ConditionalOnProperty("environment.live")
 @PropertySource("classpath:com/programyourhome/config/infra-red/properties/infra-red.properties")
 public class InfraRedImpl implements InfraRed {
+
+    // TODO: use logging framework for logging instead of sysout
+    private final Log log = LogFactory.getLog(this.getClass());
 
     // TODO: make asychronous, with internal queueing machanism that waits a small time between IR commands of different devices and
     // a configured time between IR command of the same device (general wait and possible override per key (like POWER)
@@ -80,6 +87,7 @@ public class InfraRedImpl implements InfraRed {
         }
         this.pressRemoteKeyScheduler.scheduleAtFixedRate(this::pressKeys,
                 DateUtils.addMilliseconds(new Date(), this.keyPressInterval), this.keyPressInterval);
+        this.log.info("Scheduler: 'press remote key' successfully started with interval: " + this.keyPressInterval);
     }
 
     private void pressKeys() {
@@ -95,6 +103,7 @@ public class InfraRedImpl implements InfraRed {
                     final RemoteKeyPress nextKeyPress = queue.peek();
                     nextKeyPress.press();
                     this.winLircClient.pressRemoteKey(nextKeyPress.getRemoteName(), nextKeyPress.getKeyName());
+                    this.log.info("Successfully pressed key: '" + nextKeyPress.getKeyName() + "' on remote: '" + nextKeyPress.getRemoteName() + "'.");
                 }
             }
         }

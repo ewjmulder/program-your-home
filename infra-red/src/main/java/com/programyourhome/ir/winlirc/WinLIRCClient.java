@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -46,6 +48,8 @@ public class WinLIRCClient {
     // bluntly reloading all data, first check if there is unread data on the line (in.ready()) and if so, see if that is the sighup signal. If so, do the
     // actual refresh
     // If not sighup, print the received data and quit, since that is an unknown state atm. If no data ready to be read, that refresh action is done.
+
+    private final Log log = LogFactory.getLog(this.getClass());
 
     @Autowired
     private TaskScheduler refreshScheduler;
@@ -89,8 +93,8 @@ public class WinLIRCClient {
                 remote.addAllKeys(this.retrieveKeys(remote));
             }
         } catch (final IOException e) {
+            this.log.error("IOException while refreshing the WinLIRC remote/key data.", e);
             // TODO: throw event of some sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
-            e.printStackTrace();
         }
     }
 
@@ -125,8 +129,8 @@ public class WinLIRCClient {
             System.out.println("About to send command: " + remoteName + "->" + key);
             this.sendCommand(COMMAND_SEND + " " + remoteName + " " + key);
         } catch (final IOException e) {
+            this.log.error("IOException while sending a key press to WinLIRC.", e);
             // TODO: throw event of some sort. The remotes are now empty, is that ok? (I guess, because refreshing did fail so the server has a problem)
-            e.printStackTrace();
         }
     }
 
@@ -135,7 +139,7 @@ public class WinLIRCClient {
         final ServerReply reply = ServerReply.parse(this.readServerReply());
         if (!reply.isSuccess()) {
             // TODO: proper error handling
-            System.out.println("WinLIRC error: " + reply.getData());
+            this.log.error("WinLIRC error received: " + reply.getData());
         }
         return reply;
     }

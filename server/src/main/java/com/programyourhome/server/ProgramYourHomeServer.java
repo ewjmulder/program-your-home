@@ -12,6 +12,7 @@ import com.programyourhome.ComponentScanBase;
 
 @EnableAutoConfiguration
 @ComponentScan(basePackageClasses = ComponentScanBase.class)
+// @PropertySource("application.properties")
 @PropertySource("file:${pyh.properties.location}")
 public class ProgramYourHomeServer {
 

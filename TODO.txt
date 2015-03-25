@@ -7,6 +7,7 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Document all various comments in some kind of format (Github Flavored MD?)
 - Document configuration decisions: properties file for technical stuff (connection info, account info, datasources, etc.)
 - PYH Utils: extract the common module functionality
+- Property keys as static final String declarations instead of hardcoded inline
 - UTF-8 property is inherited from parent right? So no need to repeat it in all child projects everywhere.
 - Put git ignore of common stuff (.project, .classpath, .settings, target) at a higher level, so they are not needed per project
 - Config XSD/XML files: why in separate module for server, but not for modules themselves? -> accept or move server config inside server module

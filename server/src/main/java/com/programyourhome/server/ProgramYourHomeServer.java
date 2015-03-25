@@ -4,16 +4,14 @@ import java.io.File;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
 
 import com.programyourhome.ComponentScanBase;
 
 @EnableAutoConfiguration
 @ComponentScan(basePackageClasses = ComponentScanBase.class)
-// @PropertySource("application.properties")
-@PropertySource("file:${pyh.properties.location}")
 public class ProgramYourHomeServer {
 
     private static boolean shutdown = false;
@@ -33,6 +31,14 @@ public class ProgramYourHomeServer {
             System.exit(-1);
         }
         System.out.println("Using properties in file: " + propertiesFile.getAbsolutePath());
+
+        // TODO: Report that setting the location only works if the file name ends with properties!
+        // TODO: Report that setting the name only works if you leave out the properties!
+
+        // Set the Spring config location file to the Program Your Home properties file, so it will pick up all
+        // Spring boot config from there as well. Note: this must be done like this instead of using a @PropertySource
+        // annotation, because otherwise the logging properties will not be picked up.
+        System.setProperty(ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY, propertiesFile.toURI().toString());
         final ApplicationContext springBootContext = SpringApplication.run(ProgramYourHomeServer.class, new String[0]);
         // Start a shutdown poller for graceful shutdown when needed.
         new ShutdownPoller(springBootContext).start();

@@ -14,8 +14,8 @@ public class PyhDeviceAnnotatedDump implements Opcodes {
         final ClassWriter classWriter = new ClassWriter(0);
 
         // 52 = Java 8
-        classWriter.visit(52, ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE, PyhDevice.class.getName() + "Annotated", null, "java/lang/Object",
-                new String[] { PyhDevice.class.getName() });
+        classWriter.visit(52, ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE, PyhDevice.class.getName().replace(".", "/") + "Annotated", null, "java/lang/Object",
+                new String[] { PyhDevice.class.getName().replace(".", "/") });
 
         final AnnotationVisitor annotationVisitor = classWriter.visitAnnotation("L" + JsonSerialize.class.getName().replace(".", "/") + ";", true);
         annotationVisitor.visit("as", Type.getType("L" + PyhDevice.class.getName().replace(".", "/") + ";"));

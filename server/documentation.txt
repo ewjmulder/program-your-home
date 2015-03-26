@@ -55,3 +55,7 @@ handle state update requests in a 'smart' way: not turn on devices that are alre
 Client / UI:
 Will get a list of possible activities from the server. Actually more general will get a list of things that it can do, also module specific stuff.
 Most basic client only handles activities (with name/image) in tree structure. Optionally have module specific UI controls.
+
+
+Technical notes:
+- pyh.properties.location should point to a file that ends with .properties. Otherwise Spring will not pick it up!

@@ -8,7 +8,6 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +24,6 @@ import com.programyourhome.hue.model.PyhLightImpl;
 import com.programyourhome.hue.model.PyhPlug;
 
 @Component
-@ConditionalOnProperty("environment.live")
 @PropertySource("classpath:com/programyourhome/config/philips-hue/properties/philips-hue.properties")
 public class PhilipsHueImpl implements PhilipsHue {
 

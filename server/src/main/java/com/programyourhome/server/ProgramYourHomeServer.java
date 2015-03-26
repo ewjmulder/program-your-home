@@ -32,12 +32,10 @@ public class ProgramYourHomeServer {
         }
         System.out.println("Using properties in file: " + propertiesFile.getAbsolutePath());
 
-        // TODO: Report that setting the location only works if the file name ends with properties!
-        // TODO: Report that setting the name only works if you leave out the properties!
-
         // Set the Spring config location file to the Program Your Home properties file, so it will pick up all
         // Spring boot config from there as well. Note: this must be done like this instead of using a @PropertySource
-        // annotation, because otherwise the logging properties will not be picked up.
+        // annotation, because otherwise the logging properties will not be picked up. They must be available
+        // very early in the boot process, see also: https://github.com/spring-projects/spring-boot/issues/2709
         System.setProperty(ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY, propertiesFile.toURI().toString());
         final ApplicationContext springBootContext = SpringApplication.run(ProgramYourHomeServer.class, new String[0]);
         // Start a shutdown poller for graceful shutdown when needed.

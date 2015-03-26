@@ -18,7 +18,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -33,7 +32,6 @@ import com.programyourhome.ir.model.PyhDeviceImpl;
 import com.programyourhome.ir.winlirc.WinLIRCClient;
 
 @Component
-@ConditionalOnProperty("environment.live")
 @PropertySource("classpath:com/programyourhome/config/infra-red/properties/infra-red.properties")
 public class InfraRedImpl implements InfraRed {
 

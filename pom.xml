@@ -24,6 +24,8 @@
         <module>spotify</module>
         <module>eneco-toon</module>
 
+        <module>environment-mock</module>
+
         <module>bootstrap</module>
         
         <module>web-app</module>

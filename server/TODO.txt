@@ -7,3 +7,4 @@
 --> AKKA? - actors? - http://typesafe.com/activator/template/akka-java-spring
 
 - Use JSON Schema - http://json-schema.org/ and Java validation library: https://github.com/fge/json-schema-validator
+  - Jackson ObjectMapper can generate JSON schema from a POJO! ObjectMapper.generateJsonSchema

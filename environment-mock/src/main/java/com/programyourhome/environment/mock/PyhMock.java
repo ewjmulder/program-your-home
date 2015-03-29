@@ -6,16 +6,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mockito.Mockito;
 import org.mockito.listeners.InvocationListener;
-import org.objectweb.asm.util.ASMifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programyourhome.hue.model.PyhLight;
 import com.programyourhome.ir.model.PyhDevice;
 
 public abstract class PyhMock {
 
     protected final Log log = LogFactory.getLog(this.getClass());
+
+    @Autowired
+    private DynamicJsonSerializeMixinGenerator classGenerator;
 
     private final InvocationListener invocationLogger;
 
@@ -23,25 +27,16 @@ public abstract class PyhMock {
         this.invocationLogger = methodInvocationReport -> this.log.debug("Mock method invocation: " + methodInvocationReport);
     }
 
-    // TODO: make this dynamic!
-    // for instance Javassist: http://ayoubelabbassi.blogspot.nl/2011/01/how-to-add-annotations-at-runtime-to.html
-    // http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/html/javassist/bytecode/annotation/package-summary.html
-    // Technically, you can, via a bytecode manipulation library - CGLIB, javassist, asm, bcel and the likes.
-
-    public static void main(final String[] args) throws Exception {
-        ASMifier.main(new String[] { "com.programyourhome.environment.mock.PyhDeviceAnnotated" });
-    }
-
+    // TODO: This bean will be generated for every subclass, right? Find a workaround!
     @Bean
     @Primary
     public ObjectMapper createObjectMapper() {
         final ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            final Class clazz = new HelloWorldClassLoader().loadClass("com.programyourhome.environment.mock.PyhDeviceAnnotated");
-            objectMapper.addMixInAnnotations(PyhDevice.class, clazz);
-        } catch (final ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        final Class<?> clazz = this.classGenerator.generateClass(PyhDevice.class);
+        // TODO: Get the list of types to create a mixin for dynamically.
+        objectMapper.addMixInAnnotations(PyhDevice.class, clazz);
+        final Class<?> clazz2 = this.classGenerator.generateClass(PyhLight.class);
+        objectMapper.addMixInAnnotations(PyhLight.class, clazz2);
         return objectMapper;
     }
 

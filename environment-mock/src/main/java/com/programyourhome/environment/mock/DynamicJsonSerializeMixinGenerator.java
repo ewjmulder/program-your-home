@@ -16,7 +16,7 @@ public class DynamicJsonSerializeMixinGenerator implements Opcodes {
     private static final String POSTFIX = "Annotated";
 
     @Autowired
-    private ClassDefinitionLoader classDefinitionLoader;
+    private ByteArrayClassLoader classDefinitionLoader;
 
     public Class<?> generateClass(final Class<?> forType) {
         final ClassWriter classWriter = new ClassWriter(0);

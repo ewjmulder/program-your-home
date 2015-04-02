@@ -56,6 +56,13 @@ Client / UI:
 Will get a list of possible activities from the server. Actually more general will get a list of things that it can do, also module specific stuff.
 Most basic client only handles activities (with name/image) in tree structure. Optionally have module specific UI controls.
 
+Sensors / events:
+Sensors can be polled to obtain information. A general architectural design should be:
+- A sensor API that will only 'take action' upon invocation.
+- A poller in the server module that will call the sensor reading method periodically.
+- The poller contains the logic to decide when to throw an event object about an interesting event.
+  - This can be either a 'special' event like a sunrise, or a general 'value changed' event.
+
 
 Technical notes:
 - pyh.properties.location should point to a file that ends with .properties. Otherwise Spring will not pick it up!

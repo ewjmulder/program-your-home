@@ -14,16 +14,22 @@ public abstract class PyhMock {
     private final InvocationListener invocationLogger;
 
     public PyhMock() {
-        this.invocationLogger = methodInvocationReport -> this.log.debug("Mock method invocation: " + methodInvocationReport);
+        this.invocationLogger = methodInvocationReport -> this.log.debug("Mock method invocation: " + methodInvocationReport.getInvocation());
+    }
+
+    protected String getName() {
+        // Default name is the super class name, which will be the defined class name, given a @Configuration annotation,
+        // that will create a dynamic subclass at runtime.
+        return this.getClass().getSuperclass().getSimpleName();
     }
 
     @PostConstruct
     public void init() {
-        this.log.info(this.getClass().getSimpleName() + " initialized");
+        this.log.info(this.getName() + " initialized");
     }
 
     protected <T> T createMock(final Class<T> clazz) {
-        return Mockito.mock(clazz, Mockito.withSettings().invocationListeners(this.invocationLogger));
+        return Mockito.mock(clazz, Mockito.withSettings().name(clazz.getSimpleName()).invocationListeners(this.invocationLogger));
     }
 
 }

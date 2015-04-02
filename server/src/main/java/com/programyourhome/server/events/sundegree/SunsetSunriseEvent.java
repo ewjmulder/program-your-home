@@ -1,11 +1,10 @@
-package com.programyourhome.server.events;
+package com.programyourhome.server.events.sundegree;
 
 import java.time.LocalDate;
 
-import com.programyourhome.sensors.SunDegreeMoment;
-import com.programyourhome.sensors.SunriseSunset;
+import com.programyourhome.server.events.PyhEvent;
 
-public class SunDegreeEvent extends PyhEvent {
+public class SunsetSunriseEvent extends PyhEvent {
 
     private static final long serialVersionUID = 1L;
 
@@ -13,7 +12,7 @@ public class SunDegreeEvent extends PyhEvent {
     private final SunDegreeMoment moment;
     private final SunriseSunset type;
 
-    public SunDegreeEvent(final LocalDate date, final SunDegreeMoment moment, final SunriseSunset type) {
+    public SunsetSunriseEvent(final LocalDate date, final SunDegreeMoment moment, final SunriseSunset type) {
         this.date = date;
         this.moment = moment;
         this.type = type;

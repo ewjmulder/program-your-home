@@ -1,4 +1,4 @@
-package com.programyourhome.server.events.pollers;
+package com.programyourhome.server.events;
 
 public interface Poller {
 

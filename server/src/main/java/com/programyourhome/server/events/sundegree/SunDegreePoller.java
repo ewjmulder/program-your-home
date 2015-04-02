@@ -1,5 +1,6 @@
-package com.programyourhome.server.events.pollers;
+package com.programyourhome.server.events.sundegree;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.sensors.SunDegreeMoment;
 import com.programyourhome.sensors.SunDegreeSensor;
-import com.programyourhome.sensors.SunriseSunset;
-import com.programyourhome.server.events.SunDegreeEvent;
+import com.programyourhome.server.events.Poller;
 
 @Component
 public class SunDegreePoller implements Poller {
@@ -22,10 +21,12 @@ public class SunDegreePoller implements Poller {
     @Autowired
     private SunDegreeSensor sunDegreeSensor;
 
-    private final Set<SunDegreeEvent> publishedEvents;
+    private final Set<SunsetSunriseEvent> publishedSunsetSunriseEvents;
+    private BigDecimal lastPolledValue;
 
     public SunDegreePoller() {
-        this.publishedEvents = new HashSet<>();
+        this.publishedSunsetSunriseEvents = new HashSet<>();
+        this.lastPolledValue = null;
     }
 
     @Override
@@ -36,6 +37,20 @@ public class SunDegreePoller implements Poller {
 
     @Override
     public void poll() {
+        this.pollForDegree();
+        this.pollForSunsetSunrise();
+    }
+
+    // TODO: generic poller logic?
+    private void pollForDegree() {
+        final BigDecimal currentValue = this.sunDegreeSensor.getSunDegree();
+        if (this.lastPolledValue != null && !currentValue.equals(this.lastPolledValue)) {
+            this.eventPublisher.publishEvent(new SunDegreeValueChangedEvent(this.lastPolledValue, currentValue));
+        }
+        this.lastPolledValue = currentValue;
+    }
+
+    private void pollForSunsetSunrise() {
         final int margin = 0;
         final SunDegreeMoment moment;
         final SunriseSunset type;
@@ -69,10 +84,10 @@ public class SunDegreePoller implements Poller {
         }
         if (moment != null && type != null) {
             final LocalDate today = LocalDate.now();
-            final SunDegreeEvent event = new SunDegreeEvent(today, moment, type);
+            final SunsetSunriseEvent event = new SunsetSunriseEvent(today, moment, type);
             // Prevent double events.
-            if (!this.publishedEvents.contains(event)) {
-                this.publishedEvents.add(event);
+            if (!this.publishedSunsetSunriseEvents.contains(event)) {
+                this.publishedSunsetSunriseEvents.add(event);
                 this.eventPublisher.publishEvent(event);
             }
         }

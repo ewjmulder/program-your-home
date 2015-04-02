@@ -1,4 +1,4 @@
-package com.programyourhome.server.events.pollers;
+package com.programyourhome.server.events;
 
 import java.util.Date;
 import java.util.Map;

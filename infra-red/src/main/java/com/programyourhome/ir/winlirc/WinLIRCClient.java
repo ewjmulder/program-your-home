@@ -118,15 +118,12 @@ public class WinLIRCClient {
 
     public void pressRemoteKey(final String remoteName, final String key) {
         if (!this.remotes.containsKey(remoteName)) {
-            System.out.println("Unknown remote: '" + remoteName + "'.");
             throw new IllegalArgumentException("Unknown remote: '" + remoteName + "'.");
         }
         if (!this.remotes.get(remoteName).getKeys().contains(key)) {
-            System.out.println("Remote: '" + remoteName + "' does not contain the key: '" + key + "'.");
             throw new IllegalArgumentException("Remote: '" + remoteName + "' does not contain the key: '" + key + "'.");
         }
         try {
-            System.out.println("About to send command: " + remoteName + "->" + key);
             this.sendCommand(COMMAND_SEND + " " + remoteName + " " + key);
         } catch (final IOException e) {
             this.log.error("IOException while sending a key press to WinLIRC.", e);
@@ -135,8 +132,11 @@ public class WinLIRCClient {
     }
 
     private synchronized ServerReply sendCommand(final String command) throws IOException {
+        this.log.trace("About to send command to WinLIRC server: " + command);
         this.out.println(command);
-        final ServerReply reply = ServerReply.parse(this.readServerReply());
+        final List<String> replyLines = this.readServerReply();
+        this.log.trace("WinLIRC server reply:\n" + replyLines);
+        final ServerReply reply = ServerReply.parse(replyLines);
         if (!reply.isSuccess()) {
             // TODO: proper error handling
             this.log.error("WinLIRC error received: " + reply.getData());

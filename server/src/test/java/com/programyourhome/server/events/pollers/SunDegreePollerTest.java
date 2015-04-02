@@ -10,10 +10,11 @@ import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.programyourhome.sensors.SunDegreeMoment;
 import com.programyourhome.sensors.SunDegreeSensor;
-import com.programyourhome.sensors.SunriseSunset;
-import com.programyourhome.server.events.SunDegreeEvent;
+import com.programyourhome.server.events.sundegree.SunsetSunriseEvent;
+import com.programyourhome.server.events.sundegree.SunDegreeMoment;
+import com.programyourhome.server.events.sundegree.SunDegreePoller;
+import com.programyourhome.server.events.sundegree.SunriseSunset;
 
 public class SunDegreePollerTest {
 
@@ -52,14 +53,14 @@ public class SunDegreePollerTest {
         this.poller.poll();
         this.poller.poll();
         Mockito.verify(this.eventPublisherMock, Mockito.times(1)).publishEvent(
-                new SunDegreeEvent(LocalDate.now(), SunDegreeMoment.OFFICIAL, SunriseSunset.SUNRISE));
+                new SunsetSunriseEvent(LocalDate.now(), SunDegreeMoment.OFFICIAL, SunriseSunset.SUNRISE));
     }
 
     private void testSpecificEvent(final Supplier<Boolean> mockMethod, final SunDegreeMoment moment, final SunriseSunset type) {
         Mockito.reset(this.sunDegreeSensorMock, this.eventPublisherMock);
         Mockito.when(mockMethod.get()).thenReturn(true);
         this.poller.poll();
-        Mockito.verify(this.eventPublisherMock, Mockito.times(1)).publishEvent(new SunDegreeEvent(LocalDate.now(), moment, type));
+        Mockito.verify(this.eventPublisherMock, Mockito.times(1)).publishEvent(new SunsetSunriseEvent(LocalDate.now(), moment, type));
     }
 
 }

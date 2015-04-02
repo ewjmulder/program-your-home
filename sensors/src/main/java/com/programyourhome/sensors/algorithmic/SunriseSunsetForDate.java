@@ -3,6 +3,7 @@ package com.programyourhome.sensors.algorithmic;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.SortedMap;
@@ -171,7 +172,7 @@ public class SunriseSunsetForDate {
     }
 
     public SunSnapshot getSunSnapshot(final LocalTime localTime) {
-        return this.sunSnapshots.get(localTime);
+        return this.sunSnapshots.get(localTime.truncatedTo(ChronoUnit.MINUTES));
     }
 
 }

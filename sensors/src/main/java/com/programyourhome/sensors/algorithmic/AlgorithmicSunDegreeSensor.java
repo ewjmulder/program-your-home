@@ -8,8 +8,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.TimeZone;
 import java.util.function.Function;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.sensors.SunDegreeSensor;
@@ -24,18 +22,25 @@ public class AlgorithmicSunDegreeSensor implements SunDegreeSensor {
     private final TimeZone timeZone = TimeZone.getDefault();
 
     private final Clock clock;
-    private SunriseSunsetForDate sunriseSunsetForDate;
+    private SunriseSunsetForDate currentSunriseSunset;
 
     public AlgorithmicSunDegreeSensor() {
         this.clock = Clock.systemDefaultZone();
     }
 
-    @PostConstruct
-    public void init() {
+    /**
+     * Give an up to date version of the sunrise sunset data.
+     * Always use this method, do not access the field directly.
+     *
+     * @return the current sunrise sunset
+     */
+    private SunriseSunsetForDate giveCurrentSunriseSunset() {
         final LocalDate today = LocalDate.now();
-        if (this.sunriseSunsetForDate == null || !this.sunriseSunsetForDate.getDate().equals(today)) {
-            this.sunriseSunsetForDate = new SunriseSunsetForDate(today, this.longitude, this.latitude, this.timeZone);
+        // If it is not yet initialized or if the contained date is not the current date, refresh the data for the current date.
+        if (this.currentSunriseSunset == null || !this.currentSunriseSunset.getDate().equals(today)) {
+            this.currentSunriseSunset = new SunriseSunsetForDate(today, this.longitude, this.latitude, this.timeZone);
         }
+        return this.currentSunriseSunset;
     }
 
     protected boolean isEventWithinMargin(final Function<DayShift, LocalTime> eventFunction, final int margin) {
@@ -83,46 +88,46 @@ public class AlgorithmicSunDegreeSensor implements SunDegreeSensor {
 
     @Override
     public BigDecimal getSunDegree() {
-        return this.sunriseSunsetForDate.getSunSnapshot(LocalTime.now()).getDegree();
+        return this.giveCurrentSunriseSunset().getSunSnapshot(LocalTime.now()).getDegree();
     }
 
     @Override
     public boolean isAstronomicalSunrise(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getAstronomicalSunrise(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getAstronomicalSunrise(dayShift), margin);
     }
 
     @Override
     public boolean isNauticalSunrise(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getNauticalSunrise(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getNauticalSunrise(dayShift), margin);
     }
 
     @Override
     public boolean isCivilSunrise(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getCivilSunrise(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getCivilSunrise(dayShift), margin);
     }
 
     @Override
     public boolean isOfficialSunrise(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getOfficialSunrise(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getOfficialSunrise(dayShift), margin);
     }
 
     @Override
     public boolean isOfficialSunset(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getOfficialSunset(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getOfficialSunset(dayShift), margin);
     }
 
     @Override
     public boolean isCivilSunset(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getCivilSunset(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getCivilSunset(dayShift), margin);
     }
 
     @Override
     public boolean isNauticalSunset(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getNauticalSunset(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getNauticalSunset(dayShift), margin);
     }
 
     @Override
     public boolean isAstronomicalSunset(final int margin) {
-        return this.isEventWithinMargin(dayShift -> this.sunriseSunsetForDate.getAstronomicalSunset(dayShift), margin);
+        return this.isEventWithinMargin(dayShift -> this.giveCurrentSunriseSunset().getAstronomicalSunset(dayShift), margin);
     }
 }

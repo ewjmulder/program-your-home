@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Component
-public class DynamicJsonSerializeMixinGenerator implements Opcodes {
+public class DynamicJsonSerializeMixinGenerator {
 
     private static final String PACKAGE = "com.programyourhome.environment.mock";
     private static final String POSTFIX = "Annotated";
@@ -24,7 +24,7 @@ public class DynamicJsonSerializeMixinGenerator implements Opcodes {
         // Build a Java 8 type.
         final int JAVA_VERSION_8 = 52;
         // We want a public interface, so we'll have to use public, abstract & interface.
-        final int modifiers = ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE;
+        final int modifiers = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE;
         final String generatedClassName = PACKAGE + "." + forType.getSimpleName() + POSTFIX;
         classWriter.visit(JAVA_VERSION_8, modifiers, generatedClassName.replace('.', '/'), null, this.getFullyQualified(Object.class),
                 new String[] { this.getFullyQualified(forType) });

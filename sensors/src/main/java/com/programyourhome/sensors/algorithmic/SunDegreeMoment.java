@@ -1,4 +1,4 @@
-package com.programyourhome.sensors;
+package com.programyourhome.sensors.algorithmic;
 
 public enum SunDegreeMoment {
 

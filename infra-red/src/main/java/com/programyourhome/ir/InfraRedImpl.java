@@ -88,7 +88,7 @@ public class InfraRedImpl implements InfraRed {
         this.log.info("Scheduler: 'press remote key' successfully started with interval: " + this.keyPressInterval);
     }
 
-    private void pressKeys() {
+    private synchronized void pressKeys() {
         for (final String deviceName : this.keyPressQueues.keySet()) {
             final Queue<RemoteKeyPress> queue = this.keyPressQueues.get(deviceName);
             if (queue.size() > 1) {

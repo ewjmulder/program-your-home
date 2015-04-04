@@ -16,6 +16,7 @@
         <module>philips-hue-api</module>
         <module>infra-red-api</module>
         <module>sensors-api</module>
+        <module>voice-control-api</module>
 
         <module>philips-hue</module>
         <module>infra-red</module>

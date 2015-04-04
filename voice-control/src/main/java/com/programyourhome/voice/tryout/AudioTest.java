@@ -1,4 +1,4 @@
-package com.programyourhome.voice;
+package com.programyourhome.voice.tryout;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

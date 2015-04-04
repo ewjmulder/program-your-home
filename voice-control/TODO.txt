@@ -1,3 +1,6 @@
+Practical TODO's:
+- Rename to audio-interaction!?!
+
 Actually, we can do this better!
 Voicecommand is just chaining some command line calls to record audio and send it to Google Voice API.
 You could do the same in Java, but you could improve on it a lot too!

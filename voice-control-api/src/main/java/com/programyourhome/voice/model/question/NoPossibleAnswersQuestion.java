@@ -6,7 +6,7 @@ public interface NoPossibleAnswersQuestion<AnswerType> extends Question<AnswerTy
 
     @Override
     public default List<String> getPossibleAnswers() {
-        throw new UnsupportedOperationException("This type of question does not have provide multiple answers.");
+        throw new UnsupportedOperationException("This type of question does not provide possible answers.");
     }
 
 }

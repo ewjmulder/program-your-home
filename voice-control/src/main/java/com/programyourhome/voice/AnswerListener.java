@@ -27,6 +27,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.programyourhome.voice.config.ConfigUtil;
 import com.programyourhome.voice.config.VoiceControlConfigHolder;
+import com.programyourhome.voice.model.AnswerResult;
+import com.programyourhome.voice.model.AnswerResultImpl;
+import com.programyourhome.voice.model.AnswerResultType;
 import com.programyourhome.voice.model.googlespeech.GoogleSpeechResponse;
 
 @Component
@@ -62,24 +65,31 @@ public class AnswerListener {
         return line;
     }
 
-    public Boolean listenForYesNo(final String locale) throws Exception {
+    public AnswerResult<Boolean> listenForYesNo(final String locale) throws Exception {
         final GoogleSpeechResponse googleSpeechResponse = this.listen(locale);
         final boolean yesFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
                 ConfigUtil.getConfirmations(this.configHolder.getConfig(), locale));
         final boolean noFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
                 ConfigUtil.getNegations(this.configHolder.getConfig(), locale));
 
-        final Boolean result;
+        final AnswerResultImpl<Boolean> answerResult = new AnswerResultImpl<>(googleSpeechResponse.getTranscripts());
         if (yesFound && !noFound) {
-            result = true;
+            answerResult.setAnswerResultType(AnswerResultType.PROPER);
+            answerResult.setAnswer(true);
         } else if (!yesFound && noFound) {
-            result = false;
+            answerResult.setAnswerResultType(AnswerResultType.PROPER);
+            answerResult.setAnswer(false);
         } else {
-            // No result or ambiguous result.
-            // TODO: log specific result?
-            result = null;
+            if (googleSpeechResponse.getTranscripts().isEmpty()) {
+                answerResult.setAnswerResultType(AnswerResultType.NONE);
+            } else if (yesFound && noFound) {
+                answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
+            } else {
+                // Something was said and recognized, but it contained neither yes or no.
+                answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
+            }
         }
-        return result;
+        return answerResult;
     }
 
     private boolean atLeastOneWordFoundInTranscript(final GoogleSpeechResponse googleSpeechResponse, final Collection<String> words) {
@@ -105,6 +115,7 @@ public class AnswerListener {
 
     private GoogleSpeechResponse listen(final String locale) throws Exception {
         final long start = System.currentTimeMillis();
+        System.out.println("start: " + start);
         final TargetDataLine line = this.openNewLine();
         line.start();
         final AudioInputStream ais = new AudioInputStream(line);

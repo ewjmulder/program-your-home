@@ -7,7 +7,7 @@ import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.question.JustSay;
 import com.programyourhome.voice.model.question.Question;
 
-public class QuestionFactory {
+public class QuestionBuilderFactory {
 
     private static final AnswerCallback<?> EMPTY_CALLBACK = type -> {
         return null;

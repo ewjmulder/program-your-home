@@ -10,7 +10,7 @@ import com.programyourhome.voice.VoiceControl;
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.AnswerResultType;
 import com.programyourhome.voice.model.PyhLanguage;
-import com.programyourhome.voice.model.builder.QuestionFactory;
+import com.programyourhome.voice.model.builder.QuestionBuilderFactory;
 import com.programyourhome.voice.model.question.JustSay;
 import com.programyourhome.voice.model.question.YesNoQuestion;
 
@@ -28,7 +28,7 @@ public class ProgramYourHomeControllerVoice extends AbstractProgramYourHomeContr
 
     @RequestMapping("test")
     public void doTest() {
-        this.voiceControl.askQuestion(QuestionFactory.justSayBuilder()
+        this.voiceControl.askQuestion(QuestionBuilderFactory.justSayBuilder()
                 .text("This is the beginning")
                 .locale("en-us")
                 .build());

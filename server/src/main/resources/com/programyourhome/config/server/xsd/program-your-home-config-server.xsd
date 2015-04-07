@@ -6,6 +6,7 @@
     <xsd:element name="serverConfig">
         <xsd:complexType>
             <xsd:sequence>
+                <xsd:element name="defaultLanguage" type="language" />
                 <xsd:element name="activitiesConfig" type="activitiesConfig" />
             </xsd:sequence>
         </xsd:complexType>
@@ -43,4 +44,11 @@
             </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:simpleType name="language">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="English-USA" />
+            <xsd:enumeration value="English-UK" />
+            <xsd:enumeration value="Dutch-NL" />
+        </xsd:restriction>
+    </xsd:simpleType>
 </xsd:schema>

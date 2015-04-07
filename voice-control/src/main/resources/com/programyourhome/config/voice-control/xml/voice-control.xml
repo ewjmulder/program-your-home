@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<voiceControlConfig xmlns="http://programyourhome.com/config/voice-control" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config/voice-control ../xsd/voice-control.xsd">
+    <languages>
+        <language>
+            <id>1</id>
+            <name>English USA</name>
+            <locale>en-us</locale>
+            <confirmations>
+                <confirmation>yes</confirmation>
+                <confirmation>yep</confirmation>
+                <confirmation>yeah</confirmation>
+            </confirmations>
+            <negations>
+                <negation>no</negation>
+                <negation>nope</negation>
+            </negations>
+        </language>
+        <language>
+            <id>2</id>
+            <name>English UK</name>
+            <locale>en-uk</locale>
+            <confirmations>
+                <confirmation>yes</confirmation>
+                <confirmation>yep</confirmation>
+                <confirmation>yeah</confirmation>
+            </confirmations>
+            <negations>
+                <negation>no</negation>
+                <negation>nope</negation>
+            </negations>
+        </language>
+        <language>
+            <id>3</id>
+            <name>Dutch NL</name>
+            <locale>nl-nl</locale>
+            <confirmations>
+                <confirmation>ja</confirmation>
+                <confirmation>jah</confirmation>
+                <confirmation>yes</confirmation>
+                <confirmation>jes</confirmation>
+                <confirmation>yep</confirmation>
+                <confirmation>jep</confirmation>
+                <confirmation>yeah</confirmation>
+                <confirmation>yup</confirmation>
+                <confirmation>jup</confirmation>
+            </confirmations>
+            <negations>
+                <negation>nee</negation>
+                <negation>neen</negation>
+                <negation>no</negation>
+                <negation>nope</negation>
+            </negations>
+        </language>
+    </languages>
+</voiceControlConfig>

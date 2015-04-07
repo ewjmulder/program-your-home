@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serverConfig xmlns="http://programyourhome.com/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config ../xsd/program-your-home-config-server.xsd">
+    <defaultLanguage>English-USA</defaultLanguage>
     <activitiesConfig>
         <defaultIcon>default.png</defaultIcon>
         <activities>

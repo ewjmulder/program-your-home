@@ -1,4 +1,4 @@
-package com.programyourhome.voice.model.builder;
+package com.programyourhome.voice.builder;
 
 import com.programyourhome.voice.model.question.Question;
 import com.programyourhome.voice.model.question.YesNoQuestion;

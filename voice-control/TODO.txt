@@ -2,6 +2,9 @@ Practical TODO's:
 - Rename to audio-interaction!?!
 - Put jflacencoder in maven repo + script to repeat elsewhere -> including source!!
 
+IDEA:
+- Whistle answer -> high / low / bursts
+
 Actually, we can do this better!
 Voicecommand is just chaining some command line calls to record audio and send it to Google Voice API.
 You could do the same in Java, but you could improve on it a lot too!

@@ -1,4 +1,4 @@
-package com.programyourhome.voice.model.builder;
+package com.programyourhome.voice.builder;
 
 public class QuestionBuilderFactory {
 
@@ -10,7 +10,9 @@ public class QuestionBuilderFactory {
         return new YesNoQuestionBuilder();
     }
 
-    // TODO: move to separate module, to not expose implementations in an API module?
+    public static MultipleChoiceQuestionBuilder multipleChoiceQuestionBuilder() {
+        return new MultipleChoiceQuestionBuilder();
+    }
 
     // TODO: document:
     // - lots of fancy trickery going on here. Overdesigned? Yes, for sure, but also for fun. Leave it like

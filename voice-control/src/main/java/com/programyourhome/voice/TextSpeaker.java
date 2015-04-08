@@ -22,6 +22,8 @@ public class TextSpeaker {
     @Value("${googleSpeechTts.userAgent}")
     private String googleSpeechUserAgent;
 
+    // TODO: implement caching!!
+
     public void say(final String text, final String locale) throws IOException {
         // Create the full url by filling in the text, locale and encoding.
         final String urlString = String.format(GOOGLE_SPEECH_TTS_URL,

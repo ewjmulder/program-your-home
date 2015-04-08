@@ -3,11 +3,13 @@ package com.programyourhome.voice;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +19,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
+import com.programyourhome.voice.builder.JustSayFactory;
 import com.programyourhome.voice.config.VoiceControlConfigHolder;
 import com.programyourhome.voice.model.AnswerResult;
 import com.programyourhome.voice.model.InteractionType;
@@ -65,6 +68,11 @@ public class VoiceControlImpl implements VoiceControl {
     }
 
     @Override
+    public void say(final String text, final String locale) {
+        this.askQuestion(JustSayFactory.justSay(text, locale));
+    }
+
+    @Override
     public void askQuestion(final Question<?> question) {
         this.questionQueue.add(question);
     }
@@ -81,20 +89,41 @@ public class VoiceControlImpl implements VoiceControl {
         }
     }
 
+    // Unfortunately, we do need some generics type casts to get this working smoothly.
+    @SuppressWarnings("unchecked")
     private void doAskQuestion(final Question<?> question) {
-        this.log.info("Asking question: " + question.asString());
+        this.log.info((question.getInteractionType() == InteractionType.NONE ? "Saying: " : "Asking question: ")
+                + question.asString());
         try {
-            this.textSpeaker.say(question.getText(), question.getLocale());
+            // Only say the question text if it is not blank.
+            // There can be a valid use for an empty question text, like a repeated question.
+            if (StringUtils.isNotBlank(question.getText())) {
+                this.textSpeaker.say(question.getText(), question.getLocale());
+            }
+            for (final Entry<?, String> possibleAnswer : question.getPossibleAnswers().entrySet()) {
+                this.textSpeaker.say(possibleAnswer.getKey().toString() + ". " + possibleAnswer.getValue(), question.getLocale());
+            }
+            final Question<?> nextQuestion;
             if (question.getInteractionType() == InteractionType.NONE) {
-                question.getAnswerCallback().answer(null);
+                nextQuestion = question.getAnswerCallback().answer(null);
             } else if (question.getInteractionType() == InteractionType.YES_NO) {
-                final AnswerResult<Boolean> answerResult = this.answerListener.listenForYesNo("en-us");
                 // TODO: how to prevent this?
+                final Question<Boolean> booleanQuestion = ((Question<Boolean>) question);
+                final AnswerResult<Boolean> answerResult = this.answerListener.listenForYesNo(booleanQuestion);
                 // TODO: handle callback exceptions?
-                final Question<?> nextQuestion = ((Question<Boolean>) question).getAnswerCallback().answer(answerResult);
-                if (nextQuestion != null) {
-                    this.doAskQuestion(nextQuestion);
-                }
+                nextQuestion = booleanQuestion.getAnswerCallback().answer(answerResult);
+            } else if (question.getInteractionType() == InteractionType.MULTIPLE_CHOICE) {
+                // TODO: how to prevent this?
+                final Question<Character> characterQuestion = ((Question<Character>) question);
+                final AnswerResult<Character> answerResult = this.answerListener.listenForMultipleChoice(characterQuestion);
+                // TODO: handle callback exceptions?
+                nextQuestion = characterQuestion.getAnswerCallback().answer(answerResult);
+            } else {
+                // TODO: implement other interaction types + default with exception.
+                nextQuestion = null;
+            }
+            if (nextQuestion != null) {
+                this.doAskQuestion(nextQuestion);
             }
         } catch (final Exception e) {
             throw new IllegalStateException("Exception encountered while saying: '" + question.getText() + "'.", e);

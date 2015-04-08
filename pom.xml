@@ -18,6 +18,8 @@
         <module>sensors-api</module>
         <module>voice-control-api</module>
 
+        <module>voice-control-builder</module>
+
         <module>philips-hue</module>
         <module>infra-red</module>
         <module>sensors</module>

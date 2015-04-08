@@ -1,4 +1,4 @@
-package com.programyourhome.voice.model.builder;
+package com.programyourhome.voice.builder;
 
 public interface ProperResultCallback<AnswerType> {
 

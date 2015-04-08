@@ -5,8 +5,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import javaFlacEncoder.FLACEncoder;
 import javaFlacEncoder.FLACStreamOutputStream;
 
@@ -31,6 +33,7 @@ import com.programyourhome.voice.model.AnswerResult;
 import com.programyourhome.voice.model.AnswerResultImpl;
 import com.programyourhome.voice.model.AnswerResultType;
 import com.programyourhome.voice.model.googlespeech.GoogleSpeechResponse;
+import com.programyourhome.voice.model.question.Question;
 
 @Component
 public class AnswerListener {
@@ -65,12 +68,12 @@ public class AnswerListener {
         return line;
     }
 
-    public AnswerResult<Boolean> listenForYesNo(final String locale) throws Exception {
-        final GoogleSpeechResponse googleSpeechResponse = this.listen(locale);
+    public AnswerResult<Boolean> listenForYesNo(final Question<Boolean> question) throws Exception {
+        final GoogleSpeechResponse googleSpeechResponse = this.listen(question.getLocale());
         final boolean yesFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
-                ConfigUtil.getConfirmations(this.configHolder.getConfig(), locale));
+                ConfigUtil.getConfirmations(this.configHolder.getConfig(), question.getLocale()));
         final boolean noFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
-                ConfigUtil.getNegations(this.configHolder.getConfig(), locale));
+                ConfigUtil.getNegations(this.configHolder.getConfig(), question.getLocale()));
 
         final AnswerResultImpl<Boolean> answerResult = new AnswerResultImpl<>(googleSpeechResponse.getTranscripts());
         if (yesFound && !noFound) {
@@ -79,11 +82,41 @@ public class AnswerListener {
         } else if (!yesFound && noFound) {
             answerResult.setAnswerResultType(AnswerResultType.PROPER);
             answerResult.setAnswer(false);
+        } else if (yesFound && noFound) {
+            answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
         } else {
+            // TODO: generify this last bit, same for all questions, right?
             if (googleSpeechResponse.getTranscripts().isEmpty()) {
                 answerResult.setAnswerResultType(AnswerResultType.NONE);
-            } else if (yesFound && noFound) {
-                answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
+            } else {
+                // Something was said and recognized, but it contained neither yes or no.
+                answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
+            }
+        }
+        return answerResult;
+    }
+
+    public AnswerResult<Character> listenForMultipleChoice(final Question<Character> question) throws Exception {
+        final GoogleSpeechResponse googleSpeechResponse = this.listen(question.getLocale());
+
+        final List<Character> answersGiven = new ArrayList<>();
+        for (final Character character : question.getPossibleAnswers().keySet()) {
+            if (this.atLeastOneTranscriptMatches(googleSpeechResponse, character.toString())) {
+                answersGiven.add(character);
+            }
+        }
+        // TODO: have backup that tries to match the spoken text to one of the answer texts?
+
+        final AnswerResultImpl<Character> answerResult = new AnswerResultImpl<>(googleSpeechResponse.getTranscripts());
+        if (answersGiven.size() == 1) {
+            answerResult.setAnswerResultType(AnswerResultType.PROPER);
+            answerResult.setAnswer(answersGiven.get(0));
+        } else if (answersGiven.size() > 1) {
+            answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
+        } else {
+            // TODO: generify this last bit, same for all questions, right?
+            if (googleSpeechResponse.getTranscripts().isEmpty()) {
+                answerResult.setAnswerResultType(AnswerResultType.NONE);
             } else {
                 // Something was said and recognized, but it contained neither yes or no.
                 answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
@@ -96,6 +129,11 @@ public class AnswerListener {
         return googleSpeechResponse.getTranscripts().stream()
                 .flatMap(transcript -> Arrays.stream(StringUtils.split(transcript)))
                 .anyMatch(word -> words.contains(word.toLowerCase()));
+    }
+
+    private boolean atLeastOneTranscriptMatches(final GoogleSpeechResponse googleSpeechResponse, final String word) {
+        return googleSpeechResponse.getTranscripts().stream()
+                .anyMatch(transcript -> transcript.toLowerCase().equals(word.toLowerCase()));
     }
 
     private GoogleSpeechResponse parseGoogleResponse(final String googleResponseString) throws IOException, JsonParseException, JsonMappingException {
@@ -113,6 +151,7 @@ public class AnswerListener {
         return googleSpeechResponse;
     }
 
+    // TODO: use less generic exception type(s)?
     private GoogleSpeechResponse listen(final String locale) throws Exception {
         final long start = System.currentTimeMillis();
         System.out.println("start: " + start);
@@ -175,4 +214,5 @@ public class AnswerListener {
         System.out.println("content: " + content);
         return this.parseGoogleResponse(content.asString());
     }
+
 }

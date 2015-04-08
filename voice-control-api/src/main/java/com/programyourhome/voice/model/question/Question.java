@@ -1,6 +1,6 @@
 package com.programyourhome.voice.model.question;
 
-import java.util.List;
+import java.util.Map;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.InteractionType;
@@ -13,7 +13,7 @@ public interface Question<AnswerType> {
 
     public InteractionType getInteractionType();
 
-    public List<String> getPossibleAnswers();
+    public Map<AnswerType, String> getPossibleAnswers();
 
     public AnswerCallback<AnswerType> getAnswerCallback();
 

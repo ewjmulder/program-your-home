@@ -1,6 +1,7 @@
-package com.programyourhome.voice.model.builder;
+package com.programyourhome.voice.builder;
 
 import com.programyourhome.voice.model.question.JustSay;
+import com.programyourhome.voice.model.question.Question;
 
 public class JustSayBuilder extends QuestionBuilder<JustSayBuilder, JustSayImpl, JustSay, Void> {
 
@@ -18,6 +19,11 @@ public class JustSayBuilder extends QuestionBuilder<JustSayBuilder, JustSayImpl,
     @Override
     protected JustSayImpl getQuestion() {
         return this.justSay;
+    }
+
+    public JustSayBuilder nextQuestion(final Question<?> nextQuestion) {
+        this.justSay.setNextQuestion(nextQuestion);
+        return this;
     }
 
 }

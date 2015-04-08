@@ -2,6 +2,7 @@ package com.programyourhome.voice.model.question;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.InteractionType;
+import com.programyourhome.voice.model.builder.JustSaidCallback;
 
 public interface JustSay extends NoPossibleAnswersQuestion<Void> {
 
@@ -13,10 +14,10 @@ public interface JustSay extends NoPossibleAnswersQuestion<Void> {
     @Override
     public default AnswerCallback<Void> getAnswerCallback() {
         return value -> {
-            textIsSaid();
+            getJustSaidCallback().textIsSaid();
             return null;
         };
     }
 
-    public void textIsSaid();
+    public JustSaidCallback getJustSaidCallback();
 }

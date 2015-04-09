@@ -14,6 +14,10 @@ public class QuestionBuilderFactory {
         return new MultipleChoiceQuestionBuilder();
     }
 
+    public static ClapQuestionBuilder clapQuestionBuilder() {
+        return new ClapQuestionBuilder();
+    }
+
     // TODO: document:
     // - lots of fancy trickery going on here. Overdesigned? Yes, for sure, but also for fun. Leave it like
     // a nice example of what you can do with generics

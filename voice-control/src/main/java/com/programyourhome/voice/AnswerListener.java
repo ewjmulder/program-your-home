@@ -80,8 +80,49 @@ public class AnswerListener {
     // TODO: refactor whole listenfor logic: extract common functionality and split up in smaller methods.
     // Callback for handling specific listen results and handling definitive answer result.
 
+    public AnswerResult<Integer> listenForClaps(final Question<Integer> question) throws Exception {
+        final ListenResult listenResult = this.listen(question);
+        final List<Character> answersGiven = new ArrayList<>();
+        final AnswerResultImpl<Character> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
+
+        if (listenResult.getResultType() == ListenResultType.SPEECH_ENGINE) {
+            final GoogleSpeechResponse googleSpeechResponse = listenResult.getGoogleSpeechResponse();
+            for (final Character character : question.getPossibleAnswers().keySet()) {
+                if (this.atLeastOneTranscriptMatches(googleSpeechResponse, character.toString())) {
+                    answersGiven.add(character);
+                }
+            }
+            answerResult.setTranscripts(googleSpeechResponse.getTranscripts());
+            // TODO: have backup that tries to match the spoken text to one of the answer texts?
+        } else if (listenResult.getResultType() == ListenResultType.CLAPS) {
+            final int numberOfClaps = listenResult.getNumberOfClaps();
+            if (numberOfClaps > 0 && numberOfClaps <= question.getPossibleAnswers().size()) {
+                answersGiven.add(new ArrayList<>(question.getPossibleAnswers().keySet()).get(numberOfClaps - 1));
+            }
+        } else {
+            // ListenResultType.SILENCE
+            // Empty list of answers given.
+        }
+
+        if (answersGiven.size() == 1) {
+            answerResult.setAnswerResultType(AnswerResultType.PROPER);
+            answerResult.setAnswer(answersGiven.get(0));
+        } else if (answersGiven.size() > 1) {
+            answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
+        } else {
+            // TODO: generify this last bit, same for all questions, right?
+            if (listenResult.isEmptyResult()) {
+                answerResult.setAnswerResultType(AnswerResultType.NONE);
+            } else {
+                // Something was said and recognized, but it contained no applicable answer.
+                answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
+            }
+        }
+        return answerResult;
+    }
+
     public AnswerResult<Boolean> listenForYesNo(final Question<Boolean> question) throws Exception {
-        final ListenResult listenResult = this.listen(question.getLocale());
+        final ListenResult listenResult = this.listen(question);
         final boolean yesFound;
         final boolean noFound;
         final AnswerResultImpl<Boolean> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
@@ -123,7 +164,7 @@ public class AnswerListener {
     }
 
     public AnswerResult<Character> listenForMultipleChoice(final Question<Character> question) throws Exception {
-        final ListenResult listenResult = this.listen(question.getLocale());
+        final ListenResult listenResult = this.listen(question);
         final List<Character> answersGiven = new ArrayList<>();
         final AnswerResultImpl<Character> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
 
@@ -175,16 +216,21 @@ public class AnswerListener {
     }
 
     // TODO: use less generic exception type(s)?
-    private ListenResult listen(final String locale) throws Exception {
+    private ListenResult listen(final Question<?> question) throws Exception {
+        final boolean listenForSpeech = question.getInteractionType().getListenMode().shouldListenForSpeech();
+        final boolean listenForClaps = question.getInteractionType().getListenMode().shouldListenForClaps();
+
         final TargetDataLine line = this.openNewLine();
         line.start();
         final AudioInputStream ais = new AudioInputStream(line);
 
         final FLACEncoder encoder = new FLACEncoder();
-        encoder.setStreamConfiguration(this.audioFormat.getStreamConfiguration());
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        encoder.setOutputStream(new FLACStreamOutputStream(outputStream));
-        encoder.openFLACStream();
+        if (listenForSpeech) {
+            encoder.setStreamConfiguration(this.audioFormat.getStreamConfiguration());
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            encoder.setOutputStream(new FLACStreamOutputStream(outputStream));
+            encoder.openFLACStream();
+        }
 
         // Buffer frequency means the buffer size is filled that many times per second.
         final int bufferFrequency = 5;
@@ -205,16 +251,35 @@ public class AnswerListener {
         for (long i = 0; i < ((long) this.audioFormat.getSampleRate() * (this.audioFormat.getSampleSizeInBits() / Byte.SIZE)
                 * this.audioFormat.getNumberOfChannels() * seconds) / abufferSize; i++) {
             bis.read(byteArray);
+
+            // TODO: sound processing:
+            // - detect silence before and after 'data-sound' to be cut off: not encoded and not sent to speech api
+            // - maxSilenceVolume parameter (percentage of max?)
+            // - max timeout for listening to possible sound data
+            // - timeout for silence total or after last 'sound-data', different!
+            // -> also possibly differ between open and non-open questions, to give open answers more thinking time.
+
             // converting byteArray to intArray
             for (int j = 0; j < byteArray.length; j++) {
                 intArray[j] = byteArray[j];
             }
             final int numberOfInterchannelSamples = abufferSize;
-            encoder.addSamples(intArray, numberOfInterchannelSamples);
-            encoder.encodeSamples(encoder.fullBlockSamplesAvailableToEncode(), false);
+            // TODO: change to only add samples if they are to be included for transcription.
+            if (listenForSpeech) {
+                encoder.addSamples(intArray, numberOfInterchannelSamples);
+                encoder.encodeSamples(encoder.fullBlockSamplesAvailableToEncode(), false);
+            }
+            if (listenForClaps) {
+                // TODO: Logic to decide if there is clapping going on.
+                // idea: treshold for: (percentage of max?)
+                // - minClapVolume (reach this volume to detect a single clap)
+                // - unClapVolume (drop to this volume to 'finish' the previous clap and continue to a possible next one)
+                // - maxTimeBetweenClaps (after this time the amount of claps will be determined and no new sound data will be processed for clapping)
+                // furthermore: 'around' the clapping should be silence. if there is too much other 'noise', speech gets precedence
+                // we could also still keep the flac encoder and just not use it to send stuff to Google.
+                // performance overhead is minimal and code stays cleaner
+            }
         }
-
-        // TODO: decide if the recording contains just silence, voice or claps
 
         // TODO: document use of flac encoder: default block size 4096, encodes per block, one time the rest of the bytes at the end.
         encoder.encodeSamples(encoder.samplesAvailableToEncode(), true);
@@ -224,7 +289,7 @@ public class AnswerListener {
         this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
 
         final String urlString = String.format(GOOGLE_SPEECH_API_URL,
-                locale,
+                question.getLocale(),
                 URLEncoder.encode(this.googleSpeechClient, ENCODING_UTF8),
                 URLEncoder.encode(this.googleSpeechApp, ENCODING_UTF8),
                 this.googleSpeechKey);

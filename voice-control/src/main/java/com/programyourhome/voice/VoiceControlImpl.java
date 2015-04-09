@@ -106,6 +106,10 @@ public class VoiceControlImpl implements VoiceControl {
             final Question<?> nextQuestion;
             if (question.getInteractionType() == InteractionType.NONE) {
                 nextQuestion = question.getAnswerCallback().answer(null);
+            } else if (question.getInteractionType() == InteractionType.CLAP) {
+                final Question<Integer> clapsQuestion = (Question<Integer>) question;
+                final AnswerResult<Integer> answerResult = this.answerListener.listenForClaps(clapsQuestion);
+                nextQuestion = clapsQuestion.getAnswerCallback().answer(answerResult);
             } else if (question.getInteractionType() == InteractionType.YES_NO) {
                 final Question<Boolean> booleanQuestion = (Question<Boolean>) question;
                 final AnswerResult<Boolean> answerResult = this.answerListener.listenForYesNo(booleanQuestion);

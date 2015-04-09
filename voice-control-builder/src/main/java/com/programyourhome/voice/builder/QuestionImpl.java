@@ -57,6 +57,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     @Override
     // TODO: fix bug not getting these for answer checking!!
+    // TODO: Make this a sorted map for ordered results. Or list of pairs for custom order.
     public Map<AnswerType, String> getPossibleAnswers() {
         return this.shouldSayQuestion ? this.possibleAnswers : new HashMap<>();
     }

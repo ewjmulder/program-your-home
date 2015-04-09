@@ -1,9 +1,11 @@
 package com.programyourhome.voice.model.question;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.InteractionType;
+import com.programyourhome.voice.model.SpeechMode;
 
 public interface Question<AnswerType> {
 
@@ -13,9 +15,19 @@ public interface Question<AnswerType> {
 
     public InteractionType getInteractionType();
 
-    public Map<AnswerType, String> getPossibleAnswers();
+    public default Map<AnswerType, String> getPossibleAnswers() {
+        if (!getInteractionType().hasPossibleAnswers()) {
+            throw new UnsupportedOperationException("The interaction type of this question does not provide possible answers.");
+        } else {
+            return new HashMap<>();
+        }
+    }
 
     public AnswerCallback<AnswerType> getAnswerCallback();
+
+    public default SpeechMode getSpeechMode() {
+        return SpeechMode.QUESTION_AND_POSSIBLE_ANSWERS;
+    }
 
     /**
      * Provides a default toString() implementation. The callback object is not included in the string.

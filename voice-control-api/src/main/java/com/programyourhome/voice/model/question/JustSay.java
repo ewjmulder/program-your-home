@@ -3,7 +3,7 @@ package com.programyourhome.voice.model.question;
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.InteractionType;
 
-public interface JustSay extends NoPossibleAnswersQuestion<Void> {
+public interface JustSay extends Question<Void> {
 
     @Override
     public default InteractionType getInteractionType() {

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,13 +94,14 @@ public class VoiceControlImpl implements VoiceControl {
         this.log.info((question.getInteractionType() == InteractionType.NONE ? "Saying: " : "Asking question: ")
                 + question.asString());
         try {
-            // Only say the question text if it is not blank.
-            // There can be a valid use for an empty question text, like a repeated question.
-            if (StringUtils.isNotBlank(question.getText())) {
+            if (question.getSpeechMode().shouldSayQuestion()) {
                 this.textSpeaker.say(question.getText(), question.getLocale());
             }
-            for (final Entry<?, String> possibleAnswer : question.getPossibleAnswers().entrySet()) {
-                this.textSpeaker.say(possibleAnswer.getKey().toString() + ". " + possibleAnswer.getValue(), question.getLocale());
+            // TODO: Include possible clapping in saying answers.
+            if (question.getSpeechMode().shouldSayPossibleAnswers()) {
+                for (final Entry<?, String> possibleAnswer : question.getPossibleAnswers().entrySet()) {
+                    this.textSpeaker.say(possibleAnswer.getKey().toString() + ". " + possibleAnswer.getValue(), question.getLocale());
+                }
             }
             final Question<?> nextQuestion;
             if (question.getInteractionType() == InteractionType.NONE) {

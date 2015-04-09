@@ -7,13 +7,14 @@ import java.util.Random;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.AnswerResultType;
+import com.programyourhome.voice.model.SpeechMode;
 import com.programyourhome.voice.model.question.Question;
 
 public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     private String text;
     private String locale;
-    private boolean shouldSayQuestion;
+    private SpeechMode speechMode;
     private int timesAsked;
     private final Map<AnswerType, String> possibleAnswers;
 
@@ -26,7 +27,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
     private final Random random;
 
     public QuestionImpl() {
-        this.shouldSayQuestion = true;
+        this.speechMode = SpeechMode.QUESTION_AND_POSSIBLE_ANSWERS;
         this.timesAsked = 0;
         this.possibleAnswers = new HashMap<>();
         this.nextQuestionsOnProperResult = new HashMap<>();
@@ -39,7 +40,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     @Override
     public String getText() {
-        return this.shouldSayQuestion ? this.text : "";
+        return this.text;
     }
 
     public void setText(final String text) {
@@ -56,10 +57,14 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
     }
 
     @Override
-    // TODO: fix bug not getting these for answer checking!!
+    public SpeechMode getSpeechMode() {
+        return this.speechMode;
+    }
+
+    @Override
     // TODO: Make this a sorted map for ordered results. Or list of pairs for custom order.
     public Map<AnswerType, String> getPossibleAnswers() {
-        return this.shouldSayQuestion ? this.possibleAnswers : new HashMap<>();
+        return this.possibleAnswers;
     }
 
     public void addPossibleAnswer(final AnswerType key, final String answer) {
@@ -144,7 +149,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
                 nextQuestion = JustSayFactory.justSay(comment, this.locale);
             } else {
                 final RepeatPolicy repeatQuestionPolicy = this.improperResultPolicy.getRepeatQuestionPolicy();
-                this.shouldSayQuestion = repeatQuestionPolicy.matches(this.timesAsked);
+                this.speechMode = repeatQuestionPolicy.matches(this.timesAsked) ? SpeechMode.QUESTION_AND_POSSIBLE_ANSWERS : SpeechMode.NONE;
                 final RepeatPolicy commentPolicy = this.improperResultPolicy.getCommentPolicy();
                 // Comment repeats should be out of sync with question repeats (so + 1), so twice alternate will always give some feedback.
                 if (commentPolicy.matches(this.timesAsked + 1)) {

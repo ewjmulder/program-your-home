@@ -56,6 +56,9 @@ public class AnswerListener {
     @Value("${googleSpeechApi.key}")
     private String googleSpeechKey;
 
+    @Autowired
+    private AudioPlayer audioPlayer;
+
     public AnswerListener() {
         // TODO: make configurable?
         this.audioFormat = PyhAudioFormat.getDefault();
@@ -89,7 +92,7 @@ public class AnswerListener {
             if (googleSpeechResponse.getTranscripts().isEmpty()) {
                 answerResult.setAnswerResultType(AnswerResultType.NONE);
             } else {
-                // Something was said and recognized, but it contained neither yes or no.
+                // Something was said and recognized, but it contained no applicable answer.
                 answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
             }
         }
@@ -118,7 +121,7 @@ public class AnswerListener {
             if (googleSpeechResponse.getTranscripts().isEmpty()) {
                 answerResult.setAnswerResultType(AnswerResultType.NONE);
             } else {
-                // Something was said and recognized, but it contained neither yes or no.
+                // Something was said and recognized, but it contained no applicable answer.
                 answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
             }
         }
@@ -153,8 +156,6 @@ public class AnswerListener {
 
     // TODO: use less generic exception type(s)?
     private GoogleSpeechResponse listen(final String locale) throws Exception {
-        final long start = System.currentTimeMillis();
-        System.out.println("start: " + start);
         final TargetDataLine line = this.openNewLine();
         line.start();
         final AudioInputStream ais = new AudioInputStream(line);
@@ -168,16 +169,19 @@ public class AnswerListener {
         // Buffer frequency means the buffer size is filled that many times per second.
         final int bufferFrequency = 5;
         final int bufferSize = this.audioFormat.getSampleRate() / bufferFrequency;
-        final BufferedInputStream bis = new BufferedInputStream(ais, bufferSize);
         // TODO: support for 2 byte (16 bit) samples
         // TODO: fail for channels > 1, no use anyway
         final int seconds = 3;
         final int abufferSize = bufferSize;
         final byte[] byteArray = new byte[abufferSize];
         final int[] intArray = new int[byteArray.length];
-        // TODO: some startup time in which no peaks will be detected because of 'mic going on' noise...
         final int frameSize = this.audioFormat.getJavaAudioFormat().getFrameSize();
-        System.out.println("Speak now: " + (System.currentTimeMillis() - start));
+        // TODO: some startup time in which no peaks will be detected because of 'mic going on' noise...
+        // Maybe that is facilitated by playing a small audio sample first?
+        this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
+        // Skip any sound already recorded up until this point.
+        ais.skip(ais.available());
+        final BufferedInputStream bis = new BufferedInputStream(ais, bufferSize);
         for (long i = 0; i < ((long) this.audioFormat.getSampleRate() * (this.audioFormat.getSampleSizeInBits() / Byte.SIZE)
                 * this.audioFormat.getNumberOfChannels() * seconds) / abufferSize; i++) {
             bis.read(byteArray);
@@ -191,10 +195,10 @@ public class AnswerListener {
         }
         // TODO: document use of flac encoder: default block size 4096, encodes per block, one time the rest of the bytes at the end.
         encoder.encodeSamples(encoder.samplesAvailableToEncode(), true);
-        System.out.println("Done recording, now encoding: " + (System.currentTimeMillis() - start));
         bis.close();
         line.stop();
         line.close();
+        this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
 
         final String urlString = String.format(GOOGLE_SPEECH_API_URL,
                 locale,

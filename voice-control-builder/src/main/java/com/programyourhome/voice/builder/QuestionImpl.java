@@ -56,6 +56,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
     }
 
     @Override
+    // TODO: fix bug not getting these for answer checking!!
     public Map<AnswerType, String> getPossibleAnswers() {
         return this.shouldSayQuestion ? this.possibleAnswers : new HashMap<>();
     }

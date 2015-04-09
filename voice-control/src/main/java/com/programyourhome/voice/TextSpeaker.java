@@ -1,15 +1,11 @@
 package com.programyourhome.voice;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +18,9 @@ public class TextSpeaker {
     @Value("${googleSpeechTts.userAgent}")
     private String googleSpeechUserAgent;
 
+    @Autowired
+    private AudioPlayer audioPlayer;
+
     // TODO: implement caching!!
 
     public void say(final String text, final String locale) throws IOException {
@@ -32,15 +31,7 @@ public class TextSpeaker {
         // Set the user agent to a sane value to prevent a 403 response.
         urlConnection.addRequestProperty("User-Agent", this.googleSpeechUserAgent);
         // Input stream of the response is an mp3 stream with the given text as audio.
-        final InputStream audioInputStream = new BufferedInputStream(urlConnection.getInputStream());
-        try {
-            // Play the mp3 using the javazoom library.
-            new Player(audioInputStream).play();
-        } catch (final JavaLayerException e) {
-            throw new IOException("JavaLayerException while playing stream.", e);
-        } finally {
-            audioInputStream.close();
-        }
+        this.audioPlayer.playMp3(urlConnection.getInputStream());
     }
 
 }

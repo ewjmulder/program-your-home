@@ -48,7 +48,7 @@ public class ProgramYourHomeControllerVoice extends AbstractProgramYourHomeContr
                 .improperResultPolicy(improperResultPolicy)
                 .possibleAnswer('A', "Mister De Groot", JustSayFactory.justSay("No, no, no...", "en-uk"))
                 .possibleAnswer('B', "Napoleon Boneparte", JustSayFactory.justSay("Tu est correct", "fr-fr"))
-                .possibleAnswer('Y', "The boy next door", JustSayFactory.justSay("He only wishes", "en-us"))
+                .possibleAnswer('Q', "The boy next door", JustSayFactory.justSay("He only wishes", "en-us"))
                 .build());
     }
 }

@@ -1,9 +1,12 @@
 package com.programyourhome.voice.builder;
 
+import com.programyourhome.voice.model.Empty;
 import com.programyourhome.voice.model.question.JustSay;
 import com.programyourhome.voice.model.question.Question;
 
-public class JustSayImpl extends QuestionImpl<Void> implements JustSay {
+public class JustSayImpl extends QuestionImpl<Empty> implements JustSay {
+
+    public static final Empty PROPER_RESULT_KEY = Empty.EMPTY;
 
     @Override
     public Runnable getJustSaidCallback() {
@@ -11,7 +14,7 @@ public class JustSayImpl extends QuestionImpl<Void> implements JustSay {
     }
 
     public void setNextQuestion(final Question<?> nextQuestion) {
-        this.addNextQuestionOnProperResult(null, nextQuestion);
+        this.addNextQuestionOnProperResult(PROPER_RESULT_KEY, nextQuestion);
     }
 
 }

@@ -107,20 +107,15 @@ public class VoiceControlImpl implements VoiceControl {
             if (question.getInteractionType() == InteractionType.NONE) {
                 nextQuestion = question.getAnswerCallback().answer(null);
             } else if (question.getInteractionType() == InteractionType.YES_NO) {
-                // TODO: how to prevent this?
-                final Question<Boolean> booleanQuestion = ((Question<Boolean>) question);
+                final Question<Boolean> booleanQuestion = (Question<Boolean>) question;
                 final AnswerResult<Boolean> answerResult = this.answerListener.listenForYesNo(booleanQuestion);
-                // TODO: handle callback exceptions?
                 nextQuestion = booleanQuestion.getAnswerCallback().answer(answerResult);
             } else if (question.getInteractionType() == InteractionType.MULTIPLE_CHOICE) {
-                // TODO: how to prevent this?
-                final Question<Character> characterQuestion = ((Question<Character>) question);
+                final Question<Character> characterQuestion = (Question<Character>) question;
                 final AnswerResult<Character> answerResult = this.answerListener.listenForMultipleChoice(characterQuestion);
-                // TODO: handle callback exceptions?
                 nextQuestion = characterQuestion.getAnswerCallback().answer(answerResult);
             } else {
-                // TODO: implement other interaction types + default with exception.
-                nextQuestion = null;
+                throw new IllegalArgumentException("Question with interaction type: '" + question.getInteractionType() + "' not supported.");
             }
             if (nextQuestion != null) {
                 this.doAskQuestion(nextQuestion);
@@ -129,4 +124,5 @@ public class VoiceControlImpl implements VoiceControl {
             throw new IllegalStateException("Exception encountered while saying: '" + question.getText() + "'.", e);
         }
     }
+
 }

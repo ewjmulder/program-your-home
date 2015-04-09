@@ -7,7 +7,7 @@ public interface AnswerResult<AnswerType> {
     /**
      * The type of answer result. This can be a proper result or some type of erroneous answer.
      *
-     * @return answer result
+     * @return the answer result
      */
     public AnswerResultType getAnswerResultType();
 
@@ -20,7 +20,16 @@ public interface AnswerResult<AnswerType> {
     public AnswerType getAnswer();
 
     /**
-     * The 'raw' transcripts as returned by the speech engine. May be an empty list.
+     * The type of listen result that was recorded.
+     *
+     * @return the listen result type
+     */
+    public ListenResultType getListenResultType();
+
+    /**
+     * The 'raw' transcripts as returned by the speech engine. May be an empty list in case of:
+     * - getListenResultType is not SPEECH_ENGINE
+     * - no text recognized by speech engine
      *
      * @return the transcripts
      */

@@ -1,7 +1,7 @@
 package com.programyourhome.voice.model.question;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.InteractionType;
@@ -15,11 +15,11 @@ public interface Question<AnswerType> {
 
     public InteractionType getInteractionType();
 
-    public default Map<AnswerType, String> getPossibleAnswers() {
+    public default SortedMap<AnswerType, String> getPossibleAnswers() {
         if (!getInteractionType().hasPossibleAnswers()) {
             throw new UnsupportedOperationException("The interaction type of this question does not provide possible answers.");
         } else {
-            return new HashMap<>();
+            return new TreeMap<>();
         }
     }
 

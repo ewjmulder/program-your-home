@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.AnswerResultType;
@@ -16,7 +18,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
     private String locale;
     private SpeechMode speechMode;
     private int timesAsked;
-    private final Map<AnswerType, String> possibleAnswers;
+    private final SortedMap<AnswerType, String> possibleAnswers;
 
     private final Map<AnswerType, Question<?>> nextQuestionsOnProperResult;
     private ProperResultCallback<AnswerType> properResultCallback;
@@ -29,7 +31,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
     public QuestionImpl() {
         this.speechMode = SpeechMode.QUESTION_AND_POSSIBLE_ANSWERS;
         this.timesAsked = 0;
-        this.possibleAnswers = new HashMap<>();
+        this.possibleAnswers = new TreeMap<>();
         this.nextQuestionsOnProperResult = new HashMap<>();
         this.improperConfigurations = new HashMap<>();
         this.improperConfigurations.put(AnswerResultType.NONE, new ImproperResultConfig());
@@ -62,8 +64,7 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
     }
 
     @Override
-    // TODO: Make this a sorted map for ordered results. Or list of pairs for custom order.
-    public Map<AnswerType, String> getPossibleAnswers() {
+    public SortedMap<AnswerType, String> getPossibleAnswers() {
         return this.possibleAnswers;
     }
 
@@ -116,8 +117,8 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
             // TODO: handle callback exceptions?
             if (answerResult == null) {
                 // For just say questions, the answer result is null, so we need specific handling for that.
-                // Actually for just say, the next question (if provided) is saved in the map with a key value of null.
-                nextQuestion = this.nextQuestionsOnProperResult.get(null);
+                // Also the next question (if provided) is saved in the map with a fixed key value.
+                nextQuestion = this.nextQuestionsOnProperResult.get(JustSayImpl.PROPER_RESULT_KEY);
             } else {
                 if (answerResult.getAnswerResultType() == AnswerResultType.PROPER) {
                     if (this.properResultCallback != null) {

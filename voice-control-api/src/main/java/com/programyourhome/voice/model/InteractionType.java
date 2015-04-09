@@ -2,7 +2,7 @@ package com.programyourhome.voice.model;
 
 public enum InteractionType {
 
-    NONE(Void.class, false),
+    NONE(Empty.class, false),
     CLAP(Integer.class, true),
     YES_NO(Boolean.class, false),
     YES_NO_CLAP(Boolean.class, false),

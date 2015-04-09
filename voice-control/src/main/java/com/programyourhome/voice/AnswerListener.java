@@ -18,6 +18,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.TargetDataLine;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,8 @@ import com.programyourhome.voice.config.VoiceControlConfigHolder;
 import com.programyourhome.voice.model.AnswerResult;
 import com.programyourhome.voice.model.AnswerResultImpl;
 import com.programyourhome.voice.model.AnswerResultType;
+import com.programyourhome.voice.model.ListenResult;
+import com.programyourhome.voice.model.ListenResultType;
 import com.programyourhome.voice.model.googlespeech.GoogleSpeechResponse;
 import com.programyourhome.voice.model.question.Question;
 
@@ -43,6 +47,8 @@ public class AnswerListener {
 
     private static final String GOOGLE_SPEECH_API_URL = "https://www.google.com/speech-api/v2/recognize?output=json&lang=%s&client=%s&app=%s&key=%s";
     private static final String ENCODING_UTF8 = "UTF-8";
+
+    private final Log log = LogFactory.getLog(this.getClass());
 
     private final PyhAudioFormat audioFormat;
 
@@ -71,14 +77,31 @@ public class AnswerListener {
         return line;
     }
 
-    public AnswerResult<Boolean> listenForYesNo(final Question<Boolean> question) throws Exception {
-        final GoogleSpeechResponse googleSpeechResponse = this.listen(question.getLocale());
-        final boolean yesFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
-                ConfigUtil.getConfirmations(this.configHolder.getConfig(), question.getLocale()));
-        final boolean noFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
-                ConfigUtil.getNegations(this.configHolder.getConfig(), question.getLocale()));
+    // TODO: refactor whole listenfor logic: extract common functionality and split up in smaller methods.
+    // Callback for handling specific listen results and handling definitive answer result.
 
-        final AnswerResultImpl<Boolean> answerResult = new AnswerResultImpl<>(googleSpeechResponse.getTranscripts());
+    public AnswerResult<Boolean> listenForYesNo(final Question<Boolean> question) throws Exception {
+        final ListenResult listenResult = this.listen(question.getLocale());
+        final boolean yesFound;
+        final boolean noFound;
+        final AnswerResultImpl<Boolean> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
+        if (listenResult.getResultType() == ListenResultType.SPEECH_ENGINE) {
+            final GoogleSpeechResponse googleSpeechResponse = listenResult.getGoogleSpeechResponse();
+            yesFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
+                    ConfigUtil.getConfirmations(this.configHolder.getConfig(), question.getLocale()));
+            noFound = this.atLeastOneWordFoundInTranscript(googleSpeechResponse,
+                    ConfigUtil.getNegations(this.configHolder.getConfig(), question.getLocale()));
+            answerResult.setTranscripts(googleSpeechResponse.getTranscripts());
+        } else if (listenResult.getResultType() == ListenResultType.CLAPS) {
+            final int numberOfClaps = listenResult.getNumberOfClaps();
+            yesFound = numberOfClaps == 1;
+            noFound = numberOfClaps == 2;
+        } else {
+            // ListenResultType.SILENCE
+            yesFound = false;
+            noFound = false;
+        }
+
         if (yesFound && !noFound) {
             answerResult.setAnswerResultType(AnswerResultType.PROPER);
             answerResult.setAnswer(true);
@@ -89,7 +112,7 @@ public class AnswerListener {
             answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
         } else {
             // TODO: generify this last bit, same for all questions, right?
-            if (googleSpeechResponse.getTranscripts().isEmpty()) {
+            if (listenResult.isEmptyResult()) {
                 answerResult.setAnswerResultType(AnswerResultType.NONE);
             } else {
                 // Something was said and recognized, but it contained no applicable answer.
@@ -100,17 +123,29 @@ public class AnswerListener {
     }
 
     public AnswerResult<Character> listenForMultipleChoice(final Question<Character> question) throws Exception {
-        final GoogleSpeechResponse googleSpeechResponse = this.listen(question.getLocale());
-
+        final ListenResult listenResult = this.listen(question.getLocale());
         final List<Character> answersGiven = new ArrayList<>();
-        for (final Character character : question.getPossibleAnswers().keySet()) {
-            if (this.atLeastOneTranscriptMatches(googleSpeechResponse, character.toString())) {
-                answersGiven.add(character);
-            }
-        }
-        // TODO: have backup that tries to match the spoken text to one of the answer texts?
+        final AnswerResultImpl<Character> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
 
-        final AnswerResultImpl<Character> answerResult = new AnswerResultImpl<>(googleSpeechResponse.getTranscripts());
+        if (listenResult.getResultType() == ListenResultType.SPEECH_ENGINE) {
+            final GoogleSpeechResponse googleSpeechResponse = listenResult.getGoogleSpeechResponse();
+            for (final Character character : question.getPossibleAnswers().keySet()) {
+                if (this.atLeastOneTranscriptMatches(googleSpeechResponse, character.toString())) {
+                    answersGiven.add(character);
+                }
+            }
+            answerResult.setTranscripts(googleSpeechResponse.getTranscripts());
+            // TODO: have backup that tries to match the spoken text to one of the answer texts?
+        } else if (listenResult.getResultType() == ListenResultType.CLAPS) {
+            final int numberOfClaps = listenResult.getNumberOfClaps();
+            if (numberOfClaps > 0 && numberOfClaps <= question.getPossibleAnswers().size()) {
+                answersGiven.add(new ArrayList<>(question.getPossibleAnswers().keySet()).get(numberOfClaps - 1));
+            }
+        } else {
+            // ListenResultType.SILENCE
+            // Empty list of answers given.
+        }
+
         if (answersGiven.size() == 1) {
             answerResult.setAnswerResultType(AnswerResultType.PROPER);
             answerResult.setAnswer(answersGiven.get(0));
@@ -118,7 +153,7 @@ public class AnswerListener {
             answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
         } else {
             // TODO: generify this last bit, same for all questions, right?
-            if (googleSpeechResponse.getTranscripts().isEmpty()) {
+            if (listenResult.isEmptyResult()) {
                 answerResult.setAnswerResultType(AnswerResultType.NONE);
             } else {
                 // Something was said and recognized, but it contained no applicable answer.
@@ -139,23 +174,8 @@ public class AnswerListener {
                 .anyMatch(transcript -> transcript.toLowerCase().equals(word.toLowerCase()));
     }
 
-    private GoogleSpeechResponse parseGoogleResponse(final String googleResponseString) throws IOException, JsonParseException, JsonMappingException {
-        final String[] googleResponseStringLines = googleResponseString.split("\n");
-        final String transcriptsResponse;
-        // The response string contains either:
-        if (googleResponseStringLines.length == 1) {
-            // Just one line, if the transcript is determined with full confidence.
-            transcriptsResponse = googleResponseStringLines[0];
-        } else {
-            // Two lines, if multiple and/or partly confident transcripts are given. In that case the first line contains no information.
-            transcriptsResponse = googleResponseStringLines[1];
-        }
-        final GoogleSpeechResponse googleSpeechResponse = new ObjectMapper().readValue(transcriptsResponse, GoogleSpeechResponse.class);
-        return googleSpeechResponse;
-    }
-
     // TODO: use less generic exception type(s)?
-    private GoogleSpeechResponse listen(final String locale) throws Exception {
+    private ListenResult listen(final String locale) throws Exception {
         final TargetDataLine line = this.openNewLine();
         line.start();
         final AudioInputStream ais = new AudioInputStream(line);
@@ -193,6 +213,9 @@ public class AnswerListener {
             encoder.addSamples(intArray, numberOfInterchannelSamples);
             encoder.encodeSamples(encoder.fullBlockSamplesAvailableToEncode(), false);
         }
+
+        // TODO: decide if the recording contains just silence, voice or claps
+
         // TODO: document use of flac encoder: default block size 4096, encodes per block, one time the rest of the bytes at the end.
         encoder.encodeSamples(encoder.samplesAvailableToEncode(), true);
         bis.close();
@@ -209,14 +232,29 @@ public class AnswerListener {
         final byte[] flacBytes = outputStream.toByteArray();
         outputStream.close();
 
-        final Content content = Request.Post(urlString)
+        final Content googleSpeechResponse = Request.Post(urlString)
                 .bodyStream(new ByteArrayInputStream(flacBytes))
                 .userAgent(this.googleSpeechClient)
                 .setHeader("Content-Type", "audio/x-flac; rate=" + this.audioFormat.getSampleRate() + ";") // needed, including rate
                 .execute().returnContent();
 
-        System.out.println("content: " + content);
-        return this.parseGoogleResponse(content.asString());
+        this.log.debug("Google speech response: " + googleSpeechResponse);
+        return ListenResult.googleSpeech(this.parseGoogleResponse(googleSpeechResponse.asString()));
+    }
+
+    private GoogleSpeechResponse parseGoogleResponse(final String googleResponseString) throws IOException, JsonParseException, JsonMappingException {
+        final String[] googleResponseStringLines = googleResponseString.split("\n");
+        final String transcriptsResponse;
+        // The response string contains either:
+        if (googleResponseStringLines.length == 1) {
+            // Just one line, if the transcript is determined with full confidence.
+            transcriptsResponse = googleResponseStringLines[0];
+        } else {
+            // Two lines, if multiple and/or partly confident transcripts are given. In that case the first line contains no information.
+            transcriptsResponse = googleResponseStringLines[1];
+        }
+        final GoogleSpeechResponse googleSpeechResponse = new ObjectMapper().readValue(transcriptsResponse, GoogleSpeechResponse.class);
+        return googleSpeechResponse;
     }
 
 }

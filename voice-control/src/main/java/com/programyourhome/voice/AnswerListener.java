@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programyourhome.voice.builder.QuestionBuilderFactory;
 import com.programyourhome.voice.config.ConfigUtil;
 import com.programyourhome.voice.config.VoiceControlConfigHolder;
 import com.programyourhome.voice.model.AnswerResult;
@@ -78,7 +79,7 @@ public class AnswerListener {
         return line;
     }
 
-    // TODO: refactor whole listenfor logic: extract common functionality and split up in smaller methods.
+    // TODO: refactor whole listen for logic: extract common functionality and split up in smaller methods.
     // Callback for handling specific listen results and handling definitive answer result.
 
     public AnswerResult<Integer> listenForClaps(final Question<Integer> question) throws Exception {
@@ -211,6 +212,14 @@ public class AnswerListener {
                 .anyMatch(transcript -> transcript.toLowerCase().equals(word.toLowerCase()));
     }
 
+    public static void main(final String[] args) throws Exception {
+        new AnswerListener().listen(QuestionBuilderFactory.yesNoQuestionBuilder()
+                .text("text")
+                .locale("en-us")
+                .acceptClaps(true)
+                .build());
+    }
+
     // TODO: use less generic exception type(s)?
     // TODO: support for 2 byte (16 bit) samples
     private ListenResult listen(final Question<?> question) throws Exception {
@@ -219,7 +228,7 @@ public class AnswerListener {
 
         final TargetDataLine line = this.openNewLine();
         line.start();
-        final AudioInputStream ais = new AudioInputStream(line);
+        final AudioInputStream audioInputStream = new AudioInputStream(line);
 
         // Always start the FLAC encoder, even if we don't want to listen to speech.
         // The overhead is minimal, but the code stays simpler.
@@ -228,53 +237,133 @@ public class AnswerListener {
 
         // Buffer frequency means the buffer size is filled that many times per second.
         final int bufferFrequency = 5;
-        final int bufferSize = this.audioFormat.getSampleRate() / bufferFrequency;
-        final int seconds = 3;
+        final int bufferSize = this.audioFormat.getByteRate() / bufferFrequency;
+        // Byte array to read from the audio input stream.
         final byte[] byteArray = new byte[bufferSize];
+        // Int array of the same size, because the encoder works with int's.
         final int[] intArray = new int[byteArray.length];
-        final int frameSize = this.audioFormat.getJavaAudioFormat().getFrameSize();
-        // TODO: some startup time in which no peaks will be detected because of 'mic going on' noise...
-        // Maybe that is facilitated by playing a small audio sample first?
-        this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
+        // Play a small audio sample to indicate the system starts listening. This also has the nice side effect of
+        // having a small 'startup' time for the microphone input stream, so any 'startup noise' will be skipped.
+        // TODO: re-enable
+        // this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
+        // TODO: remove
+        try {
+            Thread.sleep(200);
+        } catch (final InterruptedException e) {
+        }
         // Skip any sound already recorded up until this point.
-        ais.skip(ais.available());
-        final BufferedInputStream bis = new BufferedInputStream(ais, bufferSize);
-        for (long i = 0; i < ((long) this.audioFormat.getSampleRate() * (this.audioFormat.getSampleSizeInBits() / Byte.SIZE)
-                * this.audioFormat.getNumberOfChannels() * seconds) / bufferSize; i++) {
-            bis.read(byteArray);
+        audioInputStream.skip(audioInputStream.available());
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(audioInputStream, bufferSize);
 
-            // TODO: sound processing:
-            // - detect silence before and after 'data-sound' to be cut off: not encoded and not sent to speech api
-            // - maxSilenceVolume parameter (percentage of max?)
-            // - max timeout for listening to possible sound data
-            // - timeout for silence total or after last 'sound-data', different!
-            // -> also possibly differ between open and non-open questions, to give open answers more thinking time.
+        boolean listeningStartTimeoutReached = false;
+        boolean listeningStopTimeoutReached = false;
+        int totalBytesRead = 0;
+        int lastNonSilenceByte = 0;
+        boolean nonSilenceDetected = false;
+        int numberOfClapsDetected = 0;
+        boolean currentlyInClap = false;
+        int lastClapStartByte = 0;
+        int lastClapStopByte = 0;
+        while (!listeningStartTimeoutReached && !listeningStopTimeoutReached) {
+            final int bytesRead = bufferedInputStream.read(byteArray);
 
-            // converting byteArray to intArray
-            for (int j = 0; j < byteArray.length; j++) {
-                intArray[j] = byteArray[j];
+            if (bytesRead != byteArray.length) {
+                throw new IllegalStateException("End of audio input stream reached while listening for answer.");
             }
+
+            // TODO: from properties file + differ for open & non-open questions
+            final int listeningStartTimeoutInMillis = 3000;
+            final int listeningStopTimeoutInMillis = 1000;
+
+            final int maxSilenceVolumePercentage = 20;
+
+            // TODO: clean up code below
+            // TODO: cut off silence before and after non-silence
+            // TODO: minimum non silence 'period' to not include microphone 'freaks' (but what is a period?)
+            // - min amount of time a non silence is detected max x bytes / millis in between
+
+            // Loop through all the bytes read for detailed sound inspection, for instance silence and claps detection.
+            // In the same loop: put the same values in the intArray, for the encoder.
+            for (int i = 0; i < byteArray.length && !listeningStartTimeoutReached && !listeningStopTimeoutReached; i++) {
+                totalBytesRead++;
+                intArray[i] = byteArray[i];
+
+                final double volumePercentage = (byteArray[i] / ((byteArray[i] < 0) ? -128.0 : 127.0)) * 100;
+                if (volumePercentage > maxSilenceVolumePercentage) {
+                    if (!nonSilenceDetected) {
+                        System.out.println("Non silence detected!");
+                    }
+                    nonSilenceDetected = true;
+                    lastNonSilenceByte = totalBytesRead;
+                } else {
+                    if (nonSilenceDetected) {
+                        final int currentSilenceBytes = totalBytesRead - lastNonSilenceByte;
+                        final double silenceMillis = (currentSilenceBytes / (double) this.audioFormat.getByteRate()) * 1000;
+                        if (silenceMillis >= listeningStopTimeoutInMillis) {
+                            listeningStopTimeoutReached = true;
+                        }
+                    } else {
+                        final int currentSilenceBytes = totalBytesRead - lastNonSilenceByte;
+                        final double silenceMillis = (currentSilenceBytes / (double) this.audioFormat.getByteRate()) * 1000;
+                        if (silenceMillis >= listeningStartTimeoutInMillis) {
+                            listeningStartTimeoutReached = true;
+                        }
+                    }
+                }
+                // System.out.println("Byte value: " + byteArray[i]);
+                // System.out.println("Volume percentage: " + (byteArray[i] / ((byteArray[i] < 0) ? -128.0 : 127.0)) * 100);
+
+                if (listenForClaps) {
+                    // Reach this volume to detect a single clap
+                    final int minClapVolumePercentage = 90;
+                    // Drop to this volume to 'finish' the previous clap and continue to a possible next one
+                    final int unClapVolumePercentage = 40;
+                    // Minimum time that one clap always lasts.
+                    final int minimumClapTimeInMillis = 200;
+                    // After this amount of time with no new claps the amount of claps will be determined and no new sound data will be processed for clapping.
+                    // TODO: what if smaller then other timeout?
+                    final int maxTimeBetweenClapsInMillis = 1000;
+
+                    if (volumePercentage >= minClapVolumePercentage && !currentlyInClap) {
+                        System.out.println("Start of clap detected!");
+                        currentlyInClap = true;
+                        lastClapStartByte = totalBytesRead;
+                    } else if (currentlyInClap && volumePercentage <= unClapVolumePercentage) {
+                        final int currentClapBytes = totalBytesRead - lastClapStartByte;
+                        final double clapMillis = (currentClapBytes / (double) this.audioFormat.getByteRate()) * 1000;
+                        if (clapMillis >= minimumClapTimeInMillis) {
+                            System.out.println("Stop of clap detected!");
+                            currentlyInClap = false;
+                            lastClapStopByte = totalBytesRead;
+                            System.out.println("Clap time: " + (lastClapStopByte - lastClapStartByte));
+                            numberOfClapsDetected++;
+                        }
+                    } else if (numberOfClapsDetected > 0) {
+                        final int currentSilenceBytes = totalBytesRead - lastClapStopByte;
+                        final double silenceMillis = (currentSilenceBytes / (double) this.audioFormat.getByteRate()) * 1000;
+                        if (silenceMillis >= maxTimeBetweenClapsInMillis) {
+                            System.out.println("Max time between claps reached!");
+                            listeningStopTimeoutReached = true;
+                        }
+                    }
+
+                    // TODO: furthermore: 'around' the clapping should be silence. if there is too much other 'noise', speech gets precedence
+                }
+
+            }
+
             final int numberOfInterchannelSamples = bufferSize;
             // TODO: change to only add samples if they are to be included for transcription.
-            if (listenForSpeech) {
-                encoder.addSamples(intArray, numberOfInterchannelSamples);
-                encoder.encodeSamples(encoder.fullBlockSamplesAvailableToEncode(), false);
-            }
-            if (listenForClaps) {
-                // TODO: Logic to decide if there is clapping going on.
-                // idea: treshold for: (percentage of max?)
-                // - minClapVolume (reach this volume to detect a single clap)
-                // - unClapVolume (drop to this volume to 'finish' the previous clap and continue to a possible next one)
-                // - maxTimeBetweenClaps (after this time the amount of claps will be determined and no new sound data will be processed for clapping)
-                // furthermore: 'around' the clapping should be silence. if there is too much other 'noise', speech gets precedence
-                // we could also still keep the flac encoder and just not use it to send stuff to Google.
-                // performance overhead is minimal and code stays cleaner
-            }
+            encoder.addSamples(intArray, numberOfInterchannelSamples);
+            encoder.encodeSamples(encoder.fullBlockSamplesAvailableToEncode(), false);
         }
+        System.out.println("listening start timeout: " + listeningStartTimeoutReached);
+        System.out.println("listening stop  timeout: " + listeningStopTimeoutReached);
+        System.out.println("#claps: " + numberOfClapsDetected);
+        System.exit(0);
 
-        // TODO: document use of flac encoder: default block size 4096, encodes per block, one time the rest of the bytes at the end.
         encoder.encodeSamples(encoder.samplesAvailableToEncode(), true);
-        bis.close();
+        bufferedInputStream.close();
         line.stop();
         line.close();
         this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
@@ -288,16 +377,23 @@ public class AnswerListener {
         final byte[] flacBytes = outputStream.toByteArray();
         outputStream.close();
 
-        final Content googleSpeechResponse = Request.Post(urlString)
-                .bodyStream(new ByteArrayInputStream(flacBytes))
-                .userAgent(this.googleSpeechClient)
-                .setHeader("Content-Type", "audio/x-flac; rate=" + this.audioFormat.getSampleRate() + ";") // needed, including rate
-                .execute().returnContent();
-
-        this.log.debug("Google speech response: " + googleSpeechResponse);
-        return ListenResult.googleSpeech(this.parseGoogleResponse(googleSpeechResponse.asString()));
+        if (listenForSpeech) {
+            final Content googleSpeechResponse = Request.Post(urlString)
+                    .bodyStream(new ByteArrayInputStream(flacBytes))
+                    .userAgent(this.googleSpeechClient)
+                    .setHeader("Content-Type", "audio/x-flac; rate=" + this.audioFormat.getSampleRate() + ";") // needed, including rate
+                    .execute().returnContent();
+            this.log.debug("Google speech response: " + googleSpeechResponse);
+            return ListenResult.googleSpeech(this.parseGoogleResponse(googleSpeechResponse.asString()));
+        } else if (listenForClaps) {
+            // TODO
+            return ListenResult.claps(5);
+        } else {
+            throw new IllegalStateException("Not listening for anything.");
+        }
     }
 
+    // TODO: document use of flac encoder: default block size 4096, encodes per block, one time the rest of the bytes at the end.
     private FLACEncoder openFLACEncoder(final OutputStream outputStream) throws IOException {
         final FLACEncoder encoder = new FLACEncoder();
         encoder.setStreamConfiguration(this.audioFormat.getStreamConfiguration());

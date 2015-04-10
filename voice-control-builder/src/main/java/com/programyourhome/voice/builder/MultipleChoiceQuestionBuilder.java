@@ -4,7 +4,7 @@ import com.programyourhome.voice.model.question.MultipleChoiceQuestion;
 import com.programyourhome.voice.model.question.Question;
 
 public class MultipleChoiceQuestionBuilder extends
-QuestionBuilder<MultipleChoiceQuestionBuilder, MultipleChoiceQuestionImpl, MultipleChoiceQuestion, Character> {
+        OptionalClapsQuestionBuilder<MultipleChoiceQuestionBuilder, MultipleChoiceQuestionImpl, MultipleChoiceQuestion, Character> {
 
     private final MultipleChoiceQuestionImpl multipleChoiceQuestion;
 

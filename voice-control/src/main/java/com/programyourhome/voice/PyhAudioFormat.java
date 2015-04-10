@@ -68,4 +68,8 @@ public class PyhAudioFormat {
         return this.getJavaAudioFormat().getFrameSize();
     }
 
+    public int getByteRate() {
+        return this.sampleRate * this.getFrameSize();
+    }
+
 }

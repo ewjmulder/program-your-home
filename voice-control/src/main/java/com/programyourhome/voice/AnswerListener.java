@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,33 +83,28 @@ public class AnswerListener {
 
     public AnswerResult<Integer> listenForClaps(final Question<Integer> question) throws Exception {
         final ListenResult listenResult = this.listen(question);
-        final List<Character> answersGiven = new ArrayList<>();
-        final AnswerResultImpl<Character> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
+        Integer answer = null;
+        final AnswerResultImpl<Integer> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
 
         if (listenResult.getResultType() == ListenResultType.SPEECH_ENGINE) {
+            // Add the transcripts to the answer result, but don't try to get any data from them, since we are only interested in claps.
             final GoogleSpeechResponse googleSpeechResponse = listenResult.getGoogleSpeechResponse();
-            for (final Character character : question.getPossibleAnswers().keySet()) {
-                if (this.atLeastOneTranscriptMatches(googleSpeechResponse, character.toString())) {
-                    answersGiven.add(character);
-                }
-            }
             answerResult.setTranscripts(googleSpeechResponse.getTranscripts());
-            // TODO: have backup that tries to match the spoken text to one of the answer texts?
         } else if (listenResult.getResultType() == ListenResultType.CLAPS) {
             final int numberOfClaps = listenResult.getNumberOfClaps();
-            if (numberOfClaps > 0 && numberOfClaps <= question.getPossibleAnswers().size()) {
-                answersGiven.add(new ArrayList<>(question.getPossibleAnswers().keySet()).get(numberOfClaps - 1));
+            for (final Integer integer : question.getPossibleAnswers().keySet()) {
+                if (integer == numberOfClaps) {
+                    answer = integer;
+                }
             }
         } else {
             // ListenResultType.SILENCE
-            // Empty list of answers given.
+            // Leave default answer of null
         }
 
-        if (answersGiven.size() == 1) {
+        if (answer != null) {
             answerResult.setAnswerResultType(AnswerResultType.PROPER);
-            answerResult.setAnswer(answersGiven.get(0));
-        } else if (answersGiven.size() > 1) {
-            answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
+            answerResult.setAnswer(answer);
         } else {
             // TODO: generify this last bit, same for all questions, right?
             if (listenResult.isEmptyResult()) {
@@ -216,6 +212,7 @@ public class AnswerListener {
     }
 
     // TODO: use less generic exception type(s)?
+    // TODO: support for 2 byte (16 bit) samples
     private ListenResult listen(final Question<?> question) throws Exception {
         final boolean listenForSpeech = question.getInteractionType().getListenMode().shouldListenForSpeech();
         final boolean listenForClaps = question.getInteractionType().getListenMode().shouldListenForClaps();
@@ -224,22 +221,16 @@ public class AnswerListener {
         line.start();
         final AudioInputStream ais = new AudioInputStream(line);
 
-        final FLACEncoder encoder = new FLACEncoder();
-        if (listenForSpeech) {
-            encoder.setStreamConfiguration(this.audioFormat.getStreamConfiguration());
-            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            encoder.setOutputStream(new FLACStreamOutputStream(outputStream));
-            encoder.openFLACStream();
-        }
+        // Always start the FLAC encoder, even if we don't want to listen to speech.
+        // The overhead is minimal, but the code stays simpler.
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final FLACEncoder encoder = this.openFLACEncoder(outputStream);
 
         // Buffer frequency means the buffer size is filled that many times per second.
         final int bufferFrequency = 5;
         final int bufferSize = this.audioFormat.getSampleRate() / bufferFrequency;
-        // TODO: support for 2 byte (16 bit) samples
-        // TODO: fail for channels > 1, no use anyway
         final int seconds = 3;
-        final int abufferSize = bufferSize;
-        final byte[] byteArray = new byte[abufferSize];
+        final byte[] byteArray = new byte[bufferSize];
         final int[] intArray = new int[byteArray.length];
         final int frameSize = this.audioFormat.getJavaAudioFormat().getFrameSize();
         // TODO: some startup time in which no peaks will be detected because of 'mic going on' noise...
@@ -249,7 +240,7 @@ public class AnswerListener {
         ais.skip(ais.available());
         final BufferedInputStream bis = new BufferedInputStream(ais, bufferSize);
         for (long i = 0; i < ((long) this.audioFormat.getSampleRate() * (this.audioFormat.getSampleSizeInBits() / Byte.SIZE)
-                * this.audioFormat.getNumberOfChannels() * seconds) / abufferSize; i++) {
+                * this.audioFormat.getNumberOfChannels() * seconds) / bufferSize; i++) {
             bis.read(byteArray);
 
             // TODO: sound processing:
@@ -263,7 +254,7 @@ public class AnswerListener {
             for (int j = 0; j < byteArray.length; j++) {
                 intArray[j] = byteArray[j];
             }
-            final int numberOfInterchannelSamples = abufferSize;
+            final int numberOfInterchannelSamples = bufferSize;
             // TODO: change to only add samples if they are to be included for transcription.
             if (listenForSpeech) {
                 encoder.addSamples(intArray, numberOfInterchannelSamples);
@@ -305,6 +296,14 @@ public class AnswerListener {
 
         this.log.debug("Google speech response: " + googleSpeechResponse);
         return ListenResult.googleSpeech(this.parseGoogleResponse(googleSpeechResponse.asString()));
+    }
+
+    private FLACEncoder openFLACEncoder(final OutputStream outputStream) throws IOException {
+        final FLACEncoder encoder = new FLACEncoder();
+        encoder.setStreamConfiguration(this.audioFormat.getStreamConfiguration());
+        encoder.setOutputStream(new FLACStreamOutputStream(outputStream));
+        encoder.openFLACStream();
+        return encoder;
     }
 
     private GoogleSpeechResponse parseGoogleResponse(final String googleResponseString) throws IOException, JsonParseException, JsonMappingException {

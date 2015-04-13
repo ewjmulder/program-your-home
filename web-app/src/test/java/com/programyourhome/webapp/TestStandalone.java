@@ -11,7 +11,10 @@ public class TestStandalone extends NanoHTTPD {
 
     private final static String BASE_PATH;
     static {
-        final String runningInFolder = TestStandalone.class.getProtectionDomain().getCodeSource().getLocation().toString();
+        String runningInFolder = TestStandalone.class.getProtectionDomain().getCodeSource().getLocation().toString();
+        if (System.getProperty("os.name").equals("Linux")) {
+            runningInFolder = "/" + runningInFolder;
+        }
         final String uriStyle = runningInFolder.substring(6, runningInFolder.length() - 20) + "src/main/html";
         BASE_PATH = uriStyle.replace("%20", " ");
     }

@@ -23,4 +23,5 @@ public class PhilipsHueMock extends PyhMock {
         Mockito.when(philipsHueMock.getLights()).thenReturn(Arrays.asList(light));
         return philipsHueMock;
     }
+
 }

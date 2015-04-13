@@ -20,14 +20,14 @@
 						}
 					}
 				}
-				request.open("GET","http://192.168.2.100:3737/main/activities", true);
+				request.open("GET","http://localhost:3737/main/activities", true);
 				request.send();
 			});
 			function escapeHTML(s) {
 				return String(s).replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 			};
 			function buildActivity(activity) {
-				return "<div>" + activity.name + "<br /><a href='http://192.168.2.100:3737/main/activities/" + activity.id + "/start'>" +
+				return "<div>" + activity.name + "<br /><a href='http://localhost:3737/main/activities/" + activity.id + "/start'>" +
 				"<img src='" + activity.iconUrl + "' width='128' height='128' title='" + escapeHTML(activity.description) + "' />" +
 				"</a></div>";
 			};

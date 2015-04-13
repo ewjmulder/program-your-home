@@ -306,8 +306,6 @@ Resource = (function() {
     if (canUrlNoId && providedIds === this.expectedIds - 1) {
       url = this.urlNoId;
     }
-    alert('this.expectedIds: ' + this.expectedIds)
-    alert('this.url: ' + this.url)
     if (url === null) {
       if (canUrlNoId) {
         msg = this.expectedIds - 1;

@@ -1,2 +1,3 @@
 - Add nice favicon.ico file for PYH webapp
-- move to jquery rest prod version
+- move to jquery rest prod (min) version
+- move to jquery load template prod (min) version

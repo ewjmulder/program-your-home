@@ -8,9 +8,10 @@
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
 		<script type="text/javascript" src="js/jquery.rest.js"></script>
+<!-- 		<script type="text/javascript" src="js/jquery.loadTemplate-1.4.5.js"></script> -->
+		<script type="text/javascript" src="js/jquery.tmpl.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
-				
 				// TODO: note to self: double nested requires ID for the first!
 				// So my REST service starts at /main /hue etc, which makes sense indeed, sep rest resvices for these URL's
 				// furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
@@ -24,10 +25,29 @@
 				
 				// jQuery rest way :)
 				client.activities.read().done(function (activities) {
-					// TODO: other nice way of making this work dynamically?
+					// TODO: other nice way of making this work dynamically? -> best way to use templates (if at all?)
 					$("#activities").html("");
+					
+					// Get contents of URL, use to feed the handlebars template compilation.
+				    $.get("/templates/activity.html", function (contents) {
+					    alert("contents: " + contents);
+				    });
+
+					
 					for (var i = 0; i < activities.length; i++) {
-						$("#activities").append(buildActivity(activities[i]));
+						
+						//TODO:
+							//- use handlebars as templating engine instead!
+							//http://handlebarsjs.com/
+							//http://stackoverflow.com/questions/13075132/loading-handlebars-js-template-from-external-html-file-shows-nothing
+						
+/*						var activity = activities[i];
+						$("#activities").loadTemplate("templates/activity.html",
+								{
+									name: activity.name,
+									iconUrl: activity.iconUrl
+								},
+								{append: true});*/
 					}
 				});
 				
@@ -62,11 +82,6 @@
 			});
 			function escapeHTML(s) {
 				return String(s).replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-			};
-			function buildActivity(activity) {
-				return "<div>" + activity.name + "<br /><a href='http://localhost:3737/main/activities/" + activity.id + "/start'>" +
-				"<img src='" + activity.iconUrl + "' width='128' height='128' title='" + escapeHTML(activity.description) + "' />" +
-				"</a></div>";
 			};
 		</script>
 	</head>

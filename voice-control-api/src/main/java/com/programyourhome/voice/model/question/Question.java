@@ -5,6 +5,7 @@ import java.util.TreeMap;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.InteractionType;
+import com.programyourhome.voice.model.ListenMode;
 import com.programyourhome.voice.model.SpeechMode;
 
 public interface Question<AnswerType> {
@@ -14,6 +15,18 @@ public interface Question<AnswerType> {
     public String getLocale();
 
     public InteractionType getInteractionType();
+
+    public default boolean acceptSpeechAsAnswer() {
+        return true;
+    }
+
+    public default boolean acceptClapsAsAnswer() {
+        return false;
+    }
+
+    public default ListenMode getListenMode() {
+        return ListenMode.fromSpeechClaps(acceptSpeechAsAnswer(), acceptClapsAsAnswer());
+    }
 
     public default SortedMap<AnswerType, String> getPossibleAnswers() {
         if (!getInteractionType().hasPossibleAnswers()) {
@@ -28,6 +41,8 @@ public interface Question<AnswerType> {
     public default SpeechMode getSpeechMode() {
         return SpeechMode.QUESTION_AND_POSSIBLE_ANSWERS;
     }
+
+    public boolean isApplicableAnswer(AnswerType answer);
 
     /**
      * Provides a default toString() implementation. The callback object is not included in the string.

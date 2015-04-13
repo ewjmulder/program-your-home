@@ -14,8 +14,8 @@ public class QuestionBuilderFactory {
         return new MultipleChoiceQuestionBuilder();
     }
 
-    public static ClapQuestionBuilder clapQuestionBuilder() {
-        return new ClapQuestionBuilder();
+    public static NumberQuestionBuilder clapQuestionBuilder() {
+        return new NumberQuestionBuilder();
     }
 
     // TODO: document:

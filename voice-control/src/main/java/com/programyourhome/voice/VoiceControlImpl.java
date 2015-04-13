@@ -97,19 +97,30 @@ public class VoiceControlImpl implements VoiceControl {
             if (question.getSpeechMode().shouldSayQuestion()) {
                 this.textSpeaker.say(question.getText(), question.getLocale());
             }
-            // TODO: Include possible clapping in saying answers.
             if (question.getSpeechMode().shouldSayPossibleAnswers()) {
+                int numberOfClaps = 0;
                 for (final Entry<?, String> possibleAnswer : question.getPossibleAnswers().entrySet()) {
-                    this.textSpeaker.say(possibleAnswer.getKey().toString() + ". " + possibleAnswer.getValue(), question.getLocale());
+                    numberOfClaps++;
+                    // TODO: Make this text dependent on chosen language. -> probably include proper internationalization i18n or java8 alternative?
+                    String answerText = "";
+                    if (question.getListenMode().shouldListenForSpeech()) {
+                        answerText += "Answer " + possibleAnswer.getKey().toString();
+                    }
+                    if (question.getListenMode().shouldListenForClaps()) {
+                        answerText += (question.getListenMode().shouldListenForSpeech() ? " or " : "")
+                                + numberOfClaps + " " + (numberOfClaps == 1 ? "clap" : "claps");
+                    }
+                    answerText += ". " + possibleAnswer.getValue();
+                    this.textSpeaker.say(answerText, question.getLocale());
                 }
             }
             final Question<?> nextQuestion;
             if (question.getInteractionType() == InteractionType.NONE) {
                 nextQuestion = question.getAnswerCallback().answer(null);
-            } else if (question.getInteractionType() == InteractionType.CLAP) {
-                final Question<Integer> clapsQuestion = (Question<Integer>) question;
-                final AnswerResult<Integer> answerResult = this.answerListener.listenForClaps(clapsQuestion);
-                nextQuestion = clapsQuestion.getAnswerCallback().answer(answerResult);
+            } else if (question.getInteractionType() == InteractionType.NUMBER) {
+                final Question<Integer> integerQuestion = (Question<Integer>) question;
+                final AnswerResult<Integer> answerResult = this.answerListener.listenForNumber(integerQuestion);
+                nextQuestion = integerQuestion.getAnswerCallback().answer(answerResult);
             } else if (question.getInteractionType() == InteractionType.YES_NO) {
                 final Question<Boolean> booleanQuestion = (Question<Boolean>) question;
                 final AnswerResult<Boolean> answerResult = this.answerListener.listenForYesNo(booleanQuestion);

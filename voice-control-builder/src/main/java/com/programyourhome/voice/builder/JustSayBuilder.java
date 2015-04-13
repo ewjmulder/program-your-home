@@ -27,4 +27,14 @@ public class JustSayBuilder extends QuestionBuilder<JustSayBuilder, JustSayImpl,
         return this;
     }
 
+    @Override
+    public JustSayBuilder acceptSpeech(final boolean acceptSpeech) {
+        throw new IllegalStateException("Just say does not have any interaction, so it cannot accept speech.");
+    }
+
+    @Override
+    public JustSayBuilder acceptClaps(final boolean acceptClaps) {
+        throw new IllegalStateException("Just say does not have any interaction, so it cannot accept claps.");
+    }
+
 }

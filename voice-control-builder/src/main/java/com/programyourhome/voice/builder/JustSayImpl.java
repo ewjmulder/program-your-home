@@ -17,4 +17,9 @@ public class JustSayImpl extends QuestionImpl<Empty> implements JustSay {
         this.addNextQuestionOnProperResult(PROPER_RESULT_KEY, nextQuestion);
     }
 
+    @Override
+    protected boolean isApplicableAnswerDefault(final Empty answer) {
+        return JustSay.super.isApplicableAnswer(answer);
+    }
+
 }

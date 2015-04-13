@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import com.programyourhome.voice.model.AnswerCallback;
 import com.programyourhome.voice.model.AnswerResultType;
@@ -16,6 +17,10 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     private String text;
     private String locale;
+    private boolean acceptSpeech;
+    private boolean acceptClaps;
+    private Function<AnswerType, Boolean> applicableAnswerCallback;
+
     private SpeechMode speechMode;
     private int timesAsked;
     private final SortedMap<AnswerType, String> possibleAnswers;
@@ -56,6 +61,24 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     public void setLocale(final String locale) {
         this.locale = locale;
+    }
+
+    @Override
+    public boolean acceptSpeechAsAnswer() {
+        return this.acceptSpeech;
+    }
+
+    public void setAcceptSpeech(final boolean acceptSpeech) {
+        this.acceptSpeech = acceptSpeech;
+    }
+
+    @Override
+    public boolean acceptClapsAsAnswer() {
+        return this.acceptClaps;
+    }
+
+    public void setAcceptClaps(final boolean acceptClaps) {
+        this.acceptClaps = acceptClaps;
     }
 
     @Override
@@ -107,6 +130,23 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
     public void setImproperResultPolicy(final ImproperResultPolicy improperResultPolicy) {
         this.improperResultPolicy = improperResultPolicy;
     }
+
+    public void setApplicableAnswerCallback(final Function<AnswerType, Boolean> applicableAnswerCallback) {
+        this.applicableAnswerCallback = applicableAnswerCallback;
+    }
+
+    @Override
+    public boolean isApplicableAnswer(final AnswerType answer) {
+        boolean isApplicable;
+        if (this.applicableAnswerCallback != null) {
+            isApplicable = this.applicableAnswerCallback.apply(answer);
+        } else {
+            isApplicable = this.isApplicableAnswerDefault(answer);
+        }
+        return isApplicable;
+    }
+
+    protected abstract boolean isApplicableAnswerDefault(final AnswerType answer);
 
     @Override
     public AnswerCallback<AnswerType> getAnswerCallback() {

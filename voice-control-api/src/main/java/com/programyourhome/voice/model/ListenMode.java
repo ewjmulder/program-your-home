@@ -23,4 +23,15 @@ public enum ListenMode {
         return this.listenForClaps;
     }
 
+    public static ListenMode fromSpeechClaps(final boolean acceptSpeechAsAnswer, final boolean acceptClapsAsAnswer) {
+        ListenMode listenMode = null;
+        for (final ListenMode aListenMode : ListenMode.values()) {
+            if (aListenMode.shouldListenForSpeech() == acceptSpeechAsAnswer
+                    && aListenMode.shouldListenForClaps() == acceptClapsAsAnswer) {
+                listenMode = aListenMode;
+            }
+        }
+        return listenMode;
+    }
+
 }

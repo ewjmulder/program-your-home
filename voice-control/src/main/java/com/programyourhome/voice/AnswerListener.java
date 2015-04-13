@@ -82,7 +82,7 @@ public class AnswerListener {
     // TODO: refactor whole listen for logic: extract common functionality and split up in smaller methods.
     // Callback for handling specific listen results and handling definitive answer result.
 
-    public AnswerResult<Integer> listenForClaps(final Question<Integer> question) throws Exception {
+    public AnswerResult<Integer> listenForNumber(final Question<Integer> question) throws Exception {
         final ListenResult listenResult = this.listen(question);
         Integer answer = null;
         final AnswerResultImpl<Integer> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
@@ -223,8 +223,8 @@ public class AnswerListener {
     // TODO: use less generic exception type(s)?
     // TODO: support for 2 byte (16 bit) samples
     private ListenResult listen(final Question<?> question) throws Exception {
-        final boolean listenForSpeech = question.getInteractionType().getListenMode().shouldListenForSpeech();
-        final boolean listenForClaps = question.getInteractionType().getListenMode().shouldListenForClaps();
+        final boolean listenForSpeech = question.getListenMode().shouldListenForSpeech();
+        final boolean listenForClaps = question.getListenMode().shouldListenForClaps();
 
         final TargetDataLine line = this.openNewLine();
         line.start();
@@ -323,6 +323,11 @@ public class AnswerListener {
                     // After this amount of time with no new claps the amount of claps will be determined and no new sound data will be processed for clapping.
                     // TODO: what if smaller then other timeout?
                     final int maxTimeBetweenClapsInMillis = 1000;
+
+                    // TODO: weakness in code below: unclapvolume will also be reached when loud sound is going up and down
+                    // in the noise curve. So 'real' unclapping detection should incorporate a minimum time of silence (or unclapping silence)
+                    // that marks a clap stop (can probably be a very small amount of time like 1 or a few millis) instead of using the unclapping
+                    // volume at just 1 measuring point.
 
                     if (volumePercentage >= minClapVolumePercentage && !currentlyInClap) {
                         System.out.println("Start of clap detected!");

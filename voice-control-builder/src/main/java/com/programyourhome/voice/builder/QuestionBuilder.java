@@ -14,6 +14,16 @@ public abstract class QuestionBuilder<BuilderType extends QuestionBuilder<?, ?, 
         return this.getBuilder();
     }
 
+    public BuilderType acceptSpeech(final boolean acceptSpeech) {
+        this.getQuestion().setAcceptSpeech(acceptSpeech);
+        return this.getBuilder();
+    }
+
+    public BuilderType acceptClaps(final boolean acceptClaps) {
+        this.getQuestion().setAcceptClaps(acceptClaps);
+        return this.getBuilder();
+    }
+
     public BuilderType onNoResult(final Question<?> nextQuestion) {
         this.getQuestion().setNextQuestionOnNoResult(nextQuestion);
         return this.getBuilder();

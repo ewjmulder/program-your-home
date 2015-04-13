@@ -2,11 +2,11 @@ package com.programyourhome.voice.model.question;
 
 import com.programyourhome.voice.model.InteractionType;
 
-public interface OpenQuestion extends Question<String> {
+public interface NumberQuestion extends Question<Integer> {
 
     @Override
     public default InteractionType getInteractionType() {
-        return InteractionType.OPEN;
+        return InteractionType.NUMBER;
     }
 
     @Override
@@ -16,12 +16,11 @@ public interface OpenQuestion extends Question<String> {
 
     @Override
     public default boolean acceptClapsAsAnswer() {
-        return false;
-    }
-
-    @Override
-    public default boolean isApplicableAnswer(final String answer) {
         return true;
     }
 
+    @Override
+    public default boolean isApplicableAnswer(final Integer answer) {
+        return true;
+    }
 }

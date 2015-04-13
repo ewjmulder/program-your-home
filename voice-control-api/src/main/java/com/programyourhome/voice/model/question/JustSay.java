@@ -12,6 +12,16 @@ public interface JustSay extends Question<Empty> {
     }
 
     @Override
+    public default boolean acceptClapsAsAnswer() {
+        return false;
+    }
+
+    @Override
+    public default boolean acceptSpeechAsAnswer() {
+        return false;
+    }
+
+    @Override
     public default AnswerCallback<Empty> getAnswerCallback() {
         return value -> {
             if (getJustSaidCallback() != null) {
@@ -26,4 +36,9 @@ public interface JustSay extends Question<Empty> {
     }
 
     public Runnable getJustSaidCallback();
+
+    @Override
+    public default boolean isApplicableAnswer(final Empty answer) {
+        throw new IllegalStateException("Just say does not accept any answers.");
+    }
 }

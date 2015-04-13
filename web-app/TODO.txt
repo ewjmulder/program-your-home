@@ -1,0 +1,2 @@
+- Add nice favicon.ico file for PYH webapp
+- move to jquery rest prod version

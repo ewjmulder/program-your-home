@@ -7,8 +7,45 @@
 		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.theme.min.css">
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
+		<script type="text/javascript" src="js/jquery.rest.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
+				
+				// TODO: note to self: double nested requires ID for the first!
+				// So my REST service starts at /main /hue etc, which makes sense indeed, sep rest resvices for these URL's
+				// furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
+				// (probably fine to support both full rest and getters along the way. (or just use rest where I can use it and
+				// use simple wget style stuff to activate activities / press buttons etc)
+				
+				var client = new $.RestClient('http://localhost:3737/main/');
+				client.add('activities');
+
+				//var request = client.activities.read();
+				
+				// jQuery rest way :)
+				client.activities.read().done(function (activities) {
+					// TODO: other nice way of making this work dynamically?
+					$("#activities").html("");
+					for (var i = 0; i < activities.length; i++) {
+						$("#activities").append(buildActivity(activities[i]));
+					}
+				});
+				
+				// plain jQuery way
+				/*$(document).ready(function() {
+				    $.ajax({
+				        url: "http://localhost:3737/main/activities"
+				    }).then(function(activities) {
+						//$("#debug").html(request.responseText);
+						$("#activities").html("");
+						for (var i = 0; i < activities.length; i++) {
+							$("#activities").append(buildActivity(activities[i]));
+						}
+				    });
+				});*/
+				
+				// Pure javascript way
+				/*
 				var request = new XMLHttpRequest();
 				request.onreadystatechange = function() {
 					if (request.readyState == 4 && request.status == 200) {
@@ -21,7 +58,7 @@
 					}
 				}
 				request.open("GET","http://localhost:3737/main/activities", true);
-				request.send();
+				request.send();*/
 			});
 			function escapeHTML(s) {
 				return String(s).replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');

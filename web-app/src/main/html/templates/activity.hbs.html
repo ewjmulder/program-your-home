@@ -1,0 +1,9 @@
+{{#each activities}}
+	{{name}}<br />
+	{{description}}<br />
+	<a href="javascript:void(0)" onclick="toggleActivity({{id}}, {{active}})"><img
+		{{#unless active}}
+			style="-webkit-filter: grayscale(100%); filter: grayscale(100%);"
+		{{/unless}}
+		src="{{iconUrl}}" width="128" height="128" /></a><br />
+{{/each}}

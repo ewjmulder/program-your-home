@@ -8,80 +8,86 @@
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
 		<script type="text/javascript" src="js/jquery.rest.js"></script>
-<!-- 		<script type="text/javascript" src="js/jquery.loadTemplate-1.4.5.js"></script> -->
-		<script type="text/javascript" src="js/jquery.tmpl.js"></script>
+		<script type="text/javascript" src="js/handlebars-v3.0.1.js"></script>
 		<script type="text/javascript">
-			$(document).ready(function() {
+			var templates = {};
+			var templateNames = ["activity", "test"];
+			var restClientMain;
+			
+			var restApiDoneFunction = function (result) {
+				if (result.success) {
+					refreshAll();
+				} else {
+					showError("REST API call returned an error: " + result.error);
+				}
+			};
+			var restApiFailFunction = function (jqXHR, status, error) {
+				showError("REST API call failed with error: " + error);
+			};
+			var restApiResponseFunction = function (arg1, status, arg2) {
+				if (status == "success") {
+					restApiDoneFunction(arg1, status, arg2);
+				} else if (status == "error" || status == "parsererror") {
+					restApiFailFunction(arg1, status, arg2);				
+				} else {
+					// TODO: all known status texts: ("success", "notmodified", "nocontent", "error", "timeout", "abort" or "parsererror")
+					showError("Unknown REST API response status: ''" + status + "'.");
+				}
+			};
+			
+			$(document).ready(function () {
 				// TODO: note to self: double nested requires ID for the first!
-				// So my REST service starts at /main /hue etc, which makes sense indeed, sep rest resvices for these URL's
+				// So my REST service starts at /main /hue etc, which makes sense indeed, sep rest services for these URL's
 				// furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
 				// (probably fine to support both full rest and getters along the way. (or just use rest where I can use it and
 				// use simple wget style stuff to activate activities / press buttons etc)
-				
-				var client = new $.RestClient('http://localhost:3737/main/');
-				client.add('activities');
+				restClientMain = new $.RestClient("http://localhost:3737/main/");
+				restClientMain.add("activities");
+				restClientMain.activities.addVerb("start", "GET");
+				restClientMain.activities.addVerb("stop", "GET");
 
-				//var request = client.activities.read();
-				
-				// jQuery rest way :)
-				client.activities.read().done(function (activities) {
-					// TODO: other nice way of making this work dynamically? -> best way to use templates (if at all?)
-					$("#activities").html("");
-					
-					// Get contents of URL, use to feed the handlebars template compilation.
-				    $.get("/templates/activity.html", function (contents) {
-					    alert("contents: " + contents);
+				templateNames.forEach(function (templateName) {
+				    $.get("/templates/" + templateName + ".hbs.html", function (contents) {
+				    	templates[templateName] = Handlebars.compile(contents);
+				    	if (checkTemplateLoadingDone()) {
+				    		refreshAll();
+				    	}
 				    });
-
-					
-					for (var i = 0; i < activities.length; i++) {
-						
-						//TODO:
-							//- use handlebars as templating engine instead!
-							//http://handlebarsjs.com/
-							//http://stackoverflow.com/questions/13075132/loading-handlebars-js-template-from-external-html-file-shows-nothing
-						
-/*						var activity = activities[i];
-						$("#activities").loadTemplate("templates/activity.html",
-								{
-									name: activity.name,
-									iconUrl: activity.iconUrl
-								},
-								{append: true});*/
-					}
 				});
-				
-				// plain jQuery way
-				/*$(document).ready(function() {
-				    $.ajax({
-				        url: "http://localhost:3737/main/activities"
-				    }).then(function(activities) {
-						//$("#debug").html(request.responseText);
-						$("#activities").html("");
-						for (var i = 0; i < activities.length; i++) {
-							$("#activities").append(buildActivity(activities[i]));
-						}
-				    });
-				});*/
-				
-				// Pure javascript way
-				/*
-				var request = new XMLHttpRequest();
-				request.onreadystatechange = function() {
-					if (request.readyState == 4 && request.status == 200) {
-						$("#debug").html(request.responseText);
-						var activities = JSON.parse(request.responseText);
-						$("#activities").html("");
-						for (var i = 0; i < activities.length; i++) {
-							$("#activities").append(buildActivity(activities[i]));
-						}
-					}
-				}
-				request.open("GET","http://localhost:3737/main/activities", true);
-				request.send();*/
 			});
+			function showError(errorMessage) {
+				// TODO: nicer error 'popup'.
+				alert("Error occured: " + errorMessage);
+			};
 			function escapeHTML(s) {
 				return String(s).replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+			};
+			function toggleActivity(id, currentlyActive) {
+				if (currentlyActive) {
+					restClientMain.activities.stop(id).always(restApiResponseFunction);					
+				} else {
+					restClientMain.activities.start(id).always(restApiResponseFunction);
+				}
+			};
+			function checkTemplateLoadingDone() {
+				var allDone = true;
+				templateNames.forEach(function(templateName) {
+					if (templates[templateName] == null) {
+						allDone = false;
+					}
+				});
+				return allDone;
+			};
+			function refreshAll() {
+				refreshActivities();
+			};
+			function refreshActivities() {
+				restClientMain.activities.read()
+					.done(function (activities) {
+				    	var activitiesHtml = templates["activity"]({ activities: activities });
+			    		$("#activities").html(activitiesHtml);
+					})
+					.fail(restApiFailFunction);				
 			};
 		</script>
 	</head>

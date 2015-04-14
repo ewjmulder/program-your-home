@@ -9,9 +9,10 @@ public class PyhActivity {
     private final String name;
     private final String description;
     private final String iconUrl;
+    private final boolean isActive;
 
     // TODO: Weird to provide baseUrl to activity, make a separate icon/image class?
-    public PyhActivity(final Activity activity, final String baseUrl, final String defaultIconFilename) {
+    public PyhActivity(final Activity activity, final boolean isActive, final String baseUrl, final String defaultIconFilename) {
         this.id = activity.getId();
         this.name = activity.getName();
         this.description = activity.getDescription();
@@ -22,6 +23,7 @@ public class PyhActivity {
             iconFilename = defaultIconFilename;
         }
         this.iconUrl = baseUrl + "/img/icons/" + iconFilename;
+        this.isActive = isActive;
     }
 
     public int getId() {
@@ -38,6 +40,10 @@ public class PyhActivity {
 
     public String getIconUrl() {
         return this.iconUrl;
+    }
+
+    public boolean isActive() {
+        return this.isActive;
     }
 
 }

@@ -16,6 +16,7 @@ import com.programyourhome.server.ProgramYourHomeServer;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.model.ServiceResult;
 
 @RestController
 @RequestMapping("main")
@@ -66,33 +67,37 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     public Collection<PyhActivity> getActivities() {
         final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
         return this.getServerConfig().getActivitiesConfig().getActivities().stream()
-                .map(activity -> new PyhActivity(activity, "http://" + this.host + ":" + this.port + "/", defaultIcon))
+                .map(activity -> new PyhActivity(activity, this.activityCenter.isActive(activity), "http://" + this.host + ":" + this.port + "/", defaultIcon))
                 .collect(Collectors.toList());
     }
 
     @RequestMapping("activities/{id}/start")
-    public void startActivity(@PathVariable("id") final int id) {
+    public ServiceResult startActivity(@PathVariable("id") final int id) {
         // TODO: generalize! (see below). How about a general 'ensure' for Option<T> with a message if not. But how to get that to the client?
         // I guess I should have a custom Result type with ok or error, just like the in the Scala talks. Then all server/controller methods
         // should return that and have some monadic way of not proceeding when a failure was encountered. Can that even be done in Java?
         // Otherwise just custom or with helper method in common or so.
         final Optional<Activity> activity = this.getActivity(id);
         if (!activity.isPresent()) {
-            // TODO: error 'page'
-            throw new IllegalArgumentException("Activity: '" + id + "' not found in config.");
+            return ServiceResult.error("Activity: '" + id + "' not found in config.");
+        } else if (this.activityCenter.isActive(activity.get())) {
+            return ServiceResult.error("Activity: '" + id + "' is already active.");
         } else {
             this.activityCenter.startActivity(activity.get());
+            return ServiceResult.success();
         }
     }
 
     @RequestMapping("activities/{id}/stop")
-    public void stopActivity(@PathVariable("id") final int id) {
+    public ServiceResult stopActivity(@PathVariable("id") final int id) {
         final Optional<Activity> activity = this.getActivity(id);
         if (!activity.isPresent()) {
-            // TODO: error 'page' -> double, see above.
-            throw new IllegalArgumentException("Activity: '" + id + "' not found in config.");
+            return ServiceResult.error("Activity: '" + id + "' not found in config.");
+        } else if (!this.activityCenter.isActive(activity.get())) {
+            return ServiceResult.error("Activity: '" + id + "' is not active.");
         } else {
             this.activityCenter.stopActivity(activity.get());
+            return ServiceResult.success();
         }
     }
 

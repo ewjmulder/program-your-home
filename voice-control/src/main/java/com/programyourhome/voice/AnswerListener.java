@@ -230,6 +230,23 @@ public class AnswerListener {
         line.start();
         final AudioInputStream audioInputStream = new AudioInputStream(line);
 
+        // final InputStream audioInputStream = new InputStream() {
+        //
+        // @Override
+        // public int available() throws IOException {
+        // return 1;
+        // }
+        //
+        // private boolean high;
+        //
+        // @Override
+        // public int read() throws IOException {
+        // this.high = !this.high;
+        // return this.high ? 127 : 5;
+        // }
+        //
+        // };
+
         // Always start the FLAC encoder, even if we don't want to listen to speech.
         // The overhead is minimal, but the code stays simpler.
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -262,7 +279,9 @@ public class AnswerListener {
         boolean nonSilenceDetected = false;
         int numberOfClapsDetected = 0;
         boolean currentlyInClap = false;
+        int currentClapPeaks = 0;
         int lastClapStartByte = 0;
+        int lastClapPeakByte = 0;
         int lastClapStopByte = 0;
         while (!listeningStartTimeoutReached && !listeningStopTimeoutReached) {
             final int bytesRead = bufferedInputStream.read(byteArray);
@@ -279,11 +298,11 @@ public class AnswerListener {
 
             // TODO: clean up code below
             // TODO: cut off silence before and after non-silence
-            // TODO: minimum non silence 'period' to not include microphone 'freaks' (but what is a period?)
+            // TODO: minimum non silence 'period' (for speech) to not include microphone 'freaks' (but what is a period?)
             // - min amount of time a non silence is detected max x bytes / millis in between
 
             // Loop through all the bytes read for detailed sound inspection, for instance silence and claps detection.
-            // In the same loop: put the same values in the intArray, for the encoder.
+            // In the same loop: put those values in the intArray, for the encoder.
             for (int i = 0; i < byteArray.length && !listeningStartTimeoutReached && !listeningStopTimeoutReached; i++) {
                 totalBytesRead++;
                 intArray[i] = byteArray[i];
@@ -310,45 +329,70 @@ public class AnswerListener {
                         }
                     }
                 }
-                // System.out.println("Byte value: " + byteArray[i]);
-                // System.out.println("Volume percentage: " + (byteArray[i] / ((byteArray[i] < 0) ? -128.0 : 127.0)) * 100);
 
                 if (listenForClaps) {
-                    // Reach this volume to detect a single clap
-                    final int minClapVolumePercentage = 90;
-                    // Drop to this volume to 'finish' the previous clap and continue to a possible next one
-                    final int unClapVolumePercentage = 40;
-                    // Minimum time that one clap always lasts.
-                    final int minimumClapTimeInMillis = 200;
+                    // Reach this volume to detect a clap peak.
+                    final int minClapVolumePercentage = 60;
+                    // TODO: test with real clapping to see if this value needs to be
+                    // - higher (if clap sound 'echos' with increase peak after 5 millis)
+                    // - or lower (if clap peaks always are a fraction of this after one another)
+                    // The maximum interval between volume peaks to be considered of the same clap.
+                    final int maximumClapPeakIntervalInMillis = 5;
+                    // TODO: test with real clapping to see if this value needs to be
+                    // - higher (if clap sounds always produce numerous peaks)
+                    // - or lower (if clap sounds can be as small as 1 peak)
+                    // Minimum amount of peaks to be considered one clap. This value is here to prevent registering 1 single high volume byte as a clap.
+                    final int minimumClapPeaksInOneClap = 2;
                     // After this amount of time with no new claps the amount of claps will be determined and no new sound data will be processed for clapping.
                     // TODO: what if smaller then other timeout?
                     final int maxTimeBetweenClapsInMillis = 1000;
 
-                    // TODO: weakness in code below: unclapvolume will also be reached when loud sound is going up and down
-                    // in the noise curve. So 'real' unclapping detection should incorporate a minimum time of silence (or unclapping silence)
-                    // that marks a clap stop (can probably be a very small amount of time like 1 or a few millis) instead of using the unclapping
-                    // volume at just 1 measuring point.
-
-                    if (volumePercentage >= minClapVolumePercentage && !currentlyInClap) {
-                        System.out.println("Start of clap detected!");
-                        currentlyInClap = true;
-                        lastClapStartByte = totalBytesRead;
-                    } else if (currentlyInClap && volumePercentage <= unClapVolumePercentage) {
-                        final int currentClapBytes = totalBytesRead - lastClapStartByte;
-                        final double clapMillis = (currentClapBytes / (double) this.audioFormat.getByteRate()) * 1000;
-                        if (clapMillis >= minimumClapTimeInMillis) {
-                            System.out.println("Stop of clap detected!");
-                            currentlyInClap = false;
-                            lastClapStopByte = totalBytesRead;
-                            System.out.println("Clap time: " + (lastClapStopByte - lastClapStartByte));
-                            numberOfClapsDetected++;
+                    if (!currentlyInClap) {
+                        if (volumePercentage >= minClapVolumePercentage) {
+                            System.out.println("Start of clap detected: " + totalBytesRead);
+                            currentlyInClap = true;
+                            // This is the first peak.
+                            currentClapPeaks++;
+                            lastClapStartByte = totalBytesRead;
+                            lastClapPeakByte = totalBytesRead;
+                        } else if (numberOfClapsDetected > 0) {
+                            final int currentSilenceBytes = totalBytesRead - lastClapStopByte;
+                            final double silenceMillis = (currentSilenceBytes / (double) this.audioFormat.getByteRate()) * 1000;
+                            if (silenceMillis >= maxTimeBetweenClapsInMillis) {
+                                System.out.println("Max time between claps reached!");
+                                listeningStopTimeoutReached = true;
+                            }
+                        } else {
+                            // TODO: general silence detection timeout
                         }
-                    } else if (numberOfClapsDetected > 0) {
-                        final int currentSilenceBytes = totalBytesRead - lastClapStopByte;
-                        final double silenceMillis = (currentSilenceBytes / (double) this.audioFormat.getByteRate()) * 1000;
-                        if (silenceMillis >= maxTimeBetweenClapsInMillis) {
-                            System.out.println("Max time between claps reached!");
-                            listeningStopTimeoutReached = true;
+                    } else {
+                        if (volumePercentage >= minClapVolumePercentage) {
+                            final int currentClapPeakIntervalBytes = totalBytesRead - lastClapPeakByte;
+                            final double clapPeakIntervalMillis = (currentClapPeakIntervalBytes / (double) this.audioFormat.getByteRate()) * 1000;
+                            if (clapPeakIntervalMillis <= maximumClapPeakIntervalInMillis) {
+                                System.out.println("Peak in clap: since last peak: "
+                                        + ((currentClapPeakIntervalBytes / (double) this.audioFormat.getByteRate())
+                                        * 1000) + ", since start of clap: "
+                                        + (((totalBytesRead - lastClapStartByte) / (double) this.audioFormat.getByteRate())
+                                        * 1000));
+                                currentClapPeaks++;
+                                lastClapPeakByte = totalBytesRead;
+                            }
+                        } else {
+                            final int sinceLastClapPeakBytes = totalBytesRead - lastClapPeakByte;
+                            final double sinceLastClapPeakMillis = (sinceLastClapPeakBytes / (double) this.audioFormat.getByteRate()) * 1000;
+                            if (sinceLastClapPeakMillis > maximumClapPeakIntervalInMillis) {
+                                System.out.println("Stop of clap detected: " + totalBytesRead);
+                                currentlyInClap = false;
+                                lastClapStopByte = totalBytesRead;
+                                System.out.println("Clap time: " + (((lastClapStopByte - lastClapStartByte) / (double) this.audioFormat.getByteRate())
+                                        * 1000));
+                                System.out.println("Clap peak amount: " + currentClapPeaks);
+                                if (currentClapPeaks >= minimumClapPeaksInOneClap) {
+                                    numberOfClapsDetected++;
+                                }
+                                currentClapPeaks = 0;
+                            }
                         }
                     }
 

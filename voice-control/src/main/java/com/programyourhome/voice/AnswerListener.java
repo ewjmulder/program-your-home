@@ -253,6 +253,7 @@ public class AnswerListener {
         final FLACEncoder encoder = this.openFLACEncoder(outputStream);
 
         // Buffer frequency means the buffer size is filled that many times per second.
+        // TODO: Might be useful to increase this, why do a lot of processing a few times per second instead of continuous?
         final int bufferFrequency = 5;
         final int bufferSize = this.audioFormat.getByteRate() / bufferFrequency;
         // Byte array to read from the audio input stream.
@@ -372,9 +373,9 @@ public class AnswerListener {
                             if (clapPeakIntervalMillis <= maximumClapPeakIntervalInMillis) {
                                 System.out.println("Peak in clap: since last peak: "
                                         + ((currentClapPeakIntervalBytes / (double) this.audioFormat.getByteRate())
-                                        * 1000) + ", since start of clap: "
-                                        + (((totalBytesRead - lastClapStartByte) / (double) this.audioFormat.getByteRate())
-                                        * 1000));
+                                                * 1000) + ", since start of clap: "
+                                                + (((totalBytesRead - lastClapStartByte) / (double) this.audioFormat.getByteRate())
+                                                        * 1000));
                                 currentClapPeaks++;
                                 lastClapPeakByte = totalBytesRead;
                             }

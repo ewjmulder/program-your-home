@@ -49,6 +49,7 @@
 				templateNames.forEach(function (templateName) {
 				    $.get("/templates/" + templateName + ".hbs.html", function (contents) {
 				    	templates[templateName] = Handlebars.compile(contents);
+				    	//TODO: handle nicer, how to know if this is the last one?
 				    	if (checkTemplateLoadingDone()) {
 				    		refreshAll();
 				    	}

@@ -332,18 +332,26 @@ public class AnswerListener {
                 }
 
                 if (listenForClaps) {
+
+                    // TODO: 80/50/10 works quite nicely, but it can still miss a slightly silent clap that does not produce enough peaks
+                    // above the 80% mark. Idea: more general analysis of peaks over time to detect typical clapping pattern (see audacity)
+                    // For instance: take sections of 20 millis, from the moment of the first peak and over 10 of these sections,
+                    // take the average volume percentage. Of those 10 averages, you should be able to draw the conclusion if it
+                    // was a clapping sound. -> maybe leave this to when usage of current implementation is not satisfactory
+                    // IDEA2: have some kind of clap detection interface with different implementations available.
+
                     // Reach this volume to detect a clap peak.
-                    final int minClapVolumePercentage = 60;
+                    final int minClapVolumePercentage = 80;
                     // TODO: test with real clapping to see if this value needs to be
                     // - higher (if clap sound 'echos' with increase peak after 5 millis)
                     // - or lower (if clap peaks always are a fraction of this after one another)
                     // The maximum interval between volume peaks to be considered of the same clap.
-                    final int maximumClapPeakIntervalInMillis = 5;
+                    final int maximumClapPeakIntervalInMillis = 50;
                     // TODO: test with real clapping to see if this value needs to be
                     // - higher (if clap sounds always produce numerous peaks)
                     // - or lower (if clap sounds can be as small as 1 peak)
                     // Minimum amount of peaks to be considered one clap. This value is here to prevent registering 1 single high volume byte as a clap.
-                    final int minimumClapPeaksInOneClap = 2;
+                    final int minimumClapPeaksInOneClap = 10;
                     // After this amount of time with no new claps the amount of claps will be determined and no new sound data will be processed for clapping.
                     // TODO: what if smaller then other timeout?
                     final int maxTimeBetweenClapsInMillis = 1000;
@@ -371,11 +379,11 @@ public class AnswerListener {
                             final int currentClapPeakIntervalBytes = totalBytesRead - lastClapPeakByte;
                             final double clapPeakIntervalMillis = (currentClapPeakIntervalBytes / (double) this.audioFormat.getByteRate()) * 1000;
                             if (clapPeakIntervalMillis <= maximumClapPeakIntervalInMillis) {
-                                System.out.println("Peak in clap: since last peak: "
-                                        + ((currentClapPeakIntervalBytes / (double) this.audioFormat.getByteRate())
-                                                * 1000) + ", since start of clap: "
-                                                + (((totalBytesRead - lastClapStartByte) / (double) this.audioFormat.getByteRate())
-                                                        * 1000));
+                                // System.out.println("Peak in clap: since last peak: "
+                                // + ((currentClapPeakIntervalBytes / (double) this.audioFormat.getByteRate())
+                                // * 1000) + ", since start of clap: "
+                                // + (((totalBytesRead - lastClapStartByte) / (double) this.audioFormat.getByteRate())
+                                // * 1000));
                                 currentClapPeaks++;
                                 lastClapPeakByte = totalBytesRead;
                             }

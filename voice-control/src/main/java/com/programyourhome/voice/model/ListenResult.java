@@ -1,19 +1,20 @@
 package com.programyourhome.voice.model;
 
-import com.programyourhome.voice.model.googlespeech.GoogleSpeechResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ListenResult {
 
     public ListenResultType resultType;
-    public GoogleSpeechResponse googleSpeechResponse;
+    public List<String> transcripts;
     public Integer numberOfClaps;
 
-    private ListenResult(final ListenResultType resultType, final GoogleSpeechResponse googleSpeechResponse, final Integer numberOfClaps) {
+    private ListenResult(final ListenResultType resultType, final List<String> transcripts, final Integer numberOfClaps) {
         if (numberOfClaps != null && numberOfClaps < 0) {
             throw new IllegalArgumentException("Number of claps must be a non-negative number.");
         }
         this.resultType = resultType;
-        this.googleSpeechResponse = googleSpeechResponse;
+        this.transcripts = transcripts;
         this.numberOfClaps = numberOfClaps;
     }
 
@@ -23,12 +24,12 @@ public class ListenResult {
 
     public boolean isEmptyResult() {
         return this.resultType == ListenResultType.SILENCE ||
-                this.resultType == ListenResultType.SPEECH_ENGINE && this.googleSpeechResponse.getTranscripts().isEmpty() ||
+                this.resultType == ListenResultType.SPEECH && this.transcripts.isEmpty() ||
                 this.resultType == ListenResultType.CLAPS && this.numberOfClaps == 0;
     }
 
-    public GoogleSpeechResponse getGoogleSpeechResponse() {
-        return this.googleSpeechResponse;
+    public List<String> getTranscripts() {
+        return this.transcripts;
     }
 
     public Integer getNumberOfClaps() {
@@ -39,12 +40,20 @@ public class ListenResult {
         return new ListenResult(ListenResultType.SILENCE, null, null);
     }
 
-    public static ListenResult googleSpeech(final GoogleSpeechResponse googleSpeechResponse) {
-        return new ListenResult(ListenResultType.SPEECH_ENGINE, googleSpeechResponse, null);
+    public static ListenResult speech(final List<String> transcripts) {
+        return new ListenResult(ListenResultType.SPEECH, transcripts, null);
+    }
+
+    public static ListenResult emptySpeech() {
+        return new ListenResult(ListenResultType.SPEECH, new ArrayList<>(), null);
     }
 
     public static ListenResult claps(final int numberOfClaps) {
         return new ListenResult(ListenResultType.CLAPS, null, numberOfClaps);
+    }
+
+    public static ListenResult emptyClaps() {
+        return new ListenResult(ListenResultType.CLAPS, null, 0);
     }
 
 }

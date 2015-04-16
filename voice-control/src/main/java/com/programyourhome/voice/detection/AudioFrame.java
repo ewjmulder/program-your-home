@@ -34,7 +34,6 @@ public class AudioFrame {
         this.valuesPerChannel = new int[this.audioFormat.getRecordingMode().getNumberOfChannels()];
         final byte[] volumePercentagesPerChannel = new byte[this.valuesPerChannel.length];
         for (int i = 0; i < this.valuesPerChannel.length; i++) {
-            volumePercentagesPerChannel[i] = this.calculateVolumePercentage(this.valuesPerChannel[i]);
             if (this.audioFormat.getSampleSize() == SampleSize.ONE_BYTE) {
                 this.valuesPerChannel[i] = this.frameBytes[i];
             } else if (this.audioFormat.getSampleSize() == SampleSize.TWO_BYTES) {
@@ -44,6 +43,7 @@ public class AudioFrame {
             } else {
                 throw new IllegalStateException("Unknown sample size: " + this.audioFormat.getSampleSize());
             }
+            volumePercentagesPerChannel[i] = this.calculateVolumePercentage(this.valuesPerChannel[i]);
         }
         this.volumePercentage = this.calculateAverage(volumePercentagesPerChannel);
     }

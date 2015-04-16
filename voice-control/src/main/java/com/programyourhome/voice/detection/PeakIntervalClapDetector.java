@@ -45,6 +45,7 @@ public class PeakIntervalClapDetector implements ClapDetector {
         final int millisSinceStart = audioFrame.getMillisSinceStart();
 
         if (!this.currentlyInClap) {
+            System.out.println("Vol: " + volumePercentage);
             if (volumePercentage >= this.minClapVolumePercentage) {
                 System.out.println("Start of clap detected: " + millisSinceStart);
                 this.currentlyInClap = true;

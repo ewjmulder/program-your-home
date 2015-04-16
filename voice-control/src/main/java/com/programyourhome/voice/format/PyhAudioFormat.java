@@ -10,7 +10,6 @@ public class PyhAudioFormat {
     public static final SampleRate DEFAULT_SAMPLE_RATE = SampleRate.LOW;
     public static final SampleSize DEFAULT_SAMPLE_SIZE = SampleSize.ONE_BYTE;
     public static final RecordingMode DEFAULT_RECORDING_MODE = RecordingMode.MONO;
-    public static final boolean DEFAULT_SIGNED = true;
     public static final ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 
     private final SampleRate sampleRate;
@@ -20,15 +19,16 @@ public class PyhAudioFormat {
     private final ByteOrder byteOrder;
 
     public static PyhAudioFormat getDefault() {
-        return new PyhAudioFormat(DEFAULT_SAMPLE_RATE, DEFAULT_SAMPLE_SIZE, DEFAULT_RECORDING_MODE, DEFAULT_SIGNED, DEFAULT_BYTE_ORDER);
+        return new PyhAudioFormat(DEFAULT_SAMPLE_RATE, DEFAULT_SAMPLE_SIZE, DEFAULT_RECORDING_MODE, DEFAULT_BYTE_ORDER);
     }
 
     public PyhAudioFormat(final SampleRate sampleRate, final SampleSize sampleSize,
-            final RecordingMode recordingMode, final boolean signed, final ByteOrder byteOrder) {
+            final RecordingMode recordingMode, final ByteOrder byteOrder) {
         this.sampleRate = sampleRate;
         this.sampleSize = sampleSize;
         this.recordingMode = recordingMode;
-        this.signed = signed;
+        // Always true, this is the PYH default.
+        this.signed = true;
         this.byteOrder = byteOrder;
     }
 

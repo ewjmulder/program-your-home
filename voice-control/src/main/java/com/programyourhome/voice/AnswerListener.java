@@ -24,6 +24,8 @@ import com.programyourhome.voice.config.VoiceControlConfigHolder;
 import com.programyourhome.voice.detection.AudioDetector;
 import com.programyourhome.voice.detection.AudioFrame;
 import com.programyourhome.voice.detection.ClapDetector;
+import com.programyourhome.voice.detection.GoogleSpeechDetector;
+import com.programyourhome.voice.detection.PeakIntervalClapDetector;
 import com.programyourhome.voice.detection.SpeechDetector;
 import com.programyourhome.voice.format.PyhAudioFormat;
 import com.programyourhome.voice.model.AnswerResult;
@@ -196,7 +198,9 @@ public class AnswerListener {
     }
 
     public static void main(final String[] args) throws Exception {
-        new AnswerListener().listen(QuestionBuilderFactory.yesNoQuestionBuilder()
+        final AnswerListener answerListener = new AnswerListener();
+        answerListener.audioPlayer = new AudioPlayer();
+        answerListener.listen(QuestionBuilderFactory.yesNoQuestionBuilder()
                 .text("text")
                 .locale("en-us")
                 .acceptClaps(true)
@@ -221,7 +225,7 @@ public class AnswerListener {
         // Play a small audio sample to indicate the system starts listening. This also has the nice side effect of
         // having a small 'startup' time for the microphone input stream, so any 'startup noise' will be skipped.
         // TODO: re-enable
-        // this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
+        this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
         // TODO: remove
         try {
             Thread.sleep(200);
@@ -232,8 +236,12 @@ public class AnswerListener {
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(audioInputStream, bufferSize);
 
         final List<AudioDetector<?>> audioDetectors = new ArrayList<>();
-        final ClapDetector clapDetector = this.conditionallyRegisterDetector(ClapDetector.class, listenForClaps, audioDetectors);
-        final SpeechDetector speechDetector = this.conditionallyRegisterDetector(SpeechDetector.class, listenForSpeech, audioDetectors);
+        final ClapDetector clapDetector = new PeakIntervalClapDetector(); // this.conditionallyRegisterDetector(ClapDetector.class, listenForClaps,
+        // audioDetectors);
+        final SpeechDetector speechDetector = new GoogleSpeechDetector(); // this.conditionallyRegisterDetector(SpeechDetector.class, listenForSpeech,
+        // audioDetectors);
+        audioDetectors.add(clapDetector);
+        audioDetectors.add(speechDetector);
         if (listenForSpeech) {
             speechDetector.setLocale(question.getLocale());
         }
@@ -250,7 +258,6 @@ public class AnswerListener {
         boolean nonSilenceDetected = false;
 
         int totalFramesRead = 0;
-        final long listeningStart = System.currentTimeMillis();
         while (!listeningStartTimeoutReached && !listeningStopTimeoutReached) {
             final int bytesRead = bufferedInputStream.read(frameBytes);
 
@@ -290,8 +297,8 @@ public class AnswerListener {
                         listeningStopTimeoutReached = true;
                     }
                 } else {
-                    final double silenceMillis = audioFrame.getMillisSinceStart() - listeningStart;
-                    if (silenceMillis >= listeningStartTimeoutInMillis) {
+                    final double silenceSinceStartMillis = audioFrame.getMillisSinceStart();
+                    if (silenceSinceStartMillis >= listeningStartTimeoutInMillis) {
                         listeningStartTimeoutReached = true;
                     }
                 }

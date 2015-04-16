@@ -10,6 +10,16 @@ public class NumberQuestionImpl extends QuestionImpl<Integer> implements NumberQ
     }
 
     @Override
+    protected boolean acceptSpeechAsAnswerDefault() {
+        return NumberQuestion.super.acceptSpeechAsAnswer();
+    }
+
+    @Override
+    protected boolean acceptClapsAsAnswerDefault() {
+        return NumberQuestion.super.acceptClapsAsAnswer();
+    }
+
+    @Override
     protected boolean isApplicableAnswerDefault(final Integer answer) {
         return NumberQuestion.super.isApplicableAnswer(answer);
     }

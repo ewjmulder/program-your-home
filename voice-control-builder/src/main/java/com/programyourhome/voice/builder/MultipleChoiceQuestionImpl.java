@@ -10,6 +10,16 @@ public class MultipleChoiceQuestionImpl extends QuestionImpl<Character> implemen
     }
 
     @Override
+    protected boolean acceptSpeechAsAnswerDefault() {
+        return MultipleChoiceQuestion.super.acceptSpeechAsAnswer();
+    }
+
+    @Override
+    protected boolean acceptClapsAsAnswerDefault() {
+        return MultipleChoiceQuestion.super.acceptClapsAsAnswer();
+    }
+
+    @Override
     protected boolean isApplicableAnswerDefault(final Character answer) {
         return MultipleChoiceQuestion.super.isApplicableAnswer(answer);
     }

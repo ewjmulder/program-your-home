@@ -18,6 +18,16 @@ public class JustSayImpl extends QuestionImpl<Empty> implements JustSay {
     }
 
     @Override
+    protected boolean acceptSpeechAsAnswerDefault() {
+        return JustSay.super.acceptSpeechAsAnswer();
+    }
+
+    @Override
+    protected boolean acceptClapsAsAnswerDefault() {
+        return JustSay.super.acceptClapsAsAnswer();
+    }
+
+    @Override
     protected boolean isApplicableAnswerDefault(final Empty answer) {
         return JustSay.super.isApplicableAnswer(answer);
     }

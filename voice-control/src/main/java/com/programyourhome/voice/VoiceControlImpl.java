@@ -91,8 +91,8 @@ public class VoiceControlImpl implements VoiceControl {
     // Unfortunately, we do need some generics type casts to get this working smoothly.
     @SuppressWarnings("unchecked")
     private void doAskQuestion(final Question<?> question) {
-        this.log.info((question.getInteractionType() == InteractionType.NONE ? "Saying: " : "Asking question: ")
-                + question.asString());
+        final String questionAsMessage = (question.getInteractionType() == InteractionType.NONE ? "Saying: " : "Asking question: ") + question.asString();
+        this.log.info(questionAsMessage);
         try {
             if (question.getSpeechMode().shouldSayQuestion()) {
                 this.textSpeaker.say(question.getText(), question.getLocale());
@@ -136,7 +136,7 @@ public class VoiceControlImpl implements VoiceControl {
                 this.doAskQuestion(nextQuestion);
             }
         } catch (final Exception e) {
-            throw new IllegalStateException("Exception encountered while saying: '" + question.getText() + "'.", e);
+            throw new IllegalStateException("Exception occured while " + questionAsMessage + "'.", e);
         }
     }
 

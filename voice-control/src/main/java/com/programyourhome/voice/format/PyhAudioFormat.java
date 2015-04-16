@@ -7,8 +7,8 @@ import javax.sound.sampled.AudioFormat;
 
 public class PyhAudioFormat {
 
-    public static final SampleRate DEFAULT_SAMPLE_RATE = SampleRate.LOW;
-    public static final SampleSize DEFAULT_SAMPLE_SIZE = SampleSize.ONE_BYTE;
+    public static final SampleRate DEFAULT_SAMPLE_RATE = SampleRate.HIGH;
+    public static final SampleSize DEFAULT_SAMPLE_SIZE = SampleSize.TWO_BYTES;
     public static final RecordingMode DEFAULT_RECORDING_MODE = RecordingMode.MONO;
     public static final ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 

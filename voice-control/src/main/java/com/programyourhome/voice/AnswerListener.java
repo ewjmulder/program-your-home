@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -19,14 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.voice.builder.QuestionBuilderFactory;
 import com.programyourhome.voice.config.ConfigUtil;
 import com.programyourhome.voice.config.VoiceControlConfigHolder;
 import com.programyourhome.voice.detection.AudioDetector;
 import com.programyourhome.voice.detection.AudioFrame;
 import com.programyourhome.voice.detection.ClapDetector;
-import com.programyourhome.voice.detection.GoogleSpeechDetector;
-import com.programyourhome.voice.detection.PeakIntervalClapDetector;
 import com.programyourhome.voice.detection.SpeechDetector;
 import com.programyourhome.voice.format.PyhAudioFormat;
 import com.programyourhome.voice.model.AnswerResult;
@@ -68,9 +66,6 @@ public class AnswerListener {
         return line;
     }
 
-    // TODO: refactor whole listen for logic: extract common functionality and split up in smaller methods.
-    // Callback for handling specific listen results and handling definitive answer result.
-
     public <T> AnswerResult<T> listenForAnswer(final Question<T> question,
             final BiConsumer<List<String>, AnswerResult<T>> speechResultProcessor,
             final BiConsumer<Integer, AnswerResult<T>> clapResultProcessor) throws Exception {
@@ -100,7 +95,7 @@ public class AnswerListener {
     public AnswerResult<Integer> listenForNumber(final Question<Integer> question) throws Exception {
         return this.listenForAnswer(question,
                 (transcripts, answerResult) -> {
-                    // TODO: parse for language dependent numbers that were said
+                    this.processAnswersGiven(this.getAllNumericTranscripts(transcripts), answerResult);
                 },
                 (claps, answerResult) -> {
                     answerResult.setAnswer(claps);
@@ -157,13 +152,19 @@ public class AnswerListener {
                 });
     }
 
-    // TODO: also use for listen for number speech and maybe yes/no?
-    private <T> void processAnswersGiven(final List<T> answersGiven, final AnswerResult<T> answerResult) {
+    private <T> void processAnswersGiven(final Collection<T> answersGiven, final AnswerResult<T> answerResult) {
         if (answersGiven.size() == 1) {
-            answerResult.setAnswer(answersGiven.get(0));
+            answerResult.setAnswer(answersGiven.iterator().next());
         } else if (answersGiven.size() > 1) {
             answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
         }
+    }
+
+    private Collection<Integer> getAllNumericTranscripts(final List<String> transcripts) {
+        return transcripts.stream()
+                .filter(StringUtils::isNumeric)
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
     }
 
     private boolean atLeastOneWordFoundInTranscript(final List<String> transcripts, final Collection<String> words) {
@@ -177,18 +178,7 @@ public class AnswerListener {
                 .anyMatch(transcript -> transcript.toLowerCase().equals(word.toLowerCase()));
     }
 
-    public static void main(final String[] args) throws Exception {
-        final AnswerListener answerListener = new AnswerListener();
-        answerListener.audioPlayer = new AudioPlayer();
-        answerListener.listen(QuestionBuilderFactory.yesNoQuestionBuilder()
-                .text("text")
-                .locale("en-us")
-                .acceptClaps(true)
-                .build());
-    }
-
     // TODO: use less generic exception type(s)?
-    // TODO: support for 2 byte (16 bit) samples / multiple channels / etc, see if the generic code holds for that.
     private ListenResult listen(final Question<?> question) throws Exception {
         final boolean listenForSpeech = question.getListenMode().shouldListenForSpeech();
         final boolean listenForClaps = question.getListenMode().shouldListenForClaps();
@@ -204,24 +194,14 @@ public class AnswerListener {
         final byte[] frameBytes = new byte[bufferSize];
         // Play a small audio sample to indicate the system starts listening. This also has the nice side effect of
         // having a small 'startup' time for the microphone input stream, so any 'startup noise' will be skipped.
-        // TODO: re-enable
         this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
-        // TODO: remove
-        try {
-            Thread.sleep(200);
-        } catch (final InterruptedException e) {
-        }
         // Skip any sound already recorded up until this point.
         audioInputStream.skip(audioInputStream.available());
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(audioInputStream, bufferSize);
 
         final List<AudioDetector<?>> audioDetectors = new ArrayList<>();
-        final ClapDetector clapDetector = new PeakIntervalClapDetector(); // this.conditionallyRegisterDetector(ClapDetector.class, listenForClaps,
-        // audioDetectors);
-        final SpeechDetector speechDetector = new GoogleSpeechDetector(); // this.conditionallyRegisterDetector(SpeechDetector.class, listenForSpeech,
-        // audioDetectors);
-        audioDetectors.add(clapDetector);
-        audioDetectors.add(speechDetector);
+        final ClapDetector clapDetector = this.conditionallyRegisterDetector(ClapDetector.class, listenForClaps, audioDetectors);
+        final SpeechDetector speechDetector = this.conditionallyRegisterDetector(SpeechDetector.class, listenForSpeech, audioDetectors);
         if (listenForSpeech) {
             speechDetector.setLocale(question.getLocale());
         }
@@ -287,7 +267,6 @@ public class AnswerListener {
 
         System.out.println("listening start timeout: " + listeningStartTimeoutReached);
         System.out.println("listening stop  timeout: " + listeningStopTimeoutReached);
-        System.exit(0);
 
         line.stop();
         line.close();

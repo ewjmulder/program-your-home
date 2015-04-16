@@ -28,7 +28,6 @@ public class AudioFrame {
         this.calculateDerivedValues();
     }
 
-    // TODO: Unit tests!!
     private void calculateDerivedValues() {
         this.millisSinceStart = (int) ((this.frameNumber / (double) this.audioFormat.getNumberOfFramesPerSecond()) * 1000);
         this.valuesPerChannel = new int[this.audioFormat.getRecordingMode().getNumberOfChannels()];

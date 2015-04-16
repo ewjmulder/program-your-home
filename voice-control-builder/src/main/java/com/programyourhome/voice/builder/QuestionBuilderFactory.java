@@ -6,16 +6,16 @@ public class QuestionBuilderFactory {
         return new JustSayBuilder();
     }
 
+    public static NumberQuestionBuilder numberQuestionBuilder() {
+        return new NumberQuestionBuilder();
+    }
+
     public static YesNoQuestionBuilder yesNoQuestionBuilder() {
         return new YesNoQuestionBuilder();
     }
 
     public static MultipleChoiceQuestionBuilder multipleChoiceQuestionBuilder() {
         return new MultipleChoiceQuestionBuilder();
-    }
-
-    public static NumberQuestionBuilder clapQuestionBuilder() {
-        return new NumberQuestionBuilder();
     }
 
     // TODO: document:

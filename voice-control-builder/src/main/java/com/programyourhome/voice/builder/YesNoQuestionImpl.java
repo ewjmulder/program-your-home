@@ -14,6 +14,16 @@ public class YesNoQuestionImpl extends QuestionImpl<Boolean> implements YesNoQue
     }
 
     @Override
+    protected boolean acceptSpeechAsAnswerDefault() {
+        return YesNoQuestion.super.acceptSpeechAsAnswer();
+    }
+
+    @Override
+    protected boolean acceptClapsAsAnswerDefault() {
+        return YesNoQuestion.super.acceptClapsAsAnswer();
+    }
+
+    @Override
     protected boolean isApplicableAnswerDefault(final Boolean answer) {
         return YesNoQuestion.super.isApplicableAnswer(answer);
     }

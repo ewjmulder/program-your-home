@@ -17,8 +17,8 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     private String text;
     private String locale;
-    private boolean acceptSpeech;
-    private boolean acceptClaps;
+    private Boolean acceptSpeech;
+    private Boolean acceptClaps;
     private Function<AnswerType, Boolean> applicableAnswerCallback;
 
     private SpeechMode speechMode;
@@ -65,8 +65,10 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     @Override
     public boolean acceptSpeechAsAnswer() {
-        return this.acceptSpeech;
+        return this.acceptSpeech != null ? this.acceptSpeech : this.acceptSpeechAsAnswerDefault();
     }
+
+    protected abstract boolean acceptSpeechAsAnswerDefault();
 
     public void setAcceptSpeech(final boolean acceptSpeech) {
         this.acceptSpeech = acceptSpeech;
@@ -74,8 +76,10 @@ public abstract class QuestionImpl<AnswerType> implements Question<AnswerType> {
 
     @Override
     public boolean acceptClapsAsAnswer() {
-        return this.acceptClaps;
+        return this.acceptClaps != null ? this.acceptClaps : this.acceptClapsAsAnswerDefault();
     }
+
+    protected abstract boolean acceptClapsAsAnswerDefault();
 
     public void setAcceptClaps(final boolean acceptClaps) {
         this.acceptClaps = acceptClaps;

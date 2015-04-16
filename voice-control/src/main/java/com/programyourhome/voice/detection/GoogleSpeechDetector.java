@@ -95,7 +95,7 @@ public class GoogleSpeechDetector implements SpeechDetector {
                     .bodyStream(new ByteArrayInputStream(this.flacBytes))
                     .userAgent(this.googleSpeechClient)
                     // We need to provide the content type, including the sample rate.
-                    .setHeader("Content-Type", "audio/x-flac; rate=" + this.audioFormat.getSampleRate() + ";")
+                    .setHeader("Content-Type", "audio/x-flac; rate=" + this.audioFormat.getSampleRate().getNumberOfSamplesPerSecond() + ";")
                     .execute().returnContent();
 
             this.log.debug("Google speech response: " + googleSpeechResponse);

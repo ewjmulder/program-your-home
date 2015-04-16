@@ -17,7 +17,7 @@ public class PeakIntervalClapDetector implements ClapDetector {
     // IDEA2: have some kind of clap detection interface with different implementations available.
 
     // Reach this volume to detect a clap peak.
-    private final int minClapVolumePercentage = 80;
+    private final int minClapVolumePercentage = 95;
     // The maximum interval between volume peaks to be considered of the same clap.
     private final int maximumClapPeakIntervalInMillis = 50;
     // Minimum amount of peaks to be considered one clap. This value is here to prevent registering 1 single high volume byte as a clap.
@@ -45,7 +45,6 @@ public class PeakIntervalClapDetector implements ClapDetector {
         final int millisSinceStart = audioFrame.getMillisSinceStart();
 
         if (!this.currentlyInClap) {
-            System.out.println("Vol: " + volumePercentage);
             if (volumePercentage >= this.minClapVolumePercentage) {
                 System.out.println("Start of clap detected: " + millisSinceStart);
                 this.currentlyInClap = true;

@@ -36,6 +36,19 @@ public class ListenResult {
         return this.numberOfClaps;
     }
 
+    @Override
+    public String toString() {
+        String toString = "";
+        if (this.resultType == ListenResultType.SILENCE) {
+            toString += "Silence()";
+        } else if (this.resultType == ListenResultType.SPEECH) {
+            toString += "Speech(" + this.transcripts + ")";
+        } else if (this.resultType == ListenResultType.CLAPS) {
+            toString += "Claps(" + this.numberOfClaps + ")";
+        }
+        return toString;
+    }
+
     public static ListenResult silence() {
         return new ListenResult(ListenResultType.SILENCE, null, null);
     }

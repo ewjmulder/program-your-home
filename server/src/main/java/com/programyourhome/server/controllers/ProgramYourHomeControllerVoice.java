@@ -34,21 +34,13 @@ public class ProgramYourHomeControllerVoice extends AbstractProgramYourHomeContr
                 Arrays.asList("Ambiguous result comment number 1", "Ambiguous result comment number 2"),
                 Arrays.asList("Max retries reached comment number 1", "Max retries reached comment number 1"));
 
-        // this.voiceControl.askQuestion(QuestionBuilderFactory.yesNoQuestionBuilder()
-        // .text("Do you want to answer this question?")
-        // .locale("en-us")
-        // .improperResultPolicy(improperResultPolicy)
-        // .onNo(JustSayFactory.justSay("Dan niet...", "nl-nl"))
-        // .onYes(JustSayFactory.justSay("Vriendelijk bedankt voor uw medewerking.", "nl-nl"))
-        // .build());
-
-        this.voiceControl.askQuestion(QuestionBuilderFactory.multipleChoiceQuestionBuilder()
-                .text("Who was responsible for conquering half of Europe around 1800?")
+        this.voiceControl.askQuestion(QuestionBuilderFactory.yesNoQuestionBuilder()
+                .text("text")
                 .locale("en-us")
-                .improperResultPolicy(improperResultPolicy)
-                .possibleAnswer('A', "Mister De Groot", JustSayFactory.justSay("No, no, no...", "en-uk"))
-                .possibleAnswer('B', "Napoleon Boneparte", JustSayFactory.justSay("Tu est correct", "fr-fr"))
-                .possibleAnswer('Q', "The boy next door", JustSayFactory.justSay("He only wishes", "en-us"))
+                .acceptClaps(true)
+                .properResultCallback(number -> System.out.println("Proper result: " + number))
+                .onYes(JustSayFactory.justSay("Yes indeed", "en-uk"))
+                .onNo(JustSayFactory.justSay("Oh nee he!", "nl-nl"))
                 .build());
     }
 }

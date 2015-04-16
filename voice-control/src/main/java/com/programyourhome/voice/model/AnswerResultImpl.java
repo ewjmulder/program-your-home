@@ -3,6 +3,8 @@ package com.programyourhome.voice.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 public class AnswerResultImpl<AnswerType> implements AnswerResult<AnswerType> {
 
     private AnswerResultType answerResultType;
@@ -47,6 +49,7 @@ public class AnswerResultImpl<AnswerType> implements AnswerResult<AnswerType> {
         return this.listenResultType;
     }
 
+    @Override
     public void setListenResultType(final ListenResultType listenResultType) {
         this.listenResultType = listenResultType;
     }
@@ -59,6 +62,11 @@ public class AnswerResultImpl<AnswerType> implements AnswerResult<AnswerType> {
     @Override
     public void setTranscripts(final List<String> transcripts) {
         this.transcripts = transcripts;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.reflectionToString(this);
     }
 
 }

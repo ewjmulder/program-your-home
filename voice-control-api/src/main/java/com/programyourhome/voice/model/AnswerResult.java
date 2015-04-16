@@ -11,6 +11,8 @@ public interface AnswerResult<AnswerType> {
      */
     public AnswerResultType getAnswerResultType();
 
+    public void setAnswerResultType(AnswerResultType answerResultType);
+
     /**
      * The actual answer value. The type is different per type of question.
      * This value will be null if the AnswerResultType is not PROPER.
@@ -19,6 +21,8 @@ public interface AnswerResult<AnswerType> {
      */
     public AnswerType getAnswer();
 
+    public void setAnswer(AnswerType answer);
+
     /**
      * The type of listen result that was recorded.
      *
@@ -26,13 +30,17 @@ public interface AnswerResult<AnswerType> {
      */
     public ListenResultType getListenResultType();
 
+    public void setListenResultType(ListenResultType listenResultType);
+
     /**
      * The 'raw' transcripts as returned by the speech engine. May be an empty list in case of:
-     * - getListenResultType is not SPEECH_ENGINE
+     * - getListenResultType is not SPEECH
      * - no text recognized by speech engine
      *
      * @return the transcripts
      */
     public List<String> getTranscripts();
+
+    public void setTranscripts(List<String> transcripts);
 
 }

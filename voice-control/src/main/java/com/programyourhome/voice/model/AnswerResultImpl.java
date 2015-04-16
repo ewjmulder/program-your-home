@@ -27,6 +27,7 @@ public class AnswerResultImpl<AnswerType> implements AnswerResult<AnswerType> {
         return this.answerResultType;
     }
 
+    @Override
     public void setAnswerResultType(final AnswerResultType answerResultType) {
         this.answerResultType = answerResultType;
     }
@@ -36,6 +37,7 @@ public class AnswerResultImpl<AnswerType> implements AnswerResult<AnswerType> {
         return this.answer;
     }
 
+    @Override
     public void setAnswer(final AnswerType answer) {
         this.answer = answer;
     }
@@ -54,6 +56,7 @@ public class AnswerResultImpl<AnswerType> implements AnswerResult<AnswerType> {
         return this.transcripts;
     }
 
+    @Override
     public void setTranscripts(final List<String> transcripts) {
         this.transcripts = transcripts;
     }

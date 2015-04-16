@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -70,120 +71,99 @@ public class AnswerListener {
     // TODO: refactor whole listen for logic: extract common functionality and split up in smaller methods.
     // Callback for handling specific listen results and handling definitive answer result.
 
-    public AnswerResult<Integer> listenForNumber(final Question<Integer> question) throws Exception {
+    public <T> AnswerResult<T> listenForAnswer(final Question<T> question,
+            final BiConsumer<List<String>, AnswerResult<T>> speechResultProcessor,
+            final BiConsumer<Integer, AnswerResult<T>> clapResultProcessor) throws Exception {
         final ListenResult listenResult = this.listen(question);
-        Integer answer = null;
-        final AnswerResultImpl<Integer> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
+        final AnswerResultImpl<T> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
 
         if (listenResult.getResultType() == ListenResultType.SPEECH) {
-            // Add the transcripts to the answer result, but don't try to get any data from them, since we are only interested in claps.
+            speechResultProcessor.accept(listenResult.getTranscripts(), answerResult);
             answerResult.setTranscripts(listenResult.getTranscripts());
         } else if (listenResult.getResultType() == ListenResultType.CLAPS) {
-            final int numberOfClaps = listenResult.getNumberOfClaps();
-            for (final Integer integer : question.getPossibleAnswers().keySet()) {
-                if (integer == numberOfClaps) {
-                    answer = integer;
-                }
-            }
-        } else {
-            // ListenResultType.SILENCE
-            // Leave default answer of null
+            clapResultProcessor.accept(listenResult.getNumberOfClaps(), answerResult);
         }
 
-        if (answer != null) {
+        if (answerResult.getAnswer() != null) {
             answerResult.setAnswerResultType(AnswerResultType.PROPER);
-            answerResult.setAnswer(answer);
         } else {
-            // TODO: generify this last bit, same for all questions, right?
             if (listenResult.isEmptyResult()) {
                 answerResult.setAnswerResultType(AnswerResultType.NONE);
             } else {
-                // Something was said and recognized, but it contained no applicable answer.
+                // Something was recognized, but it contained no applicable answer.
                 answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
             }
         }
         return answerResult;
+    }
+
+    public AnswerResult<Integer> listenForNumber(final Question<Integer> question) throws Exception {
+        return this.listenForAnswer(question,
+                (transcripts, answerResult) -> {
+                    // TODO: parse for language dependent numbers that were said
+                },
+                (claps, answerResult) -> {
+                    answerResult.setAnswer(claps);
+                });
     }
 
     public AnswerResult<Boolean> listenForYesNo(final Question<Boolean> question) throws Exception {
-        final ListenResult listenResult = this.listen(question);
-        final boolean yesFound;
-        final boolean noFound;
-        final AnswerResultImpl<Boolean> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
-        if (listenResult.getResultType() == ListenResultType.SPEECH) {
-            yesFound = this.atLeastOneWordFoundInTranscript(listenResult.getTranscripts(),
-                    ConfigUtil.getConfirmations(this.configHolder.getConfig(), question.getLocale()));
-            noFound = this.atLeastOneWordFoundInTranscript(listenResult.getTranscripts(),
-                    ConfigUtil.getNegations(this.configHolder.getConfig(), question.getLocale()));
-            answerResult.setTranscripts(listenResult.getTranscripts());
-        } else if (listenResult.getResultType() == ListenResultType.CLAPS) {
-            final int numberOfClaps = listenResult.getNumberOfClaps();
-            yesFound = numberOfClaps == 1;
-            noFound = numberOfClaps == 2;
-        } else {
-            // ListenResultType.SILENCE
-            yesFound = false;
-            noFound = false;
-        }
+        final List<Boolean> answersGiven = new ArrayList<>();
+        return this.listenForAnswer(question,
+                (transcripts, answerResult) -> {
+                    if (this.atLeastOneWordFoundInTranscript(transcripts, this.getConfirmations(question))) {
+                        answersGiven.add(true);
+                    }
+                    if (this.atLeastOneWordFoundInTranscript(transcripts, this.getNegations(question))) {
+                        answersGiven.add(false);
+                    }
+                    this.processAnswersGiven(answersGiven, answerResult);
+                },
+                (claps, answerResult) -> {
+                    if (claps == 1) {
+                        answersGiven.add(true);
+                    }
+                    if (claps == 2) {
+                        answersGiven.add(false);
+                    }
+                    this.processAnswersGiven(answersGiven, answerResult);
+                });
+    }
 
-        if (yesFound && !noFound) {
-            answerResult.setAnswerResultType(AnswerResultType.PROPER);
-            answerResult.setAnswer(true);
-        } else if (!yesFound && noFound) {
-            answerResult.setAnswerResultType(AnswerResultType.PROPER);
-            answerResult.setAnswer(false);
-        } else if (yesFound && noFound) {
-            answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
-        } else {
-            // TODO: generify this last bit, same for all questions, right?
-            if (listenResult.isEmptyResult()) {
-                answerResult.setAnswerResultType(AnswerResultType.NONE);
-            } else {
-                // Something was said and recognized, but it contained no applicable answer.
-                answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
-            }
-        }
-        return answerResult;
+    private Collection<String> getConfirmations(final Question<?> question) {
+        return ConfigUtil.getConfirmations(this.configHolder.getConfig(), question.getLocale());
+    }
+
+    private Collection<String> getNegations(final Question<?> question) {
+        return ConfigUtil.getNegations(this.configHolder.getConfig(), question.getLocale());
     }
 
     public AnswerResult<Character> listenForMultipleChoice(final Question<Character> question) throws Exception {
-        final ListenResult listenResult = this.listen(question);
-        final List<Character> answersGiven = new ArrayList<>();
-        final AnswerResultImpl<Character> answerResult = new AnswerResultImpl<>(listenResult.getResultType());
+        // TODO: have backup that tries to match the spoken text to one of the answer texts?
+        return this.listenForAnswer(question,
+                (transcripts, answerResult) -> {
+                    final List<Character> answersGiven = new ArrayList<>();
+                    for (final Character character : question.getPossibleAnswers().keySet()) {
+                        if (this.atLeastOneTranscriptMatches(transcripts, character.toString())) {
+                            answersGiven.add(character);
+                        }
+                    }
+                    this.processAnswersGiven(answersGiven, answerResult);
+                },
+                (claps, answerResult) -> {
+                    if (claps > 0 && claps <= question.getPossibleAnswers().size()) {
+                        answerResult.setAnswer(new ArrayList<>(question.getPossibleAnswers().keySet()).get(claps - 1));
+                    }
+                });
+    }
 
-        if (listenResult.getResultType() == ListenResultType.SPEECH) {
-            for (final Character character : question.getPossibleAnswers().keySet()) {
-                if (this.atLeastOneTranscriptMatches(listenResult.getTranscripts(), character.toString())) {
-                    answersGiven.add(character);
-                }
-            }
-            answerResult.setTranscripts(listenResult.getTranscripts());
-            // TODO: have backup that tries to match the spoken text to one of the answer texts?
-        } else if (listenResult.getResultType() == ListenResultType.CLAPS) {
-            final int numberOfClaps = listenResult.getNumberOfClaps();
-            if (numberOfClaps > 0 && numberOfClaps <= question.getPossibleAnswers().size()) {
-                answersGiven.add(new ArrayList<>(question.getPossibleAnswers().keySet()).get(numberOfClaps - 1));
-            }
-        } else {
-            // ListenResultType.SILENCE
-            // Empty list of answers given.
-        }
-
+    // TODO: also use for listen for number speech and maybe yes/no?
+    private <T> void processAnswersGiven(final List<T> answersGiven, final AnswerResult<T> answerResult) {
         if (answersGiven.size() == 1) {
-            answerResult.setAnswerResultType(AnswerResultType.PROPER);
             answerResult.setAnswer(answersGiven.get(0));
         } else if (answersGiven.size() > 1) {
             answerResult.setAnswerResultType(AnswerResultType.AMBIGUOUS);
-        } else {
-            // TODO: generify this last bit, same for all questions, right?
-            if (listenResult.isEmptyResult()) {
-                answerResult.setAnswerResultType(AnswerResultType.NONE);
-            } else {
-                // Something was said and recognized, but it contained no applicable answer.
-                answerResult.setAnswerResultType(AnswerResultType.NOT_APPLICABLE);
-            }
         }
-        return answerResult;
     }
 
     private boolean atLeastOneWordFoundInTranscript(final List<String> transcripts, final Collection<String> words) {

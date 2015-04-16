@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programyourhome.common.functional.RunnableWithException;
 import com.programyourhome.voice.format.PyhAudioFormat;
 import com.programyourhome.voice.model.googlespeech.GoogleSpeechResponse;
 
@@ -53,43 +54,37 @@ public class GoogleSpeechDetector implements SpeechDetector {
 
     @Override
     public void audioStreamOpened(final PyhAudioFormat audioFormat) {
-        try {
+        this.runWithExceptionHandling(() -> {
             this.audioFormat = audioFormat;
             this.outputStream = new ByteArrayOutputStream();
             this.encoder = this.openFLACEncoder(this.outputStream);
             this.transcripts = new ArrayList<>();
-        } catch (final IOException e) {
-            this.processException(e);
-        }
+        });
     }
 
     @Override
     public void nextFrame(final AudioFrame audioFrame) {
-        try {
+        this.runWithExceptionHandling(() -> {
             // We add samples 1 at a time.
             final int numberOfSamples = 1;
             // TODO: change to only add samples if they are to be included for transcription.
             this.encoder.addSamples(audioFrame.getValuesPerChannel(), numberOfSamples);
             this.encoder.encodeSamples(this.encoder.fullBlockSamplesAvailableToEncode(), false);
-        } catch (final IOException e) {
-            this.processException(e);
-        }
+        });
     }
 
     @Override
     public void audioStreamClosed() {
-        try {
+        this.runWithExceptionHandling(() -> {
             this.encoder.encodeSamples(this.encoder.samplesAvailableToEncode(), true);
             this.flacBytes = this.outputStream.toByteArray();
             this.outputStream.close();
-        } catch (final IOException e) {
-            this.processException(e);
-        }
+        });
     }
 
     @Override
     public void performSpeechRecognition() {
-        try {
+        this.runWithExceptionHandling(() -> {
             final String urlString = String.format(GOOGLE_SPEECH_API_URL,
                     this.locale,
                     URLEncoder.encode(this.googleSpeechClient, ENCODING_UTF8),
@@ -105,13 +100,7 @@ public class GoogleSpeechDetector implements SpeechDetector {
 
             this.log.debug("Google speech response: " + googleSpeechResponse);
             this.transcripts.addAll(this.parseGoogleResponse(googleSpeechResponse.asString()).getTranscripts());
-        } catch (final IOException e) {
-            this.processException(e);
-        }
-    }
-
-    private void processException(final IOException e) {
-        throw new IllegalStateException("IOException occured in Google speech detector.", e);
+        });
     }
 
     @Override
@@ -146,6 +135,14 @@ public class GoogleSpeechDetector implements SpeechDetector {
         }
         final GoogleSpeechResponse googleSpeechResponse = new ObjectMapper().readValue(transcriptsResponse, GoogleSpeechResponse.class);
         return googleSpeechResponse;
+    }
+
+    private void runWithExceptionHandling(final RunnableWithException<IOException> runnable) {
+        try {
+            runnable.run();
+        } catch (final IOException e) {
+            throw new IllegalStateException("IOException occured in Google speech detector.", e);
+        }
     }
 
 }

@@ -23,4 +23,6 @@ public interface PyhLight {
      */
     public LightType getType();
 
+    public boolean isOn();
+
 }

@@ -25,7 +25,7 @@ public class TestStandalone extends NanoHTTPD {
     }
 
     public TestStandalone() {
-        super("localhost", 8080);
+        super("192.168.2.100", 8080);
     }
 
     @Override
@@ -53,6 +53,8 @@ public class TestStandalone extends NanoHTTPD {
             return "text/css";
         } else if (uri.endsWith("gif")) {
             return "image/gif";
+        } else if (uri.endsWith("png")) {
+            return "image/png";
         } else {
             throw new IllegalStateException("Unknown file type: " + uri);
         }

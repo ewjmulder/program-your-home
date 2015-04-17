@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +25,11 @@ public class ProgramYourHomeControllerVoice extends AbstractProgramYourHomeContr
     @RequestMapping("languages")
     public Collection<PyhLanguage> getLanguage() {
         return this.voiceControl.getSupportedLanguages();
+    }
+
+    @RequestMapping("say/{locale}/{text}")
+    public void say(@PathVariable("locale") final String locale, @PathVariable("text") final String text) {
+        this.voiceControl.say(text, locale);
     }
 
     @RequestMapping("test")

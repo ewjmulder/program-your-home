@@ -12,6 +12,7 @@ import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.model.PyhLight;
 import com.programyourhome.hue.model.PyhPlug;
+import com.programyourhome.server.model.ServiceResult;
 
 @RestController
 @RequestMapping("hue")
@@ -34,14 +35,18 @@ public class ProgramYourHomeControllerHue extends AbstractProgramYourHomeControl
 
     @RequestMapping("lights/{id}/on")
     // TODO: filtering on known plug-lights on server side with config
-    public void turnOn(@PathVariable("id") final int id) {
+    public ServiceResult turnOn(@PathVariable("id") final int id) {
+        // TODO: check for id existence etc.
         this.philipsHue.turnOnLight(id);
+        return ServiceResult.success();
     }
 
     @RequestMapping("lights/{id}/off")
     // TODO: filtering on known plug-lights on server side with config
-    public void turnOff(@PathVariable("id") final int id) {
+    public ServiceResult turnOff(@PathVariable("id") final int id) {
+        // TODO: check for id existence etc.
         this.philipsHue.turnOffLight(id);
+        return ServiceResult.success();
     }
 
     @RequestMapping("lights/{id}/dim/{dim:[0-9]+}")

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
-import com.programyourhome.server.ProgramYourHomeServer;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
@@ -77,6 +76,10 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         // I guess I should have a custom Result type with ok or error, just like the in the Scala talks. Then all server/controller methods
         // should return that and have some monadic way of not proceeding when a failure was encountered. Can that even be done in Java?
         // Otherwise just custom or with helper method in common or so.
+        // -> yes, use the Optional.map function!
+        // Idea: map over service resuls or at least in a similar way and as long as everything ok, kep the success
+        // Upon exceptions, safe that error, and skip the rest of the mapped functions. Probably best to break from pure mapping
+        // and use functions names like check, run, etc.
         final Optional<Activity> activity = this.getActivity(id);
         if (!activity.isPresent()) {
             return ServiceResult.error("Activity: '" + id + "' not found in config.");
@@ -125,14 +128,6 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
             volumeDevice = Optional.ofNullable(activity.getModules().getInfraRed().getVolumeControl());
         }
         return volumeDevice;
-    }
-
-    /**
-     * Feature: shutdown the server with a REST request.
-     */
-    @RequestMapping("server/shutdown")
-    public void shutdownServer() {
-        ProgramYourHomeServer.stopServer();
     }
 
 }

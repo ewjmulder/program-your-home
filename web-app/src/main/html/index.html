@@ -1,34 +1,33 @@
 <!DOCTYPE html>
-	<html>
+<html>
 	<head>
-		<meta charset="UTF-8">
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes" />
 		<title>Program You Home - Web App</title>
-		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.structure.min.css">
-		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.theme.min.css">
+		<link rel="stylesheet" type="text/css" href="css/pyh.css" />
+		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.structure.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.theme.min.css" />
 		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.css" />
-<!-- TODO: is the whole page the menu?
-		<style type="text/css">
-			#pyh-menu {
-				min-width: none;
-				max-width: none;
-				width: 100%;
-				height: 100%;
-			}
-		</style>
--->
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mmenu.min.all.js"></script>
 		<script type="text/javascript" src="js/jquery.rest.js"></script>
 		<script type="text/javascript" src="js/handlebars-v3.0.1.js"></script>
+		<!-- TODO: put functions in sep javascript file, only keep body-onload and vars in main file -->
 		<script type="text/javascript">
 			var templates = {};
-			var templateNames = ["activity", "test"];
+			var templateNames = ["activities", "lights"];
+			var Page = Object.freeze({
+				ACTIVITIES: 1,
+				LIGHTS: 2
+			});
+			var currentPage = Page.ACTIVITIES;
 			var restClientMain;
+			var restClientHue;
 			
 			var restApiDoneFunction = function (result) {
 				if (result.success) {
-					refreshAll();
+					refreshCurrentPage();
 				} else {
 					showError("REST API call returned an error: " + result.error);
 				}
@@ -48,40 +47,50 @@
 			};
 			
 			$(document).ready(function () {
-				$("#pyh-menu").mmenu({
-					offCanvas	: false,
-					extensions	: ['theme-black'],
+				//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
+				$("#menu").mmenu({
+					offCanvas	: true,
+					extensions: ["theme-dark"],
 					header		: {
 						add			: true,
 						update		: true,
-						title		: 'Demo app'
+						title		: 'Menu'
 					}
 				});
 
-				//$("#pyh-menu").data("mmenu").open();
+				//var menuApi = $("#menu").data("mmenu");
+				//menuApi.open();
 				
 				// TODO: note to self: double nested requires ID for the first!
 				// So my REST service starts at /main /hue etc, which makes sense indeed, sep rest services for these URL's
 				// furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
 				// (probably fine to support both full rest and getters along the way. (or just use rest where I can use it and
 				// use simple wget style stuff to activate activities / press buttons etc)
-				restClientMain = new $.RestClient("http://localhost:3737/main/");
+				
+				var baseURL = "http://192.168.2.100:3737/";
+				
+				restClientMain = new $.RestClient(baseURL + "main/");
 				restClientMain.add("activities");
 				restClientMain.activities.addVerb("start", "GET");
 				restClientMain.activities.addVerb("stop", "GET");
+
+				restClientHue = new $.RestClient(baseURL + "hue/");
+				restClientHue.add("lights");
+				restClientHue.lights.addVerb("on", "GET");
+				restClientHue.lights.addVerb("off", "GET");
 
 				templateNames.forEach(function (templateName) {
 				    $.get("/templates/" + templateName + ".hbs.html", function (contents) {
 				    	templates[templateName] = Handlebars.compile(contents);
 				    	//TODO: handle nicer, how to know if this is the last one?
 				    	if (checkTemplateLoadingDone()) {
-				    		refreshAll();
+				    		refreshCurrentPage();
 				    	}
 				    });
 				});
 			});
 			function showError(errorMessage) {
-				// TODO: nicer error 'popup'.
+				// TODO: nicer error 'popup'. -> use mmenu or some other nice jQuery solution
 				alert("Error occured: " + errorMessage);
 			};
 			function escapeHTML(s) {
@@ -94,6 +103,13 @@
 					restClientMain.activities.start(id).always(restApiResponseFunction);
 				}
 			};
+			function toggleLight(id, currentlyOn) {
+				if (currentlyOn) {
+					restClientHue.lights.off(id).always(restApiResponseFunction);					
+				} else {
+					restClientHue.lights.on(id).always(restApiResponseFunction);
+				}
+			};
 			function checkTemplateLoadingDone() {
 				var allDone = true;
 				templateNames.forEach(function(templateName) {
@@ -103,39 +119,65 @@
 				});
 				return allDone;
 			};
-			function refreshAll() {
-				refreshActivities();
+			function loadPage(page) {
+				currentPage = page;
+				refreshCurrentPage();
 			};
+			function refreshCurrentPage() {
+				if (currentPage == Page.ACTIVITIES) {
+					refreshActivities();
+				} else if (currentPage == Page.LIGHTS) {
+					refreshLights();
+				} else {
+					showError("Unknown page: " + currentPage);					
+				}
+			};
+			// TODO: generify!
 			function refreshActivities() {
 				restClientMain.activities.read()
 					.done(function (activities) {
-				    	var activitiesHtml = templates["activity"]({ activities: activities });
-			    		$("#activities").html(activitiesHtml);
+				    	var activitiesHtml = templates["activities"]({ activities: activities });
+			    		$("#content").html(activitiesHtml);
+					})
+					.fail(restApiFailFunction);				
+			};
+			function refreshLights() {
+				restClientHue.lights.read()
+					.done(function (lights) {
+				    	var lightsHtml = templates["lights"]({ lights: lights });
+			    		$("#content").html(lightsHtml);
 					})
 					.fail(restApiFailFunction);				
 			};
 		</script>
 	</head>
 	<body>
-	<!-- If off-canvas: wrap whole body content with <div>, if on-convas -> don't! -->
-		<div>
-		Welcome to the <b>Program You Home - Web App</b> test page!<br />
-		<a href="#pyh-menu">Open the menu</a>
+		<div id="page">
+			<div class="header">
+				<a href="#menu"></a>
+				Program your Home
+			</div>
+			<div id="content" class="content">
+				Please select a menu item.
+			</div>
 		</div>
-		<nav id="pyh-menu">
-			<div id="app">
-				<ul>
-					<li><a href="/">Home</a></li>
-					<li><a href="/about/">About us</a>
-					   <ul>
-					      <li><a href="/about/history/">History</a></li>
-					      <li><a href="/about/team/">The team</a></li>
-					      <li><a href="/about/address/">Our address</a></li>
-					   </ul>
-					</li>
-					<li><a href="/contact/">Contact</a></li>
-			   </ul>
-		   </div>
+		<!-- href='#' will have default behaviour blocked! -->
+		<nav id="menu">
+			<ul>
+				<li><a href="#" onclick="loadPage(Page.ACTIVITIES)">Activities</a></li>
+				<li><a href="#" onclick="loadPage(Page.LIGHTS)">Lights</a></li>
+				<li><a href="#">Devices</a></li>
+				<li><a href="#">Demo dummy</a>
+					<ul>
+						<li><a href="#">Sub item 1</a></li>
+						<li><a href="#">Sub item 2</a>
+							<ul>
+								<li><a href="#">Sub sub item 1</a></li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
 		</nav>
 	</body>
 </html>

@@ -1,3 +1,4 @@
 - Add nice favicon.ico file for PYH webapp
 - move to jquery rest prod (min) version
 - move to handlebars prod (runtime) version
+- find out if we need all mmenu css and js stuff

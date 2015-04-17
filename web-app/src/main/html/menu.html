@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes" />
+
+		<title>jQuery.mmenu - Demo</title>
+
+		<link type="text/css" rel="stylesheet" href="css/demo.css" />
+		<link type="text/css" rel="stylesheet" href="css/jquery.mmenu.all.css" />
+		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="js/jquery.mmenu.min.all.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				$("#menu")
+					.mmenu({
+						offCanvas	: false,
+						extensions	: ['theme-black'],
+						header		: {
+							add			: true,
+							update		: true,
+							title		: 'Demo app'
+						}
+					});
+			});
+		</script>
+	</head>
+	<body>
+		<nav id="menu">
+		<div id="app">
+			<br />
+					<ul>
+						<li><a href="/">Home</a></li>
+						<li><a href="/about/">About us</a>
+						   <ul>
+						      <li><a href="/about/history/">History</a></li>
+						      <li><a href="/about/team/">The team</a></li>
+						      <li><a href="/about/address/">Our address</a></li>
+						   </ul>
+						</li>
+						<li><a href="/contact/">Contact</a></li>
+				   </ul>
+
+		</div>
+		</nav>
+	</body>
+</html>

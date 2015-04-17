@@ -5,20 +5,8 @@
 		<title>Program You Home - Web App</title>
 		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.structure.min.css">
 		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.theme.min.css">
-		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.css" />
-<!-- TODO: is the whole page the menu?
-		<style type="text/css">
-			#pyh-menu {
-				min-width: none;
-				max-width: none;
-				width: 100%;
-				height: 100%;
-			}
-		</style>
--->
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
-		<script type="text/javascript" src="js/jquery.mmenu.min.all.js"></script>
 		<script type="text/javascript" src="js/jquery.rest.js"></script>
 		<script type="text/javascript" src="js/handlebars-v3.0.1.js"></script>
 		<script type="text/javascript">
@@ -48,18 +36,6 @@
 			};
 			
 			$(document).ready(function () {
-				$("#pyh-menu").mmenu({
-					offCanvas	: false,
-					extensions	: ['theme-black'],
-					header		: {
-						add			: true,
-						update		: true,
-						title		: 'Demo app'
-					}
-				});
-
-				//$("#pyh-menu").data("mmenu").open();
-				
 				// TODO: note to self: double nested requires ID for the first!
 				// So my REST service starts at /main /hue etc, which makes sense indeed, sep rest services for these URL's
 				// furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
@@ -117,25 +93,14 @@
 		</script>
 	</head>
 	<body>
-	<!-- If off-canvas: wrap whole body content with <div>, if on-convas -> don't! -->
-		<div>
 		Welcome to the <b>Program You Home - Web App</b> test page!<br />
-		<a href="#pyh-menu">Open the menu</a>
+		<br />
+		<div id="activities">
+			Loading activities...<br />
 		</div>
-		<nav id="pyh-menu">
-			<div id="app">
-				<ul>
-					<li><a href="/">Home</a></li>
-					<li><a href="/about/">About us</a>
-					   <ul>
-					      <li><a href="/about/history/">History</a></li>
-					      <li><a href="/about/team/">The team</a></li>
-					      <li><a href="/about/address/">Our address</a></li>
-					   </ul>
-					</li>
-					<li><a href="/contact/">Contact</a></li>
-			   </ul>
-		   </div>
-		</nav>
+		<br />
+		<br />
+		<div id="debug">
+		</div>
 	</body>
 </html>

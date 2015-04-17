@@ -91,6 +91,7 @@ public class GoogleSpeechDetector implements SpeechDetector {
                     URLEncoder.encode(this.googleSpeechApp, ENCODING_UTF8),
                     this.googleSpeechKey);
 
+            // TODO: cut off silence before and after non-silence, so we'll not send too much data to the API
             final Content googleSpeechResponse = Request.Post(urlString)
                     .bodyStream(new ByteArrayInputStream(this.flacBytes))
                     .userAgent(this.googleSpeechClient)

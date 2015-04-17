@@ -14,9 +14,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.TargetDataLine;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +24,7 @@ import com.programyourhome.voice.config.VoiceControlConfigHolder;
 import com.programyourhome.voice.detection.AudioDetector;
 import com.programyourhome.voice.detection.AudioFrame;
 import com.programyourhome.voice.detection.ClapDetector;
+import com.programyourhome.voice.detection.NonSilenceDetector;
 import com.programyourhome.voice.detection.SpeechDetector;
 import com.programyourhome.voice.format.PyhAudioFormat;
 import com.programyourhome.voice.model.AnswerResult;
@@ -37,12 +37,6 @@ import com.programyourhome.voice.model.question.Question;
 @Component
 public class AnswerListener {
 
-    // TODO: speech API does not work with Dutch! Hoe to fix if possible?
-    // TODO: fix / retry. Currently (april 7, 2015 it is broken)
-
-    // TODO: use this for tracing
-    private final Log log = LogFactory.getLog(this.getClass());
-
     private final PyhAudioFormat audioFormat;
 
     @Autowired
@@ -53,6 +47,11 @@ public class AnswerListener {
 
     @Autowired
     private AudioPlayer audioPlayer;
+
+    @Value("${listeningStartTimeoutInMillis}")
+    private int listeningStartTimeoutInMillis;
+    @Value("${listeningStopTimeoutInMillis}")
+    private int listeningStopTimeoutInMillis;
 
     public AnswerListener() {
         // TODO: make configurable?
@@ -200,6 +199,7 @@ public class AnswerListener {
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(audioInputStream, bufferSize);
 
         final List<AudioDetector<?>> audioDetectors = new ArrayList<>();
+        final NonSilenceDetector nonSilenceDetector = this.conditionallyRegisterDetector(NonSilenceDetector.class, true, audioDetectors);
         final ClapDetector clapDetector = this.conditionallyRegisterDetector(ClapDetector.class, listenForClaps, audioDetectors);
         final SpeechDetector speechDetector = this.conditionallyRegisterDetector(SpeechDetector.class, listenForSpeech, audioDetectors);
         if (listenForSpeech) {
@@ -210,17 +210,12 @@ public class AnswerListener {
             audioDetector.audioStreamOpened(this.audioFormat);
         }
 
-        // TODO: refactor out the encoder, similar to refactoring out the clap detector.
-        boolean listeningStartTimeoutReached = false;
-        boolean listeningStopTimeoutReached = false;
+        boolean stopListening = false;
 
-        long lastNonSilenceMilli = 0;
-        boolean nonSilenceDetected = false;
-
+        // Keep track of the total number of frames read as a way to track the timing in the audio stream.
         int totalFramesRead = 0;
-        while (!listeningStartTimeoutReached && !listeningStopTimeoutReached) {
+        while (!stopListening) {
             final int bytesRead = bufferedInputStream.read(frameBytes);
-
             if (bytesRead != frameBytes.length) {
                 throw new IllegalStateException("End of audio input stream reached while listening for answer.");
             }
@@ -228,50 +223,23 @@ public class AnswerListener {
             totalFramesRead++;
             final AudioFrame audioFrame = new AudioFrame(this.audioFormat, totalFramesRead, frameBytes);
 
-            // TODO: from properties file + differ for open & non-open questions
-            final int listeningStartTimeoutInMillis = 3000;
-            final int listeningStopTimeoutInMillis = 1000;
-
-            final int maxSilenceVolumePercentage = 20;
-
-            // TODO: clean up code below
-            // TODO: cut off silence before and after non-silence
-            // TODO: minimum non silence 'period' (for speech) to not include microphone 'freaks' (but what is a period?)
-            // - min amount of time a non silence is detected max x bytes / millis in between
-
+            // Provide the detectors with the next audio frame.
             for (final AudioDetector<?> audioDetector : audioDetectors) {
                 audioDetector.nextFrame(audioFrame);
             }
 
-            // TODO: add this logic below in a non-silence detector?
-            if (audioFrame.getVolumePercentage() > maxSilenceVolumePercentage) {
-                if (!nonSilenceDetected) {
-                    System.out.println("Non silence detected!");
-                }
-                nonSilenceDetected = true;
-                lastNonSilenceMilli = audioFrame.getMillisSinceStart();
-            } else {
-                if (nonSilenceDetected) {
-                    final long silenceMillis = audioFrame.getMillisSinceStart() - lastNonSilenceMilli;
-                    if (silenceMillis >= listeningStopTimeoutInMillis) {
-                        listeningStopTimeoutReached = true;
-                    }
-                } else {
-                    final double silenceSinceStartMillis = audioFrame.getMillisSinceStart();
-                    if (silenceSinceStartMillis >= listeningStartTimeoutInMillis) {
-                        listeningStartTimeoutReached = true;
-                    }
-                }
+            if (nonSilenceDetector.isOnlySilence() && audioFrame.getMillisSinceStart() >= this.listeningStartTimeoutInMillis) {
+                stopListening = true;
+            } else if (nonSilenceDetector.getSilenceMillisSinceLastNonSilence(audioFrame) >= this.listeningStopTimeoutInMillis) {
+                stopListening = true;
             }
         }
-
-        System.out.println("listening start timeout: " + listeningStartTimeoutReached);
-        System.out.println("listening stop  timeout: " + listeningStopTimeoutReached);
 
         line.stop();
         line.close();
         bufferedInputStream.close();
 
+        // Play a small audio sample to indicate the system has stopped listening.
         this.audioPlayer.playMp3(this.getClass().getResourceAsStream("/com/programyourhome/config/voice-control/sounds/blip.mp3"));
 
         for (final AudioDetector<?> audioDetector : audioDetectors) {

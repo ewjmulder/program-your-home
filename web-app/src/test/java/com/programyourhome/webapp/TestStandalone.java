@@ -26,6 +26,7 @@ public class TestStandalone extends NanoHTTPD {
 
     public TestStandalone(final String host, final int port) {
         super(host, port);
+        System.out.println("Host: " + host + ", port: " + port);
     }
 
     @Override

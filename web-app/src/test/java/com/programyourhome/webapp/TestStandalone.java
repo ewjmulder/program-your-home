@@ -20,12 +20,12 @@ public class TestStandalone extends NanoHTTPD {
     }
 
     public static void main(final String[] args) {
-        final TestStandalone server = new TestStandalone();
+        final TestStandalone server = new TestStandalone(args[0], Integer.parseInt(args[1]));
         ServerRunner.executeInstance(server);
     }
 
-    public TestStandalone() {
-        super("192.168.2.100", 8080);
+    public TestStandalone(final String host, final int port) {
+        super(host, port);
     }
 
     @Override
@@ -33,6 +33,10 @@ public class TestStandalone extends NanoHTTPD {
         final Method method = session.getMethod();
         final String uri = session.getUri();
         System.out.println(method + " '" + uri + "'");
+        // Not so subtle way to allow for remote shutdown.
+        if (uri.endsWith("shutdown")) {
+            System.exit(0);
+        }
 
         final FileInputStream dataStream;
         try {

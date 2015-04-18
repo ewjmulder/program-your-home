@@ -68,7 +68,12 @@
 				// use simple wget style stuff to activate activities / press buttons etc)
 
 				// Take the same server on port 3737 as base URL for the Program Your Home server.
-				var baseURL = window.location.href.slice(0, window.location.href.lastIndexOf(":")) + ":3737/";
+				
+				// Search after the 'http://' part (length 7), find the first colon or slash from there gives us our base URL.
+				var indexOfColon = window.location.href.indexOf(":", 7);
+				var indexOfSlash = window.location.href.indexOf("/", 7);
+				var sliceIndex = indexOfColon > -1 ? indexOfColon : indexOfSlash;
+				var baseURL = window.location.href.slice(0, sliceIndex) + ":3737/";
 				
 				restClientMain = new $.RestClient(baseURL + "main/");
 				restClientMain.add("activities");

@@ -32,11 +32,15 @@ public class TestStandalone extends NanoHTTPD {
     @Override
     public Response serve(final IHTTPSession session) {
         final Method method = session.getMethod();
-        final String uri = session.getUri();
+        String uri = session.getUri();
         System.out.println(method + " '" + uri + "'");
         // Not so subtle way to allow for remote shutdown.
         if (uri.endsWith("shutdown")) {
             System.exit(0);
+        }
+        // Welcome-files :)
+        if (uri.equals("/")) {
+            uri = "/index.html";
         }
 
         final FileInputStream dataStream;

@@ -91,6 +91,15 @@
 				    	//TODO: handle nicer, how to know if this is the last one?
 				    	if (checkTemplateLoadingDone()) {
 				    		refreshCurrentPage();
+				    		// Refresh every so often to keep in sync with server state.
+				    		// TODO: unfortunately, this will flicker on my Android browser
+				    		// Alternative to reload every second: have websocket connection to server
+				    		// and reload only upon receiving a changed event (and ideally only if change is on current page)
+				    		// Actually, the flickering is the loading of the images, so if those can be cached, it could work as well.
+				    		// Not to mention, the event stuff if by far preferrable in the long run!
+/*			                setInterval(function () {
+					    		refreshCurrentPage();
+			                }, 1000);*/
 				    	}
 				    });
 				});

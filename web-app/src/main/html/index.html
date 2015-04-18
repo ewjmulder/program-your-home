@@ -66,8 +66,9 @@
 				// furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
 				// (probably fine to support both full rest and getters along the way. (or just use rest where I can use it and
 				// use simple wget style stuff to activate activities / press buttons etc)
-				
-				var baseURL = "http://192.168.2.100:3737/";
+
+				// Take the same server on port 3737 as base URL for the Program Your Home server.
+				var baseURL = window.location.href.slice(0, window.location.href.lastIndexOf(":")) + ":3737/";
 				
 				restClientMain = new $.RestClient(baseURL + "main/");
 				restClientMain.add("activities");
@@ -155,7 +156,7 @@
 		<div id="page">
 			<div class="header">
 				<a href="#menu"></a>
-				Program your Home
+				Program Your Home
 			</div>
 			<div id="content" class="content">
 				Please select a menu item.

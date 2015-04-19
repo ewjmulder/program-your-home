@@ -5,25 +5,41 @@
 		<meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes" />
 		<title>Program You Home - Web App</title>
 		<link rel="stylesheet" type="text/css" href="css/pyh.css" />
+<!-- TODO: Do we really need this for anything? Default text-shadow is annoying. Yes we do, see side scrolling behavior otherwise.
+So question remains how to disable the text-shadow.
+For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.structure.min.css" />
 		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.theme.min.css" />
-		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.css" />
+ 		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.css" />
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
 		<script type="text/javascript" src="js/jquery.mmenu.min.all.js"></script>
 		<script type="text/javascript" src="js/jquery.rest.js"></script>
 		<script type="text/javascript" src="js/handlebars-v3.0.1.js"></script>
-		<!-- TODO: put functions in sep javascript file, only keep body-onload and vars in main file -->
+		<!-- TODO: put functions in sep javascript file + split util and pyh specific functions, only keep body-onload and vars in main file -->
 		<script type="text/javascript">
-			var templates = {};
-			var templateNames = ["activities", "lights"];
+			// TODO: model Page 'class' to contain id, name, rest api function, sub pages, etc. - or / and get this from the server
+			// and build up the menu completely dynamic with that info. Or does that hurt the seperation between rest api and ui view?
+			// --> No, the server should not mandate the page stucture! It can provide a list of activated modules and the UI
+			// can enable/disable pages based on that info, but how to represent the controls for a specific module (in pages) should
+			// be a UI view decision only!
 			var Page = Object.freeze({
-				ACTIVITIES: 1,
-				LIGHTS: 2
+				ACTIVITIES: "activities",
+				LIGHTS: "lights",
+				DEVICES: "devices"
 			});
+			function values(types) {
+				return Object.keys(types).map(function(type) {
+			    	return types[type];
+				});
+			};
+			var templates = {};
+			var templateNames = values(Page);
 			var currentPage = Page.ACTIVITIES;
+			// TODO: make into a map of some sort with page.id or so as key
 			var restClientMain;
 			var restClientHue;
+			var restClientIr;
 			
 			var restApiDoneFunction = function (result) {
 				if (result.success) {
@@ -46,21 +62,7 @@
 				}
 			};
 			
-			$(document).ready(function () {
-				//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
-				$("#menu").mmenu({
-					offCanvas	: true,
-					extensions: ["theme-dark"],
-					header		: {
-						add			: true,
-						update		: true,
-						title		: 'Menu'
-					}
-				});
-
-				//var menuApi = $("#menu").data("mmenu");
-				//menuApi.open();
-				
+			$(document).ready(function () {				
 				// TODO: note to self: double nested requires ID for the first!
 				// So my REST service starts at /main /hue etc, which makes sense indeed, sep rest services for these URL's
 				// furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
@@ -85,21 +87,52 @@
 				restClientHue.lights.addVerb("on", "GET");
 				restClientHue.lights.addVerb("off", "GET");
 
+				restClientIr = new $.RestClient(baseURL + "ir/");
+				restClientIr.add("devices");
+				
+				restClientIr.devices.read().done(function (devices) {
+					// TODO: use template for menu stuff and some way to configure all menu preloading that needs to be done.
+					// Furthermore: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
+					var devicesMenuHtmlString = "";
+					devicesMenuHtmlString += "<ul>";
+					for (var i = 0; i < devices.length; i++) {
+						var device = devices[i];
+						devicesMenuHtmlString += "<li><a href='#'>" + device.name + "</a></li>";
+					}
+					devicesMenuHtmlString += "</ul>";
+					$("#pageDevices").after(devicesMenuHtmlString);
+					
+					//TODO: put mmenu-ing in sep function and call that when all menu-preloading is done.
+					//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
+					$("#menu").mmenu({
+						offCanvas	: true,
+						extensions: ["theme-dark"],
+						header		: {
+							add			: true,
+							update		: true,
+							title		: 'Menu'
+						}
+					});
+
+					//var menuApi = $("#menu").data("mmenu");
+					//menuApi.open();
+
+				});
+
+				var numberOfTemplatesLoaded = 0;
 				templateNames.forEach(function (templateName) {
 				    $.get("/templates/" + templateName + ".hbs.html", function (contents) {
 				    	templates[templateName] = Handlebars.compile(contents);
-				    	//TODO: handle nicer, how to know if this is the last one?
-				    	if (checkTemplateLoadingDone()) {
+				    	numberOfTemplatesLoaded++;
+				    	// If all templates have been loaded, start loading the actual page contents.
+				    	if (numberOfTemplatesLoaded == templateNames.length) {
 				    		refreshCurrentPage();
 				    		// Refresh every so often to keep in sync with server state.
-				    		// TODO: unfortunately, this will flicker on my Android browser
-				    		// Alternative to reload every second: have websocket connection to server
+				    		// TODO: Alternative to reload every second: have websocket connection to server
 				    		// and reload only upon receiving a changed event (and ideally only if change is on current page)
-				    		// Actually, the flickering is the loading of the images, so if those can be cached, it could work as well.
-				    		// Not to mention, the event stuff if by far preferrable in the long run!
-/*			                setInterval(function () {
+			                setInterval(function () {
 					    		refreshCurrentPage();
-			                }, 1000);*/
+			                }, 1000);
 				    	}
 				    });
 				});
@@ -125,44 +158,30 @@
 					restClientHue.lights.on(id).always(restApiResponseFunction);
 				}
 			};
-			function checkTemplateLoadingDone() {
-				var allDone = true;
-				templateNames.forEach(function(templateName) {
-					if (templates[templateName] == null) {
-						allDone = false;
-					}
-				});
-				return allDone;
-			};
 			function loadPage(page) {
 				currentPage = page;
 				refreshCurrentPage();
 			};
 			function refreshCurrentPage() {
 				if (currentPage == Page.ACTIVITIES) {
-					refreshActivities();
+					refreshPage(function() { return restClientMain.activities.read(); });
 				} else if (currentPage == Page.LIGHTS) {
-					refreshLights();
+					refreshPage(function() { return restClientHue.lights.read(); });
+				} else if (currentPage == Page.DEVICES) {
+					refreshPage(function() { return restClientIr.devices.read(); });
 				} else {
 					showError("Unknown page: " + currentPage);					
 				}
 			};
-			// TODO: generify!
-			function refreshActivities() {
-				restClientMain.activities.read()
-					.done(function (activities) {
-				    	var activitiesHtml = templates["activities"]({ activities: activities });
-			    		$("#content").html(activitiesHtml);
-					})
-					.fail(restApiFailFunction);				
-			};
-			function refreshLights() {
-				restClientHue.lights.read()
-					.done(function (lights) {
-				    	var lightsHtml = templates["lights"]({ lights: lights });
-			    		$("#content").html(lightsHtml);
-					})
-					.fail(restApiFailFunction);				
+			function refreshPage(restApiFunction) {
+				restApiFunction().done(function (data) {
+					var templateData = {};
+					// Use the value of the currentPage as property name to feed the template with.
+					templateData[currentPage] = data; 
+			    	var contentHtml = templates[currentPage](templateData);
+		    		$("#content").html(contentHtml);
+				})
+				.fail(restApiFailFunction);				
 			};
 		</script>
 	</head>
@@ -176,12 +195,12 @@
 				Please select a menu item.
 			</div>
 		</div>
-		<!-- href='#' will have default behaviour blocked! -->
+		<!-- href='#' will have default behavior blocked! -->
 		<nav id="menu">
 			<ul>
 				<li><a href="#" onclick="loadPage(Page.ACTIVITIES)">Activities</a></li>
 				<li><a href="#" onclick="loadPage(Page.LIGHTS)">Lights</a></li>
-				<li><a href="#">Devices</a></li>
+				<li><a id="pageDevices" href="#" onclick="loadPage(Page.DEVICES)">Devices</a></li>
 				<li><a href="#">Demo dummy</a>
 					<ul>
 						<li><a href="#">Sub item 1</a></li>

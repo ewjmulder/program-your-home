@@ -2,3 +2,5 @@
 - move to jquery rest prod (min) version
 - move to handlebars prod (runtime) version
 - find out if we need all mmenu css and js stuff
+- Refactor out local images (refreshable ones at least) and use all images from server
+  - Serve module depenent images from the main server -> individual modules should not be required to provide context images for their functionality!

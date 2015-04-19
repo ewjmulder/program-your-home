@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("img")
 public class ProgramYourHomeControllerImg extends AbstractProgramYourHomeController {
 
+    // The .* in {filename:.*} is needed to receive the full filename, otherwise the file extension is dropped.
     @RequestMapping(value = "icons/{filename:.*}", method = RequestMethod.GET)
     public byte[] getIcon(@PathVariable("filename") final String filename) throws IOException {
         return IOUtils.toByteArray(this.getClass().getResourceAsStream("/com/programyourhome/config/server/icons/" + filename));

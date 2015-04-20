@@ -4,3 +4,12 @@
 - find out if we need all mmenu css and js stuff
 - Refactor out local images (refreshable ones at least) and use all images from server
   - Serve module depenent images from the main server -> individual modules should not be required to provide context images for their functionality!
+- Document specifics of used JS stuff on menu / pages / rest / etc
+  - mmenu: href='#' will have default behavior blocked!
+  - rest: double nested resources requires ID for the first!
+    So my REST service starts at /main /hue etc, which makes sense indeed, sep rest services for these URL's
+    furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
+	(probably fine to support both full rest and getters along the way. (or just use rest where I can use it and
+	use simple wget style stuff to activate activities / press buttons etc)
+  
+   

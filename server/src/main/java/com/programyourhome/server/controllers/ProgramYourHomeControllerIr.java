@@ -22,6 +22,11 @@ public class ProgramYourHomeControllerIr extends AbstractProgramYourHomeControll
         return this.infraRed.getDevices();
     }
 
+    @RequestMapping("devices/{id}")
+    public PyhDevice getDevice(@PathVariable("id") final int deviceId) {
+        return this.infraRed.getDevice(deviceId);
+    }
+
     @RequestMapping("devices/{id}/power/on")
     public void turnOn(@PathVariable("id") final int deviceId) {
         this.infraRed.turnOn(deviceId);

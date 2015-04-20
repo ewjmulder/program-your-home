@@ -22,6 +22,7 @@ public class InfraRedMock extends PyhMock {
         Mockito.when(mockDevice.getInputs()).thenReturn(Arrays.asList("Mock input 1", "Mock input 2"));
         Mockito.when(mockDevice.getExtraKeys()).thenReturn(Arrays.asList("Mock extra key 1", "Mock extra key 2"));
         Mockito.when(infraRedMock.getDevices()).thenReturn(Arrays.asList(mockDevice));
+        Mockito.when(infraRedMock.getDevice(1)).thenReturn(mockDevice);
         return infraRedMock;
     }
 

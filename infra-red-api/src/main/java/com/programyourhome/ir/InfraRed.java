@@ -8,6 +8,8 @@ public interface InfraRed {
 
     public Collection<PyhDevice> getDevices();
 
+    public PyhDevice getDevice(int deviceId);
+
     public void turnOn(int deviceId);
 
     public void turnOff(int deviceId);

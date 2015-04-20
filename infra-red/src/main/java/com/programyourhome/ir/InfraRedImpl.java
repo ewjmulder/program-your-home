@@ -114,7 +114,12 @@ public class InfraRedImpl implements InfraRed {
                 .collect(Collectors.toList());
     }
 
-    private Device getDevice(final int deviceId) {
+    @Override
+    public PyhDevice getDevice(final int deviceId) {
+        return new PyhDeviceImpl(this.getDeviceById(deviceId));
+    }
+
+    private Device getDeviceById(final int deviceId) {
         return this.getDeviceByPredicate(device -> device.getId() == deviceId);
     }
 
@@ -132,7 +137,7 @@ public class InfraRedImpl implements InfraRed {
     }
 
     private String getRemoteName(final int deviceId) {
-        return this.getDevice(deviceId).getRemote().getName();
+        return this.getDeviceById(deviceId).getRemote().getName();
     }
 
     private boolean hasKeyOfType(final int deviceId, final KeyType keyType) {
@@ -160,7 +165,7 @@ public class InfraRedImpl implements InfraRed {
     }
 
     private Optional<Key> getOptionKeyByPredicate(final int deviceId, final Predicate<Key> predicate) {
-        return ConfigUtil.extractAllKeys(this.getDevice(deviceId)).stream()
+        return ConfigUtil.extractAllKeys(this.getDeviceById(deviceId)).stream()
                 .filter(predicate)
                 .findFirst();
     }

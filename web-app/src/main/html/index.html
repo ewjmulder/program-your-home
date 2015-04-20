@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes" />
 		<title>Program You Home - Web App</title>
+		<link rel="icon" type="image/png" href="img/light.png" />
 		<link rel="stylesheet" type="text/css" href="css/pyh.css" />
 <!-- TODO: Do we really need this for anything? Default text-shadow is annoying. Yes we do, see side scrolling behavior otherwise.
 So question remains how to disable the text-shadow.
@@ -11,253 +12,22 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.structure.min.css" />
 		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.theme.min.css" />
  		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.css" />
-		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
-		<script type="text/javascript" src="js/jquery.mobile.custom.min.js"></script>
-		<script type="text/javascript" src="js/jquery.mmenu.min.all.js"></script>
-		<script type="text/javascript" src="js/jquery.rest.js"></script>
-		<script type="text/javascript" src="js/handlebars-v3.0.1.js"></script>
+
+		<!-- TODO: Use bundle option from require. -->
+		<script data-main="js/app" src="js/lib/require.min.js"></script>
+		
+		<!-- TODO: Move outside of this file. -->
 		<script id="listMenu" type="x-handlebars-template">
 			<ul>
 				{{#each pages}}
 					<li id="menu-{{name}}">
-						<a href="#" onclick="loadPage('{{name}}')">{{menuName}}</a>
+						<a href="#" id="menu-link-{{name}}">{{menuName}}</a>
 						{{#if subPages}}
 							{{> listMenu pages=subPages}}
 						{{/if}}
 					</li>
 				{{/each}}
-			</ul
-		</script>
-		<!-- TODO: put functions in sep javascript file + split util and pyh specific functions, only keep body-onload and vars in main file -->
-		<script type="text/javascript">
-			//TODO: put all my own code in some kind of package / scoping context to be cleaner and prevent name clashing. 
-			var Module = Object.freeze({
-				ACTIVITIES: "activities",
-				LIGHTS: "lights",
-				DEVICES: "devices"
-			});
-			function createModuleTopLevelPages(modules) {
-				modules.forEach(function (module) {
-					new Page(module, module, capitalizeFirstLetter(module), capitalizeFirstLetter(module), true, restClients[module]);
-				});
-			};
-			function createTopLevelPage(name) {
-				new Page(name, name, capitalizeFirstLetter(name), capitalizeFirstLetter(name), true);
-			};
-			function contains(array, item) {
-				return $.inArray(item, array) != -1;
-			};
-			function capitalizeFirstLetter(string) {
-			    return string.charAt(0).toUpperCase() + string.slice(1);
-			};
-			// TODO: The server can provide a list of activated modules and the UI can enable/disable pages based on that info.
-			var Page = function (name, templateName, menuName, title, isTopLevel, restApiBase, resourceId, subPages) {
-				this.name = name;
-				this.templateName = templateName;
-				this.menuName = menuName;
-				this.title = title;
-				this.isTopLevel = isTopLevel;
-				this.usesRestApi = function () { return restApiBase != null; };
-				if (this.usesRestApi()) {
-					if (resourceId == null) {
-						this.restApiFunction = function () { return restApiBase.read(); };
-					} else {
-						this.restApiFunction = function () { return restApiBase.read(resourceId); };
-					}
-				}
-				this.subPages = subPages != null ? subPages : [];
-				
-				// Finally, register this instance in the pages map.
-				pages[name] = this;
-				if (this.isTopLevel) {
-					topLevelPages.push(this);
-				}
-			};
-			var pages = {};
-			var topLevelPages = [];
-			var templates = {};
-			var currentPage;
-			var restClients = {};
-			var activeModules = [];
-			
-			var restApiDoneFunction = function (result) {
-				if (result.success) {
-					refreshCurrentPage();
-				} else {
-					showError("Rest api call returned an error: " + result.error);
-				}
-			};
-			function createFailFunction(source) {
-				return function (jqXHR, status, error) {
-					if (error == "") {
-						showError(source + " could not be loaded.");					
-					} else {
-						showError("Loading " + source + " failed with error: " + error);
-					}
-				};
-			};
-			
-			$(document).ready(function () {
-				// Search after the 'http://' part (length 7), find the first colon or slash from there gives us our base URL.
-				var indexOfColon = window.location.href.indexOf(":", 7);
-				var indexOfSlash = window.location.href.indexOf("/", 7);
-				var sliceIndex = indexOfColon > -1 ? indexOfColon : indexOfSlash;
-				// Take the same server on port 3737 as base URL for the Program Your Home server.
-				var baseURL = window.location.href.slice(0, sliceIndex) + ":3737/";
-
-				//TODO: define module / page filter based on API response from server that tells us what modules are available.
-				activeModules = [Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES];
-
-				if (contains(activeModules, Module.ACTIVITIES)) {
-					var restClientMain = new $.RestClient(baseURL + "main/");
-					restClientMain.add("activities");
-					restClientMain.activities.addVerb("start", "GET");
-					restClientMain.activities.addVerb("stop", "GET");
-					restClients[Module.ACTIVITIES] = restClientMain.activities;
-				}
-
-				if (contains(activeModules, Module.LIGHTS)) {
-					var restClientHue = new $.RestClient(baseURL + "hue/");
-					restClientHue.add("lights");
-					restClientHue.lights.addVerb("on", "GET");
-					restClientHue.lights.addVerb("off", "GET");
-					restClients[Module.LIGHTS] = restClientHue.lights;
-				}
-
-				if (contains(activeModules, Module.DEVICES)) {
-					restClientIr = new $.RestClient(baseURL + "ir/");
-					restClientIr.add("devices");
-					restClients[Module.DEVICES] = restClientIr.devices;
-				}
-				
-				createModuleTopLevelPages(activeModules);
-				createTopLevelPage("settings");
-				createTopLevelPage("about");
-				
-				// To enable recursive template inclusion, used for sub pages.
-				Handlebars.registerPartial("listMenu", $("#listMenu").html());
-
-				var templateNames = Object.keys(pages).map(function (page) {
-			    	return pages[page].templateName;
-				});
-				templateNames.push("device");
-
-				$.when(loadTemplates(templateNames), loadMenu()).then(function() {
-					// Load the main menu with the menu definition that we now know is available after the pre-loading.
-					var mainMenu = Handlebars.compile($("#listMenu").html());
-					$("#menu").html(mainMenu({ pages: topLevelPages }));
-					// Now we're ready to activate the actual menu on the page.
-					activateMenu();
-					// Load the default page.
-		    		loadPage("activities");
-		    		// Refresh every so often to keep in sync with server state.
-		    		// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
-	                setInterval(function () {
-			    		refreshCurrentPage();
-	                }, 1000);
-				}, createFailFunction("menu pre-loading"));
-			});
-			function loadTemplates(templateNames) {
-				var templateLoading = $.Deferred();
-				var numberOfTemplatesLoaded = 0;
-				templateNames.forEach(function (templateName) {
-				    $.get("/templates/" + templateName + ".hbs.html", function (contents) {
-				    	try {
-					    	templates[templateName] = Handlebars.compile(contents);
-					    	// Force execution of template to pre-check for any errors.
-					    	templates[templateName]({});
-					    	numberOfTemplatesLoaded++;
-					    	if (numberOfTemplatesLoaded == templateNames.length) {
-					    		templateLoading.resolve();
-					    	}
-				    	} catch (error) {
-				    		showError("Error while compiling template: " + error);
-				    		templateLoading.reject();
-				    	}
-				    })
-				    .fail(createFailFunction("template " + templateName))
-				    .fail(templateLoading.reject);
-				});
-				return templateLoading;
-			}
-			function loadMenu() {
-				var deviceLoading = $.Deferred();
-				restClients[Module.DEVICES].read().done(function (devices) {
-					// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
-					for (var i = 0; i < devices.length; i++) {
-						pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, restClients[Module.DEVICES], devices[i].id));
-					}
-					deviceLoading.resolve();
-				})
-			    .fail(createFailFunction("devices"))
-			    .fail(deviceLoading.reject);
-				//TODO: add more menu loading stuff
-				return $.when(deviceLoading);
-			};
-			function activateMenu() {
-				//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
-				//TODO: check possible usage of all extensions and add-ons! (http://mmenu.frebsite.nl/documentation/addons/)
-				$("#menu").mmenu({
-					offCanvas	: true,
-					extensions	: ["theme-dark"],
-					header		: {
-						add			: true,
-						update		: true,
-						title		: 'Menu'
-					}
-				});				
-			}
-			function showError(errorMessage) {
-				// TODO: nicer error 'popup' -> use mmenu (http://mmenu.frebsite.nl/demo/index.html?demo=menu-popup) or some other nice jQuery (dozens of options) solution
-				// TODO: also include a 'report to developer' kind of button to get feedback
-				alert("Error occured: " + errorMessage);
-			};
-			// TODO: refactor to merge this general on/off behaviour using rest var + verb name
-			function toggleActivity(id, currentlyActive) {
-				if (currentlyActive) {
-					restClients[Module.ACTIVITIES].stop(id).done(restApiDoneFunction).fail(createFailFunction("rest api"));
-				} else {
-					restClients[Module.ACTIVITIES].start(id).done(restApiDoneFunction).fail(createFailFunction("rest api"));
-				}
-			};
-			function toggleLight(id, currentlyOn) {
-				if (currentlyOn) {
-					restClients[Module.LIGHTS].off(id).done(restApiDoneFunction).fail(createFailFunction("rest api"));
-				} else {
-					restClients[Module.LIGHTS].on(id).done(restApiDoneFunction).fail(createFailFunction("rest api"));
-				}
-			};
-			function loadPage(pageName) {
-				currentPage = pages[pageName];
-				refreshCurrentPage();
-				setTitle(currentPage.title);
-			};
-			function refreshCurrentPage() {
-				if (currentPage != null) {
-					if (currentPage.usesRestApi()) {
-						currentPage.restApiFunction().done(function (data) {
-							setContentWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage(data));
-						})
-						.fail(createFailFunction("page " + currentPage.name));
-					} else {
-						//TODO: how to provide data input? -> for now just no data required (to be: static template page)
-						setContentWithTemplate(currentPage.templateName, {});
-					}
-				}
-			};
-			function createTemplateDataFromCurrentPage(data) {
-				var templateData = {};
-				// Use the template name as property name to feed the template with.
-				templateData[currentPage.templateName] = data; 
-				return templateData;
-			};
-			function setContentWithTemplate(templateName, templateData) {
-		    	var contentHtml = templates[templateName](templateData);
-	    		$("#content").html(contentHtml);
-			};
-			function setTitle(title) {
-				$("#title").html(title);
-			};
+			</ul>
 		</script>
 	</head>
 	<body>
@@ -271,7 +41,6 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 			</div>
 		</div>
 		<nav id="menu">
-			<!-- The menu will be dynamically created. -->
 		</nav>
 	</body>
 </html>

@@ -1,6 +1,6 @@
 {{#each activities}}
 	{{name}}<br />
-	<a href="javascript:void(0)" onclick="toggleActivity({{id}}, {{active}})"><img
+	<a href="javascript:void(0)" onclick="require(['pyh'], function (pyh) { pyh.toggleActivity({{id}}, {{active}}); });"><img
 		{{#unless active}}
 			style="-webkit-filter: grayscale(100%); filter: grayscale(100%);"
 		{{/unless}}

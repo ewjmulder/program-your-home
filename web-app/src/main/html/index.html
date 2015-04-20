@@ -18,24 +18,19 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 		<script type="text/javascript" src="js/handlebars-v3.0.1.js"></script>
 		<!-- TODO: put functions in sep javascript file + split util and pyh specific functions, only keep body-onload and vars in main file -->
 		<script type="text/javascript">
-			// TODO: model Page 'class' to contain id, name, rest api function, sub pages, etc. - or / and get this from the server
-			// and build up the menu completely dynamic with that info. Or does that hurt the seperation between rest api and ui view?
-			// --> No, the server should not mandate the page stucture! It can provide a list of activated modules and the UI
-			// can enable/disable pages based on that info, but how to represent the controls for a specific module (in pages) should
-			// be a UI view decision only!
-			var Page = Object.freeze({
-				ACTIVITIES: "activities",
-				LIGHTS: "lights",
-				DEVICES: "devices"
-			});
-			function values(types) {
-				return Object.keys(types).map(function(type) {
-			    	return types[type];
-				});
+			// TODO: The server can provide a list of activated modules and the UI can enable/disable pages based on that info.
+			var Page = function (name, templateName, restApiBase) {
+				this.name = name;
+				this.templateName = templateName;
+				this.usesRestApi = function () { return restApiBase != null; };
+				if (restApiBase != null) {
+					this.restApiFunction = function () { return restApiBase.read(); };
+				}
 			};
+			var Pages;
 			var templates = {};
-			var templateNames = values(Page);
-			var currentPage = Page.ACTIVITIES;
+			var templateNames;
+			var currentPage;
 			// TODO: make into a map of some sort with page.id or so as key
 			var restClientMain;
 			var restClientHue;
@@ -49,7 +44,11 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 				}
 			};
 			var restApiFailFunction = function (jqXHR, status, error) {
-				showError("REST API call failed with error: " + error);
+				if (error == "") {
+					showError("REST API could not be reached.");					
+				} else {
+					showError("REST API call failed with error: " + error);
+				}
 			};
 			var restApiResponseFunction = function (arg1, status, arg2) {
 				if (status == "success") {
@@ -90,6 +89,20 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 				restClientIr = new $.RestClient(baseURL + "ir/");
 				restClientIr.add("devices");
 				
+				Pages = Object.freeze({
+					ACTIVITIES: new Page("activities", "activities", restClientMain.activities),
+					LIGHTS: new Page("lights", "lights", restClientHue.lights),
+					DEVICES: new Page("devices", "devices", restClientIr.devices),
+					ABOUT: new Page("about", "about", null)
+				});
+				function pageNames(types) {
+					return Object.keys(types).map(function (type) {
+				    	return types[type].name;
+					});
+				};
+				templateNames = pageNames(Pages);
+				currentPage = Pages.ACTIVITIES;
+				
 				restClientIr.devices.read().done(function (devices) {
 					// TODO: use template for menu stuff and some way to configure all menu preloading that needs to be done.
 					// Furthermore: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
@@ -100,13 +113,13 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 						devicesMenuHtmlString += "<li><a href='#'>" + device.name + "</a></li>";
 					}
 					devicesMenuHtmlString += "</ul>";
-					$("#pageDevices").after(devicesMenuHtmlString);
+					$("#menu-devices").after(devicesMenuHtmlString);
 					
 					//TODO: put mmenu-ing in sep function and call that when all menu-preloading is done.
 					//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
 					$("#menu").mmenu({
 						offCanvas	: true,
-						extensions: ["theme-dark"],
+						extensions	: ["theme-dark"],
 						header		: {
 							add			: true,
 							update		: true,
@@ -121,6 +134,7 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 
 				var numberOfTemplatesLoaded = 0;
 				templateNames.forEach(function (templateName) {
+					// TODO: error handling when templates not found or could not be parsed
 				    $.get("/templates/" + templateName + ".hbs.html", function (contents) {
 				    	templates[templateName] = Handlebars.compile(contents);
 				    	numberOfTemplatesLoaded++;
@@ -141,9 +155,6 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 				// TODO: nicer error 'popup'. -> use mmenu or some other nice jQuery solution
 				alert("Error occured: " + errorMessage);
 			};
-			function escapeHTML(s) {
-				return String(s).replace(/&(?!\w+;|#\d+;|#x[\da-f]+;)/gi, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-			};
 			function toggleActivity(id, currentlyActive) {
 				if (currentlyActive) {
 					restClientMain.activities.stop(id).always(restApiResponseFunction);					
@@ -163,25 +174,25 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 				refreshCurrentPage();
 			};
 			function refreshCurrentPage() {
-				if (currentPage == Page.ACTIVITIES) {
-					refreshPage(function() { return restClientMain.activities.read(); });
-				} else if (currentPage == Page.LIGHTS) {
-					refreshPage(function() { return restClientHue.lights.read(); });
-				} else if (currentPage == Page.DEVICES) {
-					refreshPage(function() { return restClientIr.devices.read(); });
+				if (currentPage.usesRestApi()) {
+					currentPage.restApiFunction().done(function (data) {
+						setContentWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage(data));
+					})
+					.fail(restApiFailFunction);
 				} else {
-					showError("Unknown page: " + currentPage);					
+					//TODO: how to provide data input? -> for now just no data required (to be: static template page)
+					setContentWithTemplate(currentPage.templateName, {});
 				}
 			};
-			function refreshPage(restApiFunction) {
-				restApiFunction().done(function (data) {
-					var templateData = {};
-					// Use the value of the currentPage as property name to feed the template with.
-					templateData[currentPage] = data; 
-			    	var contentHtml = templates[currentPage](templateData);
-		    		$("#content").html(contentHtml);
-				})
-				.fail(restApiFailFunction);				
+			function createTemplateDataFromCurrentPage(data) {
+				var templateData = {};
+				// Use the template name as property name to feed the template with.
+				templateData[currentPage.name] = data; 
+				return templateData;
+			};
+			function setContentWithTemplate(templateName, templateData) {
+		    	var contentHtml = templates[templateName](templateData);
+	    		$("#content").html(contentHtml);
 			};
 		</script>
 	</head>
@@ -192,25 +203,17 @@ For now, just hacked out. TOOD: choose new ui theme without text-shadow. -->
 				Program Your Home
 			</div>
 			<div id="content" class="content">
-				Please select a menu item.
+				Loading content...
 			</div>
 		</div>
 		<!-- href='#' will have default behavior blocked! -->
 		<nav id="menu">
 			<ul>
-				<li><a href="#" onclick="loadPage(Page.ACTIVITIES)">Activities</a></li>
-				<li><a href="#" onclick="loadPage(Page.LIGHTS)">Lights</a></li>
-				<li><a id="pageDevices" href="#" onclick="loadPage(Page.DEVICES)">Devices</a></li>
-				<li><a href="#">Demo dummy</a>
-					<ul>
-						<li><a href="#">Sub item 1</a></li>
-						<li><a href="#">Sub item 2</a>
-							<ul>
-								<li><a href="#">Sub sub item 1</a></li>
-							</ul>
-						</li>
-					</ul>
-				</li>
+			<!--  TODO: always build this dynamically based on the pages. <li> part should be a template - can't we inline these small templates? -->
+				<li id="menu-activities"><a href="#" onclick="loadPage(Pages.ACTIVITIES)">Activities</a></li>
+				<li id="menu-lights"><a href="#" onclick="loadPage(Pages.LIGHTS)">Lights</a></li>
+				<li id="menu-devices"><a href="#" onclick="loadPage(Pages.DEVICES)">Devices</a></li>
+				<li id="menu-about"><a href="#" onclick="loadPage(Pages.ABOUT)">About</a></li>
 			</ul>
 		</nav>
 	</body>

@@ -203,6 +203,12 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		$("#title").html(title);
 	};
 	
+	// Toggle a rest resource: set it to on if currently off and vice versa.
+	function toggleRestResource(module, onVerb, offVerb, id, currentlyOn) {
+		var verbToUse = currentlyOn ? offVerb : onVerb;
+		restClients[module][verbToUse](id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
+	}
+
 	
 	/////////////////////////////////////////////
 	// Program Your Home document ready logic  //
@@ -289,22 +295,13 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	////////////////////////////////////////////////
 
 	return {
-		// TODO: refactor to merge this general on/off behaviour using rest var + verb name
+		// Start or stop an activity.
+		toggleActivity: function (id, currentlyActive) {
+			toggleRestResource(Module.ACTIVITIES, "start", "stop", id, currentlyActive);
+		},
 		// Switch a light on or off.
 		toggleLight: function (id, currentlyOn) {
-			if (currentlyOn) {
-				restClients[Module.LIGHTS].off(id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
-			} else {
-				restClients[Module.LIGHTS].on(id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
-			}
-		},
-		// Switch an activity on or off.
-		toggleActivity: function (id, currentlyActive) {
-			if (currentlyActive) {
-				restClients[Module.ACTIVITIES].stop(id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
-			} else {
-				restClients[Module.ACTIVITIES].start(id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
-			}
+			toggleRestResource(Module.LIGHTS, "on", "off", id, currentlyOn);
 		}
 	};
 

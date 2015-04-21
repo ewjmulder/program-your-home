@@ -1,12 +1,26 @@
 Auto refresh: <input type="checkbox" id="settings-autoRefresh" />
-
+<br />
+TODO: knock them out!<br />
+<br />
+<p>First name: <strong data-bind="text: firstName">todo</strong></p>
+<p>Last name: <strong data-bind="text: lastName">todo</strong></p>
 <script type="text/javascript">
 	// TODO: generic code based on type of field -> display way?
-	require(['jquery', 'pyh'], function ($, pyh) {
+	require(['jquery', 'pyh', 'knockout'], function ($, pyh, ko) {
 		var $autoRefresh = $("#settings-autoRefresh");
 		$autoRefresh.prop("checked", pyh.getSetting("autoRefresh"));
 		$autoRefresh.on("change", function () {
 			pyh.changeSetting("autoRefresh", $autoRefresh.prop("checked"));
 		});
+		
+		// This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
+		function AppViewModel() {
+		    this.firstName = "Bert";
+		    this.lastName = "Bertington";
+		}
+
+		// Activates knockout.js
+		ko.applyBindings(new AppViewModel());
 	});
+	
 </script>

@@ -6,6 +6,7 @@ requirejs.config({
 		mmenu: 'jquery.mmenu.min.all',
 		rest: 'jquery.rest.min',
 		handlebars: 'handlebars-v3.0.1.min',
+		knockout: 'knockout.3.3.0.min',
 		
 		// Application defined modules.
 		util: '../app/util',
@@ -22,7 +23,7 @@ requirejs.config({
 		// Handlebars uses an 'old school' global object, so we need to expose that.
 		'handlebars': {
 			exports: 'Handlebars'
-		},
+		}
 	}
 });
 

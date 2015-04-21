@@ -1,13 +1,6 @@
 // Start a new require module.
-define(function (require) {
-
-	var $ = require('jquery');
-	var rest = require('rest');
-	var Handlebars = require('handlebars');
-	var mmenu = require('mmenu');
-	var mobile = require('mobile');
-
-	var util = require('./util');
+define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
+		function ($, mmenu, rest, Handlebars, util) {
 	
 	/////////////////////////////////////////
 	// Program Your Home global variables  //
@@ -147,16 +140,19 @@ define(function (require) {
 	function activateMenu() {
 		//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
 		//TODO: check possible usage of all extensions and add-ons! (http://mmenu.frebsite.nl/documentation/addons/)
-		//TODO: Current menu item should be highlighted
-		$("#menu").mmenu({
-			offCanvas	: true,
+		//TODO: Current menu item should be highlighted -> API.setSelected
+		var $menu = $("#menu");
+		$menu.mmenu({
 			extensions	: ["theme-dark"],
 			header		: {
 				add			: true,
 				update		: true,
 				title		: 'Menu'
 			}
-		});				
+		});
+		// Set the first menu item as the selected one. This assumes the default current page is the first menu item.
+		var mmenuApi = $menu.data("mmenu");
+		mmenuApi.setSelected($menu.find("li").first());
 	};
 	
 	// Show an error message to the user.
@@ -275,9 +271,11 @@ define(function (require) {
 			loadPage("activities");
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
-	     setInterval(function () {
-	 		refreshCurrentPage();
-	     }, 1000);
+			/*
+			setInterval(function () {
+				refreshCurrentPage();
+			}, 1000);
+			*/
 		}, createFailFunction("menu pre-loading"));
 	};
 
@@ -285,7 +283,6 @@ define(function (require) {
 	$(document).ready(function () {
 		start();
 	});
-	
 	
 	////////////////////////////////////////////////
 	// Program Your Home module exposed functions //

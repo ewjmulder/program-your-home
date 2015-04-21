@@ -1094,11 +1094,14 @@ html.mm-opening .mm-menu.mm-front, html.mm-opening .mm-menu.mm-next {
 */
 .mm-menu.mm-theme-dark {
   background: #333333;
-  color: rgba(255, 255, 255, 0.8); }
+    /* Custom change: make the text color of the dark theme completely white. */
+  color: rgba(255, 255, 255, 1.0); }
   .mm-menu.mm-theme-dark .mm-header {
     border-color: rgba(0, 0, 0, 0.15); }
     .mm-menu.mm-theme-dark .mm-header > a {
-      color: rgba(255, 255, 255, 0.4); }
+    /* Custom change: make the text color of the header of the dark theme completely white. */
+    font-weight: bold;
+	color: rgba(255, 255, 255, 1); }
     .mm-menu.mm-theme-dark .mm-header .mm-btn:before,
     .mm-menu.mm-theme-dark .mm-header .mm-btn:after {
       border-color: rgba(255, 255, 255, 0.4); }
@@ -1112,7 +1115,8 @@ html.mm-opening .mm-menu.mm-front, html.mm-opening .mm-menu.mm-next {
     border-color: rgba(0, 0, 0, 0.15); }
   .mm-menu.mm-theme-dark .mm-listview > li.mm-selected > a:not(.mm-next),
   .mm-menu.mm-theme-dark .mm-listview > li.mm-selected > span {
-    background: rgba(0, 0, 0, 0.1); }
+    /* Custom change: make the selected item background color of the dark theme more grayish. */
+	background: rgba(100, 100, 100, 0.5); }
   .mm-menu.mm-theme-dark.mm-vertical .mm-listview li.mm-opened > a.mm-next,
   .mm-menu.mm-theme-dark.mm-vertical .mm-listview li.mm-opened > .mm-panel,
   .mm-menu.mm-theme-dark .mm-listview li.mm-opened.mm-vertical > a.mm-next,

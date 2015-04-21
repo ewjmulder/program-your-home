@@ -3,7 +3,6 @@ requirejs.config({
 	paths: {
 		// Libraries used in the application.
 		jquery: 'jquery-2.1.1.min',
-		mobile: 'jquery.mobile.custom.min',
 		mmenu: 'jquery.mmenu.min.all',
 		rest: 'jquery.rest.min',
 		handlebars: 'handlebars-v3.0.1.min',
@@ -14,9 +13,6 @@ requirejs.config({
 	},
 	shim: {
 		// Specify that the jQuery plugins depend on jQuery.
-		'mobile': {
-			deps: ['jquery']
-		},
 		'mmenu': {
 			deps: ['jquery']
 		},
@@ -26,7 +22,7 @@ requirejs.config({
 		// Handlebars uses an 'old school' global object, so we need to expose that.
 		'handlebars': {
 			exports: 'Handlebars'
-		}
+		},
 	}
 });
 

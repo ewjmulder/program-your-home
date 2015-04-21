@@ -7,6 +7,8 @@ X Figure out a nicer way to connect the click logic to the activities/lights/etc
   - Serve module depenent images from the main server -> individual modules should not be required to provide context images for their functionality!
 - Document specifics of used JS stuff on menu / pages / rest / etc
   - mmenu: href='#' will have default behavior blocked!
+  - mmenu: explicitely setting offCanvas: true will trigger a menu sliding bug!
+  - mmenu: Custom change in the colors of the dark theme
   - rest: double nested resources requires ID for the first!
     So my REST service starts at /main /hue etc, which makes sense indeed, sep rest services for these URL's
     furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)

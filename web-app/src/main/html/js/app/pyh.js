@@ -16,8 +16,8 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	var templates = {};
 	// The current page that is on screen.
 	var currentPage;
-	// The settings for the application.
-	var settings;
+	// Map with all setting name->object pairs.
+	var settings = {};
 	// Map with all rest client name->object pairs.
 	var restClients = {};
 	// The modules that are activated in the menu.
@@ -36,7 +36,7 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	});
 	
 	// Definition of a Page class that represents both a menu entry and a content page.
-	var Page = function (name, templateName, menuName, title, isTopLevel, restApiBase, resourceId, subPages) {
+	var Page = function (name, templateName, menuName, title, isTopLevel, shouldAutoRefresh, restApiBase, resourceId, subPages) {
 		pageIdCounter++;
 		this.id = pageIdCounter;
 		this.name = name;
@@ -44,6 +44,7 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		this.menuName = menuName;
 		this.title = title;
 		this.isTopLevel = isTopLevel;
+		this.shouldAutoRefresh = shouldAutoRefresh;
 		this.usesRestApi = function () { return restApiBase != null; };
 		if (this.usesRestApi()) {
 			if (resourceId == null) {
@@ -61,7 +62,6 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		}
 	};
 	
-	// Definition of a Settings class that holds the various settings fields.
 	/*
 interface Storage {
   readonly attribute unsigned long length;
@@ -72,42 +72,72 @@ interface Storage {
   void clear();
 };
 	 */
-	var Settings = function () {
-		this.autoRefresh = storedValueOrDefault("autoRefresh", $.parseJSON, true);
-		
-		this.changeSetting = function (name, value) {
-			this[name] = value;
-			localStorage.setItem(name, value);			
-		};
-	};
-	// Create one object of the Settings class and use that in the rest of the code.
-	settings = new Settings();
 	
-	function storedValueOrDefault(name, parseFunction, defaultValue) {
-		var value = localStorage.getItem(name);
-		if (value == null) {
-			value = defaultValue;
-			localStorage.setItem(name, value);
-		} else {
-			value = parseFunction(value);
+	// Enum-like definition of all possible Setting type.
+	var SettingType = Object.freeze({
+		STRING: {name: "string", parseFunction: util.identity},
+		BOOLEAN: {name: "boolean", parseFunction: $.parseJSON},
+	})
+	
+	// Definition of a Setting class that represents one changeable setting of the application.
+	var Setting = function (name, displayName, type, defaultValue) {
+		var self = this;
+		this.name = name;
+		this.displayName = displayName;
+		this.type = type;
+		this.defaultValue = defaultValue;
+		this.value = function () {
+			var value = localStorage.getItem(self.name);
+			if (value == null) {
+				value = self.defaultValue;
+				localStorage.setItem(self.name, value);
+			} else {
+				value = self.type.parseFunction(value);
+			}
+			return value;
+		}();
+		
+		// Two ways to set a new value for this setting, while also saving the value in the local storage.
+		// Always use one of these functions to set a new value, instead of directly accessing the property,
+		// otherwise the new value won't be saved over time.
+		// The difference between the two is: one accepts only String values and will call the parse function,
+		// the other only accepts a value of the right type.
+		this.setNewValueFromString = function (valueString) {
+			if ((typeof valueString) != "string") {
+				throw "Error while setting new value from string for setting: '" + this.name + "': the value type: '" + (typeof value) + "' is not a string.";
+			}
+			this.setNewValue(this.type.parseFunction(valueString));
 		}
-		return value;
-	}
-
+		this.setNewValue = function (value) {
+			if ((typeof value) != type.name) {
+				throw "Error while setting new value for setting: '" + this.name + "': the value type: '" + (typeof value) + "' did not match the setting type: '" + this.type.name +"'.";
+			}
+			this.value = value;
+			localStorage.setItem(this.name, this.value);
+		};
+		
+		// Register this instance in the settings map.
+		settings[name] = this;
+	};
+	
+	// Create all available settings.
+	//TODO: expand possible settings + remove loading text as possible setting.
+	new Setting("autoRefresh", "Auto refresh", SettingType.BOOLEAN, true);
+	new Setting("loadingText", "Loading text", SettingType.STRING, "Loading content...");
 	
 	/////////////////////////////////////////
 	// Program Your Home main functions    //
 	/////////////////////////////////////////
 	
 	// Create a top level page with the given name as default for all naming and title properties.
-	function createTopLevelPage(name) {
-		new Page(name, name, util.capitalizeFirstLetter(name), util.capitalizeFirstLetter(name), true);
+	function createNoRefreshTopLevelPage(name) {
+		new Page(name, name, util.capitalizeFirstLetter(name), util.capitalizeFirstLetter(name), true, false);
 	};
 	
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
-			new Page(module, module, util.capitalizeFirstLetter(module), util.capitalizeFirstLetter(module), true, restClients[module]);
+			new Page(module, module, util.capitalizeFirstLetter(module), util.capitalizeFirstLetter(module), true, true, restClients[module]);
 		});
 	};
 	
@@ -165,7 +195,7 @@ interface Storage {
 		restClients[Module.DEVICES].read().done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
-				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, restClients[Module.DEVICES], devices[i].id));
+				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, false, restClients[Module.DEVICES], devices[i].id));
 			}
 			deviceLoading.resolve();
 		})
@@ -288,8 +318,8 @@ interface Storage {
 		}
 		
 		createModuleTopLevelPages(activeModules);
-		createTopLevelPage("settings");
-		createTopLevelPage("about");
+		createNoRefreshTopLevelPage("settings");
+		createNoRefreshTopLevelPage("about");
 		
 		var templateNames = Object.keys(pages).map(function (pageName) {
 			return pages[pageName].templateName;
@@ -316,7 +346,7 @@ interface Storage {
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
 			setInterval(function () {
-				if (settings.autoRefresh) {
+				if (settings.autoRefresh && currentPage.shouldAutoRefresh) {
 					refreshCurrentPage();
 				}
 			}, 1000);
@@ -325,7 +355,11 @@ interface Storage {
 
 	// When the document becomes ready, we can start the application.
 	$(document).ready(function () {
-		start();
+		// TODO: move to begin of start function
+		$("#content").html(settings.loadingText);
+		setTimeout(function () {
+			start();
+		}, 2000);
 	});
 	
 	////////////////////////////////////////////////
@@ -345,12 +379,7 @@ interface Storage {
 		getSettings: function () {
 			return settings;
 		},
-		getSetting: function (name) {
-			return settings[name];
-		},
-		changeSetting: function (name, value) {
-			settings.changeSetting(name, value);
-		}
+		SettingType: SettingType
 	};
 
 		

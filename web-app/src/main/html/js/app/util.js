@@ -13,6 +13,11 @@ define({
 	// Capitalize the first letter of the given string.
 	capitalizeFirstLetter: function(string) {
 	    return string.charAt(0).toUpperCase() + string.slice(1);
+	},
+	
+	// The identity function, just always return the argument 'as is'.
+	identity: function (obj) {
+		return obj;
 	}
 
 // End of require module.

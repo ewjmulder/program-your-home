@@ -1,26 +1,30 @@
-Auto refresh: <input type="checkbox" id="settings-autoRefresh" />
-<br />
-TODO: knock them out!<br />
-<br />
-<p>First name: <strong data-bind="text: firstName">todo</strong></p>
-<p>Last name: <strong data-bind="text: lastName">todo</strong></p>
-<script type="text/javascript">
-	// TODO: generic code based on type of field -> display way?
-	require(['jquery', 'pyh', 'knockout'], function ($, pyh, ko) {
-		var $autoRefresh = $("#settings-autoRefresh");
-		$autoRefresh.prop("checked", pyh.getSetting("autoRefresh"));
-		$autoRefresh.on("change", function () {
-			pyh.changeSetting("autoRefresh", $autoRefresh.prop("checked"));
-		});
-		
-		// This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
-		function AppViewModel() {
-		    this.firstName = "Bert";
-		    this.lastName = "Bertington";
-		}
+<div id="settingsForm">
+</div>
 
-		// Activates knockout.js
-		ko.applyBindings(new AppViewModel());
+<!-- TODO: Move this javascript to a separate file / module (require will preload it for us, right?) -->
+<script type="text/javascript">
+	require(["jquery", "pyh", "knockout"], function ($, pyh, ko) {
+		var $settingsForm = $("#settingsForm");
+		var settings = pyh.getSettings();
+		function SettingsViewModel() {
+			Object.keys(settings).forEach(function (settingName) {
+				var setting = settings[settingName];
+				var settingType = setting.type;
+				if (settingType == pyh.SettingType.STRING) {
+					$settingsForm.append(setting.displayName + ": <input data-bind='value: " +  settingName + "' /><br />");
+				} else if (settingType == pyh.SettingType.BOOLEAN) {
+					$settingsForm.append(setting.displayName + ": <input type='checkbox' data-bind='checked: " +  settingName + "' /><br />");
+				}
+			    this[settingName] = ko.observable(setting.value);
+				this[settingName].subscribe(function (newValue) {
+				    setting.setNewValue(newValue);
+				});
+			});
+		};
+
+		// Tell knockout to apply the bindings to the form, giving it the native DOM element,
+		// that is the first element in the jQuery array-like wrapper object.
+		ko.applyBindings(new SettingsViewModel(), $settingsForm[0]);
 	});
 	
 </script>

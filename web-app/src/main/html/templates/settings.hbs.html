@@ -1,3 +1,12 @@
-TODO: settings
-Use localstore for saving settings
-http://www.w3schools.com/html/html5_webstorage.asp
+Auto refresh: <input type="checkbox" id="settings-autoRefresh" />
+
+<script type="text/javascript">
+	// TODO: generic code based on type of field -> display way?
+	require(['jquery', 'pyh'], function ($, pyh) {
+		var $autoRefresh = $("#settings-autoRefresh");
+		$autoRefresh.prop("checked", pyh.getSetting("autoRefresh"));
+		$autoRefresh.on("change", function () {
+			pyh.changeSetting("autoRefresh", $autoRefresh.prop("checked"));
+		});
+	});
+</script>

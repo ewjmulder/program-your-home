@@ -7,23 +7,7 @@
 		<link rel="icon" type="image/png" href="img/light.png" />
  		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.customized.css" />
 		<link rel="stylesheet" type="text/css" href="css/pyh.css" />
-
-		<!-- TODO: Use bundle option from require. -->
 		<script data-main="js/app" src="js/lib/require.min.js"></script>
-		
-		<!-- TODO: Move outside of this file. -->
-		<script id="listMenu" type="x-handlebars-template">
-			<ul>
-				{{#each pages}}
-					<li id="menu-{{name}}">
-						<a href="#" id="menu-link-{{name}}">{{menuName}}</a>
-						{{#if subPages}}
-							{{> listMenu pages=subPages}}
-						{{/if}}
-					</li>
-				{{/each}}
-			</ul>
-		</script>
 	</head>
 	<body>
 		<div id="page">

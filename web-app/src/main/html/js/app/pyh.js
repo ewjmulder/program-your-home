@@ -3,17 +3,21 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		function ($, mmenu, rest, Handlebars, util) {
 	
 	/////////////////////////////////////////
-	// Program Your Home global variables  //
+	// Program Your Home module variables  //
 	/////////////////////////////////////////
 	
 	// Map with all page name->object pairs.
 	var pages = {};
+	// Page id counter, could be seen as a sequence to set a unique id for every page.
+	var pageIdCounter = 0;
 	// Array with all top level pages. Top level is the first level of the menu.
 	var topLevelPages = [];
 	// Map with all template name->object pairs.
 	var templates = {};
 	// The current page that is on screen.
 	var currentPage;
+	// The settings for the application.
+	var settings;
 	// Map with all rest client name->object pairs.
 	var restClients = {};
 	// The modules that are activated in the menu.
@@ -33,6 +37,8 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	
 	// Definition of a Page class that represents both a menu entry and a content page.
 	var Page = function (name, templateName, menuName, title, isTopLevel, restApiBase, resourceId, subPages) {
+		pageIdCounter++;
+		this.id = pageIdCounter;
 		this.name = name;
 		this.templateName = templateName;
 		this.menuName = menuName;
@@ -55,6 +61,39 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		}
 	};
 	
+	// Definition of a Settings class that holds the various settings fields.
+	/*
+interface Storage {
+  readonly attribute unsigned long length;
+  [IndexGetter] DOMString key(in unsigned long index);
+  [NameGetter] DOMString getItem(in DOMString key);
+  [NameSetter] void setItem(in DOMString key, in DOMString data);
+  [NameDeleter] void removeItem(in DOMString key);
+  void clear();
+};
+	 */
+	var Settings = function () {
+		this.autoRefresh = storedValueOrDefault("autoRefresh", $.parseJSON, true);
+		
+		this.changeSetting = function (name, value) {
+			this[name] = value;
+			localStorage.setItem(name, value);			
+		};
+	};
+	// Create one object of the Settings class and use that in the rest of the code.
+	settings = new Settings();
+	
+	function storedValueOrDefault(name, parseFunction, defaultValue) {
+		var value = localStorage.getItem(name);
+		if (value == null) {
+			value = defaultValue;
+			localStorage.setItem(name, value);
+		} else {
+			value = parseFunction(value);
+		}
+		return value;
+	}
+
 	
 	/////////////////////////////////////////
 	// Program Your Home main functions    //
@@ -121,7 +160,7 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	}
 	
 	// Load the extra information that is needed to build the complete menu.
-	function loadMenu() {
+	function loadDerivedMenuItems() {
 		var deviceLoading = $.Deferred();
 		restClients[Module.DEVICES].read().done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
@@ -252,21 +291,20 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		createTopLevelPage("settings");
 		createTopLevelPage("about");
 		
-		// To enable recursive template inclusion, used for sub pages.
-		Handlebars.registerPartial("listMenu", $("#listMenu").html());
-		
 		var templateNames = Object.keys(pages).map(function (pageName) {
 			return pages[pageName].templateName;
 		});
 		templateNames.push("device");
+		templateNames.push("menu");
 	
-		$.when(loadTemplates(templateNames), loadMenu()).then(function() {
+		$.when(loadTemplates(templateNames), loadDerivedMenuItems()).then(function() {
+			// To enable recursive template inclusion, used for sub pages.
+			Handlebars.registerPartial("menu", templates["menu"]);
 			// Load the main menu with the menu definition that we now know is available after the pre-loading.
-			var mainMenu = Handlebars.compile($("#listMenu").html());
-			$("#menu").html(mainMenu({ pages: topLevelPages }));
-			// Also, connect all click events to the page onClick function.
+			$("#menu").html(templates["menu"]({ pages: topLevelPages }));
+			// Also, connect all menu click events to loading the appropriate page.
 			Object.keys(pages).forEach(function (pageName) {
-				$("#menu-link-" + pageName).click(function () {
+				$("#menu-link-" + pages[pageName].id).click(function () {
 					loadPage(pageName);
 					// Do not return false here, since that interferes with mmenu handling the situation for us.
 				});
@@ -277,11 +315,11 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 			loadPage("activities");
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
-			/*
 			setInterval(function () {
-				refreshCurrentPage();
+				if (settings.autoRefresh) {
+					refreshCurrentPage();
+				}
 			}, 1000);
-			*/
 		}, createFailFunction("menu pre-loading"));
 	};
 
@@ -302,6 +340,16 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		// Switch a light on or off.
 		toggleLight: function (id, currentlyOn) {
 			toggleRestResource(Module.LIGHTS, "on", "off", id, currentlyOn);
+		},
+		
+		getSettings: function () {
+			return settings;
+		},
+		getSetting: function (name) {
+			return settings[name];
+		},
+		changeSetting: function (name, value) {
+			settings.changeSetting(name, value);
 		}
 	};
 

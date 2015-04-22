@@ -6,3 +6,13 @@
 		{{/unless}}
 		src="img/light.png" width="128" height="128" /></a><br />
 {{/each}}
+<canvas id="canvas-lights" width="100" height="100" style="border:1px solid #000000;">
+</canvas>
+
+<script>
+//TODO: do something cool with the canvas: http://crunchify.com/my-favorite-5-javascript-canvas-libraries/
+var c = document.getElementById("canvas-lights");
+var ctx = c.getContext("2d");
+ctx.fillStyle = "#FF0000";
+ctx.fillRect(0,0,50,75);
+</script> 

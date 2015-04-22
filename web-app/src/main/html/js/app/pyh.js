@@ -117,6 +117,8 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	//TODO: expand possible settings.
 	new Setting("autoRefresh", "Auto refresh", SettingType.BOOLEAN, true);
 	new Setting("slidingSubmenus", "Sliding sub-menu's", SettingType.BOOLEAN, true);
+	// TODO: make safer by using some sort of enum/list type and a drop down in the page.
+	new Setting("homePage", "Home page", SettingType.STRING, "activities");
 	
 	/////////////////////////////////////////
 	// Program Your Home main functions    //
@@ -213,9 +215,9 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 				title	: 'Menu'
 			}
 		});
-		// Set the first menu item as the selected one. This assumes the default current page is the first menu item.
+		// Set the menu item that is defined as the home page as the selected one.
 		var mmenuApi = $menu.data("mmenu");
-		mmenuApi.setSelected($menu.find("li").first());
+		mmenuApi.setSelected($("#menu-" + pages[settings["homePage"].value].id));
 	};
 	
 	// Show an error message to the user.
@@ -337,8 +339,8 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 			});
 			// Now we're ready to activate the actual menu on the page.
 			activateMenu();
-			// Load the default page.
-			loadPage("activities");
+			// Load the default page as defined in the home page setting.
+			loadPage(settings["homePage"].value);
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
 			setInterval(function () {

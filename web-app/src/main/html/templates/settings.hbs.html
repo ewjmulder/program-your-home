@@ -3,6 +3,7 @@
 <input id="reload-app-button" type="button" value="Reload the app" /><br />
 
 <!-- TODO: Move this javascript to a separate file / module (require will preload it for us, right?) -->
+<!-- TODO: How about having a js file/require module for every (known) subpage in the system? -->
 <script type="text/javascript">
 	require(["jquery", "pyh", "knockout"], function ($, pyh, ko) {
 		var $settingsForm = $("#settingsForm");

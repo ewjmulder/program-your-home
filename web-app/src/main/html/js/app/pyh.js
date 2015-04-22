@@ -62,17 +62,6 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		}
 	};
 	
-	/*
-interface Storage {
-  readonly attribute unsigned long length;
-  [IndexGetter] DOMString key(in unsigned long index);
-  [NameGetter] DOMString getItem(in DOMString key);
-  [NameSetter] void setItem(in DOMString key, in DOMString data);
-  [NameDeleter] void removeItem(in DOMString key);
-  void clear();
-};
-	 */
-	
 	// Enum-like definition of all possible Setting type.
 	var SettingType = Object.freeze({
 		STRING: {name: "string", parseFunction: util.identity},
@@ -96,6 +85,10 @@ interface Storage {
 			}
 			return value;
 		}();
+		
+		this.resetToDefault = function() {
+			this.setNewValue(this.defaultValue);
+		};
 		
 		// Two ways to set a new value for this setting, while also saving the value in the local storage.
 		// Always use one of these functions to set a new value, instead of directly accessing the property,
@@ -121,9 +114,9 @@ interface Storage {
 	};
 	
 	// Create all available settings.
-	//TODO: expand possible settings + remove loading text as possible setting.
+	//TODO: expand possible settings.
 	new Setting("autoRefresh", "Auto refresh", SettingType.BOOLEAN, true);
-	new Setting("loadingText", "Loading text", SettingType.STRING, "Loading content...");
+	new Setting("slidingSubmenus", "Sliding sub-menu's", SettingType.BOOLEAN, true);
 	
 	/////////////////////////////////////////
 	// Program Your Home main functions    //
@@ -212,11 +205,12 @@ interface Storage {
 		//TODO: Current menu item should be highlighted -> API.setSelected
 		var $menu = $("#menu");
 		$menu.mmenu({
-			extensions	: ["theme-dark"],
-			header		: {
-				add			: true,
-				update		: true,
-				title		: 'Menu'
+			extensions			: ["theme-dark"],
+			slidingSubmenus		: settings["slidingSubmenus"].value,
+			header				: {
+				add		: true,
+				update	: true,
+				title	: 'Menu'
 			}
 		});
 		// Set the first menu item as the selected one. This assumes the default current page is the first menu item.
@@ -240,6 +234,8 @@ interface Storage {
 	
 	// Refresh the current page.
 	function refreshCurrentPage() {
+		// TODO: Always provide a timestamp (millis) to the template? This can be used to create unique id's for DOM elements.
+		// This can prevent clashes when reloading the same page. That seems to be an issue at the settings page. But not well reproducable.
 		if (currentPage != null) {
 			if (currentPage.usesRestApi()) {
 				currentPage.restApiFunction().done(function (data) {
@@ -346,7 +342,7 @@ interface Storage {
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
 			setInterval(function () {
-				if (settings.autoRefresh && currentPage.shouldAutoRefresh) {
+				if (settings["autoRefresh"].value && currentPage.shouldAutoRefresh) {
 					refreshCurrentPage();
 				}
 			}, 1000);
@@ -355,11 +351,7 @@ interface Storage {
 
 	// When the document becomes ready, we can start the application.
 	$(document).ready(function () {
-		// TODO: move to begin of start function
-		$("#content").html(settings.loadingText);
-		setTimeout(function () {
-			start();
-		}, 2000);
+		start();
 	});
 	
 	////////////////////////////////////////////////

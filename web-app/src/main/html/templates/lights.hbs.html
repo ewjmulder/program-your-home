@@ -15,6 +15,29 @@
 	//TODO: remove bHive completely
 	$("#content").css("background-color", "#CCCCCC");
 	
+	function pyth(a, b) {
+		return Math.sqrt(a * a + b * b);
+	}
+	
+	function componentToHex(c) {
+	    var hex = c.toString(16);
+	    return hex.length == 1 ? "0" + hex : hex;
+	}
+
+	function rgbToHex(r, g, b) {
+	    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+	}
+
+	//TODO: take possible leading '#' into account.
+	function hexToRgb(hex) {
+	    var bigint = parseInt(hex, 16);
+	    var r = (bigint >> 16) & 255;
+	    var g = (bigint >> 8) & 255;
+	    var b = bigint & 255;
+
+	    return [r, g, b];
+	}
+	
 	var lightImage = new Image();
 	lightImage.onload = function() {
 		// TODO: size depending on image size
@@ -30,81 +53,13 @@
 		var canvasElement = document.createElement('canvas');
 		canvasElement.width = canvasWidth;
 		canvasElement.height = canvasHeight;
+		document.getElementById("draw-lights").appendChild(canvasElement);
 
 		var context = canvasElement.getContext('2d');
 		var imageX = middleX - lightImage.width / 2;
 		var imageY = middleY - lightImage.height / 2;
 	    
-		context.drawImage(lightImage, imageX, imageY);
-		
-		var imgData = context.getImageData(imageX, imageY, areaWidth, areaHeight);
-
-		function pyth(a, b) {
-			return Math.sqrt(a * a + b * b);
-		}
-		
-		function componentToHex(c) {
-		    var hex = c.toString(16);
-		    return hex.length == 1 ? "0" + hex : hex;
-		}
-
-		function rgbToHex(r, g, b) {
-		    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-		}
-	
-		//TODO: take possible leading '#' into account.
-		function hexToRgb(hex) {
-		    var bigint = parseInt(hex, 16);
-		    var r = (bigint >> 16) & 255;
-		    var g = (bigint >> 8) & 255;
-		    var b = bigint & 255;
-
-		    return [r, g, b];
-		}
-		
-		var centerX = imageX + areaWidth / 2;
-		var centerY = imageY + areaHeight / 2;
-
-		//TODO: consider not using sqrt, but plain x and y distance for speed
-		//TODO: max distance is depending on angle of pixel.
-		var maxDistance = centerX;
-		
-		var id = context.createImageData(1, 1); // only do this once per page
-		var d  = id.data;                        // only do this once per page
-		
-		function percentage(input) {
-			return input * input;
-		}
-		
-		for (var y = imageY; y < imageX + areaHeight; y++) {
-			for (var x = imageX; x < imageX + areaWidth; x++) {
-				//TODO: Use sep values for x and y
-				var distance = pyth(x - centerX, y - centerY);
-				if (imgData.data[((y - imageY) * areaWidth + (x - imageX)) * 4 + 0] == 0
-						&& imgData.data[((y - imageY) * areaWidth + (x - imageX)) * 4 + 1] == 0
-						&& imgData.data[((y - imageY) * areaWidth + (x - imageX)) * 4 + 2] == 0) {
-					// background color, do nothing.
-				} else {
-					context.globalAlpha = 1 - percentage(distance / maxDistance);
-					context.fillStyle = rgbToHex(255, 0, 0);
-					context.fillRect(x, y, 1, 1);
-				}
-			}
-		}
-		
-		
-		// Save image so far.
-		imgData = context.getImageData(imageX, imageY, areaWidth, areaHeight);
-
-		
-		var canvasElement = document.createElement('canvas');
-		canvasElement.width = canvasWidth;
-		canvasElement.height = canvasHeight;
-		document.getElementById("draw-lights").appendChild(canvasElement);
-
-		var context = canvasElement.getContext('2d');
-
-		
+		/*
 		var gradientMiddleY = imageY + (areaHeight / 2);
 		var gradient = context.createRadialGradient(middleX, gradientMiddleY, 0, middleX, gradientMiddleY, 64);
 		gradient.addColorStop(0, "red");
@@ -114,41 +69,81 @@
 		context.fillStyle = gradient;
 		context.arc(middleX, gradientMiddleY, 64, 0, 2 * Math.PI);
 		context.fill();
-		
+		*/
 		
 		context.drawImage(lightImage, imageX, imageY);
 		
-		context.putImageData(imgData, imageX, imageY);
+		var imgData = context.getImageData(0, 0, canvasWidth, canvasHeight);
+
+		var centerX = imageX + areaWidth / 2;
+		var centerY = imageY + areaHeight / 2;
+
+		//TODO: consider not using sqrt, but plain x and y distance for speed
+		//TODO: max distance is depending on angle of pixel.
+		var id = context.createImageData(1, 1); // only do this once per page
+		var d  = id.data;                        // only do this once per page
 		
-
+		function percentage(input) {
+			return input * input;
+		}
 		
+		// TODO: more generic coordinates
+		for (var y = 0; y < canvasHeight; y++) {
+			for (var x = 0; x < canvasWidth; x++) {
+				//TODO: Use sep values for x and y
+//				var xDistanceFraction = Math.abs(x - centerX) / centerX;
+//				var yDistanceFraction = Math.abs(y - centerY) / centerY;
+//				var avgDistanceFraction = (xDistanceFraction + yDistanceFraction) / 2;
+				var distanceX = Math.abs(x - centerX);
+				var distanceY = Math.abs(y - centerY);
+				var distance = pyth(distanceX, distanceY);
+				var angle = Math.asin(distanceY / distanceX);
+				var maxDistance = ???
+				var isBackgroundColor = imgData.data[(y * canvasWidth + x) * 4 + 0] == 0
+						&& imgData.data[(y * canvasWidth + x) * 4 + 1] == 0
+						&& imgData.data[(y * canvasWidth + x) * 4 + 2] == 0;
+				if (isBackgroundColor || (!isBackgroundColor && y < imageY + areaHeight)) {
+					context.globalAlpha = 1 - avgDistanceFraction;
+					if (isBackgroundColor) {
+						context.globalAlpha = context.globalAlpha * 0.75;
+					}
+					context.fillStyle = rgbToHex(255, 0, 0);
+					context.fillRect(x, y, 1, 1);
+				} else {
+					// On light, do nothing.
+				}
+			}
+		}
 		
-		/*TODO: oval filling
-		//http://www.html5canvastutorials.com/advanced/html5-canvas-ovals/
-		// save state
-	      context.save();
-
-	      // translate context
-	      context.translate(canvas.width / 2, canvas.height / 2);
-
-	      // scale context horizontally
-	      context.scale(2, 1);
-
-	      // draw circle which will be stretched into an oval
-	      context.beginPath();
-	      context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-
-	      // restore to original state
-	      context.restore();
-
-	      // apply styling
-	      context.fillStyle = '#8ED6FF';
-	      context.fill();
-	      context.lineWidth = 5;
-	      context.strokeStyle = 'black';
-	      context.stroke();
-	      */
 	};
 	// TODO: below, otherwise onload not called? --> use jQuery to load image?
 	lightImage.src = "img/hue-full-color-bulb-small.png";
+	
+	
+	/*TODO: oval filling
+	//http://www.html5canvastutorials.com/advanced/html5-canvas-ovals/
+	// save state
+      context.save();
+
+      // translate context
+      context.translate(canvas.width / 2, canvas.height / 2);
+
+      // scale context horizontally
+      context.scale(2, 1);
+
+      // draw circle which will be stretched into an oval
+      context.beginPath();
+      context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+
+      // restore to original state
+      context.restore();
+
+      // apply styling
+      context.fillStyle = '#8ED6FF';
+      context.fill();
+      context.lineWidth = 5;
+      context.strokeStyle = 'black';
+      context.stroke();
+      */
+
 </script> 

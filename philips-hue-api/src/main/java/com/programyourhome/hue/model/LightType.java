@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public enum LightType {
 
-    // TODO: rename mood to reflect something like color temperature / licing whites?
+    // TODO: rename mood to reflect something like color temperature / living whites?
 
     HUE_FULL_COLOR_BULB("LCT", true, true, true, true),
     LIVING_COLORS("LLC", true, true, true, false),

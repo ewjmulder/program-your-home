@@ -1,6 +1,6 @@
 {{#each lights}}
 	{{name}}<br />
-	<a href="javascript:void(0)" onclick="require(['pyh'], function (pyh) { pyh.toggleLight({{id}}, {{on}}); });"><div id="canvas-lights"></div></a>
+	<a href="javascript:void(0)" onclick="require(['pyh'], function (pyh) { pyh.toggleLight({{id}}, {{on}}); });"><div id="draw-lights"></div></a>
 <!-- 	<img
 		{{#unless on}}
 			style="-webkit-filter: grayscale(100%); filter: grayscale(100%);"
@@ -14,66 +14,30 @@
 	// TODO: consider using alternatives to bHive, like paper.js
 	//TODO: remove bHive completely
 	$("#content").css("background-color", "#CCCCCC");
-
-	require(['bHive'], function (bHive) {
-		var engine = new bHive({
-			width: 128,
-			height: 222,
-			domobject: 'canvas-lights'
-		});
+	
+	var lightImage = new Image();
+	lightImage.onload = function() {
+		// TODO: size depending on image size
+		var canvasWidth = 150;
+		var canvasHeight = 250;
 		
-		var light = engine.createBitmap({
-			src: 'img/hue-full-color-bulb-small.png',
-			x: 0,
-			y: 0
-		});
+		var areaWidth = lightImage.width
+		var areaHeight = 68;
+
+		var middleX = canvasWidth / 2;
+		var middleY = canvasHeight / 2;
 		
-		var radial_gradient = engine.createGradient({
-			type: 'radial',
-			colors: ['red','white'],
-			stops: [0, 1]
-		});
+		var canvasElement = document.createElement('canvas');
+		canvasElement.width = canvasWidth;
+		canvasElement.height = canvasHeight;
+
+		var context = canvasElement.getContext('2d');
+		var imageX = middleX - lightImage.width / 2;
+		var imageY = middleY - lightImage.height / 2;
+	    
+		context.drawImage(lightImage, imageX, imageY);
 		
-		var filledcircle = engine.createShape({
-			shape: 'square',
-			style: 'filled',
-			backgroundColor: radial_gradient,
-			height: 70,
-			width: 128,
-			x: 0,
-			y: 0
-		});
-
-//		light.addEventListener('onload', function() {
-	// TODO: use light onload to wait for loading? / or pre-load if that has no delay afterwards
-			//light.draw();
-/*
-			var ctx = engine.stage2d;
-		    ctx.save();
-		    ctx.globalAlpha = 0.5;
-			filledcircle.draw();
-		    ctx.restore()
-*/
-//		});
-
-
-		light.addEventListener('onload', function() {
-
-		var areaWidth = 128;
-		var areaHeight = 65;
-
-		var grd=engine.stage2d.createRadialGradient(areaWidth / 2, areaHeight / 2, 0, areaWidth / 2, areaHeight / 2, 64);
-		grd.addColorStop(0,"red");
-		grd.addColorStop(1,"#CCCCCC");
-		
-		engine.stage2d.beginPath();
-		engine.stage2d.fillStyle = grd;//"#FF0000";
-		engine.stage2d.arc(areaWidth / 2, areaHeight / 2, 64, 0, 2 * Math.PI);
-		engine.stage2d.fill();
-
-		light.draw();
-		
-		var imgData = engine.stage2d.getImageData(0, 0, areaWidth, areaHeight);
+		var imgData = context.getImageData(imageX, imageY, areaWidth, areaHeight);
 
 		function pyth(a, b) {
 			return Math.sqrt(a * a + b * b);
@@ -98,61 +62,93 @@
 		    return [r, g, b];
 		}
 		
-		var centerX = areaWidth / 2;
-		var centerY = areaHeight / 2;
+		var centerX = imageX + areaWidth / 2;
+		var centerY = imageY + areaHeight / 2;
 
 		//TODO: consider not using sqrt, but plain x and y distance for speed
 		//TODO: max distance is depending on angle of pixel.
 		var maxDistance = centerX;
 		
-		var id = engine.stage2d.createImageData(1, 1); // only do this once per page
+		var id = context.createImageData(1, 1); // only do this once per page
 		var d  = id.data;                        // only do this once per page
 		
 		function percentage(input) {
 			return input * input;
 		}
 		
-		for (var y = 0; y < areaHeight; y++) {
-			for (var x = 0; x < areaWidth; x++) {
+		for (var y = imageY; y < imageX + areaHeight; y++) {
+			for (var x = imageX; x < imageX + areaWidth; x++) {
 				//TODO: Use sep values for x and y
 				var distance = pyth(x - centerX, y - centerY);
-				if (imgData.data[(y * areaWidth + x) * 4 + 0] == 0
-						&& imgData.data[(y * areaWidth + x) * 4 + 1] == 0
-						&& imgData.data[(y * areaWidth + x) * 4 + 2] == 0) {
+				if (imgData.data[((y - imageY) * areaWidth + (x - imageX)) * 4 + 0] == 0
+						&& imgData.data[((y - imageY) * areaWidth + (x - imageX)) * 4 + 1] == 0
+						&& imgData.data[((y - imageY) * areaWidth + (x - imageX)) * 4 + 2] == 0) {
 					// background color, do nothing.
 				} else {
-					engine.stage2d.globalAlpha = 1 - percentage(distance / maxDistance);
-					engine.stage2d.fillStyle = rgbToHex(255, 0, 0);
-					//engine.stage2d.fillRect(x, y, 1, 1);
+					context.globalAlpha = 1 - percentage(distance / maxDistance);
+					context.fillStyle = rgbToHex(255, 0, 0);
+					context.fillRect(x, y, 1, 1);
 				}
 			}
 		}
-
-/*
- * The image data way:
-	d[0]   = 255;
-	d[1]   = 0;//255 * (distance / maxDistance);
-	d[2]   = 0;//255 * (distance / maxDistance);
-	d[3]   = 0;//255;//255 - 255 * (distance / maxDistance);
-	//engine.stage2d.putImageData(id, x, y);
-	 
- */
 		
-		});
-
+		
+		// Save image so far.
+		imgData = context.getImageData(imageX, imageY, areaWidth, areaHeight);
 
 		
-		// If you need direct canvas stage2d control, use this:
-		/*var ctx = engine.stage2d;//draw image with plain canvas
+		var canvasElement = document.createElement('canvas');
+		canvasElement.width = canvasWidth;
+		canvasElement.height = canvasHeight;
+		document.getElementById("draw-lights").appendChild(canvasElement);
+
+		var context = canvasElement.getContext('2d');
+
 		
-		var img = new Image();
-		img.onload = function() {
-		    ctx.save();
-		    ctx.globalAlpha = 0.4;
-		    ctx.drawImage(img, 0, 0);
-		    ctx.restore()
-		};
-		img.src = "img/hue-full-color-bulb-small.png";
-		*/
-	});
+		var gradientMiddleY = imageY + (areaHeight / 2);
+		var gradient = context.createRadialGradient(middleX, gradientMiddleY, 0, middleX, gradientMiddleY, 64);
+		gradient.addColorStop(0, "red");
+		gradient.addColorStop(1, "#CCCCCC");
+		
+		context.beginPath();
+		context.fillStyle = gradient;
+		context.arc(middleX, gradientMiddleY, 64, 0, 2 * Math.PI);
+		context.fill();
+		
+		
+		context.drawImage(lightImage, imageX, imageY);
+		
+		context.putImageData(imgData, imageX, imageY);
+		
+
+		
+		
+		/*TODO: oval filling
+		//http://www.html5canvastutorials.com/advanced/html5-canvas-ovals/
+		// save state
+	      context.save();
+
+	      // translate context
+	      context.translate(canvas.width / 2, canvas.height / 2);
+
+	      // scale context horizontally
+	      context.scale(2, 1);
+
+	      // draw circle which will be stretched into an oval
+	      context.beginPath();
+	      context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+
+	      // restore to original state
+	      context.restore();
+
+	      // apply styling
+	      context.fillStyle = '#8ED6FF';
+	      context.fill();
+	      context.lineWidth = 5;
+	      context.strokeStyle = 'black';
+	      context.stroke();
+	      */
+	};
+	// TODO: below, otherwise onload not called? --> use jQuery to load image?
+	lightImage.src = "img/hue-full-color-bulb-small.png";
 </script> 

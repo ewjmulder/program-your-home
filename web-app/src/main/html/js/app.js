@@ -7,7 +7,6 @@ requirejs.config({
 		rest: 'jquery.rest.min',
 		handlebars: 'handlebars-v3.0.1.min',
 		knockout: 'knockout.3.3.0.min',
-		bHive: 'bHive-1.0.7-min',
 		
 		// Application defined modules.
 		util: '../app/util',
@@ -24,10 +23,6 @@ requirejs.config({
 		// Handlebars uses an 'old school' global object, so we need to expose that.
 		'handlebars': {
 			exports: 'Handlebars'
-		},
-		// bHive does not use the AMD style, so wrap it here.
-		'bHive': {
-			exports: 'bHive'
 		}
 	}
 });

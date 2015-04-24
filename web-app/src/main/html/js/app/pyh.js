@@ -1,6 +1,6 @@
 // Start a new require module.
-define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
-		function ($, mmenu, rest, Handlebars, util) {
+define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
+		function ($, mmenu, rest, Handlebars, util, pageLights) {
 	
 	/////////////////////////////////////////
 	// Program Your Home module variables  //
@@ -36,7 +36,7 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	});
 	
 	// Definition of a Page class that represents both a menu entry and a content page.
-	var Page = function (name, templateName, menuName, title, isTopLevel, shouldAutoRefresh, restApiBase, resourceId, subPages) {
+	var Page = function (name, templateName, menuName, title, isTopLevel, shouldAutoRefresh, javascriptModule, restApiBase, resourceId, subPages) {
 		pageIdCounter++;
 		this.id = pageIdCounter;
 		this.name = name;
@@ -45,6 +45,7 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		this.title = title;
 		this.isTopLevel = isTopLevel;
 		this.shouldAutoRefresh = shouldAutoRefresh;
+		this.javascriptModule = javascriptModule;
 		this.usesRestApi = function () { return restApiBase != null; };
 		if (this.usesRestApi()) {
 			if (resourceId == null) {
@@ -132,7 +133,7 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
-			new Page(module, module, util.capitalizeFirstLetter(module), util.capitalizeFirstLetter(module), true, true, restClients[module]);
+			new Page(module, module, util.capitalizeFirstLetter(module), util.capitalizeFirstLetter(module), true, true, null, restClients[module]);
 		});
 	};
 	
@@ -190,7 +191,7 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		restClients[Module.DEVICES].read().done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
-				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, false, restClients[Module.DEVICES], devices[i].id));
+				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, false, null, restClients[Module.DEVICES], devices[i].id));
 			}
 			deviceLoading.resolve();
 		})
@@ -242,6 +243,8 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 			if (currentPage.usesRestApi()) {
 				currentPage.restApiFunction().done(function (data) {
 					setContentWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage(data));
+					// TODO: call render the first time the page is loaded, refresh otherwise (should take into account image loading etc)
+					currentPage.javascriptModule.renderPage(data);
 				})
 				.fail(createFailFunction("page " + currentPage.name));
 			} else {
@@ -316,6 +319,8 @@ define("pyh", ["jquery", "mmenu", "rest", "handlebars", "util"],
 		}
 		
 		createModuleTopLevelPages(activeModules);
+		// TODO: find a nice way to integrate the javascript modules into the page objects.
+		pages["lights"].javascriptModule = pageLights;
 		createNoRefreshTopLevelPage("settings");
 		createNoRefreshTopLevelPage("about");
 		

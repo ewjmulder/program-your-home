@@ -7,7 +7,10 @@ requirejs.config({
 		rest: 'jquery.rest.min',
 		handlebars: 'handlebars-v3.0.1.min',
 		knockout: 'knockout.3.3.0.min',
-		
+
+		// Separate script files for the pages.
+		pageLights: '../app/pages/lights',
+
 		// Application defined modules.
 		util: '../app/util',
 		pyh: '../app/pyh'

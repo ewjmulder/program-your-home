@@ -25,4 +25,14 @@ public interface PyhLight {
 
     public boolean isOn();
 
+    public Integer getDim();
+
+    public Integer getHue();
+
+    public Integer getSaturation();
+
+    public Integer getColorTemperature();
+
+    public PyhColorRGB getColorRGB();
+
 }

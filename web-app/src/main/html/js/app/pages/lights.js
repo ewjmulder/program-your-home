@@ -109,7 +109,7 @@ define(["jquery", "pyh", "util"],
 									context.globalAlpha = context.globalAlpha * 0.75;
 								}
 								// The color to use for the pixel is the color of the light.
-								context.fillStyle = util.rgbToHex(light.colorRGB.red, light.colorRGB.blue, light.colorRGB.green);
+								context.fillStyle = util.rgbToHex(light.colorRGB.red, light.colorRGB.green, light.colorRGB.blue);
 								// Draw a pixel by filling a rectangle of size 1x1. This is the only (known) way that takes the globalAlpha into account.
 								context.fillRect(x, y, 1, 1);
 							} else {

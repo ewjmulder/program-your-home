@@ -2,7 +2,8 @@
 define(["jquery", "pyh", "util"],
 		function ($, pyh, util) {
 
-	function createLights(lights) {
+	function drawLights(lights, refreshOnly) {
+		alert("refreshOnly: " + refreshOnly);
 		// Set the background color of the page, so the glow of white light can stand out as well.
 		$("#content").css("background-color", "#CCCCCC");
 	
@@ -128,8 +129,11 @@ define(["jquery", "pyh", "util"],
 	};
 	
 	return {
-		renderPage: function (lights) {
-			createLights(lights);
+		createPage: function (lights) {
+			drawLights(lights, false);
+		},
+		refreshPage: function (lights) {
+			drawLights(lights, true);
 		}
 	};
 	

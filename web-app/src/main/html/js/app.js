@@ -9,9 +9,11 @@ requirejs.config({
 		knockout: 'knockout.3.3.0.min',
 
 		// Separate script files for the pages.
+		pageActivities: '../app/pages/activities',
 		pageLights: '../app/pages/lights',
+		pageDevices: '../app/pages/devices',
 
-		// Application defined modules.
+		// Main application modules.
 		util: '../app/util',
 		pyh: '../app/pyh'
 	},

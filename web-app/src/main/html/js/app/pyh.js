@@ -1,10 +1,19 @@
 // Start a new require module.
-define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
-		function ($, mmenu, rest, Handlebars, util, pageLights) {
+//TODO: finish with right documentation
+// Require all the pages, so they will be available upon later require() calls and async loading will not hinder the init flow.
+define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "pageLights", "pageDevices"],
+		function ($, mmenu, rest, Handlebars, util, pageActivities, pageLights, pageDevices) {
+	
+	//TODO: we still need to find a better way...
+	this.pageActivities = pageActivities;
+	this.pageLights = pageLights;
+	this.pageDevices = pageDevices;
 	
 	/////////////////////////////////////////
 	// Program Your Home module variables  //
 	/////////////////////////////////////////
+	
+	//TODO: use this. ?
 	
 	// Map with all page name->object pairs.
 	var pages = {};
@@ -46,6 +55,9 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
 		this.isTopLevel = isTopLevel;
 		this.shouldAutoRefresh = shouldAutoRefresh;
 		this.javascriptModule = javascriptModule;
+		this.hasJavascriptModule = function () { return this.javascriptModule != null; };
+		this.domTree = null;
+		this.hasDomTree = function () { return this.domTree != null; };
 		this.usesRestApi = function () { return restApiBase != null; };
 		if (this.usesRestApi()) {
 			if (resourceId == null) {
@@ -133,7 +145,10 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
-			new Page(module, module, util.capitalizeFirstLetter(module), util.capitalizeFirstLetter(module), true, true, null, restClients[module]);
+			var moduleNameCamelCase = util.capitalizeFirstLetter(module);
+			//TODO: finish with right documentation
+			var javascriptModule = this['page' + moduleNameCamelCase];
+			new Page(module, module, moduleNameCamelCase, moduleNameCamelCase, true, true, javascriptModule, restClients[module]);
 		});
 	};
 	
@@ -228,11 +243,17 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
 		alert("Error occured: " + errorMessage);
 	};
 		
-	// Load the page with the given name.
+	// Load the page with the given name. This is the only function that should modify the currentPage variable.
 	function loadPage(pageName) {
-		currentPage = pages[pageName];
+		if (currentPage == null || currentPage.name != pageName) {
+			currentPage = pages[pageName];
+			// If there is a DOM tree available for this page, set it as the content.
+			if (currentPage.hasDomTree()) {
+				$("#content").html(currentPage.domTree);
+			}
+			setTitle(currentPage.title);
+		}
 		refreshCurrentPage();
-		setTitle(currentPage.title);
 	};
 	
 	// Refresh the current page.
@@ -242,14 +263,12 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
 		if (currentPage != null) {
 			if (currentPage.usesRestApi()) {
 				currentPage.restApiFunction().done(function (data) {
-					setContentWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage(data));
-					// TODO: call render the first time the page is loaded, refresh otherwise (should take into account image loading etc)
-					currentPage.javascriptModule.renderPage(data);
+					refreshCurrentPageWithTemplate(currentPage.templateName, data, createTemplateDataFromCurrentPage(data));
 				})
 				.fail(createFailFunction("page " + currentPage.name));
 			} else {
 				//TODO: how to provide data input? -> for now just no data required (to be: static template page)
-				setContentWithTemplate(currentPage.templateName, {});
+				refreshCurrentPageWithTemplate(currentPage.templateName, {}, {});
 			}
 		}
 	};
@@ -262,10 +281,23 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
 		return templateData;
 	};
 	
-	// Set the content area with the given template.
-	function setContentWithTemplate(templateName, templateData) {
-		var contentHtml = templates[templateName](templateData);
-		$("#content").html(contentHtml);
+	// Refresh the current page, using the templateData to feed the template.
+	// Also take into account if the page loads for the first time or not.
+	//TODO: make it for no need for both data and templateData
+	function refreshCurrentPageWithTemplate(templateName, data, templateData) {
+		if (!currentPage.hasDomTree()) {
+			// Save the created DOM tree from the template processing in the page object.
+			currentPage.domTree = templates[templateName](templateData);
+			// Put the DOM tree in the content area of the page.
+			$("#content").html(currentPage.domTree);
+			if (currentPage.hasJavascriptModule()) {
+				currentPage.javascriptModule.createPage(data);
+			}
+		} else {
+			if (currentPage.hasJavascriptModule()) {
+				currentPage.javascriptModule.refreshPage(data);
+			}			
+		}
 	};
 	
 	// Set the title with the given text.
@@ -319,8 +351,6 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
 		}
 		
 		createModuleTopLevelPages(activeModules);
-		// TODO: find a nice way to integrate the javascript modules into the page objects.
-		pages["lights"].javascriptModule = pageLights;
 		createNoRefreshTopLevelPage("settings");
 		createNoRefreshTopLevelPage("about");
 		
@@ -329,7 +359,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageLights"],
 		});
 		templateNames.push("device");
 		templateNames.push("menu");
-	
+		
 		$.when(loadTemplates(templateNames), loadDerivedMenuItems()).then(function() {
 			// To enable recursive template inclusion, used for sub pages.
 			Handlebars.registerPartial("menu", templates["menu"]);

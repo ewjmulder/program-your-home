@@ -8,12 +8,13 @@ requirejs.config({
 		handlebars: 'handlebars-v3.0.1.min',
 		knockout: 'knockout.3.3.0.min',
 
-		// Separate script files for the pages.
+		// Separate script files for the pages, naming convention is: "page" + util.capitalizeFirstLetter(pageName)
 		pageActivities: '../app/pages/activities',
 		pageLights: '../app/pages/lights',
 		pageDevices: '../app/pages/devices',
 
 		// Main application modules.
+		pageJavascriptModules: "../app/pageJavascriptModules",
 		util: '../app/util',
 		pyh: '../app/pyh'
 	},

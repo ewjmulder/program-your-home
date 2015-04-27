@@ -38,7 +38,7 @@ public class TestStandalone extends NanoHTTPD {
         if (uri.endsWith("shutdown")) {
             System.exit(0);
         }
-        // Welcome-files :)
+        // Welcome-files ;-)
         if (uri.equals("/")) {
             uri = "/index.html";
         }
@@ -50,7 +50,12 @@ public class TestStandalone extends NanoHTTPD {
             throw new IllegalStateException(e);
         }
 
-        return new NanoHTTPD.Response(Status.OK, this.decideMimeType(uri), dataStream);
+        final Response response = new Response(Status.OK, this.decideMimeType(uri), dataStream);
+        // Add cache header for certain types of files.
+        if (uri.endsWith("gif") || uri.endsWith("png")) {
+            response.addHeader("Cache-Control", "max-age=3600");
+        }
+        return response;
     }
 
     private String decideMimeType(final String uri) {

@@ -22,6 +22,15 @@ body {
 	position: relative;
 	-webkit-text-size-adjust: none;
 }
+
+span.current-page {
+	display: inline;
+}
+
+span.hidden-page {
+	display: none;
+}
+
 a.button,
 span.button,
 select,

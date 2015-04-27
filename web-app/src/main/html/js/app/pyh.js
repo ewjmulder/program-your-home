@@ -1,13 +1,6 @@
 // Start a new require module.
-//TODO: finish with right documentation
-// Require all the pages, so they will be available upon later require() calls and async loading will not hinder the init flow.
-define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "pageLights", "pageDevices"],
-		function ($, mmenu, rest, Handlebars, util, pageActivities, pageLights, pageDevices) {
-	
-	//TODO: we still need to find a better way...
-	this.pageActivities = pageActivities;
-	this.pageLights = pageLights;
-	this.pageDevices = pageDevices;
+define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"],
+		function ($, mmenu, rest, Handlebars, util, pageJavascriptModules) {
 	
 	/////////////////////////////////////////
 	// Program Your Home module variables  //
@@ -56,8 +49,6 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "page
 		this.shouldAutoRefresh = shouldAutoRefresh;
 		this.javascriptModule = javascriptModule;
 		this.hasJavascriptModule = function () { return this.javascriptModule != null; };
-		this.domTree = null;
-		this.hasDomTree = function () { return this.domTree != null; };
 		this.usesRestApi = function () { return restApiBase != null; };
 		if (this.usesRestApi()) {
 			if (resourceId == null) {
@@ -67,6 +58,17 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "page
 			}
 		}
 		this.subPages = subPages != null ? subPages : [];
+		
+		// Create a div element for this page, that will be used to contain the DOM tree and show / hide the page.
+		this.contentElement = $(document.createElement("span"));
+		this.contentElement.attr("id", "content-page-" + this.id);
+		// Default to a hidden page.
+		this.contentElement.addClass("hidden-page");
+		// Append the page div element (unwrapped raw DOM element) to the content.
+		document.getElementById("content").appendChild(this.contentElement[0]);
+
+		// The page is loaded if the div element has child elements. That means there was content added to it.
+		this.isLoaded = function() { return this.contentElement.children().length > 0; };
 		
 		// Register this instance in the pages map and possibly the top level pages array.
 		pages[name] = this;
@@ -79,8 +81,9 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "page
 	var SettingType = Object.freeze({
 		STRING: {name: "string", parseFunction: util.identity},
 		BOOLEAN: {name: "boolean", parseFunction: $.parseJSON},
-	})
+	});
 	
+	//TODO: Create a spearate settings module, so we don't require circular dependencies.
 	// Definition of a Setting class that represents one changeable setting of the application.
 	var Setting = function (name, displayName, type, defaultValue) {
 		var self = this;
@@ -146,8 +149,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "page
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
 			var moduleNameCamelCase = util.capitalizeFirstLetter(module);
-			//TODO: finish with right documentation
-			var javascriptModule = this['page' + moduleNameCamelCase];
+			var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(module);
 			new Page(module, module, moduleNameCamelCase, moduleNameCamelCase, true, true, javascriptModule, restClients[module]);
 		});
 	};
@@ -246,12 +248,29 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "page
 	// Load the page with the given name. This is the only function that should modify the currentPage variable.
 	function loadPage(pageName) {
 		if (currentPage == null || currentPage.name != pageName) {
-			currentPage = pages[pageName];
-			// If there is a DOM tree available for this page, set it as the content.
-			if (currentPage.hasDomTree()) {
-				$("#content").html(currentPage.domTree);
+			// If the 'old current page' exists, hide it.
+			if (currentPage != null) {
+				currentPage.contentElement.removeClass("current-page");
+				currentPage.contentElement.addClass("hidden-page");
+			} else {
+				// First page load, remove loading text.
+				$("#page-loading-content").addClass("hidden-page");
 			}
+			// Set the 'new current page'.
+			currentPage = pages[pageName];
+			// Show the 'new current page'.
+			currentPage.contentElement.removeClass("hidden-page");
+			currentPage.contentElement.addClass("current-page");
+			// Update the on screen title.
 			setTitle(currentPage.title);
+			// Update the background color. Should be done on the content tag, so it fills the whole content area.
+			if (currentPage.hasJavascriptModule()) {
+				// Set the background color using the javascript module exposed property.
+				$("#content").css("background-color", currentPage.javascriptModule.backgroundColor);
+			} else {
+				// Default to white.
+				$("#content").css("background-color", "white");
+			}
 		}
 		refreshCurrentPage();
 	};
@@ -263,12 +282,12 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "page
 		if (currentPage != null) {
 			if (currentPage.usesRestApi()) {
 				currentPage.restApiFunction().done(function (data) {
-					refreshCurrentPageWithTemplate(currentPage.templateName, data, createTemplateDataFromCurrentPage(data));
+					refreshCurrentPageWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage(data));
 				})
 				.fail(createFailFunction("page " + currentPage.name));
 			} else {
 				//TODO: how to provide data input? -> for now just no data required (to be: static template page)
-				refreshCurrentPageWithTemplate(currentPage.templateName, {}, {});
+				refreshCurrentPageWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage({}));
 			}
 		}
 	};
@@ -283,13 +302,13 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageActivities", "page
 	
 	// Refresh the current page, using the templateData to feed the template.
 	// Also take into account if the page loads for the first time or not.
-	//TODO: make it for no need for both data and templateData
-	function refreshCurrentPageWithTemplate(templateName, data, templateData) {
-		if (!currentPage.hasDomTree()) {
-			// Save the created DOM tree from the template processing in the page object.
-			currentPage.domTree = templates[templateName](templateData);
-			// Put the DOM tree in the content area of the page.
-			$("#content").html(currentPage.domTree);
+	function refreshCurrentPageWithTemplate(templateName, templateData) {
+		// 'unwrap' the data for direct usage.
+		var data = templateData[currentPage.templateName];
+		if (!currentPage.isLoaded()) {
+			var pageDomTree = templates[templateName](templateData);
+			// Put the DOM tree in the div element the current page.
+			currentPage.contentElement.html(pageDomTree);
 			if (currentPage.hasJavascriptModule()) {
 				currentPage.javascriptModule.createPage(data);
 			}

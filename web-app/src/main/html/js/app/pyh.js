@@ -1,6 +1,6 @@
 // Start a new require module.
-define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules", "settings"],
-		function ($, mmenu, rest, Handlebars, util, pageJavascriptModules, settings) {
+define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules", "settings", "config"],
+		function ($, mmenu, rest, Handlebars, util, pageJavascriptModules, settings, config) {
 	
 	// Save settings data in local variables for easier accessing.
 	var SettingName = settings.SettingName;
@@ -161,7 +161,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		restClients[Module.DEVICES].read().done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
-				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, false, null, restClients[Module.DEVICES], devices[i].id));
+				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, false, null, config.getValue("deviceIconMap")[devices[i].id], restClients[Module.DEVICES], devices[i].id));
 			}
 			deviceLoading.resolve();
 		})

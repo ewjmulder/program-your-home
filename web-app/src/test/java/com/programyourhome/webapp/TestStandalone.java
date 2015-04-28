@@ -51,8 +51,11 @@ public class TestStandalone extends NanoHTTPD {
         }
 
         final Response response = new Response(Status.OK, this.decideMimeType(uri), dataStream);
+        final String uriWithoutParams = uri.contains("?") ? uri.substring(0, uri.indexOf('?')) : uri;
         // Add cache header for certain types of files.
-        if (uri.endsWith("gif") || uri.endsWith("png")) {
+        if (uriWithoutParams.endsWith("gif") || uriWithoutParams.endsWith("png") || uriWithoutParams.endsWith("woff")
+                || uriWithoutParams.endsWith("woff2") || uriWithoutParams.endsWith("eot") || uriWithoutParams.endsWith("svg")
+                || uriWithoutParams.endsWith("otf") || uriWithoutParams.endsWith("ttf")) {
             response.addHeader("Cache-Control", "max-age=3600");
         }
         return response;

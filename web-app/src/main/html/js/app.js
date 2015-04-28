@@ -8,6 +8,9 @@ requirejs.config({
 		handlebars: 'handlebars-v3.0.1.min',
 		knockout: 'knockout.3.3.0.min',
 
+		// Config file, with the application specific configuration (other than the user specific settings)
+		config: '../config/configuration',
+		
 		// Separate script files for the pages, naming convention is: "page" + util.capitalizeFirstLetter(pageName)
 		pageActivities: '../app/pages/activities',
 		pageLights: '../app/pages/lights',

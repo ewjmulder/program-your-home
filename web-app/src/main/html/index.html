@@ -6,6 +6,11 @@
 		<title>Program You Home - Web App</title>
 		<link rel="icon" type="image/png" href="img/hue-full-color-bulb-icon.png" />
  		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.all.customized.css" />
+ 		<!-- Even though the mmenu style sheet included above says 'all', we still need an extra mmenu stylesheet for the iconbar,
+ 		since that overrides certain defaults. Also therefore, it should be included after the 'all' file. -->
+ 		<link rel="stylesheet" type="text/css" href="css/jquery.mmenu.iconbar.css" />
+ 		<!-- Include font awesome for a big library of icons, used for the iconbar. -->
+		<link rel="stylesheet" type="text/css" href="css/font-awesome-4.3.0/css/font-awesome.min.css">
 		<link rel="stylesheet" type="text/css" href="css/pyh.css" />
 		<script data-main="js/app" src="js/lib/require.min.js"></script>
 	</head>

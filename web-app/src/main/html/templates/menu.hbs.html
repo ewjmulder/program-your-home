@@ -1,7 +1,10 @@
 <ul>
 	{{#each pages}}
 		<li id="menu-{{id}}">
-			<a href="#" id="menu-link-{{id}}">{{menuName}}</a>
+			<a href="#" id="menu-link-{{id}}">
+				<i class="fa fa-{{iconName}}"></i>
+				{{menuName}}
+			</a>
 			{{#if subPages}}
 				{{> menu pages=subPages}}
 			{{/if}}

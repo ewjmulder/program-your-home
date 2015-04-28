@@ -151,3 +151,9 @@ nav:not(.mm-menu)
 	content: none !important;
 	display: none !important;
 }
+
+.mm-menu li .fa
+{
+	margin: 0 20px 0 5px;
+	font-size: 20px;
+}

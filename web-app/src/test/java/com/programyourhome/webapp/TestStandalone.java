@@ -59,16 +59,29 @@ public class TestStandalone extends NanoHTTPD {
     }
 
     private String decideMimeType(final String uri) {
-        if (uri.endsWith("html")) {
+        final String uriWithoutParams = uri.contains("?") ? uri.substring(0, uri.indexOf('?')) : uri;
+        if (uriWithoutParams.endsWith("html")) {
             return "text/html";
-        } else if (uri.endsWith("js")) {
+        } else if (uriWithoutParams.endsWith("js")) {
             return "application/javascript";
-        } else if (uri.endsWith("css")) {
+        } else if (uriWithoutParams.endsWith("css")) {
             return "text/css";
-        } else if (uri.endsWith("gif")) {
+        } else if (uriWithoutParams.endsWith("gif")) {
             return "image/gif";
-        } else if (uri.endsWith("png")) {
+        } else if (uriWithoutParams.endsWith("png")) {
             return "image/png";
+        } else if (uriWithoutParams.endsWith("woff")) {
+            return "application/font-woff";
+        } else if (uriWithoutParams.endsWith("woff2")) {
+            return "application/font-woff2";
+        } else if (uriWithoutParams.endsWith("eot")) {
+            return "application/vnd.ms-fontobject";
+        } else if (uriWithoutParams.endsWith("svg")) {
+            return "image/svg+xml";
+        } else if (uriWithoutParams.endsWith("ttf")) {
+            return "application/x-font-ttf";
+        } else if (uriWithoutParams.endsWith("otf")) {
+            return "application/x-font-otf";
         } else {
             throw new IllegalStateException("Unknown file type: " + uri);
         }

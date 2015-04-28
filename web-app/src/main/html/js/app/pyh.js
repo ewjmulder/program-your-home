@@ -38,7 +38,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 	});
 	
 	// Definition of a Page class that represents both a menu entry and a content page.
-	var Page = function (name, templateName, menuName, title, isTopLevel, needsRefreshing, javascriptModule, restApiBase, resourceId, subPages) {
+	var Page = function (name, templateName, menuName, title, isTopLevel, needsRefreshing, javascriptModule, iconName, restApiBase, resourceId, subPages) {
 		pageIdCounter++;
 		this.id = pageIdCounter;
 		this.name = name;
@@ -48,6 +48,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		this.isTopLevel = isTopLevel;
 		this.needsRefreshing = needsRefreshing;
 		this.javascriptModule = javascriptModule;
+		this.iconName = iconName;
 		this.hasJavascriptModule = function () { return this.javascriptModule != null; };
 		this.usesRestApi = function () { return restApiBase != null; };
 		if (this.usesRestApi()) {
@@ -77,8 +78,6 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		}
 	};
 	
-	
-	
 	// Create all available settings.
 	//TODO: expand possible settings.
 	settings.addSetting(SettingName.AUTO_REFRESH, "Auto refresh", SettingType.BOOLEAN, true);
@@ -92,20 +91,20 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 	
 	// Create a top level page with the given name as default for all naming and title properties.
 	function createNoRefreshTopLevelPage(name) {
-		createPageByName(name, false, false);
+		createPageByName(name, false, false, "life-ring");
 	};
 	
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
-			createPageByName(module, true, true);
+			createPageByName(module, true, true, "home");
 		});
 	};
 	
-	function createPageByName(name, needsRefreshing, usesRest) {
+	function createPageByName(name, needsRefreshing, usesRest, iconName) {
 		var nameCamelCase = util.capitalizeFirstLetter(name);
 		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
-		new Page(name, name, nameCamelCase, nameCamelCase, true, needsRefreshing, javascriptModule, usesRest ? restClients[name] : null);
+		new Page(name, name, nameCamelCase, nameCamelCase, true, needsRefreshing, javascriptModule, iconName, usesRest ? restClients[name] : null);
 	}
 	
 	// Create a function that handles the result of an api call.
@@ -176,10 +175,14 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 	function activateMenu() {
 		//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
 		//TODO: check possible usage of all extensions and add-ons! (http://mmenu.frebsite.nl/documentation/addons/)
-		//TODO: Current menu item should be highlighted -> API.setSelected
 		var $menu = $("#menu");
 		$menu.mmenu({
-			extensions			: ["theme-dark"],
+			extensions			: [// Dark background with bright text instead of the other way around.
+			          			   "theme-dark",
+			          			   // Extend 'border line' between menu items all the way to the left.
+			          			   "border-full",
+			          			   // Display a set of icons always on screen for fast top level menu switching.
+			          			   "iconbar"],
 			slidingSubmenus		: settings.getSettingValue(SettingName.SLIDING_SUBMENUS),
 			header				: {
 				add		: true,

@@ -1,12 +1,14 @@
 // Start a new require module.
-define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"],
-		function ($, mmenu, rest, Handlebars, util, pageJavascriptModules) {
+define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules", "settings"],
+		function ($, mmenu, rest, Handlebars, util, pageJavascriptModules, settings) {
+	
+	// Save settings data in local variables for easier accessing.
+	var SettingName = settings.SettingName;
+	var SettingType = settings.SettingType;
 	
 	/////////////////////////////////////////
 	// Program Your Home module variables  //
 	/////////////////////////////////////////
-	
-	//TODO: use this. ?
 	
 	// Map with all page name->object pairs.
 	var pages = {};
@@ -18,8 +20,6 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 	var templates = {};
 	// The current page that is on screen.
 	var currentPage;
-	// Map with all setting name->object pairs.
-	var settings = {};
 	// Map with all rest client name->object pairs.
 	var restClients = {};
 	// The modules that are activated in the menu.
@@ -38,7 +38,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 	});
 	
 	// Definition of a Page class that represents both a menu entry and a content page.
-	var Page = function (name, templateName, menuName, title, isTopLevel, shouldAutoRefresh, javascriptModule, restApiBase, resourceId, subPages) {
+	var Page = function (name, templateName, menuName, title, isTopLevel, needsRefreshing, javascriptModule, restApiBase, resourceId, subPages) {
 		pageIdCounter++;
 		this.id = pageIdCounter;
 		this.name = name;
@@ -46,7 +46,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		this.menuName = menuName;
 		this.title = title;
 		this.isTopLevel = isTopLevel;
-		this.shouldAutoRefresh = shouldAutoRefresh;
+		this.needsRefreshing = needsRefreshing;
 		this.javascriptModule = javascriptModule;
 		this.hasJavascriptModule = function () { return this.javascriptModule != null; };
 		this.usesRestApi = function () { return restApiBase != null; };
@@ -77,64 +77,14 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		}
 	};
 	
-	// Enum-like definition of all possible Setting type.
-	var SettingType = Object.freeze({
-		STRING: {name: "string", parseFunction: util.identity},
-		BOOLEAN: {name: "boolean", parseFunction: $.parseJSON},
-	});
 	
-	//TODO: Create a spearate settings module, so we don't require circular dependencies.
-	// Definition of a Setting class that represents one changeable setting of the application.
-	var Setting = function (name, displayName, type, defaultValue) {
-		var self = this;
-		this.name = name;
-		this.displayName = displayName;
-		this.type = type;
-		this.defaultValue = defaultValue;
-		this.value = function () {
-			var value = localStorage.getItem(self.name);
-			if (value == null) {
-				value = self.defaultValue;
-				localStorage.setItem(self.name, value);
-			} else {
-				value = self.type.parseFunction(value);
-			}
-			return value;
-		}();
-		
-		this.resetToDefault = function() {
-			this.setNewValue(this.defaultValue);
-		};
-		
-		// Two ways to set a new value for this setting, while also saving the value in the local storage.
-		// Always use one of these functions to set a new value, instead of directly accessing the property,
-		// otherwise the new value won't be saved over time.
-		// The difference between the two is: one accepts only String values and will call the parse function,
-		// the other only accepts a value of the right type.
-		this.setNewValueFromString = function (valueString) {
-			if ((typeof valueString) != "string") {
-				throw "Error while setting new value from string for setting: '" + this.name + "': the value type: '" + (typeof value) + "' is not a string.";
-			}
-			this.setNewValue(this.type.parseFunction(valueString));
-		}
-		this.setNewValue = function (value) {
-			if ((typeof value) != type.name) {
-				throw "Error while setting new value for setting: '" + this.name + "': the value type: '" + (typeof value) + "' did not match the setting type: '" + this.type.name +"'.";
-			}
-			this.value = value;
-			localStorage.setItem(this.name, this.value);
-		};
-		
-		// Register this instance in the settings map.
-		settings[name] = this;
-	};
 	
 	// Create all available settings.
 	//TODO: expand possible settings.
-	new Setting("autoRefresh", "Auto refresh", SettingType.BOOLEAN, true);
-	new Setting("slidingSubmenus", "Sliding sub-menu's", SettingType.BOOLEAN, true);
+	settings.addSetting(SettingName.AUTO_REFRESH, "Auto refresh", SettingType.BOOLEAN, true);
+	settings.addSetting(SettingName.SLIDING_SUBMENUS, "Sliding sub-menu's", SettingType.BOOLEAN, true);
 	// TODO: make safer by using some sort of enum/list type and a drop down in the page.
-	new Setting("homePage", "Home page", SettingType.STRING, "activities");
+	settings.addSetting(SettingName.HOME_PAGE, "Home page", SettingType.STRING, "activities");
 	
 	/////////////////////////////////////////
 	// Program Your Home main functions    //
@@ -142,17 +92,21 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 	
 	// Create a top level page with the given name as default for all naming and title properties.
 	function createNoRefreshTopLevelPage(name) {
-		new Page(name, name, util.capitalizeFirstLetter(name), util.capitalizeFirstLetter(name), true, false);
+		createPageByName(name, false, false);
 	};
 	
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
-			var moduleNameCamelCase = util.capitalizeFirstLetter(module);
-			var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(module);
-			new Page(module, module, moduleNameCamelCase, moduleNameCamelCase, true, true, javascriptModule, restClients[module]);
+			createPageByName(module, true, true);
 		});
 	};
+	
+	function createPageByName(name, needsRefreshing, usesRest) {
+		var nameCamelCase = util.capitalizeFirstLetter(name);
+		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
+		new Page(name, name, nameCamelCase, nameCamelCase, true, needsRefreshing, javascriptModule, usesRest ? restClients[name] : null);
+	}
 	
 	// Create a function that handles the result of an api call.
 	function createApiDoneFunction() {
@@ -226,7 +180,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		var $menu = $("#menu");
 		$menu.mmenu({
 			extensions			: ["theme-dark"],
-			slidingSubmenus		: settings["slidingSubmenus"].value,
+			slidingSubmenus		: settings.getSettingValue(SettingName.SLIDING_SUBMENUS),
 			header				: {
 				add		: true,
 				update	: true,
@@ -235,7 +189,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		});
 		// Set the menu item that is defined as the home page as the selected one.
 		var mmenuApi = $menu.data("mmenu");
-		mmenuApi.setSelected($("#menu-" + pages[settings["homePage"].value].id));
+		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));
 	};
 	
 	// Show an error message to the user.
@@ -394,11 +348,11 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 			// Now we're ready to activate the actual menu on the page.
 			activateMenu();
 			// Load the default page as defined in the home page setting.
-			loadPage(settings["homePage"].value);
+			loadPage(settings.getSettingValue(SettingName.HOME_PAGE));
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
 			setInterval(function () {
-				if (settings["autoRefresh"].value && currentPage.shouldAutoRefresh) {
+				if (settings.getSettingValue(SettingName.AUTO_REFRESH) && currentPage.needsRefreshing) {
 					refreshCurrentPage();
 				}
 			}, 1000);
@@ -422,12 +376,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		// Switch a light on or off.
 		toggleLight: function (id, currentlyOn) {
 			toggleRestResource(Module.LIGHTS, "on", "off", id, currentlyOn);
-		},
-		
-		getSettings: function () {
-			return settings;
-		},
-		SettingType: SettingType
+		}
 	};
 
 		

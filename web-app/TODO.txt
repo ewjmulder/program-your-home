@@ -14,5 +14,6 @@ X Figure out a nicer way to connect the click logic to the activities/lights/etc
     furthermore, the rest plugin really forces using the REST api, so get ready to reastify :)
 	(probably fine to support both full rest and getters along the way. (or just use rest where I can use it and
 	use simple wget style stuff to activate activities / press buttons etc)
+  - Design choices: changes in the list of lights, devices, activities etc are NOT auto-refreshable! You need to reboot the app to load those changes.
+    Nice add-on: detect the changes and provide message with button to reboot.
 - Unit test your javascript code!  
-   

@@ -12,10 +12,13 @@ requirejs.config({
 		pageActivities: '../app/pages/activities',
 		pageLights: '../app/pages/lights',
 		pageDevices: '../app/pages/devices',
+		pageSettings: '../app/pages/settings',
+		pageAbout: '../app/pages/about',
 
 		// Main application modules.
 		pageJavascriptModules: "../app/pageJavascriptModules",
 		util: '../app/util',
+		settings: '../app/settings',
 		pyh: '../app/pyh'
 	},
 	shim: {

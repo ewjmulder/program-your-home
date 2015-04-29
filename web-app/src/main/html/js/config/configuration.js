@@ -1,5 +1,5 @@
-//TODO: Make into an example file.
-//TODO: Consider to do as much as possible through a UI of some sort
+//TODO: Also make an example file.
+//TODO: consider using a .properties file or plain json file and some javascript parsing logic.
 
 // Start a new require module.
 define([], function () {

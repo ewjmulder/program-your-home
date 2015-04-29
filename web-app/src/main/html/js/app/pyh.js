@@ -1,6 +1,6 @@
 // Start a new require module.
-define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules", "settings", "config"],
-		function ($, mmenu, rest, Handlebars, util, pageJavascriptModules, settings, config) {
+define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascriptModules", "settings", "config"],
+		function ($, mmenu, rest, Handlebars, Hammer, util, pageJavascriptModules, settings, config) {
 	
 	// Save settings data in local variables for easier accessing.
 	var SettingName = settings.SettingName;
@@ -171,10 +171,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 		return $.when(deviceLoading);
 	};
 	
-	// Activate the menu, meaning invoking mmenu() on the html list that was build as a basis for that.
+	// Activate the menu, meaning invoking mmenu() on the html list that was dynamically build for that.
 	function activateMenu() {
-		//TODO: Use iconbar extension? (http://mmenu.frebsite.nl/documentation/extensions/iconbar.html)
-		//TODO: check possible usage of all extensions and add-ons! (http://mmenu.frebsite.nl/documentation/addons/)
 		var $menu = $("#menu");
 		$menu.mmenu({
 			extensions			: [// Dark background with bright text instead of the other way around.
@@ -182,17 +180,44 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 			          			   // Extend 'border line' between menu items all the way to the left.
 			          			   "border-full",
 			          			   // Display a set of icons always on screen for fast top level menu switching.
-			          			   "iconbar"],
+			          			   "iconbar",
+			          			   // Wraps the menu item text into multiple lines if needed.
+			          			   "multiline",
+			          			   // Display a page shadow on the menu when the menu is activated.
+			          			   "pageshadow"],
+			// Whether to slide to the right into a separate submenu (true), or open the submenu below a menu item (false).
 			slidingSubmenus		: settings.getSettingValue(SettingName.SLIDING_SUBMENUS),
+			// If the menu is open and the browser 'back' button is pressed, it closes the menu instead of going back a page.
+			backButton			: {
+				close	: true
+			},
+			// Display a menu header, that defaults to 'Menu' at the top level, and changes when selecting submenus.
 			header				: {
 				add		: true,
 				update	: true,
 				title	: 'Menu'
+			},
+			// Display a fixed menu footer.
+			footer: {
+				add: 	true,
+			    content: "(c) Erik Mulder",
+			},
+			// Allow the menu to be 'dragged open' from the left.
+			dragOpen			: {
+				maxStartPos	: 100,
+				open		: true,
+				pageNode	: $("#menu"),
+				threshold	: 50
 			}
 		});
 		// Set the menu item that is defined as the home page as the selected one.
 		var mmenuApi = $menu.data("mmenu");
 		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));
+
+		// Somehow, this magically does exactly what we want:
+		// collapse the menu upon hitting the main page and also preventing the option to slide the main page over the icon bar.
+		// This probably is caused by the fact that this declaration will 'catch away' all mouse / finger movement and thereby prevents any side effects.
+		new Hammer(document.getElementById("body"), {});
 	};
 	
 	// Show an error message to the user.

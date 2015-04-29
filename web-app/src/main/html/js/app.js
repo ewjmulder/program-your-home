@@ -7,6 +7,7 @@ requirejs.config({
 		rest: 'jquery.rest.min',
 		handlebars: 'handlebars-v3.0.1.min',
 		knockout: 'knockout.3.3.0.min',
+		hammer: 'hammer-2.0.4.min',
 
 		// Config file, with the application specific configuration (other than the user specific settings)
 		config: '../config/configuration',
@@ -25,9 +26,12 @@ requirejs.config({
 		pyh: '../app/pyh'
 	},
 	shim: {
-		// Specify that the jQuery plugins depend on jQuery.
 		'mmenu': {
-			deps: ['jquery']
+			deps: ['jquery', 'hammer'],
+            init: function ($, Hammer) {
+            	// Set the internally used Hammer object in the scope of the module.
+                this.Hammer = Hammer;
+            }
 		},
 		'rest': {
 			deps: ['jquery']
@@ -35,6 +39,10 @@ requirejs.config({
 		// Handlebars uses an 'old school' global object, so we need to expose that.
 		'handlebars': {
 			exports: 'Handlebars'
+		},
+		// Expose Hammer constructor.
+		'hammer': {
+			exports: 'Hammer'
 		}
 	}
 });

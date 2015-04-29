@@ -91,20 +91,20 @@ define(["jquery", "mmenu", "rest", "handlebars", "util", "pageJavascriptModules"
 	
 	// Create a top level page with the given name as default for all naming and title properties.
 	function createNoRefreshTopLevelPage(name) {
-		createPageByName(name, false, false, "life-ring");
+		createPageByName(name, false, false);
 	};
 	
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
-			createPageByName(module, true, true, "home");
+			createPageByName(module, true, true);
 		});
 	};
 	
-	function createPageByName(name, needsRefreshing, usesRest, iconName) {
+	function createPageByName(name, needsRefreshing, usesRest) {
 		var nameCamelCase = util.capitalizeFirstLetter(name);
 		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
-		new Page(name, name, nameCamelCase, nameCamelCase, true, needsRefreshing, javascriptModule, iconName, usesRest ? restClients[name] : null);
+		new Page(name, name, nameCamelCase, nameCamelCase, true, needsRefreshing, javascriptModule, config.getValue("topLevelIconMap")[name], usesRest ? restClients[name] : null);
 	}
 	
 	// Create a function that handles the result of an api call.

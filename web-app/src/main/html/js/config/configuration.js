@@ -13,7 +13,16 @@ define([], function () {
 	deviceIconMap[5] = "desktop";
 	
 	configMap["deviceIconMap"] = deviceIconMap;
+
+	var topLevelIconMap = [];
+	topLevelIconMap["activities"] = "star";
+	topLevelIconMap["lights"] = "lightbulb-o";
+	topLevelIconMap["devices"] = "hdd-o";
+	topLevelIconMap["settings"] = "gears";
+	topLevelIconMap["about"] = "info-circle";
 	
+	configMap["topLevelIconMap"] = topLevelIconMap;
+
 	return {
 		getValue: function (name) {
 			return configMap[name];

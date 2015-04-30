@@ -173,6 +173,13 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 	
 	// Activate the menu, meaning invoking mmenu() on the html list that was dynamically build for that.
 	function activateMenu() {
+		
+		Hammer.defaults.preset = [
+                                [Hammer.Pan, {threshold: 25, direction: Hammer.DIRECTION_HORIZONTAL}],
+        				        [Hammer.Press, { threshold: 25, time: 0}]
+                              ];
+
+		
 		var $menu = $("#menu");
 		$menu.mmenu({
 			extensions			: [// Dark background with bright text instead of the other way around.
@@ -203,16 +210,22 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 			    content: "(c) Erik Mulder",
 			},
 			// Allow the menu to be 'dragged open' from the left.
-//			dragOpen			: {
-//				maxStartPos	: 100,
-//				open		: true,
-//				pageNode	: $("#menu"),
-//				threshold	: 50
-//			}
+			dragOpen			: {
+				maxStartPos	: 100,
+				open		: true,
+				pageNode	: $("#menu"),
+				threshold	: 50
+			}
 		});
 		// Set the menu item that is defined as the home page as the selected one.
 		var mmenuApi = $menu.data("mmenu");
 		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));
+
+		
+		var hammer = new Hammer($("#menu")[0], {});
+		hammer.on("pressup", function (e) {
+			$(document.elementFromPoint(e.center.x, e.center.y)).click();  
+		});
 
 		// TODO: close, but no cigar. TODO: own hammer config with swipes to open and close menu
 		//TODO: prevent dragging the page over the icon bar - this is a general problem with the icon bar (after menu open-close you can do it)

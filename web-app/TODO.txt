@@ -17,4 +17,5 @@ X Figure out a nicer way to connect the click logic to the activities/lights/etc
   - Design choices: changes in the list of lights, devices, activities etc are NOT auto-refreshable! You need to reboot the app to load those changes.
     Nice add-on: detect the changes and provide message with button to reboot.
 - Unit test your javascript code!  
-X Bug fix: after menu open-close, you can slide the page over the icon bar (somehow magically fixed by hammer)
+X Bug fix: after menu open-close, you can slide the page over the icon bar (somehow magically fixed by hammer) --> well, not really, so more deep diving was needed
+- Inform mmenu author about hammer improvement

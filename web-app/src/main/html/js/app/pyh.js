@@ -203,12 +203,12 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 			    content: "(c) Erik Mulder",
 			},
 			// Allow the menu to be 'dragged open' from the left.
-			dragOpen			: {
-				maxStartPos	: 100,
-				open		: true,
-				pageNode	: $("#menu"),
-				threshold	: 50
-			}
+//			dragOpen			: {
+//				maxStartPos	: 100,
+//				open		: true,
+//				pageNode	: $("#menu"),
+//				threshold	: 50
+//			}
 		});
 		// Set the menu item that is defined as the home page as the selected one.
 		var mmenuApi = $menu.data("mmenu");
@@ -217,7 +217,13 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 		// Somehow, this magically does exactly what we want:
 		// collapse the menu upon hitting the main page and also preventing the option to slide the main page over the icon bar.
 		// This probably is caused by the fact that this declaration will 'catch away' all mouse / finger movement and thereby prevents any side effects.
-		new Hammer(document.getElementById("body"), {});
+//		var hammer = new Hammer(document.getElementById("page"), {});
+		//hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+		//hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+//		var mc = new Hammer.Manager(document.getElementById("body"), {
+//			recognizers: []	
+//		});
+		//mc.add(new Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL });
 	};
 	
 	// Show an error message to the user.

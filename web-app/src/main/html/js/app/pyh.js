@@ -243,6 +243,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));		
 
 		// Bind to the mousedown and touchstart events to be able to close the menu if needed.
+		// This is needed to work around a bug on the Android browser, where the touchstart event is somehow
+		// not coming through if the menu is opened. With this logic, we can swipe-close the menu like we like it. :)
 		$("#body").off("mousedown touchstart").on("mousedown touchstart", function (e) {
 			closeMenuIfOpenAndOnPage(e, mmenuApi);
 		});

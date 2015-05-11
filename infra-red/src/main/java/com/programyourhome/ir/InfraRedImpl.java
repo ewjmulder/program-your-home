@@ -1,5 +1,6 @@
 package com.programyourhome.ir;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -19,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -65,6 +67,9 @@ public class InfraRedImpl implements InfraRed {
     @Autowired
     private WinLIRCClient winLircClient;
 
+    @Autowired
+    private TaskExecutor initExecutor;
+
     private final Map<Integer, DeviceState> deviceStates;
 
     public InfraRedImpl() {
@@ -73,8 +78,16 @@ public class InfraRedImpl implements InfraRed {
     }
 
     @PostConstruct
-    public void init() throws Exception {
-        this.winLircClient.connect(this.winlircHost, this.winlircPort);
+    public void init() {
+        this.initExecutor.execute(() -> this.initClient());
+    }
+
+    public void initClient() {
+        try {
+            this.winLircClient.connect(this.winlircHost, this.winlircPort);
+        } catch (final IOException e) {
+            throw new IllegalStateException("IOException while connecting the WinLIRC client.", e);
+        }
         // Fake a non-blocking last key press to start off each queue.
         final RemoteKeyPress dummyKeyPress = new RemoteKeyPress("dummy", "dummy", 0);
         dummyKeyPress.press();

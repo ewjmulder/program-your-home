@@ -7,6 +7,7 @@ html, body
 html
 {
 	height: 100%;
+	/* Bug fix, disables horizontal scrolling on the default Android browser. Firefox for Android still allows for it, known Firefox bug. */
     overflow-x: hidden;
 }
 

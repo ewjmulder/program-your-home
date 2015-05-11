@@ -1,6 +1,6 @@
 // Start a new require module.
-define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascriptModules", "settings", "config"],
-		function ($, mmenu, rest, Handlebars, Hammer, util, pageJavascriptModules, settings, config) {
+define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pageJavascriptModules", "settings", "config"],
+		function ($, mmenu, rest, Handlebars, Hammer, toast, util, pageJavascriptModules, settings, config) {
 	
 	// Save settings data in local variables for easier accessing.
 	var SettingName = settings.SettingName;
@@ -10,6 +10,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 	// Program Your Home module variables  //
 	/////////////////////////////////////////
 	
+	// The base URL where we can reach the Program Your Home server.
+	var baseURL = "";
 	// Map with all page name->object pairs.
 	var pages = {};
 	// Page id counter, could be seen as a sequence to set a unique id for every page.
@@ -120,12 +122,20 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 	
 	// Create a function that handles the result of a async function failure.
 	// The source is a small description of what the async function was loading.
-	function createFailFunction(source) {
+	function createFailFunction(source, customErrorMessage) {
 		return function (jqXHR, status, error) {
 			if (error == "") {
-				showError(source + " could not be loaded.");					
+				if (customErrorMessage != null) {
+					showError(customErrorMessage);
+				} else {
+					showError(source + " could not be loaded.");
+				}
 			} else {
-				showError("Loading " + source + " failed with error: " + error);
+				if (customErrorMessage != null) {
+					showError(customErrorMessage);
+				} else {
+					showError("Loading " + source + " failed with error: " + error);
+				}
 			}
 		};
 	};
@@ -173,13 +183,22 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 	
 	// Activate the menu, meaning invoking mmenu() on the html list that was dynamically build for that.
 	function activateMenu() {
-		
-		Hammer.defaults.preset = [
-                                [Hammer.Pan, {threshold: 25, direction: Hammer.DIRECTION_HORIZONTAL}],
-        				        [Hammer.Press, { threshold: 25, time: 0}]
-                              ];
+		// Override the Hammer default recognizers. This makes the mmenu code use these instead of the defaults.
+		// - Only Pan and Press, no other fancy stuff needed.
+		// - Big move margin and no minimum time for press, so selecting a menu item is 'forgiving'.
+		Hammer.defaults.preset =
+			[
+			    [Hammer.Pan, {threshold: 25, direction: Hammer.DIRECTION_HORIZONTAL}],
+			    [Hammer.Press, { threshold: 25, time: 0}]
+            ];
 
-		
+		// Create a hammer listener on the menu.
+		var hammer = new Hammer($("#menu")[0], {});
+		// When a press is detected, programmatically click on the center of the press, effectively selecting an underlying menu item (if present).
+		hammer.on("pressup", function (e) {
+			$(document.elementFromPoint(e.center.x, e.center.y)).click();  
+		});
+
 		var $menu = $("#menu");
 		$menu.mmenu({
 			extensions			: [// Dark background with bright text instead of the other way around.
@@ -217,40 +236,43 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 				threshold	: 50
 			}
 		});
-		// Set the menu item that is defined as the home page as the selected one.
+
+		// Get the mmenu API object.
 		var mmenuApi = $menu.data("mmenu");
-		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));
-
-		
-		var hammer = new Hammer($("#menu")[0], {});
-		hammer.on("pressup", function (e) {
-			$(document.elementFromPoint(e.center.x, e.center.y)).click();  
+		// Set the menu item that is defined as the home page as the selected one.
+		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));		
+		// Bind a click event on the main page to close the menu if it is open.
+		// Create a hammer listener on the menu.
+		var hammer = new Hammer($("#page")[0], {});
+/*		hammer.on("pressup", function (e) {
+			alert("Hee hi!");  
 		});
-
-		// TODO: close, but no cigar. TODO: own hammer config with swipes to open and close menu
-		//TODO: prevent dragging the page over the icon bar - this is a general problem with the icon bar (after menu open-close you can do it)
-		// See: https://github.com/BeSite/jQuery.mmenu/issues/349
-		// Don't prevent dragging or scrolling, just make sure the page width fits the screen width - 60px, then there will be no horizontal scrolling option.
-		
-		//$('#page').on('dragstart', function(event) { event.preventDefault(); });
-		
-		// Somehow, this magically does exactly what we want:
-		// collapse the menu upon hitting the main page and also preventing the option to slide the main page over the icon bar.
-		// This probably is caused by the fact that this declaration will 'catch away' all mouse / finger movement and thereby prevents any side effects.
-//		var hammer = new Hammer(document.getElementById("body"), {});
-		//hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-		//hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
-//		var mc = new Hammer.Manager(document.getElementById("body"), {
-//			recognizers: []	
-//		});
-		//mc.add(new Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL });
+*/
+		//TODO: find satisfactory way to solve this. TODO: document solution.
+		$("#page").mousedown(function (e) {
+			// Only close if menu is open
+			if (/*mmenu??*/ true) {
+				mmenuApi.close();
+				//alert("e: " + e);
+				// Prevent default somehow
+				return false;
+			}
+		});
+		window.scrollTo(10,10);
+		$("#page").bind("touchstart swipe touchmove touchend mouseover mouseup click", function (e) {
+			alert("Got you!");
+		});
 	};
 	
 	// Show an error message to the user.
 	function showError(errorMessage) {
-		// TODO: nicer error 'popup' -> use mmenu (http://mmenu.frebsite.nl/demo/index.html?demo=menu-popup) or some other nice jQuery (dozens of options) solution
 		// TODO: also include a 'report to developer' kind of button to get feedback
-		alert("Error occured: " + errorMessage);
+		$().toastmessage("showToast", {
+		    text     : errorMessage,
+		    sticky   : true,
+		    type     : "error",
+		    position : "middle-center"
+		});
 	};
 		
 	// Load the page with the given name. This is the only function that should modify the currentPage variable.
@@ -344,13 +366,6 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 	/////////////////////////////////////////////
 	
 	function start() {
-		// Search after the 'http://' part (length 7), find the first colon or slash from there gives us our base URL.
-		var indexOfColon = window.location.href.indexOf(":", 7);
-		var indexOfSlash = window.location.href.indexOf("/", 7);
-		var sliceIndex = indexOfColon > -1 ? indexOfColon : indexOfSlash;
-		// Take the same server on port 3737 as base URL for the Program Your Home server.
-		var baseURL = window.location.href.slice(0, sliceIndex) + ":3737/";
-	
 		//TODO: The server can provide a list of activated modules and the UI can enable/disable pages based on that info.
 		//TODO: define module / page filter based on API response from server that tells us what modules are available.
 		activeModules = [Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES];
@@ -415,7 +430,19 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 
 	// When the document becomes ready, we can start the application.
 	$(document).ready(function () {
-		start();
+		// Search after the 'http://' part (length 7), find the first colon or slash from there gives us our base URL.
+		var indexOfColon = window.location.href.indexOf(":", 7);
+		var indexOfSlash = window.location.href.indexOf("/", 7);
+		var sliceIndex = indexOfColon > -1 ? indexOfColon : indexOfSlash;
+		// Take the same server on port 3737 as base URL for the Program Your Home server.
+		baseURL = window.location.href.slice(0, sliceIndex) + ":3737/";
+
+		// Before we start the application, we should make sure that the backend server is online and reachable.
+		$.ajax({url: baseURL + "meta/status/ping", timeout: 3000}).then(function (pong) {
+			// If we get a response, that's fine, not need to check the body.
+			// TOOD: maybe more health checks upon boot time to check?
+			start();
+		}, createFailFunction(null, "Program Your Home backend server is not online."));
 	});
 	
 	////////////////////////////////////////////////

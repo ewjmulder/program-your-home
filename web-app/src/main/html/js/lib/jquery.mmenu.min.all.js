@@ -10,14 +10,1201 @@
  * Licensed under the MIT license:
  * http://en.wikipedia.org/wiki/MIT_License
  */
-!function(t){function n(){t[s].glbl||(d={$wndw:t(window),$html:t("html"),$body:t("body")},a={},l={},r={},t.each([a,l,r],function(e,t){t.add=function(e){e=e.split(" ");for(var n in e)t[e[n]]=t.mm(e[n])}}),a.mm=function(e){return"mm-"+e},a.add("wrapper menu vertical panel nopanel current highest opened subopened header hasheader title btn prev next first last listview nolistview selected divider spacer hidden fullsubopen"),a.umm=function(e){return"mm-"==e.slice(0,3)&&(e=e.slice(3)),e},l.mm=function(e){return"mm-"+e},l.add("parent sub"),r.mm=function(e){return e+".mm"},r.add("transitionend webkitTransitionEnd mousedown mouseup touchstart touchmove touchend click keydown"),t[s]._c=a,t[s]._d=l,t[s]._e=r,t[s].glbl=d)}var s="mmenu",i="5.0.4";if(!t[s]){t[s]=function(e,t,n){this.$menu=e,this._api=["bind","init","update","setSelected","getInstance","openPanel","closePanel","closeAllPanels"],this.opts=t,this.conf=n,this.vars={},this.cbck={},"function"==typeof this.___deprecated&&this.___deprecated(),this._initMenu(),this._initAnchors();var s=this.$menu.children(this.conf.panelNodetype);return this._initAddons(),this.init(s),"function"==typeof this.___debug&&this.___debug(),this},t[s].version=i,t[s].addons={},t[s].uniqueId=0,t[s].defaults={extensions:[],onClick:{setSelected:!0},slidingSubmenus:!0},t[s].configuration={classNames:{panel:"Panel",vertical:"Vertical",selected:"Selected",divider:"Divider",spacer:"Spacer"},clone:!1,openingInterval:25,panelNodetype:"ul, ol, div",transitionDuration:400},t[s].prototype={init:function(e){e=e.not("."+a.nopanel),e=this._initPanels(e),this.trigger("init",e),this.trigger("update")},update:function(){this.trigger("update")},setSelected:function(e){this.$menu.find("."+a.listview).children().removeClass(a.selected),e.addClass(a.selected),this.trigger("setSelected",e)},openPanel:function(e){var n=e.parent();if(n.hasClass(a.vertical)){var s=n.parents("."+a.subopened);if(s.length)return this.openPanel(s.first());n.addClass(a.opened)}else{if(e.hasClass(a.current))return;var i=t(this.$menu).children("."+a.panel),l=i.filter("."+a.current);i.removeClass(a.highest).removeClass(a.current).not(e).not(l).not("."+a.vertical).addClass(a.hidden),e.hasClass(a.opened)?l.addClass(a.highest).removeClass(a.opened).removeClass(a.subopened):(e.addClass(a.highest),l.addClass(a.subopened)),e.removeClass(a.hidden).addClass(a.current),setTimeout(function(){e.removeClass(a.subopened).addClass(a.opened)},this.conf.openingInterval)}this.trigger("openPanel",e)},closePanel:function(e){var t=e.parent();t.hasClass(a.vertical)&&(t.removeClass(a.opened),this.trigger("closePanel",e))},closeAllPanels:function(){this.$menu.find("."+a.listview).children().removeClass(a.selected).filter("."+a.vertical).removeClass(a.opened);var e=this.$menu.children("."+a.panel),t=e.first();this.$menu.children("."+a.panel).not(t).removeClass(a.subopened).removeClass(a.opened).removeClass(a.current).removeClass(a.highest).addClass(a.hidden),this.openPanel(t)},togglePanel:function(e){var t=e.parent();t.hasClass(a.vertical)&&this[t.hasClass(a.opened)?"closePanel":"openPanel"](e)},getInstance:function(){return this},bind:function(e,t){this.cbck[e]=this.cbck[e]||[],this.cbck[e].push(t)},trigger:function(){var t=this,n=Array.prototype.slice.call(arguments),s=n.shift();if(this.cbck[s])for(e in this.cbck[s])this.cbck[s][e].apply(t,n)},_initMenu:function(){this.opts.offCanvas&&this.conf.clone&&(this.$menu=this.$menu.clone(!0),this.$menu.add(this.$menu.find("*")).filter("[id]").each(function(){t(this).attr("id",a.mm(t(this).attr("id")))})),this.$menu.contents().each(function(){3==t(this)[0].nodeType&&t(this).remove()}),this.$menu.parent().addClass(a.wrapper);var e=[a.menu];this.opts.slidingSubmenus||e.push(a.vertical),this.opts.extensions=this.opts.extensions.length?"mm-"+this.opts.extensions.join(" mm-"):"",this.opts.extensions&&e.push(this.opts.extensions),this.$menu.addClass(e.join(" "))},_initPanels:function(e){var n=this;this.__findAddBack(e,"ul, ol").not("."+a.nolistview).addClass(a.listview);var s=this.__findAddBack(e,"."+a.listview).children();this.__refactorClass(s,this.conf.classNames.selected,"selected"),this.__refactorClass(s,this.conf.classNames.divider,"divider"),this.__refactorClass(s,this.conf.classNames.spacer,"spacer"),this.__refactorClass(this.__findAddBack(e,"."+this.conf.classNames.panel),this.conf.classNames.panel,"panel");var i=t(),r=e.add(this.__findAddBack(e,"."+a.listview).children().children(this.conf.panelNodetype)).not("."+a.nopanel);this.__refactorClass(r,this.conf.classNames.vertical,"vertical"),this.opts.slidingSubmenus||r.addClass(a.vertical),r.each(function(){var e=t(this),s=e;e.is("ul, ol")?(e.wrap('<div class="'+a.panel+'" />'),s=e.parent()):s.addClass(a.panel);var l=e.attr("id");e.removeAttr("id"),s.attr("id",l||n.__getUniqueId()),e.hasClass(a.vertical)&&(e.removeClass(n.conf.classNames.vertical),s.add(s.parent()).addClass(a.vertical)),i=i.add(s);var r=s.children().first(),d=s.children().last();r.is("."+a.listview)&&r.addClass(a.first),d.is("."+a.listview)&&d.addClass(a.last)});var d=t("."+a.panel,this.$menu);i.each(function(){var e=t(this),n=e.parent(),s=n.children("a, span");if(!n.is("."+a.menu)&&!e.data(l.parent)){if(n.data(l.sub,e),e.data(l.parent,n),n.parent().is("."+a.listview)){var i=e.attr("id"),r=t('<a class="'+a.next+'" href="#'+i+'" data-target="#'+i+'" />').insertBefore(s);s.is("a")||r.addClass(a.fullsubopen)}if(!n.hasClass(a.vertical)){var d=n.closest("."+a.panel);if(d.length){var i=d.attr("id");e.prepend('<div class="'+a.header+'"><a class="'+a.btn+" "+a.prev+'" href="#'+i+'" data-target="#'+i+'"></a><a class="'+a.title+'">'+s.text()+"</a></div>"),e.addClass(a.hasheader)}}}});var o=this.__findAddBack(e,"."+a.listview).children("."+a.selected).removeClass(a.selected).last().addClass(a.selected);o.add(o.parentsUntil("."+a.menu,"li")).filter("."+a.vertical).addClass(a.opened).end().not("."+a.vertical).each(function(){t(this).parentsUntil("."+a.menu,"."+a.panel).not("."+a.vertical).first().addClass(a.opened).parentsUntil("."+a.menu,"."+a.panel).not("."+a.vertical).first().addClass(a.opened).addClass(a.subopened)}),o.children("."+a.panel).not("."+a.vertical).addClass(a.opened).parentsUntil("."+a.menu,"."+a.panel).not("."+a.vertical).first().addClass(a.opened).addClass(a.subopened);var c=d.filter("."+a.opened);return c.length||(c=i.first()),c.addClass(a.opened).last().addClass(a.current),i.not("."+a.vertical).not(c.last()).addClass(a.hidden).end().appendTo(this.$menu),i},_initAnchors:function(){var e=this;d.$body.on(r.click+"-oncanvas","a[href]",function(n){var i=t(this),l=!1,r=e.$menu.find(i).length;for(var o in t[s].addons)if(l=t[s].addons[o].clickAnchor.call(e,i,r))break;if(!l&&r){var c=i.attr("href");if(c.length>1&&"#"==c.slice(0,1)){var h=t(c,e.$menu);h.is("."+a.panel)&&(l=!0,e[i.parent().hasClass(a.vertical)?"togglePanel":"openPanel"](h))}}if(l&&n.preventDefault(),!l&&r&&i.is("."+a.listview+" > li > a")&&!i.is('[rel="external"]')&&!i.is('[target="_blank"]')){e.__valueOrFn(e.opts.onClick.setSelected,i)&&e.setSelected(t(n.target).parent());var u=e.__valueOrFn(e.opts.onClick.preventDefault,i,"#"==c.slice(0,1));u&&n.preventDefault(),e.__valueOrFn(e.opts.onClick.blockUI,i,!u)&&d.$html.addClass(a.blocking),e.__valueOrFn(e.opts.onClick.close,i,u)&&e.close()}})},_initAddons:function(){for(var e in t[s].addons)t[s].addons[e].add.call(this),t[s].addons[e].add=function(){};for(var e in t[s].addons)t[s].addons[e].setup.call(this)},__api:function(){var e=this,n={};return t.each(this._api,function(){var t=this;n[t]=function(){var s=e[t].apply(e,arguments);return"undefined"==typeof s?n:s}}),n},__valueOrFn:function(e,t,n){return"function"==typeof e?e.call(t[0]):"undefined"==typeof e&&"undefined"!=typeof n?n:e},__refactorClass:function(e,t,n){return e.filter("."+t).removeClass(t).addClass(a[n])},__findAddBack:function(e,t){return e.find(t).add(e.filter(t))},__filterListItems:function(e){return e.not("."+a.divider).not("."+a.hidden)},__transitionend:function(e,t,n){var s=!1,i=function(){s||t.call(e[0]),s=!0};e.one(r.transitionend,i),e.one(r.webkitTransitionEnd,i),setTimeout(i,1.1*n)},__getUniqueId:function(){return a.mm(t[s].uniqueId++)}},t.fn[s]=function(e,i){return n(),e=t.extend(!0,{},t[s].defaults,e),i=t.extend(!0,{},t[s].configuration,i),this.each(function(){var n=t(this);if(!n.data(s)){var a=new t[s](n,e,i);n.data(s,a.__api())}})},t[s].support={touch:"ontouchstart"in window||navigator.msMaxTouchPoints};var a,l,r,d}}(jQuery);
+/*	
+ * jQuery mmenu v5.0.4
+ * @requires jQuery 1.7.0 or later
+ *
+ * mmenu.frebsite.nl
+ *	
+ * Copyright (c) Fred Heusschen
+ * www.frebsite.nl
+ *
+ * Licensed under the MIT license:
+ * http://en.wikipedia.org/wiki/MIT_License
+ */
+
+
+(function( $ ) {
+
+	var _PLUGIN_	= 'mmenu',
+		_VERSION_	= '5.0.4';
+
+
+	//	Plugin already excists
+	if ( $[ _PLUGIN_ ] )
+	{
+		return;
+	}
+
+
+	/*
+		Class
+	*/
+	$[ _PLUGIN_ ] = function( $menu, opts, conf )
+	{
+		this.$menu	= $menu;
+		this._api	= [ 'bind', 'init', 'update', 'setSelected', 'getInstance', 'openPanel', 'closePanel', 'closeAllPanels' ];
+		this.opts	= opts;
+		this.conf	= conf;
+		this.vars	= {};
+		this.cbck	= {};
+
+
+		if ( typeof this.___deprecated == 'function' )
+		{
+			this.___deprecated();
+		}
+
+		this._initMenu();
+		this._initAnchors();
+
+		var $panels = this.$menu.children( this.conf.panelNodetype );
+		
+		this._initAddons();
+		this.init( $panels );
+
+
+		if ( typeof this.___debug == 'function' )
+		{
+			this.___debug();
+		}
+
+		return this;
+	};
+
+	$[ _PLUGIN_ ].version 	= _VERSION_;
+	$[ _PLUGIN_ ].addons 	= {};
+	$[ _PLUGIN_ ].uniqueId 	= 0;
+
+
+	$[ _PLUGIN_ ].defaults 	= {
+		extensions		: [],
+		onClick			: {
+//			close			: true,
+//			blockUI			: null,
+//			preventDefault	: null,
+			setSelected		: true
+		},
+		slidingSubmenus	: true
+	};
+
+	$[ _PLUGIN_ ].configuration = {
+		classNames			: {
+			panel		: 'Panel',
+			vertical	: 'Vertical',
+			selected	: 'Selected',
+			divider		: 'Divider',
+			spacer		: 'Spacer'
+		},
+		clone				: false,
+		openingInterval		: 25,
+		panelNodetype		: 'ul, ol, div',
+		transitionDuration	: 400
+	};
+
+	$[ _PLUGIN_ ].prototype = {
+
+		init: function( $panels )
+		{
+			$panels = $panels.not( '.' + _c.nopanel );
+			$panels = this._initPanels( $panels );
+
+			this.trigger( 'init', $panels );
+			this.trigger( 'update' );
+		},
+
+		update: function()
+		{
+			this.trigger( 'update' );
+		},
+
+		setSelected: function( $i )
+		{
+			this.$menu.find( '.' + _c.listview ).children().removeClass( _c.selected );
+			$i.addClass( _c.selected );
+			this.trigger( 'setSelected', $i );
+		},
+		
+		openPanel: function( $panel )
+		{
+			var $l = $panel.parent();
+
+			//	Vertical
+			if ( $l.hasClass( _c.vertical ) )
+			{
+				var $sub = $l.parents( '.' + _c.subopened );
+				if ( $sub.length )
+				{
+					return this.openPanel( $sub.first() );
+				}
+				$l.addClass( _c.opened );
+			}
+
+			//	Horizontal
+			else
+			{
+				if ( $panel.hasClass( _c.current ) )
+				{
+					return;
+				}
+
+				var $panels = $(this.$menu).children( '.' + _c.panel ),
+					$current = $panels.filter( '.' + _c.current );
+
+				$panels
+					.removeClass( _c.highest )
+					.removeClass( _c.current )
+					.not( $panel )
+					.not( $current )
+					.not( '.' + _c.vertical )
+					.addClass( _c.hidden );
+
+				if ( $panel.hasClass( _c.opened ) )
+				{
+					$current
+						.addClass( _c.highest )
+						.removeClass( _c.opened )
+						.removeClass( _c.subopened );
+				}
+				else
+				{
+					$panel.addClass( _c.highest );
+					$current.addClass( _c.subopened );
+				}
+
+				$panel
+					.removeClass( _c.hidden )
+					.addClass( _c.current );
+
+				//	Without the timeout, the animation won't work because the element had display: none;
+				setTimeout(
+					function()
+					{
+						$panel
+							.removeClass( _c.subopened )
+							.addClass( _c.opened );
+					}, this.conf.openingInterval
+				);
+			}
+			this.trigger( 'openPanel', $panel );
+		},
+
+		closePanel: function( $panel )
+		{
+			var $l = $panel.parent();
+
+			//	Vertical only
+			if ( $l.hasClass( _c.vertical ) )
+			{
+				$l.removeClass( _c.opened );
+				this.trigger( 'closePanel', $panel );
+			}
+		},
+
+		closeAllPanels: function()
+		{
+			//	Vertical
+			this.$menu.find( '.' + _c.listview )
+				.children()
+				.removeClass( _c.selected )
+				.filter( '.' + _c.vertical )
+				.removeClass( _c.opened );
+
+			//	Horizontal
+			var $pnls = this.$menu.children( '.' + _c.panel ),
+				$frst = $pnls.first();
+
+			this.$menu.children( '.' + _c.panel )
+				.not( $frst )
+				.removeClass( _c.subopened )
+				.removeClass( _c.opened )
+				.removeClass( _c.current )
+				.removeClass( _c.highest )
+				.addClass( _c.hidden );
+
+			this.openPanel( $frst );
+		},
+		
+		togglePanel: function( $panel )
+		{
+			var $l = $panel.parent();
+
+			//	Vertical only
+			if ( $l.hasClass( _c.vertical ) )
+			{
+				this[ $l.hasClass( _c.opened ) ? 'closePanel' : 'openPanel' ]( $panel );
+			}
+		},
+
+		getInstance: function()
+		{
+			return this;
+		},
+
+		bind: function( event, fn )
+		{
+			this.cbck[ event ] = this.cbck[ event ] || [];
+			this.cbck[ event ].push( fn );
+		},
+
+		trigger: function()
+		{
+			var that = this,
+				args = Array.prototype.slice.call( arguments ),
+				evnt = args.shift();
+
+			if ( this.cbck[ evnt ] )
+			{
+				for ( e in this.cbck[ evnt ] )
+				{
+					this.cbck[ evnt ][ e ].apply( that, args );
+				}
+			}
+		},
+
+		_initMenu: function()
+		{
+			var that = this;
+
+			//	Clone if needed
+			if ( this.opts.offCanvas && this.conf.clone )
+			{
+				this.$menu = this.$menu.clone( true );
+				this.$menu.add( this.$menu.find( '*' ) )
+					.filter( '[id]' )
+					.each(
+						function()
+						{
+							$(this).attr( 'id', _c.mm( $(this).attr( 'id' ) ) );
+						}
+					);
+			}
+
+			//	Strip whitespace
+			this.$menu.contents().each(
+				function()
+				{
+					if ( $(this)[ 0 ].nodeType == 3 )
+					{
+						$(this).remove();
+					}
+				}
+			);
+
+			this.$menu
+				.parent()
+				.addClass( _c.wrapper );
+
+			var clsn = [ _c.menu ];
+
+			//	Add direction class
+			if ( !this.opts.slidingSubmenus )
+			{
+				clsn.push( _c.vertical );
+			}
+
+			//	Add extensions
+			this.opts.extensions = ( this.opts.extensions.length )
+				? 'mm-' + this.opts.extensions.join( ' mm-' )
+				: '';
+
+			if ( this.opts.extensions )
+			{
+				clsn.push( this.opts.extensions );
+			}
+
+			this.$menu.addClass( clsn.join( ' ' ) );
+		},
+
+		_initPanels: function( $panels )
+		{
+			var that = this;
+
+			//	Add List class
+			this.__findAddBack( $panels, 'ul, ol' )
+				.not( '.' + _c.nolistview )
+				.addClass( _c.listview );
+
+			var $lis = this.__findAddBack( $panels, '.' + _c.listview ).children();
+
+			//	Refactor Selected class
+			this.__refactorClass( $lis, this.conf.classNames.selected, 'selected' );
+
+			//	Refactor divider class
+			this.__refactorClass( $lis, this.conf.classNames.divider, 'divider' );
+
+			//	Refactor Spacer class
+			this.__refactorClass( $lis, this.conf.classNames.spacer, 'spacer' );
+
+			//	Refactor Panel class
+			this.__refactorClass( this.__findAddBack( $panels, '.' + this.conf.classNames.panel ), this.conf.classNames.panel, 'panel' );
+
+			//	Create panels
+			var $curpanels = $(),
+				$oldpanels = $panels
+					.add( this.__findAddBack( $panels, '.' + _c.listview ).children().children( this.conf.panelNodetype ) )
+					.not( '.' + _c.nopanel );
+
+			this.__refactorClass( $oldpanels, this.conf.classNames.vertical, 'vertical' );
+			
+			if ( !this.opts.slidingSubmenus )
+			{
+				$oldpanels.addClass( _c.vertical );
+			}
+
+			$oldpanels
+				.each(
+					function()
+					{
+						var $t = $(this),
+							$p = $t;
+
+						if ( $t.is( 'ul, ol' ) )
+						{
+							$t.wrap( '<div class="' + _c.panel + '" />' );
+							$p = $t.parent();
+						}
+						else
+						{
+							$p.addClass( _c.panel );
+						}
+
+						var id = $t.attr( 'id' );
+						$t.removeAttr( 'id' );
+						$p.attr( 'id', id || that.__getUniqueId() );
+
+						if ( $t.hasClass( _c.vertical ) )
+						{
+							$t.removeClass( that.conf.classNames.vertical );
+							$p.add( $p.parent() ).addClass( _c.vertical );
+						}
+
+						$curpanels = $curpanels.add( $p );
+
+						var $f = $p.children().first(),
+							$l = $p.children().last();
+
+						if ( $f.is( '.' + _c.listview ) )
+						{
+							$f.addClass( _c.first );
+						}
+						if ( $l.is( '.' + _c.listview ) )
+						{
+							$l.addClass( _c.last );
+						}
+					} 
+				);
+
+			var $allpanels = $('.' + _c.panel, this.$menu);
+
+			//	Add open and close links to menu items
+			$curpanels
+				.each(
+					function( i )
+					{
+						var $t = $(this),
+							$l = $t.parent(),
+							$a = $l.children( 'a, span' );
+
+						if ( !$l.is( '.' + _c.menu ) && !$t.data( _d.parent ) )
+						{
+							$l.data( _d.sub, $t );
+							$t.data( _d.parent, $l );
+
+							if ( $l.parent().is( '.' + _c.listview ) )
+							{
+								//	Open link
+								var id = $t.attr( 'id' ),
+									$b = $( '<a class="' + _c.next + '" href="#' + id + '" data-target="#' + id + '" />' ).insertBefore( $a );
+	
+								if ( !$a.is( 'a' ) )
+								{
+									$b.addClass( _c.fullsubopen );
+								}
+							}
+
+							//	Close link
+							if ( !$l.hasClass( _c.vertical ) )
+							{
+								var $p = $l.closest( '.' + _c.panel );
+								if ( $p.length )
+								{
+									var id = $p.attr( 'id' );
+									$t.prepend( '<div class="' + _c.header + '"><a class="' + _c.btn + ' ' + _c.prev + '" href="#' + id + '" data-target="#' + id + '"></a><a class="' + _c.title + '">' + $a.text() + '</a></div>' );
+									$t.addClass( _c.hasheader );
+								}
+							}
+						}
+					}
+				);
+
+
+			//	Add opened-classes to parents
+			var $s = this.__findAddBack( $panels, '.' + _c.listview )
+				.children( '.' + _c.selected )
+				.removeClass( _c.selected )
+				.last()
+				.addClass( _c.selected );
+
+			$s.add( $s.parentsUntil( '.' + _c.menu, 'li' ) )
+				.filter( '.' + _c.vertical )
+				.addClass( _c.opened )
+				.end()
+				.not( '.' + _c.vertical )
+				.each(
+					function()
+					{
+						$(this).parentsUntil( '.' + _c.menu, '.' + _c.panel )
+							.not( '.' + _c.vertical )
+							.first()
+							.addClass( _c.opened )
+							.parentsUntil( '.' + _c.menu, '.' + _c.panel )
+							.not( '.' + _c.vertical )
+							.first()
+							.addClass( _c.opened )
+							.addClass( _c.subopened );
+					}
+				);
+
+
+			//	Add opened-classes to child
+			$s.children( '.' + _c.panel )
+				.not( '.' + _c.vertical )
+				.addClass( _c.opened )
+				.parentsUntil( '.' + _c.menu, '.' + _c.panel )
+				.not( '.' + _c.vertical )
+				.first()
+				.addClass( _c.opened )
+				.addClass( _c.subopened );
+
+
+			//	Set current opened
+			var $current = $allpanels.filter( '.' + _c.opened );
+			if ( !$current.length )
+			{
+				$current = $curpanels.first();
+			}
+			$current
+				.addClass( _c.opened )
+				.last()
+				.addClass( _c.current );
+
+
+			//	Rearrange markup
+			$curpanels
+				.not( '.' + _c.vertical )
+				.not( $current.last() )
+				.addClass( _c.hidden )
+				.end()
+				.appendTo( this.$menu );
+			
+			return $curpanels;
+		},
+
+		_initAnchors: function()
+		{
+			var that = this;
+
+			glbl.$body
+				.on( _e.click + '-oncanvas',
+					'a[href]',
+					function( e )
+					{
+						var $t = $(this),
+							fired 	= false,
+							inMenu 	= that.$menu.find( $t ).length;
+
+						//	Find behavior for addons
+						for ( var a in $[ _PLUGIN_ ].addons )
+						{
+							if ( fired = $[ _PLUGIN_ ].addons[ a ].clickAnchor.call( that, $t, inMenu ) )
+							{
+								break;
+							}
+						}
+
+						//	Open/Close panel
+						if ( !fired && inMenu )
+						{
+							var _h = $t.attr( 'href' );
+
+							if ( _h.length > 1 && _h.slice( 0, 1 ) == '#' )
+							{
+								var $h = $(_h, that.$menu);
+								if ( $h.is( '.' + _c.panel ) )
+								{
+									fired = true;
+									that[ $t.parent().hasClass( _c.vertical ) ? 'togglePanel' : 'openPanel' ]( $h );
+								}
+							}
+						}
+
+						if ( fired )
+						{
+							e.preventDefault();
+						}
+
+
+						//	All other anchors in lists
+						if ( !fired && inMenu )
+						{
+							if ( $t.is( '.' + _c.listview + ' > li > a' )
+								&& !$t.is( '[rel="external"]' ) 
+								&& !$t.is( '[target="_blank"]' ) )
+							{
+
+								//	Set selected item
+								if ( that.__valueOrFn( that.opts.onClick.setSelected, $t ) )
+								{
+									that.setSelected( $(e.target).parent() );
+								}
+	
+								//	Prevent default / don't follow link. Default: false
+								var preventDefault = that.__valueOrFn( that.opts.onClick.preventDefault, $t, _h.slice( 0, 1 ) == '#' );
+								if ( preventDefault )
+								{
+									e.preventDefault();
+								}
+		
+								//	Block UI. Default: false if preventDefault, true otherwise
+								if ( that.__valueOrFn( that.opts.onClick.blockUI, $t, !preventDefault ) )
+								{
+									glbl.$html.addClass( _c.blocking );
+								}
+
+								//	Close menu. Default: true if preventDefault, false otherwise
+								if ( that.__valueOrFn( that.opts.onClick.close, $t, preventDefault ) )
+								{
+									that.close();
+								}
+							}
+						}
+					}
+				);
+		},
+
+		_initAddons: function()
+		{
+			//	Add add-ons to plugin
+			for ( var a in $[ _PLUGIN_ ].addons )
+			{
+				$[ _PLUGIN_ ].addons[ a ].add.call( this );
+				$[ _PLUGIN_ ].addons[ a ].add = function() {};
+			}
+
+			//	Setup adds-on for menu
+			for ( var a in $[ _PLUGIN_ ].addons )
+			{
+				$[ _PLUGIN_ ].addons[ a ].setup.call( this );
+			}
+		},
+
+		__api: function()
+		{
+			var that = this,
+				api = {};
+
+			$.each( this._api, 
+				function( i )
+				{
+					var fn = this;
+					api[ fn ] = function()
+					{
+						var re = that[ fn ].apply( that, arguments );
+						return ( typeof re == 'undefined' ) ? api : re;
+					}
+				}
+			);
+			return api;
+		},
+
+		__valueOrFn: function( o, $e, d )
+		{
+			if ( typeof o == 'function' )
+			{
+				return o.call( $e[ 0 ] );
+			}
+			if ( typeof o == 'undefined' && typeof d != 'undefined' )
+			{
+				return d;
+			}
+			return o;
+		},
+		
+		__refactorClass: function( $e, o, c )
+		{
+			return $e.filter( '.' + o ).removeClass( o ).addClass( _c[ c ] );
+		},
+
+		__findAddBack: function( $e, s )
+		{
+			return $e.find( s ).add( $e.filter( s ) );
+		},
+		
+		__filterListItems: function( $i )
+		{
+			return $i
+				.not( '.' + _c.divider )
+				.not( '.' + _c.hidden );
+		},
+		
+		__transitionend: function( $e, fn, duration )
+		{
+			var _ended = false,
+				_fn = function()
+				{
+					if ( !_ended )
+					{
+						fn.call( $e[ 0 ] );
+					}
+					_ended = true;
+				};
+	
+			$e.one( _e.transitionend, _fn );
+			$e.one( _e.webkitTransitionEnd, _fn );
+			setTimeout( _fn, duration * 1.1 );
+		},
+		
+		__getUniqueId: function()
+		{
+			return _c.mm( $[ _PLUGIN_ ].uniqueId++ );
+		}
+	};
+
+
+	/*
+		jQuery plugin
+	*/
+	$.fn[ _PLUGIN_ ] = function( opts, conf )
+	{
+		//	First time plugin is fired
+		initPlugin();
+
+		//	Extend options
+		opts = $.extend( true, {}, $[ _PLUGIN_ ].defaults, opts );
+		conf = $.extend( true, {}, $[ _PLUGIN_ ].configuration, conf );
+
+		return this.each(
+			function()
+			{
+				var $menu = $(this);
+				if ( $menu.data( _PLUGIN_ ) )
+				{
+					return;
+				}
+				var _menu = new $[ _PLUGIN_ ]( $menu, opts, conf );
+				$menu.data( _PLUGIN_, _menu.__api() );
+			}
+		);
+	};
+
+
+	/*
+		SUPPORT
+	*/
+	$[ _PLUGIN_ ].support = {
+		touch: 'ontouchstart' in window || navigator.msMaxTouchPoints
+	};
+
+
+	//	Global variables
+	var _c, _d, _e, glbl;
+
+	function initPlugin()
+	{
+		if ( $[ _PLUGIN_ ].glbl )
+		{
+			return;
+		}
+
+		glbl = {
+			$wndw : $(window),
+			$html : $('html'),
+			$body : $('body')
+		};
+
+
+		//	Classnames, Datanames, Eventnames
+		_c = {};
+		_d = {};
+		_e = {};
+		$.each( [ _c, _d, _e ],
+			function( i, o )
+			{
+				o.add = function( c )
+				{
+					c = c.split( ' ' );
+					for ( var d in c )
+					{
+						o[ c[ d ] ] = o.mm( c[ d ] );
+					}
+				};
+			}
+		);
+
+		//	Classnames
+		_c.mm = function( c ) { return 'mm-' + c; };
+		_c.add( 'wrapper menu vertical panel nopanel current highest opened subopened header hasheader title btn prev next first last listview nolistview selected divider spacer hidden fullsubopen' );
+		_c.umm = function( c )
+		{
+			if ( c.slice( 0, 3 ) == 'mm-' )
+			{
+				c = c.slice( 3 );
+			}
+			return c;
+		};
+
+		//	Datanames
+		_d.mm = function( d ) { return 'mm-' + d; };
+		_d.add( 'parent sub' );
+
+		//	Eventnames
+		_e.mm = function( e ) { return e + '.mm'; };
+		_e.add( 'transitionend webkitTransitionEnd mousedown mouseup touchstart touchmove touchend click swipe keydown' );
+
+		$[ _PLUGIN_ ]._c = _c;
+		$[ _PLUGIN_ ]._d = _d;
+		$[ _PLUGIN_ ]._e = _e;
+
+		$[ _PLUGIN_ ].glbl = glbl;
+	}
+
+
+})( jQuery );
 /*	
  * jQuery mmenu offCanvas addon
  * mmenu.frebsite.nl
  *
  * Copyright (c) Fred Heusschen
  */
-!function(e){var t="mmenu",o="offCanvas";e[t].addons[o]={setup:function(){if(this.opts[o]){var n=this.opts[o],i=this.conf[o];a=e[t].glbl,this._api=e.merge(this._api,["open","close","setPage"]),("top"==n.position||"bottom"==n.position)&&(n.zposition="front"),"string"!=typeof i.pageSelector&&(i.pageSelector="> "+i.pageNodetype),a.$allMenus=(a.$allMenus||e()).add(this.$menu),this.vars.opened=!1;var r=[s.offcanvas];"left"!=n.position&&r.push(s.mm(n.position)),"back"!=n.zposition&&r.push(s.mm(n.zposition)),this.$menu.addClass(r.join(" ")).parent().removeClass(s.wrapper),this.setPage(a.$page),this._initBlocker(),this["_initWindow_"+o](),this.$menu[i.menuInjectMethod+"To"](i.menuWrapperSelector)}},add:function(){s=e[t]._c,n=e[t]._d,i=e[t]._e,s.add("offcanvas slideout modal background opening blocker page"),n.add("style"),i.add("resize")},clickAnchor:function(e){if(!this.opts[o])return!1;var t=this.$menu.attr("id");if(t&&t.length&&(this.conf.clone&&(t=s.umm(t)),e.is('[href="#'+t+'"]')))return this.open(),!0;if(a.$page){var t=a.$page.attr("id");return t&&t.length&&e.is('[href="#'+t+'"]')?(this.close(),!0):!1}}},e[t].defaults[o]={position:"left",zposition:"back",modal:!1,moveBackground:!0},e[t].configuration[o]={pageNodetype:"div",pageSelector:null,menuWrapperSelector:"body",menuInjectMethod:"prepend"},e[t].prototype.open=function(){if(!this.vars.opened){var e=this;this._openSetup(),setTimeout(function(){e._openFinish()},this.conf.openingInterval),this.trigger("open")}},e[t].prototype._openSetup=function(){var e=this;this.closeAllOthers(),a.$page.data(n.style,a.$page.attr("style")||""),a.$wndw.trigger(i.resize+"-offcanvas",[!0]);var t=[s.opened];this.opts[o].modal&&t.push(s.modal),this.opts[o].moveBackground&&t.push(s.background),"left"!=this.opts[o].position&&t.push(s.mm(this.opts[o].position)),"back"!=this.opts[o].zposition&&t.push(s.mm(this.opts[o].zposition)),this.opts.extensions&&t.push(this.opts.extensions),a.$html.addClass(t.join(" ")),setTimeout(function(){e.vars.opened=!0},this.conf.openingInterval),this.$menu.addClass(s.current+" "+s.opened)},e[t].prototype._openFinish=function(){var e=this;this.__transitionend(a.$page,function(){e.trigger("opened")},this.conf.transitionDuration),a.$html.addClass(s.opening),this.trigger("opening")},e[t].prototype.close=function(){if(this.vars.opened){var e=this;this.__transitionend(a.$page,function(){e.$menu.removeClass(s.current).removeClass(s.opened),a.$html.removeClass(s.opened).removeClass(s.modal).removeClass(s.background).removeClass(s.mm(e.opts[o].position)).removeClass(s.mm(e.opts[o].zposition)),e.opts.extensions&&a.$html.removeClass(e.opts.extensions),a.$page.attr("style",a.$page.data(n.style)),e.vars.opened=!1,e.trigger("closed")},this.conf.transitionDuration),a.$html.removeClass(s.opening),this.trigger("close"),this.trigger("closing")}},e[t].prototype.closeAllOthers=function(){a.$allMenus.not(this.$menu).each(function(){var o=e(this).data(t);o&&o.close&&o.close()})},e[t].prototype.setPage=function(t){t&&t.length||(t=e(this.conf[o].pageSelector,a.$body),t.length>1&&(t=t.wrapAll("<"+this.conf[o].pageNodetype+" />").parent())),t.attr("id",t.attr("id")||this.__getUniqueId()),t.addClass(s.page+" "+s.slideout),a.$page=t,this.trigger("setPage",t)},e[t].prototype["_initWindow_"+o]=function(){a.$wndw.off(i.keydown+"-offcanvas").on(i.keydown+"-offcanvas",function(e){return a.$html.hasClass(s.opened)&&9==e.keyCode?(e.preventDefault(),!1):void 0});var e=0;a.$wndw.off(i.resize+"-offcanvas").on(i.resize+"-offcanvas",function(t,o){if(o||a.$html.hasClass(s.opened)){var n=a.$wndw.height();(o||n!=e)&&(e=n,a.$page.css("minHeight",n))}})},e[t].prototype._initBlocker=function(){var t=this;a.$blck||(a.$blck=e('<div id="'+s.blocker+'" class="'+s.slideout+'" />')),a.$blck.appendTo(a.$body).off(i.touchstart+"-offcanvas "+i.touchmove+"-offcanvas").on(i.touchstart+"-offcanvas "+i.touchmove+"-offcanvas",function(e){e.preventDefault(),e.stopPropagation(),a.$blck.trigger(i.mousedown+"-offcanvas")}).off(i.mousedown+"-offcanvas").on(i.mousedown+"-offcanvas",function(e){e.preventDefault(),a.$html.hasClass(s.modal)||(t.closeAllOthers(),t.close())})};var s,n,i,a}(jQuery);
+/*	
+ * jQuery mmenu offCanvas addon
+ * mmenu.frebsite.nl
+ *
+ * Copyright (c) Fred Heusschen
+ */
+
+
+(function( $ ) {
+
+	var _PLUGIN_ = 'mmenu',
+		_ADDON_  = 'offCanvas';
+
+
+	$[ _PLUGIN_ ].addons[ _ADDON_ ] = {
+
+		//	setup: fired once per menu
+		setup: function()
+		{
+			if ( !this.opts[ _ADDON_ ] )
+			{
+				return;
+			}
+
+			var that = this,
+				opts = this.opts[ _ADDON_ ],
+				conf = this.conf[ _ADDON_ ];
+
+			glbl = $[ _PLUGIN_ ].glbl;
+
+
+			//	Add methods to api
+			this._api = $.merge( this._api, [ 'open', 'close', 'setPage' ] );
+
+
+			//	Debug positioning
+			if ( opts.position == 'top' || opts.position == 'bottom' )
+			{
+				opts.zposition = 'front';
+			}
+
+
+			//	Extend configuration
+			if ( typeof conf.pageSelector != 'string' )
+			{
+				conf.pageSelector = '> ' + conf.pageNodetype;
+			}
+
+
+			glbl.$allMenus = ( glbl.$allMenus || $() ).add( this.$menu );
+
+
+			//	Setup the menu
+			this.vars.opened = false;
+			
+			var clsn = [ _c.offcanvas ];
+
+			if ( opts.position != 'left' )
+			{
+				clsn.push( _c.mm( opts.position ) );
+			}
+			if ( opts.zposition != 'back' )
+			{
+				clsn.push( _c.mm( opts.zposition ) );
+			}
+
+			this.$menu
+				.addClass( clsn.join( ' ' ) )
+				.parent()
+				.removeClass( _c.wrapper );
+
+
+			//	Setup the page
+			this.setPage( glbl.$page );
+
+
+			//	Setup the UI blocker and the window
+			this._initBlocker();
+			this[ '_initWindow_' + _ADDON_ ]();
+
+
+			//	Append to the body
+			this.$menu[ conf.menuInjectMethod + 'To' ]( conf.menuWrapperSelector );
+		},
+
+		//	add: fired once per page load
+		add: function()
+		{
+			_c = $[ _PLUGIN_ ]._c;
+			_d = $[ _PLUGIN_ ]._d;
+			_e = $[ _PLUGIN_ ]._e;
+
+			_c.add( 'offcanvas slideout modal background opening blocker page' );
+			_d.add( 'style' );
+			_e.add( 'resize' );
+		},
+
+		//	clickAnchor: prevents default behavior when clicking an anchor
+		clickAnchor: function( $a, inMenu )
+		{
+			if ( !this.opts[ _ADDON_ ] )
+			{
+				return false;
+			}
+
+			//	Open menu
+			var id = this.$menu.attr( 'id' );
+			if ( id && id.length )
+			{
+				if ( this.conf.clone )
+				{
+					id = _c.umm( id );
+				}
+				if ( $a.is( '[href="#' + id + '"]' ) )
+				{
+					this.open();
+					return true;
+				}
+			}
+			
+			//	Close menu
+			if ( !glbl.$page )
+			{
+				return;
+			}
+			var id = glbl.$page.attr( 'id' );
+			if ( id && id.length )
+			{
+				if ( $a.is( '[href="#' + id + '"]' ) )
+				{
+					this.close();
+					return true;
+				}
+			}
+
+			return false;
+		}
+	};
+
+
+	//	Default options and configuration
+	$[ _PLUGIN_ ].defaults[ _ADDON_ ] = {
+		position		: 'left',
+		zposition		: 'back',
+		modal			: false,
+		moveBackground	: true
+	};
+	$[ _PLUGIN_ ].configuration[ _ADDON_ ] = {
+		pageNodetype		: 'div',
+		pageSelector		: null,
+		menuWrapperSelector	: 'body',
+		menuInjectMethod	: 'prepend'
+	};
+
+
+	//	Methods
+	$[ _PLUGIN_ ].prototype.open = function()
+	{alert("opening!");
+		if ( this.vars.opened )
+		{
+			return;
+		}
+
+		var that = this;
+
+		this._openSetup();
+
+		//	Without the timeout, the animation won't work because the element had display: none;
+		setTimeout(
+			function()
+			{
+				that._openFinish();
+			}, this.conf.openingInterval
+		);
+		this.trigger( 'open' );
+	};
+
+	$[ _PLUGIN_ ].prototype._openSetup = function()
+	{
+		var that = this;
+
+		//	Close other menus
+		this.closeAllOthers();
+
+		//	Store style and position
+		glbl.$page.data( _d.style, glbl.$page.attr( 'style' ) || '' );
+
+		//	Trigger window-resize to measure height
+		glbl.$wndw.trigger( _e.resize + '-offcanvas', [ true ] );
+
+		var clsn = [ _c.opened ];
+
+		//	Add options
+		if ( this.opts[ _ADDON_ ].modal )
+		{
+			clsn.push( _c.modal );
+		}
+		if ( this.opts[ _ADDON_ ].moveBackground )
+		{
+			clsn.push( _c.background );
+		}
+		if ( this.opts[ _ADDON_ ].position != 'left' )
+		{
+			clsn.push( _c.mm( this.opts[ _ADDON_ ].position ) );
+		}
+		if ( this.opts[ _ADDON_ ].zposition != 'back' )
+		{
+			clsn.push( _c.mm( this.opts[ _ADDON_ ].zposition ) );
+		}
+		if ( this.opts.extensions )
+		{
+			clsn.push( this.opts.extensions );
+		}
+		glbl.$html.addClass( clsn.join( ' ' ) );
+
+		//	Open
+		setTimeout(function(){
+            that.vars.opened = true;
+        },this.conf.openingInterval);
+
+		this.$menu.addClass( _c.current + ' ' + _c.opened );
+	};
+
+	$[ _PLUGIN_ ].prototype._openFinish = function()
+	{
+		var that = this;
+
+		//	Callback
+		this.__transitionend( glbl.$page,
+			function()
+			{
+				that.trigger( 'opened' );
+			}, this.conf.transitionDuration
+		);
+
+		//	Opening
+		glbl.$html.addClass( _c.opening );
+		this.trigger( 'opening' );
+	};
+
+	$[ _PLUGIN_ ].prototype.close = function()
+	{
+		if ( !this.vars.opened )
+		{
+			return;
+		}
+
+		var that = this;
+
+		//	Callback
+		this.__transitionend( glbl.$page,
+			function()
+			{
+				that.$menu
+					.removeClass( _c.current )
+					.removeClass( _c.opened );
+
+				glbl.$html
+					.removeClass( _c.opened )
+					.removeClass( _c.modal )
+					.removeClass( _c.background )
+					.removeClass( _c.mm( that.opts[ _ADDON_ ].position ) )
+					.removeClass( _c.mm( that.opts[ _ADDON_ ].zposition ) );
+
+				if ( that.opts.extensions )
+				{
+					glbl.$html.removeClass( that.opts.extensions );
+				}
+
+				//	Restore style and position
+				glbl.$page.attr( 'style', glbl.$page.data( _d.style ) );
+
+				that.vars.opened = false;
+				that.trigger( 'closed' );
+
+			}, this.conf.transitionDuration
+		);
+
+		//	Closing
+		glbl.$html.removeClass( _c.opening );
+		this.trigger( 'close' );
+		this.trigger( 'closing' );
+	};
+
+	$[ _PLUGIN_ ].prototype.closeAllOthers = function()
+	{
+		glbl.$allMenus
+			.not( this.$menu )
+			.each(
+				function()
+				{
+					var api = $(this).data( _PLUGIN_ );
+					if ( api && api.close )
+					{
+						api.close();
+					}
+				}
+			);
+	}
+
+	$[ _PLUGIN_ ].prototype.setPage = function( $page )
+	{
+		if ( !$page || !$page.length )
+		{
+			$page = $(this.conf[ _ADDON_ ].pageSelector, glbl.$body);
+			if ( $page.length > 1 )
+			{
+				$page = $page.wrapAll( '<' + this.conf[ _ADDON_ ].pageNodetype + ' />' ).parent();
+			}
+		}
+
+		$page.attr( 'id', $page.attr( 'id' ) || this.__getUniqueId() );
+		$page.addClass( _c.page + ' ' + _c.slideout );
+		glbl.$page = $page;
+
+		this.trigger( 'setPage', $page );
+	};
+
+	$[ _PLUGIN_ ].prototype[ '_initWindow_' + _ADDON_ ] = function()
+	{
+		//	Prevent tabbing
+		glbl.$wndw
+			.off( _e.keydown + '-offcanvas' )
+			.on( _e.keydown + '-offcanvas',
+				function( e )
+				{
+					if ( glbl.$html.hasClass( _c.opened ) )
+					{
+						if ( e.keyCode == 9 )
+						{
+							e.preventDefault();
+							return false;
+						}
+					}
+				}
+			);
+
+		//	Set page min-height to window height
+		var _h = 0;
+		glbl.$wndw
+			.off( _e.resize + '-offcanvas' )
+			.on( _e.resize + '-offcanvas',
+				function( e, force )
+				{
+					if ( force || glbl.$html.hasClass( _c.opened ) )
+					{
+						var nh = glbl.$wndw.height();
+						if ( force || nh != _h )
+						{
+							_h = nh;
+							glbl.$page.css( 'minHeight', nh );
+						}
+					}
+				}
+			);
+	};
+
+	$[ _PLUGIN_ ].prototype._initBlocker = function()
+	{
+		var that = this;
+
+		if ( !glbl.$blck )
+		{
+			glbl.$blck = $( '<div id="' + _c.blocker + '" class="' + _c.slideout + '" />' );
+			alert("glbl.$blck: " + glbl.$blck[0].id);
+		}
+
+		glbl.$blck
+			.appendTo( glbl.$body )
+			.off( _e.touchstart + '-offcanvas ' + _e.touchmove + '-offcanvas' )
+			.on( _e.touchstart + '-offcanvas ' + _e.touchmove + '-offcanvas',
+				function( e )
+				{
+				alert("touchstart");
+					e.preventDefault();
+					e.stopPropagation();
+					glbl.$blck.trigger( _e.mousedown + '-offcanvas' );
+				}
+			)
+			.off( _e.touchstart + '-offcanvas' )
+			.on( _e.touchstart + '-offcanvas',
+					function( e )
+					{
+				alert("touchstart v2");
+				e.preventDefault();
+				e.stopPropagation();
+				glbl.$blck.trigger( _e.mousedown + '-offcanvas' );
+					}
+			)
+			.off( _e.touchmove + '-offcanvas' )
+			.on( _e.touchmove + '-offcanvas',
+					function( e )
+					{
+				alert("touchmove v2");
+				e.preventDefault();
+				e.stopPropagation();
+				glbl.$blck.trigger( _e.mousedown + '-offcanvas' );
+					}
+			)
+			.off( _e.swipe + '-offcanvas ' + _e.swipe + '-offcanvas' )
+			.on( _e.swipe + '-offcanvas ' + _e.swipe + '-offcanvas',
+					function( e )
+					{
+				alert("swipe");
+				e.preventDefault();
+				e.stopPropagation();
+				glbl.$blck.trigger( _e.mousedown + '-offcanvas' );
+					}
+			)
+			.off( _e.mousedown + '-offcanvas' )
+			.on( _e.mousedown + '-offcanvas',
+				function( e )
+				{
+					e.preventDefault();
+					if ( !glbl.$html.hasClass( _c.modal ) )
+					{
+						alert("mousedown");
+						that.closeAllOthers();
+						that.close();
+					}
+				}
+			);
+	};
+
+
+	var _c, _d, _e, glbl;
+
+})( jQuery );
 /*	
  * jQuery mmenu autoHeight addon
  * mmenu.frebsite.nl

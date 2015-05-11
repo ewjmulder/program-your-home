@@ -8,6 +8,7 @@ requirejs.config({
 		handlebars: 'handlebars-v3.0.1.min',
 		knockout: 'knockout.3.3.0.min',
 		hammer: 'hammer-2.0.4.min',
+		toast: 'jquery.toastmessage',
 
 		// Config file, with the application specific configuration (other than the user specific settings)
 		config: '../config/configuration',
@@ -35,6 +36,9 @@ requirejs.config({
 		},
 		'rest': {
 			deps: ['jquery']
+		},
+		'toast': {
+			deps: ['jquery'],
 		},
 		// Handlebars uses an 'old school' global object, so we need to expose that.
 		'handlebars': {

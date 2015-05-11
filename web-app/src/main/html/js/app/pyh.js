@@ -226,24 +226,28 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 		hammer.on("pressup", function (e) {
 			$(document.elementFromPoint(e.center.x, e.center.y)).click();  
 		});
-
-		// TODO: close, but no cigar. TODO: own hammer config with swipes to open and close menu
-		//TODO: prevent dragging the page over the icon bar - this is a general problem with the icon bar (after menu open-close you can do it)
-		// See: https://github.com/BeSite/jQuery.mmenu/issues/349
-		// Don't prevent dragging or scrolling, just make sure the page width fits the screen width - 60px, then there will be no horizontal scrolling option.
 		
-		//$('#page').on('dragstart', function(event) { event.preventDefault(); });
+		$("#body").off("mousedown").on("mousedown", function() {alert("open: " + mmenuApi.vars.open)});
+		$("#body").off("touchstart").on("touchstart", function (e) {
+			if($('#menu').hasClass('mm-opened')) {
+				if (e.target.id == "content") {
+					mmenuApi.close();
+				}
+		        //alert("target: " + e.target.id);
+		    }
+		});
 		
-		// Somehow, this magically does exactly what we want:
-		// collapse the menu upon hitting the main page and also preventing the option to slide the main page over the icon bar.
-		// This probably is caused by the fact that this declaration will 'catch away' all mouse / finger movement and thereby prevents any side effects.
-//		var hammer = new Hammer(document.getElementById("body"), {});
-		//hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-		//hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
-//		var mc = new Hammer.Manager(document.getElementById("body"), {
-//			recognizers: []	
-//		});
-		//mc.add(new Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL });
+		
+		mmenuApi.open();
+	};
+	
+	function getElsAt(top, left) {
+	    return $("body")
+	               .find("*")
+	               .filter(function() {
+	                           return $(this).offset().top == top 
+	                                    && $(this).offset().left == left;
+	               });
 	};
 	
 	// Show an error message to the user.
@@ -336,6 +340,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "util", "pageJavascri
 	function toggleRestResource(module, onVerb, offVerb, id, currentlyOn) {
 		var verbToUse = currentlyOn ? offVerb : onVerb;
 		restClients[module][verbToUse](id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
+		
+
 	}
 
 	

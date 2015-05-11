@@ -12,7 +12,7 @@ public class TestStandalone extends NanoHTTPD {
     private final static String BASE_PATH;
     static {
         String runningInFolder = TestStandalone.class.getProtectionDomain().getCodeSource().getLocation().toString();
-        if (System.getProperty("os.name").equals("Linux")) {
+        if (System.getProperty("os.name").equals("Linux") || System.getProperty("os.name").equals("Mac OS X")) {
             runningInFolder = "/" + runningInFolder;
         }
         final String uriStyle = runningInFolder.substring(6, runningInFolder.length() - 20) + "src/main/html";

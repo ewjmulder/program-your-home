@@ -241,27 +241,22 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 		var mmenuApi = $menu.data("mmenu");
 		// Set the menu item that is defined as the home page as the selected one.
 		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));		
-		// Bind a click event on the main page to close the menu if it is open.
-		// Create a hammer listener on the menu.
-		var hammer = new Hammer($("#page")[0], {});
-/*		hammer.on("pressup", function (e) {
-			alert("Hee hi!");  
+
+		// Bind to the mousedown and touchstart events to be able to close the menu if needed.
+		$("#body").off("mousedown touchstart").on("mousedown touchstart", function (e) {
+			closeMenuIfOpenAndOnPage(e, mmenuApi);
 		});
-*/
-		//TODO: find satisfactory way to solve this. TODO: document solution.
-		$("#page").mousedown(function (e) {
-			// Only close if menu is open
-			if (/*mmenu??*/ true) {
-				mmenuApi.close();
-				//alert("e: " + e);
-				// Prevent default somehow
-				return false;
-			}
-		});
-		window.scrollTo(10,10);
-		$("#page").bind("touchstart swipe touchmove touchend mouseover mouseup click", function (e) {
-			alert("Got you!");
-		});
+	};
+	
+	function closeMenuIfOpenAndOnPage(e, mmenuApi) {
+		// The menu is open if the menu element has the css class mm-opened.
+		var menuOpen = $('#menu').hasClass('mm-opened');
+		// Find the closest element with an id of either menu, page or mm-blocker.
+		// If that is the page (or maybe on the blocker, but not on the menu), the event was on the page.
+		var notOnMenu = $(e.target).closest("#menu, #page, #mm-blocker")[0].id != "menu";
+		if (menuOpen && notOnMenu) {
+			mmenuApi.close();				
+		}
 	};
 	
 	// Show an error message to the user.
@@ -358,6 +353,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 	function toggleRestResource(module, onVerb, offVerb, id, currentlyOn) {
 		var verbToUse = currentlyOn ? offVerb : onVerb;
 		restClients[module][verbToUse](id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
+		
+
 	}
 
 	

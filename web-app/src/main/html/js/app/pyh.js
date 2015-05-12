@@ -243,6 +243,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));		
 
 		// Bind to the touchstart event to be able to close the menu on touch events.
+		// Do this binding only once, when the menu is opened for the first time.
+		// It must be done after menu opening, probably because then the touchstart of the blocker is registered first and gets priority.
 		// This is needed to work around a bug on the Android browser, where the touchstart event is somehow
 		// not coming through if the menu is opened. With this logic, we can swipe-close the menu like we like it. :)
 		var touchstartBound = false;

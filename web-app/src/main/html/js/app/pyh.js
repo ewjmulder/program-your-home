@@ -242,23 +242,19 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 		// Set the menu item that is defined as the home page as the selected one.
 		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));		
 
-		// Bind to the mousedown and touchstart events to be able to close the menu if needed.
+		// Bind to the touchstart event to be able to close the menu on touch events.
 		// This is needed to work around a bug on the Android browser, where the touchstart event is somehow
 		// not coming through if the menu is opened. With this logic, we can swipe-close the menu like we like it. :)
-		$("#body").off("mousedown touchstart").on("mousedown touchstart", function (e) {
-			closeMenuIfOpenAndOnPage(e, mmenuApi);
-		});
-	};
-	
-	function closeMenuIfOpenAndOnPage(e, mmenuApi) {
-		// The menu is open if the menu element has the css class mm-opened.
-		var menuOpen = $('#menu').hasClass('mm-opened');
-		// Find the closest element with an id of either menu, page or mm-blocker.
-		// If that is the page (or maybe on the blocker, but not on the menu), the event was on the page.
-		var notOnMenu = $(e.target).closest("#menu, #page, #mm-blocker")[0].id != "menu";
-		if (menuOpen && notOnMenu) {
-			mmenuApi.close();				
-		}
+		var touchstartBound = false;
+		mmenuApi.bind("opened", function() {
+			if (!touchstartBound) {
+				$("#body").on("touchstart", function (e) {
+					// Interestingly, no logic is needed here.
+					// Probably this will make the touchstart work on the blocker as well.
+				});
+				touchstartBound = true;
+			}
+		});		
 	};
 	
 	// Show an error message to the user.

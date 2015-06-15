@@ -26,6 +26,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 	var restClients = {};
 	// The modules that are activated in the menu.
 	var activeModules = [];
+	// The title object that contains all information to be displayed in the title.
+	var title = {};
 	
 	
 	/////////////////////////////////////////
@@ -36,7 +38,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 	var Module = Object.freeze({
 		ACTIVITIES: "activities",
 		LIGHTS: "lights",
-		DEVICES: "devices"
+		DEVICES: "devices",
+		SENSORS: "sensors"
 	});
 	
 	// Definition of a Page class that represents both a menu entry and a content page.
@@ -80,6 +83,12 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 		}
 	};
 	
+	var Title = function () {
+		this.text = "Program Your Home";
+		this.sundegree = "";
+	}
+	title = new Title();
+	
 	// Create all available settings.
 	//TODO: expand possible settings.
 	settings.addSetting(SettingName.AUTO_REFRESH, "Auto refresh", SettingType.BOOLEAN, true);
@@ -90,7 +99,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 	/////////////////////////////////////////
 	// Program Your Home main functions    //
 	/////////////////////////////////////////
-	
+
 	// Create a top level page with the given name as default for all naming and title properties.
 	function createNoRefreshTopLevelPage(name) {
 		createPageByName(name, false, false);
@@ -102,7 +111,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 			createPageByName(module, true, true);
 		});
 	};
-	
+
 	function createPageByName(name, needsRefreshing, usesRest) {
 		var nameCamelCase = util.capitalizeFirstLetter(name);
 		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
@@ -287,7 +296,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 			currentPage.contentElement.removeClass("hidden-page");
 			currentPage.contentElement.addClass("current-page");
 			// Update the on screen title.
-			setTitle(currentPage.title);
+			setTitleText(currentPage.title);
 			// Update the background color. Should be done on the content tag, so it fills the whole content area.
 			if (currentPage.hasJavascriptModule()) {
 				// Set the background color using the javascript module exposed property.
@@ -345,16 +354,21 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 	};
 	
 	// Set the title with the given text.
-	function setTitle(title) {
-		$("#title").html(title);
+	function setTitleText(titleText) {
+		title.text = titleText;
+		updateTitle();
 	};
+
+	// Update the title with the current data in the title object.
+	function updateTitle() {
+		//TODO: only display if sun degree sensor is available on server
+		$("#title").html(title.text + " - * " + title.sundegree + "&deg;");
+	}
 	
 	// Toggle a rest resource: set it to on if currently off and vice versa.
 	function toggleRestResource(module, onVerb, offVerb, id, currentlyOn) {
 		var verbToUse = currentlyOn ? offVerb : onVerb;
 		restClients[module][verbToUse](id).done(createApiDoneFunction()).fail(createFailFunction("rest api"));
-		
-
 	}
 
 	
@@ -365,7 +379,10 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 	function start() {
 		//TODO: The server can provide a list of activated modules and the UI can enable/disable pages based on that info.
 		//TODO: define module / page filter based on API response from server that tells us what modules are available.
-		activeModules = [Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES];
+		//TODO: per module, there might also be a 'meta' availability, for instance for sensors which ones are available + what their props are
+		// Some defaults will be provided as types: sun degree, temperature, humidity, sound level, light intensity, etc. + 'free format'
+		// Actually, is there any way you could display a non standard sensor but just the data value? (but might still be useful of course)
+		activeModules = [Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES, Module.SENSORS];
 	
 		if (util.contains(activeModules, Module.ACTIVITIES)) {
 			var restClientMain = new $.RestClient(baseURL + "main/");
@@ -384,12 +401,21 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 		}
 	
 		if (util.contains(activeModules, Module.DEVICES)) {
-			restClientIr = new $.RestClient(baseURL + "ir/");
+			var restClientIr = new $.RestClient(baseURL + "ir/");
 			restClientIr.add("devices");
 			restClients[Module.DEVICES] = restClientIr.devices;
 		}
+
+		if (util.contains(activeModules, Module.SENSORS)) {
+			//TODO: maybe actually not use a REST client here? Just a URL call could work
+			//Otherwise: do use a REST client with a real JSON response, including e.g. time, value and direction (+ speed)
+			var restClientSensors = new $.RestClient(baseURL + "sensors/");
+			restClientSensors.add("sunDegree");
+			restClients["sunDegree"] = restClientSensors.sunDegree;			
+		}
 		
-		createModuleTopLevelPages(activeModules);
+		//TODO: create generic page for sensors - then use activeModules variable again.
+		createModuleTopLevelPages([Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES]);
 		createNoRefreshTopLevelPage("settings");
 		createNoRefreshTopLevelPage("about");
 		
@@ -422,6 +448,18 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 					refreshCurrentPage();
 				}
 			}, 1000);
+			
+			//FIXME: temp, to update sundegree while not having websockets.
+			setInterval(function () {
+				restClients["sunDegree"].read().done(function (data) {
+					title.sundegree = data;
+					updateTitle();
+				})
+				.fail(createFailFunction("sundegree"));
+			}, 1000);
+
+			
+			
 		}, createFailFunction("menu pre-loading"));
 	};
 

@@ -1,3 +1,5 @@
+"use strict";
+
 // Start a new require module.
 define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pageJavascriptModules", "settings", "config"],
 		function ($, mmenu, rest, Handlebars, Hammer, toast, util, pageJavascriptModules, settings, config) {

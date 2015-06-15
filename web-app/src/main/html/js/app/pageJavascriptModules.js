@@ -1,3 +1,5 @@
+"use strict";
+
 // Start a new require module.
 // Require all the pages, so we can expose them to other modules to be used.
 // This construct is not very pretty, but it prevents 'littering' of the pyh module with lots of page related boilterplate code.

@@ -1,3 +1,5 @@
+"use strict";
+
 // Start a new require module.
 define(["jquery", "settings", "knockout"],
 		function ($, settings, ko) {

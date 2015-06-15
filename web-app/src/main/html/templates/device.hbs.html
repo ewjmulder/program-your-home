@@ -1,2 +1,8 @@
-{{device.name}}<br />
-{{device.description}}<br />
+{{#if device.inputDevice}}
+	<select onchange="require(['pyh'], function (pyh) { pyh.selectInput({{id}}, 'this.value'); });">
+		<option value="-">-</option>
+		{{#each device.inputs}}
+			<option value="{{this}}">{{this}}</option>
+		{{/each}}
+	</select>
+{{/if}}

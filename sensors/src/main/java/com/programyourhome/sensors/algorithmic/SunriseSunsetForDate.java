@@ -15,6 +15,8 @@ import com.luckycatlabs.sunrisesunset.dto.Location;
 
 public class SunriseSunsetForDate {
 
+    private static final String NO_SUNRISE_SUNSET_TIME_AS_STRING = "99:99";
+
     private static final BigDecimal DEGREE_MAX = BigDecimal.valueOf(89.9);
     private static final BigDecimal DEGREE_MIN = DEGREE_MAX.negate();
     private static final BigDecimal DEGREE_STEP = BigDecimal.valueOf(0.1);
@@ -95,7 +97,7 @@ public class SunriseSunsetForDate {
 
     private LocalTime toLocalTime(final String timeAsString) {
         final LocalTime localTime;
-        if (timeAsString == null) {
+        if (timeAsString == null || timeAsString.equals(NO_SUNRISE_SUNSET_TIME_AS_STRING)) {
             localTime = null;
         } else {
             localTime = LocalTime.parse(timeAsString);

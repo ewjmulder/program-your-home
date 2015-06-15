@@ -443,6 +443,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 			loadPage(settings.getSettingValue(SettingName.HOME_PAGE));
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
+			// Tutorial of Spring websockets + stomp (+sockjs): https://spring.io/guides/gs/messaging-stomp-websocket/
+			// Blog with possible pitfalls in combo with Spring Boot: https://fbflex.wordpress.com/2014/03/13/spring-boot-websockets-stompjs-and-angularjs-a-few-notes/
 			setInterval(function () {
 				if (settings.getSettingValue(SettingName.AUTO_REFRESH) && currentPage.needsRefreshing) {
 					refreshCurrentPage();

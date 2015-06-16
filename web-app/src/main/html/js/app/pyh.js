@@ -1,8 +1,8 @@
 "use strict";
 
 // Start a new require module.
-define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pageJavascriptModules", "settings", "config"],
-		function ($, mmenu, rest, Handlebars, Hammer, toast, util, pageJavascriptModules, settings, config) {
+define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "sock", "util", "pageJavascriptModules", "settings", "config"],
+		function ($, mmenu, rest, Handlebars, Hammer, toast, stomp, SockJS, util, pageJavascriptModules, settings, config) {
 	
 	// Save settings data in local variables for easier accessing.
 	var SettingName = settings.SettingName;
@@ -251,7 +251,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 		// Get the mmenu API object.
 		var mmenuApi = $menu.data("mmenu");
 		// Set the menu item that is defined as the home page as the selected one.
-		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));		
+		mmenuApi.setSelected($("#menu-" + pages[settings.getSettingValue(SettingName.HOME_PAGE)].id));
 
 		// Bind to the touchstart event to be able to close the menu on touch events.
 		// Do this binding only once, when the menu is opened for the first time.
@@ -364,7 +364,10 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 	// Update the title with the current data in the title object.
 	function updateTitle() {
 		//TODO: only display if sun degree sensor is available on server
-		$("#title").html(title.text + " - * " + title.sundegree + "&deg;");
+		//TODO: make a handlebars template out of this
+		$("#title-left").html("lefty");
+		$("#title-middle").html(title.text);
+		$("#title-right").html("<i class='fa fa-sun-o'></i> " + title.sundegree + "&deg;");
 	}
 	
 	// Toggle a rest resource: set it to on if currently off and vice versa.
@@ -453,16 +456,33 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "util", "pag
 				}
 			}, 1000);
 			
-			//FIXME: temp, to update sundegree while not having websockets.
-			setInterval(function () {
-				restClients["sunDegree"].read().done(function (data) {
-					title.sundegree = data;
-					updateTitle();
-				})
-				.fail(createFailFunction("sundegree"));
-			}, 1000);
+			//FIXME: temp to test stomp over websocket
+			var stompClient = null;
 
-			
+	        function connect() {
+	        	// TODO: better config for websocket URL
+	            var socket = new SockJS("http://192.168.2.100:3737/websocket");
+	            stompClient = Stomp.over(socket);
+	            stompClient.connect({}, function(frame) {
+	                stompClient.subscribe('/topic/event/sunDegree', function (message) {
+						title.sundegree = message.body;
+						updateTitle();
+	                });
+	            });
+	        }
+	        connect();
+	        
+	        //TODO: something with disconnect?
+//
+//	        function disconnect() {
+//	            if (stompClient != null) {
+//	                stompClient.disconnect();
+//	            }
+//	            setConnected(false);
+//	            console.log("Disconnected");
+//	        }
+// This is how to send a message from client to server
+//	            stompClient.send("/app/hello", {}, JSON.stringify({ 'name': name }));			
 			
 		}, createFailFunction("menu pre-loading"));
 	};

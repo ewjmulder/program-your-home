@@ -6,12 +6,13 @@
 define(["util", "pageActivities", "pageLights", "pageDevices", "pageSettings", "pageAbout"],
 		function (util, pageActivities, pageLights, pageDevices, pageSettings, pageAbout) {
 
-	var self = this;
-	this.pageActivities = pageActivities;
-	this.pageLights = pageLights;
-	this.pageDevices = pageDevices;
-	this.pageSettings = pageSettings;
-	this.pageAbout = pageAbout;
+	//TODO: find a nicer solution for this!
+	var pageHolder = {};
+	pageHolder.pageActivities = pageActivities;
+	pageHolder.pageLights = pageLights;
+	pageHolder.pageDevices = pageDevices;
+	pageHolder.pageSettings = pageSettings;
+	pageHolder.pageAbout = pageAbout;
 	
 	////////////////////////////////////////////////////////////
 	// Program Your Home page javascript modules wrapper util //
@@ -19,7 +20,7 @@ define(["util", "pageActivities", "pageLights", "pageDevices", "pageSettings", "
 
 	return {
 		getJavascriptModuleByPageName: function (pageName) {
-		    return self["page" + util.capitalizeFirstLetter(pageName)];
+		    return pageHolder["page" + util.capitalizeFirstLetter(pageName)];
 		}
 	};
 

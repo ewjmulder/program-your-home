@@ -16,7 +16,9 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Config XSD/XML files: why in separate module for server, but not for modules themselves? -> accept or move server config inside server module
 - XSD/XML at server level for 'filling' the server with content en behaviour (activities, rules, etc)
 - XSD/XML per module with non-technical, or at least more subject related stuff, like devices for IR, etc.
+- Only allow same server deployment of backend and frontend for security reasons? Or proper config for CORS in xml/props
 - Internally in modules: use mapping from id to model impl value object to easily do existence checks and retrieve data
+- Workaround for using qualifier on injected beans of type Executor? (result of using Spring Boot websockets with SockJS)
 - POM file management
   - right scopes for obvious dependencies in parent pom: e.g. test for junit (hmm, or not, not really clear on child project what the scope is)
   - bom dependencies in parent, e.g. Spring

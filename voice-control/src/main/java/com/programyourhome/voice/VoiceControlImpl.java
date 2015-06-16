@@ -13,6 +13,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.TaskScheduler;
@@ -33,6 +34,7 @@ public class VoiceControlImpl implements VoiceControl {
     private final Log log = LogFactory.getLog(this.getClass());
 
     @Autowired
+    @Qualifier("PyhExecutor")
     private TaskScheduler questionProcessingScheduler;
 
     @Autowired

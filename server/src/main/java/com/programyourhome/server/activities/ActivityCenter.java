@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.hue.PhilipsHue;
@@ -22,6 +23,7 @@ import com.programyourhome.server.config.model.PhilipsHueConfig;
 public class ActivityCenter {
 
     @Autowired
+    @Qualifier("PyhExecutor")
     private Executor taskExecutor;
 
     @Autowired

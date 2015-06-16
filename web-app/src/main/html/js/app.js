@@ -9,6 +9,8 @@ requirejs.config({
 		knockout: 'knockout.3.3.0.min',
 		hammer: 'hammer-2.0.4.min',
 		toast: 'jquery.toastmessage',
+		stomp: 'stomp.min',
+		sock: 'sockjs-1.0.0.min',
 
 		// Config file, with the application specific configuration (other than the user specific settings)
 		config: '../config/configuration',
@@ -47,6 +49,10 @@ requirejs.config({
 		// Expose Hammer constructor.
 		'hammer': {
 			exports: 'Hammer'
+		},
+		// Expose SockJS constructor.
+		'sock': {
+			exports: 'SockJS'
 		}
 	}
 });

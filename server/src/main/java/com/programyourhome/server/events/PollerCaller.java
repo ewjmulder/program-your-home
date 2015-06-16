@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class PollerCaller {
     private ApplicationContext applicationContext;
 
     @Autowired
+    @Qualifier("PyhExecutor")
     private TaskScheduler pollerScheduler;
 
     private final Random random;

@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("PyhExecutor")
 public class TaskSchedulerAndExecutorBean extends ThreadPoolTaskScheduler {
 
     private static final long serialVersionUID = 1L;

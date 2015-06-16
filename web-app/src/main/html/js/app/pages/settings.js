@@ -1,4 +1,5 @@
-"use strict";
+//FIXME: fix use strict here
+//"use strict";
 
 // Start a new require module.
 define(["jquery", "settings", "knockout"],

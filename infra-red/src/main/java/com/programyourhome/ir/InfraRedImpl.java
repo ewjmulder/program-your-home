@@ -18,6 +18,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.task.TaskExecutor;
@@ -46,6 +47,7 @@ public class InfraRedImpl implements InfraRed {
     // TODO: failover possiblilities for non existing key types / names? (instead of Optional.get())
 
     @Autowired
+    @Qualifier("PyhExecutor")
     private TaskScheduler pressRemoteKeyScheduler;
 
     // TODO: document: a queue with keys to press for every device. always retains the last key pressed, to be able to check if the required delay has passed.
@@ -68,6 +70,7 @@ public class InfraRedImpl implements InfraRed {
     private WinLIRCClient winLircClient;
 
     @Autowired
+    @Qualifier("PyhExecutor")
     private TaskExecutor initExecutor;
 
     private final Map<Integer, DeviceState> deviceStates;

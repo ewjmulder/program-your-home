@@ -1,104 +1,62 @@
 "use strict";
 
-
-//TODO: build new events module.
-
 //TODO: much more modularization in pyh code. Ideas:
 // init: base URL, ping, check available modules (also todo on server), all other once logic (load templates?)
-// mmenu: menu logic, hammer stuff, page triggers
 // page(s): page class + logic
-// logging (+ framework) -> own log module to hide framework behind it?
 // pyh: anything left here?
 // + refactor out pageJavascriptModules
 
 
 // Start a new require module.
-define(["jquery", "util"],
-		function ($, util) {
+// Provides an API for the rest of the application to receive events from the server.
+// Sort of an event broker for the client side, hiding the actual implementation framework and technology.
+define(["jquery", "stomp", "sock", "config", "util", "log"],
+		function ($, stomp, sock, config, util, log) {
+
+	// Enum-like definition of all possible event topics.
+	var EventTopic = Object.freeze({
+		SUN_DEGREE: "/topic/event/sunDegree"
+	});
 	
-	// Map with all setting name->object pairs.
-	var settings = {};
+	// Client for STOMP communication with the server (over a websocket).
+	var stompClient = null;
 
-	// Enum-like definition of all possible Setting type.
-	var SettingType = Object.freeze({
-		STRING: {name: "string", parseFunction: util.identity},
-		BOOLEAN: {name: "boolean", parseFunction: $.parseJSON},
-	});
+    function connect(callback) {
+        var socket = new SockJS(config.getValue("serverUrl") + "/websocket");
+        stompClient = Stomp.over(socket);
+        // Connect to the server over the websocket. Note the use of the empty object {} here. This means no (additional) headers are sent, so also no login/account info is provided.
+        stompClient.connect({},
+	    		function (frame) {
+        			callback();
+	    			log.info("Successfully connected to websocket.");
+	    		},
+	    		function (error) {
+	    			log.error("Error occured while connecting to websocket: " + error);
+	    		});
+    };
 
-	// Enum-like definition of all possible Setting names.
-	var SettingName = Object.freeze({
-		SLIDING_SUBMENUS: "slidingSubmenus",
-		HOME_PAGE: "homePage"
-	});
-
-	//TODO: Create a spearate settings module, so we don't require circular dependencies.
-	// Definition of a Setting class that represents one changeable setting of the application.
-	var Setting = function (name, displayName, type, defaultValue) {
-		var self = this;
-		this.name = name;
-		this.displayName = displayName;
-		this.type = type;
-		this.defaultValue = defaultValue;
-		this.value = function () {
-			var value = localStorage.getItem(self.name);
-			if (value == null) {
-				value = self.defaultValue;
-				localStorage.setItem(self.name, value);
-			} else {
-				value = self.type.parseFunction(value);
-			}
-			return value;
-		}();
-		
-		this.resetToDefault = function() {
-			this.setNewValue(this.defaultValue);
-		};
-		
-		// Two ways to set a new value for this setting, while also saving the value in the local storage.
-		// Always use one of these functions to set a new value, instead of directly accessing the property,
-		// otherwise the new value won't be saved over time.
-		// The difference between the two is: one accepts only String values and will call the parse function,
-		// the other only accepts a value of the right type.
-		this.setNewValueFromString = function (valueString) {
-			if ((typeof valueString) != "string") {
-				throw "Error while setting new value from string for setting: '" + this.name + "': the value type: '" + (typeof value) + "' is not a string.";
-			}
-			this.setNewValue(this.type.parseFunction(valueString));
-		}
-		this.setNewValue = function (value) {
-			if ((typeof value) != type.name) {
-				throw "Error while setting new value for setting: '" + this.name + "': the value type: '" + (typeof value) + "' did not match the setting type: '" + this.type.name +"'.";
-			}
-			this.value = value;
-			localStorage.setItem(this.name, this.value);
-		};
-		
-		// Register this instance in the settings map.
-		settings[name] = this;
-	};
-
-
+    function subscribe(eventTopic, callback, preprocessor) {
+    	var doSubscribe = function () {
+            stompClient.subscribe(eventTopic, function (message) {
+        		callback(preprocessor(message.body));
+            });    		
+            log.debug("Subscription created for topic: '" + eventTopic + "'.");
+    	};
+    	// If the client is null     (so not connected)    : connect first and then do the subscribe action.
+    	// If the client is not null (so already connected): immediately do the subscribe action.
+    	stompClient == null ? connect(doSubscribe) : doSubscribe();
+    };
+    
 	return {
-		SettingName: SettingName,
-		SettingType: SettingType,
-
-		// TODO: Type check on SettingName, SettingValue (and name not already in map
-		addSetting: function (name, displayName, type, defaultValue) {
-			new Setting(name, displayName, type, defaultValue);
+		EventTopic: EventTopic,
+		
+		subscribeForText: function (eventTopic, callback) {
+			subscribe(eventTopic, callback, util.identity);
 		},
 		
-		getSettingsMap: function () {
-			return settings;
-		},
-
-		getSetting: function (settingName) {
-			return settings[settingName];
-		},
-
-		// TODO: Type check on SettingName
-		getSettingValue: function (settingName) {
-			return settings[settingName].value;
-		}
+		subscribeForObject: function (eventTopic, callback) {
+			subscribe(eventTopic, callback, JSON.parse);
+		}	
 	};
 
 

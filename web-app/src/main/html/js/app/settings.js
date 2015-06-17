@@ -7,13 +7,13 @@ define(["jquery", "util"],
 	// Map with all setting name->object pairs.
 	var settings = {};
 
-	// Enum-like definition of all possible Setting type.
+	// Enum-like definition of the possible types a setting value can have.
 	var SettingType = Object.freeze({
 		STRING: {name: "string", parseFunction: util.identity},
 		BOOLEAN: {name: "boolean", parseFunction: $.parseJSON},
 	});
 
-	// Enum-like definition of all possible Setting names.
+	// Enum-like definition of all possible setting names. So essentially the settings that are available.
 	var SettingName = Object.freeze({
 		SLIDING_SUBMENUS: "slidingSubmenus",
 		HOME_PAGE: "homePage"

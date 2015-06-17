@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // Thin wrapper around the used logging framework.
-define(["loglevel"],
-		function (loglevel) {
+define(["loglevel", "config", "toast"],
+		function (loglevel, config, toast) {
 	
 	return {
 		trace: function (obj) {
@@ -24,6 +24,15 @@ define(["loglevel"],
 		
 		error: function (obj) {
 			loglevel.error(obj);
+			if (config.getValue("showErrorsOnScreen")) {
+				// TODO: also include a 'report to developer' kind of button to get feedback
+				$().toastmessage("showToast", {
+				    text     : errorMessage,
+				    sticky   : true,
+				    type     : "error",
+				    position : "middle-center"
+				});
+			}
 		},
 		
 		setLevel: function (level) {

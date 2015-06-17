@@ -11,6 +11,7 @@ requirejs.config({
 		toast: 'jquery.toastmessage',
 		stomp: 'stomp.min',
 		sock: 'sockjs-1.0.0.min',
+		loglevel: 'loglevel.min',
 
 		// Config file, with the application specific configuration (other than the user specific settings)
 		config: '../config/configuration',
@@ -26,6 +27,8 @@ requirejs.config({
 		pageJavascriptModules: "../app/pageJavascriptModules",
 		util: '../app/util',
 		settings: '../app/settings',
+		events: '../app/events',
+		log: '../app/log',
 		pyh: '../app/pyh'
 	},
 	shim: {

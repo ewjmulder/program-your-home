@@ -18,7 +18,6 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        // TODO: Any client side callable endpoints needed? Replace REST with this? (seems not to work without it)
         registry.addEndpoint("/websocket").setAllowedOrigins("*").withSockJS();
     }
 

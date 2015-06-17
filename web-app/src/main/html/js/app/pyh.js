@@ -30,7 +30,9 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 	var activeModules = [];
 	// The title object that contains all information to be displayed in the title.
 	var title = {};
-	
+	// Client for STOMP communication over websockets with the server. Can be used to send messages or register for certain topics.
+	var stompClient = {};
+
 	
 	/////////////////////////////////////////
 	// Program Your Home class definitions //
@@ -45,7 +47,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 	});
 	
 	// Definition of a Page class that represents both a menu entry and a content page.
-	var Page = function (name, templateName, menuName, title, isTopLevel, needsRefreshing, javascriptModule, iconName, restApiBase, resourceId, subPages) {
+	var Page = function (name, templateName, menuName, title, isTopLevel, javascriptModule, iconName, restApiBase, resourceId, subPages) {
 		pageIdCounter++;
 		this.id = pageIdCounter;
 		this.name = name;
@@ -53,7 +55,6 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 		this.menuName = menuName;
 		this.title = title;
 		this.isTopLevel = isTopLevel;
-		this.needsRefreshing = needsRefreshing;
 		this.javascriptModule = javascriptModule;
 		this.iconName = iconName;
 		this.hasJavascriptModule = function () { return this.javascriptModule != null; };
@@ -93,7 +94,6 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 	
 	// Create all available settings.
 	//TODO: expand possible settings.
-	settings.addSetting(SettingName.AUTO_REFRESH, "Auto refresh", SettingType.BOOLEAN, true);
 	settings.addSetting(SettingName.SLIDING_SUBMENUS, "Sliding sub-menu's", SettingType.BOOLEAN, true);
 	// TODO: make safer by using some sort of enum/list type and a drop down in the page.
 	settings.addSetting(SettingName.HOME_PAGE, "Home page", SettingType.STRING, "activities");
@@ -103,21 +103,21 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 	/////////////////////////////////////////
 
 	// Create a top level page with the given name as default for all naming and title properties.
-	function createNoRefreshTopLevelPage(name) {
-		createPageByName(name, false, false);
+	function createStaticTopLevelPage(name) {
+		createPageByName(name, false);
 	};
 	
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createModuleTopLevelPages(modules) {
 		modules.forEach(function (module) {
-			createPageByName(module, true, true);
+			createPageByName(module, true);
 		});
 	};
 
-	function createPageByName(name, needsRefreshing, usesRest) {
+	function createPageByName(name, usesRest) {
 		var nameCamelCase = util.capitalizeFirstLetter(name);
 		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
-		new Page(name, name, nameCamelCase, nameCamelCase, true, needsRefreshing, javascriptModule, config.getValue("topLevelIconMap")[name], usesRest ? restClients[name] : null);
+		new Page(name, name, nameCamelCase, nameCamelCase, true, javascriptModule, config.getValue("topLevelIconMap")[name], usesRest ? restClients[name] : null);
 	}
 	
 	// Create a function that handles the result of an api call.
@@ -182,7 +182,7 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 		restClients[Module.DEVICES].read().done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
-				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, false, null, config.getValue("deviceIconMap")[devices[i].id], restClients[Module.DEVICES], devices[i].id));
+				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, null, config.getValue("deviceIconMap")[devices[i].id], restClients[Module.DEVICES], devices[i].id));
 			}
 			deviceLoading.resolve();
 		})
@@ -421,8 +421,8 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 		
 		//TODO: create generic page for sensors - then use activeModules variable again.
 		createModuleTopLevelPages([Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES]);
-		createNoRefreshTopLevelPage("settings");
-		createNoRefreshTopLevelPage("about");
+		createStaticTopLevelPage("settings");
+		createStaticTopLevelPage("about");
 		
 		var templateNames = Object.keys(pages).map(function (pageName) {
 			return pages[pageName].templateName;
@@ -446,22 +446,14 @@ define(["jquery", "mmenu", "rest", "handlebars", "hammer", "toast", "stomp", "so
 			activateMenu();
 			// Load the default page as defined in the home page setting.
 			loadPage(settings.getSettingValue(SettingName.HOME_PAGE));
+
 			// Refresh every so often to keep in sync with server state.
 			// TODO: Alternative to reload every second: have websocket connection to server and reload only upon receiving a changed event (and ideally only if change is on current page)
-			// Tutorial of Spring websockets + stomp (+sockjs): https://spring.io/guides/gs/messaging-stomp-websocket/
-			// Blog with possible pitfalls in combo with Spring Boot: https://fbflex.wordpress.com/2014/03/13/spring-boot-websockets-stompjs-and-angularjs-a-few-notes/
-			setInterval(function () {
-				if (settings.getSettingValue(SettingName.AUTO_REFRESH) && currentPage.needsRefreshing) {
-					refreshCurrentPage();
-				}
-			}, 1000);
 			
 			//FIXME: temp to test stomp over websocket
-			var stompClient = null;
 
 	        function connect() {
-	        	// TODO: better config for websocket URL
-	            var socket = new SockJS("http://192.168.2.100:3737/websocket");
+	            var socket = new SockJS(baseURL + "/websocket");
 	            stompClient = Stomp.over(socket);
 	            stompClient.connect({}, function(frame) {
 	                stompClient.subscribe('/topic/event/sunDegree', function (message) {

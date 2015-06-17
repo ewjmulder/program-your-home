@@ -1,5 +1,17 @@
 "use strict";
 
+
+//TODO: build new events module.
+
+//TODO: much more modularization in pyh code. Ideas:
+// init: base URL, ping, check available modules (also todo on server), all other once logic (load templates?)
+// mmenu: menu logic, hammer stuff, page triggers
+// page(s): page class + logic
+// logging (+ framework) -> own log module to hide framework behind it?
+// pyh: anything left here?
+// + refactor out pageJavascriptModules
+
+
 // Start a new require module.
 define(["jquery", "util"],
 		function ($, util) {

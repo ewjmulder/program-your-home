@@ -54,16 +54,7 @@ define(["log"],
 		//////////////////////////////////////////////
 		// Program Your Home more complex functions //
 		//////////////////////////////////////////////
-	
-		// Create a function that handles the result of an api call.
-		createApiDoneFunction: function () {
-			return function (result) {
-				if (!result.success) {
-					log.error("Rest api call returned an error: " + result.error);
-				}
-			};
-		},
-		
+			
 		// Create a function that handles the result of a async function failure.
 		// The source is a small description of what the async function was loading.
 		createFailFunction: function (source, customErrorMessage) {

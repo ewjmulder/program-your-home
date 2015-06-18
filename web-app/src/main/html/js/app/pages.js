@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // All pages administration and logic.
-define(["jquery", "config", "util"],
-		function ($, config, util) {
+define(["jquery", "config", "util", "pageJavascriptModules"],
+		function ($, config, util, pageJavascriptModules) {
 	
 	// Map with all page name->object pairs.
 	var pages = {};
@@ -58,24 +58,29 @@ define(["jquery", "config", "util"],
 		new Page(name, name, nameCamelCase, nameCamelCase, true, javascriptModule, config.getValue("topLevelIconMap")[name], usesRest ? restClients[name] : null, null, []);
 	}
 
-	// Load the page with the given name. This is the only function that should modify the currentPage variable.
-	function loadPage(pageName) {
+	// Show the page with the given name. This is the only function that should modify the currentPage variable.
+	function showPage(pageName) {
 		if (currentPage == null || currentPage.name != pageName) {
 			// If the 'old current page' exists, hide it.
 			if (currentPage != null) {
 				currentPage.contentElement.removeClass("current-page");
 				currentPage.contentElement.addClass("hidden-page");
 			} else {
-				// First page load, remove loading text.
+				// This is the first page load, so remove the 'loading' text.
 				$("#page-loading-content").addClass("hidden-page");
 			}
 			// Set the 'new current page'.
 			currentPage = pages[pageName];
+			// Load the page if it's shown for the first time (one time action only).
+			if (!currentPage.isLoaded()) {
+				loadPage(currentPage);
+			}
 			// Show the 'new current page'.
 			currentPage.contentElement.removeClass("hidden-page");
 			currentPage.contentElement.addClass("current-page");
 			// Update the on screen title.
-			setTitleText(currentPage.title);
+			//FIXME: sep title module/template or what?
+			//setTitleText(currentPage.title);
 			// Update the background color. Should be done on the content tag, so it fills the whole content area.
 			if (currentPage.hasJavascriptModule()) {
 				// Set the background color using the javascript module exposed property.
@@ -85,50 +90,43 @@ define(["jquery", "config", "util"],
 				$("#content").css("background-color", "white");
 			}
 		}
-		refreshCurrentPage();
 	};
 	
-	// Refresh the current page.
-	function refreshCurrentPage() {
-		// TODO: Always provide a timestamp (millis) to the template? This can be used to create unique id's for DOM elements.
-		// This can prevent clashes when reloading the same page. That seems to be an issue at the settings page. But not well reproducable.
-		if (currentPage != null) {
-			if (currentPage.usesRestApi()) {
-				currentPage.restApiFunction().done(function (data) {
-					refreshCurrentPageWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage(data));
-				})
-				.fail(createFailFunction("page " + currentPage.name));
-			} else {
-				//TODO: how to provide data input? -> for now just no data required (to be: static template page)
-				refreshCurrentPageWithTemplate(currentPage.templateName, createTemplateDataFromCurrentPage({}));
-			}
+	// Load the page with the given name. Loading means processing the template with the required input data.
+	// This function should be called only once per page. After the initial loading, all updates should
+	// happen based on (state change) events coming in from the server.
+	function loadPage(page) {
+		// TODO: less specific, maybe some load function property?
+		if (page.usesRestApi()) {
+			page.restApiFunction().done(function (data) {
+				loadPageWithTemplate(page, createTemplateDataFromPage(page, data));
+			})
+			.fail(util.createFailFunction("page " + page.name));
+		} else {
+			//TODO: how to provide data input? -> for now just no data required (to be: static template page)
+			loadPageWithTemplate(page, createTemplateDataFromPage(page, {}));
 		}
 	};
 	
-	// Create a template data input object based on the current page.
-	function createTemplateDataFromCurrentPage(data) {
+	// Create a template data input object based on the provided page.
+	function createTemplateDataFromPage(page, data) {
 		var templateData = {};
 		// Use the template name as property name to feed the template with.
-		templateData[currentPage.templateName] = data; 
+		//TODO: assumption is that the template requires an 'outer' object with a named prop to start traversal.
+		//TODO: try out if you can feed the (eg) collection directly and then using the 'this' keyword (or similar) in the handlebars template
+		templateData[page.templateName] = data; 
 		return templateData;
 	};
 	
-	// Refresh the current page, using the templateData to feed the template.
-	// Also take into account if the page loads for the first time or not.
-	function refreshCurrentPageWithTemplate(templateName, templateData) {
+	// Load the provided page, using the templateData to feed the template.
+	function loadPageWithTemplate(page, templateData) {
 		// 'unwrap' the data for direct usage.
-		var data = templateData[currentPage.templateName];
-		if (!currentPage.isLoaded()) {
-			var pageDomTree = templates[templateName](templateData);
-			// Put the DOM tree in the div element the current page.
-			currentPage.contentElement.html(pageDomTree);
-			if (currentPage.hasJavascriptModule()) {
-				currentPage.javascriptModule.createPage(data);
-			}
-		} else {
-			if (currentPage.hasJavascriptModule()) {
-				currentPage.javascriptModule.refreshPage(data);
-			}			
+		var data = templateData[page.templateName];
+		var pageDomTree = templates[templateName](templateData);
+		// Put the DOM tree in the content element of the page.
+		page.contentElement.html(pageDomTree);
+		if (page.hasJavascriptModule()) {
+			page.javascriptModule.createPage(data);
 		}
 	};
 	
@@ -148,8 +146,21 @@ define(["jquery", "config", "util"],
 		createSubPage: function (parentPageName, subPageName, templateName, menuName, title, javascriptModule, iconName, restApiBase, resourceId) {
 			pages[parentPageName].subPages.push(subPageName, templateName, menuName, title, false, javascriptModule, iconName, restApiBase, resourceId, []);
 		},
+
+		// Array with all pages.
+		all: function () {
+			return Object.keys(pages).map(function (pageName) {
+			    return pages[pageName];
+			});
+		},
+
+		// Array with all top level pages.
+		allTopLevel: function () {
+			return topLevelPages;
+		},
 		
-		getPageByName: function (pageName) {
+		// Find the page with the given name.
+		byName: function (pageName) {
 			return pages[pageName];
 		}
 		

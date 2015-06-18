@@ -4,7 +4,7 @@ requirejs.config({
 		// Libraries used in the application.
 		jquery: 'jquery-2.1.1.min',
 		mmenu: 'jquery.mmenu.min.all',
-		rest: 'jquery.rest.min',
+		jqrest: 'jquery.rest.min',
 		handlebars: 'handlebars-v3.0.1.min',
 		knockout: 'knockout.3.3.0.min',
 		hammer: 'hammer-2.0.4.min',
@@ -14,7 +14,7 @@ requirejs.config({
 		loglevel: 'loglevel.min',
 
 		// Config file, with the application specific configuration (other than the user specific settings)
-		config: '../config/configuration',
+		config: '../config',
 		
 		// Separate script files for the pages, naming convention is: "page" + util.capitalizeFirstLetter(pageName)
 		pageActivities: '../app/pages/activities',
@@ -27,9 +27,13 @@ requirejs.config({
 		pageJavascriptModules: "../app/pageJavascriptModules",
 		util: '../app/util',
 		settings: '../app/settings',
+		templates: '../app/templates',
+		menu: '../app/menu',
+		pages: '../app/pages',
+		rest: '../app/rest',
 		events: '../app/events',
 		log: '../app/log',
-		pyh: '../app/pyh'
+		main: '../app/main'
 	},
 	shim: {
 		'mmenu': {
@@ -39,7 +43,7 @@ requirejs.config({
                 this.Hammer = Hammer;
             }
 		},
-		'rest': {
+		'jqrest': {
 			deps: ['jquery']
 		},
 		'toast': {

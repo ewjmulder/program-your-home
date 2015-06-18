@@ -12,11 +12,6 @@
 // Sort of an event broker for the client side, hiding the actual implementation framework and technology.
 define(["jquery", "stomp", "sock", "config", "util", "log"],
 		function ($, stomp, sock, config, util, log) {
-
-	// Enum-like definition of all possible event topics.
-	var EventTopic = Object.freeze({
-		SUN_DEGREE: "/topic/event/sunDegree"
-	});
 	
 	// Client for STOMP communication with the server (over a websocket).
 	var stompClient = null;

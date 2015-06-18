@@ -4,7 +4,10 @@
 // Handles all template loading logic.
 define(["jquery", "handlebars"],
 		function ($, Handlebars) {
-	
+
+	// Map with all template name->object pairs.
+	var templates = {};
+
 	// Load the templates with the given names.
 	function loadTemplates(templateNames) {
 		var templateLoading = $.Deferred();
@@ -24,7 +27,7 @@ define(["jquery", "handlebars"],
 		    		templateLoading.reject();
 		    	}
 		    })
-		    .fail(createFailFunction("template " + templateName))
+		    .fail(util.createFailFunction("template " + templateName))
 		    .fail(templateLoading.reject);
 		});
 		return templateLoading;
@@ -33,6 +36,10 @@ define(["jquery", "handlebars"],
 	return {
 		load: function (templateNames) {
 			return loadTemplates(templateNames);
+		},
+	
+		get: function (name) {
+			return templates[name];
 		}
 	};
 

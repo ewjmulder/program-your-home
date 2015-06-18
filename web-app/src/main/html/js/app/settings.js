@@ -13,12 +13,6 @@ define(["jquery", "util"],
 		BOOLEAN: {name: "boolean", parseFunction: $.parseJSON},
 	});
 
-	// Enum-like definition of all possible setting names. So essentially the settings that are available.
-	var SettingName = Object.freeze({
-		SLIDING_SUBMENUS: "slidingSubmenus",
-		HOME_PAGE: "homePage"
-	});
-
 	//TODO: Create a spearate settings module, so we don't require circular dependencies.
 	// Definition of a Setting class that represents one changeable setting of the application.
 	var Setting = function (name, displayName, type, defaultValue) {

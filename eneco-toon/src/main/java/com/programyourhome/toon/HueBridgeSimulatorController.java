@@ -33,7 +33,7 @@ public class HueBridgeSimulatorController extends AbstractProgramYourHomeControl
 
     @RequestMapping(value = "menuItemClicked/{name}/{on}", method = RequestMethod.PUT)
     public void menuItemClicked(@PathVariable("name") final String activityName, @PathVariable("on") final boolean on) {
-        final Optional<Activity> activity = this.getActivity(activityName);
+        final Optional<Activity> activity = this.findActivity(activityName);
         if (activity.isPresent()) {
             if (on) {
                 this.activityCenter.startActivity(activity.get());

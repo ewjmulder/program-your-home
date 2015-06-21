@@ -27,7 +27,7 @@ define(["loglevel", "config", "toast"],
 			if (config.getValue("showErrorsOnScreen")) {
 				// TODO: also include a 'report to developer' kind of button to get feedback
 				$().toastmessage("showToast", {
-				    text     : errorMessage,
+				    text     : obj,
 				    sticky   : true,
 				    type     : "error",
 				    position : "middle-center"

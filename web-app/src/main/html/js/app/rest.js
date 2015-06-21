@@ -2,23 +2,23 @@
 
 // Start a new require module.
 // Module that contains generic logic for creating and calling a REST service.
-define(["jquery", "jqrest", "util"],
-		function ($, jqrest, util) {
+define(["jquery", "jqrest", "util", "config"],
+		function ($, jqrest, util, config) {
 	
 	// Map with all rest client name->(resourceName->client object) pairs.
 	var restClients = {};
 	
-	createRestService: function (clientName, prefix, resourceMap) {
+	function createRestClient(clientName, prefix, resourceMap) {
 		var restClient = new $.RestClient(config.getValue("serverUrl") + prefix + "/");
-		resourcesMap.foreach(function (resourceName) {
+		Object.keys(resourceMap).forEach(function (resourceName) {
 			restClient.add(resourceName);
-			resourcesMap[resourceName].foreach(function (verbName) {
-				httpMethod = resourcesMap[resourceName][verbName];
+			Object.keys(resourceMap[resourceName]).forEach(function (verbName) {
+				var httpMethod = resourceMap[resourceName][verbName];
 				restClient[resourceName].addVerb(verbName, httpMethod);
 			});
 			restClients[clientName] = restClient;
 		});
-	}
+	};
 
 	function callVerb(clientName, resourceName, resourceId, verb) {
 		var loading = $.Deferred();
@@ -31,7 +31,7 @@ define(["jquery", "jqrest", "util"],
 				log.error("Rest command with clientName: '" + clientName + "', resourceName: '" + resourceName +
 						"', resourceId: '" + resourceId + "', verb: '" + verb + "' returned an error: " + result.error);
 				// and reject the promise.
-				loading.reject;
+				loading.reject();
 			} else {
 				// Otherwise, resolve the promise with the result.
 				loading.resolve(result);
@@ -39,10 +39,10 @@ define(["jquery", "jqrest", "util"],
 		})
 	    .fail(util.createFailFunction(resourceName))
 	    .fail(loading.reject);
-		loading.done(createDoneFunction(clientName, resourceName, resourceId, verb));
 		return loading;
-	}
+	};
 
+	
 	return {
 		create: function (clientName, prefix, resourceMap) {
 			createRestClient(clientName, prefix, resourceMap);
@@ -58,7 +58,13 @@ define(["jquery", "jqrest", "util"],
 		
 		verb: function (clientName, resourceName, resourceId, verb) {
 			return callVerb(clientName, resourceName, resourceId, verb);
-		}		
+		},
+		
+		//FIXME: remove the need for this!
+		
+		get: function(name) {
+			return restClients[name];
+		}
 	};
 
 

@@ -80,10 +80,19 @@
             </activity>
             <activity>
                 <id>3</id>
-                <name>Go to sleep</name>
-                <description>Turn off any running media devices. Slowly start dimming the lights downstairs. Turn off the heater.</description>
+                <name>Test activitiy</name>
+                <description>Just for testing</description>
                 <icon>night.png</icon>
                 <modules>
+                    <infraRed>
+                        <devices>
+                            <device>
+                                <id>1</id>
+                                <turnOn>true</turnOn>
+                                <input>HDMI 1</input>
+                            </device>
+                        </devices>
+                    </infraRed>
                 </modules>
             </activity>
         </activities>

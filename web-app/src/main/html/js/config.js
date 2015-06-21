@@ -33,7 +33,7 @@ define([],
 	// Custom server URL for the PYH server. Please remember to put a '/' at the end.
 	var customServerUrl = "http://example.com:3737/";
 	
-	configMap["serverUrl"] = useDefaulServerUrl ? buildDefaultServerUrl() : customServerUrl;
+	configMap["serverUrl"] = useDefaultServerUrl ? buildDefaultServerUrl() : customServerUrl;
 	
 	configMap["logLevel"] = "trace";
 

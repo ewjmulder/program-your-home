@@ -1,6 +1,6 @@
 package com.programyourhome.server.events;
 
-public class ValueChangedEvent<T> extends PyhEvent {
+public abstract class ValueChangedEvent<T> extends PyhEvent {
 
     private static final long serialVersionUID = 1L;
 

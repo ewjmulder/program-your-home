@@ -32,6 +32,7 @@ requirejs.config({
 		pages: '../app/pages',
 		rest: '../app/rest',
 		events: '../app/events',
+		enums: '../app/enums',
 		log: '../app/log',
 		main: '../app/main'
 	},
@@ -65,4 +66,4 @@ requirejs.config({
 });
 
 // Start by loading the main app file.
-require(['pyh']);
+require(['main']);

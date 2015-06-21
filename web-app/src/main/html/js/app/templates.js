@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // Handles all template loading logic.
-define(["jquery", "handlebars"],
-		function ($, Handlebars) {
+define(["jquery", "handlebars", "util", "log"],
+		function ($, Handlebars, util, log) {
 
 	// Map with all template name->object pairs.
 	var templates = {};
@@ -23,7 +23,7 @@ define(["jquery", "handlebars"],
 			    		templateLoading.resolve();
 			    	}
 		    	} catch (error) {
-		    		showError("Error while compiling template: " + error);
+		    		log.error("Error while compiling template: " + error);
 		    		templateLoading.reject();
 		    	}
 		    })
@@ -34,8 +34,12 @@ define(["jquery", "handlebars"],
 	}
 	
 	return {
-		load: function (templateNames) {
-			return loadTemplates(templateNames);
+		load: function (names) {
+			return loadTemplates(names);
+		},
+		
+		enableRecursion: function(name) {
+			Handlebars.registerPartial(name, templates[name]);
 		},
 	
 		get: function (name) {

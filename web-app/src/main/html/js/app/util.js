@@ -73,6 +73,23 @@ define(["log"],
 					}
 				}
 			};
+		},
+		
+		// Create the 'createPage' function for a resource page. That is, a page that
+		// displays a collection of resources, indexed by id.
+		createPageFunctionForResources: function (cacheMap, eventTopicResource, updatePageFunction, subscribeFunction) {
+			return function (resources) {
+				resources.forEach(function (resource) {
+					var updateFunction = function (resource) {
+						cacheMap[resource.id] = resource;
+						updatePageFunction(resource);
+					};
+					// Register to update on state change events for this resource.
+					subscribeFunction(eventTopicResource(resource.id), updateFunction);
+					// Update the resource with it's current (initial) status.
+					updateFunction(resource);
+				});
+			}			
 		}
 	}
 

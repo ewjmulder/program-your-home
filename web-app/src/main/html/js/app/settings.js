@@ -61,7 +61,6 @@ define(["jquery", "util"],
 
 
 	return {
-		SettingName: SettingName,
 		SettingType: SettingType,
 
 		// TODO: Type check on SettingName, SettingValue (and name not already in map

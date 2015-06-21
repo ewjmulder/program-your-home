@@ -18,6 +18,12 @@ public class SunsetSunriseEvent extends PyhEvent {
         this.type = type;
     }
 
+    @Override
+    public boolean hasTopic() {
+        // TODO: create topic for this.
+        return false;
+    }
+
     public LocalDate getDate() {
         return this.date;
     }

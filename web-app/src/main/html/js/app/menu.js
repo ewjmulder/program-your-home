@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // Lets you activate the menu of the application. This module contains the technical details of this activation and hides the frameworks used.
-define(["jquery", "mmenu", "hammer", "settings", "pages"],
-		function ($, mmenu, Hammer, settings, pages) {
+define(["jquery", "mmenu", "hammer", "settings", "pages", "enums"],
+		function ($, mmenu, Hammer, settings, pages, enums) {
 	
 	// Create the menu, meaning invoking mmenu() on the html list that was dynamically build for that.
 	function createMenu() {
@@ -19,7 +19,7 @@ define(["jquery", "mmenu", "hammer", "settings", "pages"],
 			          			   // Display a page shadow on the menu when the menu is activated.
 			          			   "pageshadow"],
 			// Whether to slide to the right into a separate submenu (true), or open the submenu below a menu item (false).
-			slidingSubmenus		: settings.getSettingValue(SettingName.SLIDING_SUBMENUS),
+			slidingSubmenus		: settings.getSettingValue(enums.SettingName.SLIDING_SUBMENUS),
 			// If the menu is open and the browser 'back' button is pressed, it closes the menu instead of going back a page.
 			backButton			: {
 				close	: true
@@ -90,7 +90,7 @@ define(["jquery", "mmenu", "hammer", "settings", "pages"],
 		activate: function () {
 			createMenu();
 			// Select the menu item (page) that is provided as the home page.
-			getMmenuApi().setSelected($("#menu-" + pages.getPageByName(settings.getSettingValue(SettingName.HOME_PAGE)).id));
+			getMmenuApi().setSelected($("#menu-" + pages.byName(settings.getSettingValue(enums.SettingName.HOME_PAGE)).id));
 			configureSliding();
 		}
 	};

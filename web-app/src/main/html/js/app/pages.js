@@ -2,9 +2,11 @@
 
 // Start a new require module.
 // All pages administration and logic.
-define(["jquery", "config", "util", "pageJavascriptModules"],
-		function ($, config, util, pageJavascriptModules) {
+define(["jquery", "config", "templates", "util", "pageJavascriptModules"],
+		function ($, config, templates, util, pageJavascriptModules) {
 	
+	// The current page that is on screen.
+	var currentPage;
 	// Map with all page name->object pairs.
 	var pages = {};
 	// Page id counter, could be seen as a sequence to set a unique id for every page.
@@ -52,12 +54,6 @@ define(["jquery", "config", "util", "pageJavascriptModules"],
 		}
 	};
 	
-	function createPageByName(name, usesRest) {
-		var nameCamelCase = util.capitalizeFirstLetter(name);
-		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
-		new Page(name, name, nameCamelCase, nameCamelCase, true, javascriptModule, config.getValue("topLevelIconMap")[name], usesRest ? restClients[name] : null, null, []);
-	}
-
 	// Show the page with the given name. This is the only function that should modify the currentPage variable.
 	function showPage(pageName) {
 		if (currentPage == null || currentPage.name != pageName) {
@@ -122,7 +118,7 @@ define(["jquery", "config", "util", "pageJavascriptModules"],
 	function loadPageWithTemplate(page, templateData) {
 		// 'unwrap' the data for direct usage.
 		var data = templateData[page.templateName];
-		var pageDomTree = templates[templateName](templateData);
+		var pageDomTree = templates.get(page.templateName)(templateData);
 		// Put the DOM tree in the content element of the page.
 		page.contentElement.html(pageDomTree);
 		if (page.hasJavascriptModule()) {
@@ -131,20 +127,12 @@ define(["jquery", "config", "util", "pageJavascriptModules"],
 	};
 	
 	return {
-		// Create a top level page with the given name as default for all naming and title properties.
-		createStaticTopLevelPage: function (name) {
-			createPageByName(name, false);
-		},
-		
-		// Create a top level page from a module name, using that name for all naming and title properties.
-		createModuleTopLevelPages: function (modules) {
-			modules.forEach(function (module) {
-				createPageByName(module, true);
-			});
+		createTopLevelPage: function (name, templateName, menuName, title, javascriptModule, iconName, restApiBase, resourceId) {
+			new Page(name, templateName, menuName, title, true, javascriptModule, iconName, restApiBase, resourceId, []);
 		},
 		
 		createSubPage: function (parentPageName, subPageName, templateName, menuName, title, javascriptModule, iconName, restApiBase, resourceId) {
-			pages[parentPageName].subPages.push(subPageName, templateName, menuName, title, false, javascriptModule, iconName, restApiBase, resourceId, []);
+			pages[parentPageName].subPages.push(new Page(subPageName, templateName, menuName, title, false, javascriptModule, iconName, restApiBase, resourceId, []));
 		},
 
 		// Array with all pages.
@@ -162,8 +150,13 @@ define(["jquery", "config", "util", "pageJavascriptModules"],
 		// Find the page with the given name.
 		byName: function (pageName) {
 			return pages[pageName];
+		},
+
+		// Show a page.
+		show: function (pageName) {
+			return showPage(pageName);
 		}
-		
+
 	};
 
 

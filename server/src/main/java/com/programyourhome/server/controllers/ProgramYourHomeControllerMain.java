@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,8 @@ import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.events.activities.ActivityStartedEvent;
+import com.programyourhome.server.events.activities.ActivityStoppedEvent;
 import com.programyourhome.server.model.ServiceResult;
 
 @RestController
@@ -55,6 +58,9 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     @Autowired
     private ActivityCenter activityCenter;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     @Value("${server.address}")
     private String host;
 
@@ -64,10 +70,22 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     // TODO: put activities in separate module?
     @RequestMapping("activities")
     public Collection<PyhActivity> getActivities() {
-        final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
         return this.getServerConfig().getActivitiesConfig().getActivities().stream()
-                .map(activity -> new PyhActivity(activity, this.activityCenter.isActive(activity), "http://" + this.host + ":" + this.port + "/", defaultIcon))
+                .map(activity -> this.getActivity(activity.getId()))
                 .collect(Collectors.toList());
+    }
+
+    @RequestMapping("activities/{id}")
+    public PyhActivity getActivity(@PathVariable("id") final int id) {
+        final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
+        final Optional<Activity> activity = this.findActivity(id);
+        // TODO: see todo below
+        if (!activity.isPresent()) {
+            // TODO: or throw exception?
+            return null;
+        } else {
+            return new PyhActivity(activity.get(), this.activityCenter.isActive(activity.get()), "http://" + this.host + ":" + this.port + "/", defaultIcon);
+        }
     }
 
     @RequestMapping("activities/{id}/start")
@@ -80,37 +98,39 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         // Idea: map over service resuls or at least in a similar way and as long as everything ok, kep the success
         // Upon exceptions, safe that error, and skip the rest of the mapped functions. Probably best to break from pure mapping
         // and use functions names like check, run, etc.
-        final Optional<Activity> activity = this.getActivity(id);
+        final Optional<Activity> activity = this.findActivity(id);
         if (!activity.isPresent()) {
             return ServiceResult.error("Activity: '" + id + "' not found in config.");
         } else if (this.activityCenter.isActive(activity.get())) {
             return ServiceResult.error("Activity: '" + id + "' is already active.");
         } else {
             this.activityCenter.startActivity(activity.get());
+            this.eventPublisher.publishEvent(new ActivityStartedEvent(this.getActivity(id)));
             return ServiceResult.success();
         }
     }
 
     @RequestMapping("activities/{id}/stop")
     public ServiceResult stopActivity(@PathVariable("id") final int id) {
-        final Optional<Activity> activity = this.getActivity(id);
+        final Optional<Activity> activity = this.findActivity(id);
         if (!activity.isPresent()) {
             return ServiceResult.error("Activity: '" + id + "' not found in config.");
         } else if (!this.activityCenter.isActive(activity.get())) {
             return ServiceResult.error("Activity: '" + id + "' is not active.");
         } else {
             this.activityCenter.stopActivity(activity.get());
+            this.eventPublisher.publishEvent(new ActivityStoppedEvent(this.getActivity(id)));
             return ServiceResult.success();
         }
     }
 
     @RequestMapping("activities/{id}/volumeUp")
     public void activityVolumeUp(@PathVariable("id") final int id) {
-        final Optional<Activity> activity = this.getActivity(id);
+        final Optional<Activity> activity = this.findActivity(id);
         if (!activity.isPresent()) {
             // TODO: error 'page' -> double, see above.
             throw new IllegalArgumentException("Activity: '" + id + "' not found in config.");
-            // TODO: no else, well just use the optional way in a smart way.
+            // TODO: no else, we'll just use the optional way in a smart way.
         } else {
             // TODO: Another step in the cycle: optional usage really wanted here (read online how to)
             final Optional<Integer> volumeDevice = this.getVolumeDeviceId(activity.get());

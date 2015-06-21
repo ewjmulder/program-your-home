@@ -18,15 +18,16 @@ public abstract class AbstractProgramYourHomeController {
         return this.configHolder.getConfig();
     }
 
+    // TODO: does this stuff belong here?
     private List<Activity> getActivities() {
         return this.getServerConfig().getActivitiesConfig().getActivities();
     }
 
-    protected Optional<Activity> getActivity(final int id) {
+    protected Optional<Activity> findActivity(final int id) {
         return this.getActivities().stream().filter(activity -> activity.getId() == id).findFirst();
     }
 
-    protected Optional<Activity> getActivity(final String name) {
+    protected Optional<Activity> findActivity(final String name) {
         return this.getActivities().stream().filter(activity -> activity.getName().equals(name)).findFirst();
     }
 

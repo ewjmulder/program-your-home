@@ -1,18 +1,18 @@
 "use strict";
 
 // Start a new require module.
-define(["jquery", "templates", "pages", "menu", "rest", "toast", "util", "settings", "config"],
-		function ($, templates, pages, menu, rest, toast, util, settings, config) {
+define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util", "log", "settings", "config", "pageJavascriptModules"],
+		function ($, events, enums, templates, pages, menu, rest, util, log, settings, config, pageJavascriptModules) {
 	
 	// Save enum types from modules in local variables for easier accessing.
+	var EventTopic = enums.EventTopic;
+	var SettingName = enums.SettingName;
 	var SettingType = settings.SettingType;
 	
 	/////////////////////////////////////////
 	// Program Your Home module variables  //
 	/////////////////////////////////////////
 	
-	// The current page that is on screen.
-	var currentPage;
 	// The modules that are activated in the menu.
 	var activeModules = [];
 	// The title object that contains all information to be displayed in the title.
@@ -31,17 +31,6 @@ define(["jquery", "templates", "pages", "menu", "rest", "toast", "util", "settin
 		SENSORS: "sensors"
 	});
 	
-	// Enum-like definition of all possible setting names. So essentially the settings that are available.
-	var SettingName = Object.freeze({
-		SLIDING_SUBMENUS: "slidingSubmenus",
-		HOME_PAGE: "homePage"
-	});
-
-	// Enum-like definition of all possible event topics.
-	var EventTopic = Object.freeze({
-		SUN_DEGREE: "/topic/event/sunDegree"
-	});
-
 	var Title = function () {
 		this.text = "Program Your Home";
 		this.sunDegree = "";
@@ -61,10 +50,10 @@ define(["jquery", "templates", "pages", "menu", "rest", "toast", "util", "settin
 	// Load the extra information that is needed to build the complete menu.
 	function loadDerivedMenuItems() {
 		var deviceLoading = $.Deferred();
-		rest.readAll().done(function (devices) {
+		rest.readAll(Module.DEVICES, "devices").done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
-				pages[Module.DEVICES].subPages.push(new Page("device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, null, config.getValue("deviceIconMap")[devices[i].id], restClients[Module.DEVICES], devices[i].id));
+				pages.createSubPage(Module.DEVICES, "device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, null, config.getValue("deviceIconMap")[devices[i].id], rest.get(Module.DEVICES)[Module.DEVICES], devices[i].id);
 			}
 			deviceLoading.resolve();
 		});
@@ -93,6 +82,32 @@ define(["jquery", "templates", "pages", "menu", "rest", "toast", "util", "settin
 		rest.verb(module, resourceName, id, verbToUse);
 	}
 
+	function createPageByName(name, usesRest) {
+		var nameCamelCase = util.capitalizeFirstLetter(name);
+		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
+		//FIXME: refactor so restClients is not needed here: eg use loadPage function as param
+		pages.createTopLevelPage(name, name, nameCamelCase, nameCamelCase, javascriptModule, config.getValue("topLevelIconMap")[name], usesRest ? rest.get(name)[name] : null, null);
+	};
+
+	// Create a top level page with the given name as default for all naming and title properties.
+	function createStaticTopLevelPage(name) {
+		createPageByName(name, false);
+	};
+	
+	// Create a top level page from a module name, using that name for all naming and title properties.
+	function createModuleTopLevelPages(modules) {
+		modules.forEach(function (module) {
+			createPageByName(module, true);
+		});
+	};
+	
+	//FIXME: before it will work:
+	// - pages contains restClients ref: refactor to use loadPage function as param.
+	// - solution for title handling
+	// - refactor out pageJavascriptModules
+	// - don't expose rest clients in rest!
+	// - find solution for using settingnames in modules
+	
 	
 	/////////////////////////////////////////////
 	// Program Your Home document ready logic  //
@@ -106,15 +121,15 @@ define(["jquery", "templates", "pages", "menu", "rest", "toast", "util", "settin
 		// Actually, is there any way you could display a non standard sensor but just the data value? (but might still be useful of course)
 		activeModules = [Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES, Module.SENSORS];
 	
-		createRestIfModuleActive(Module.ACTIVITIES, "main", {"activities": {"start": "GET", "stop", "GET"}});
-		createRestIfModuleActive(Module.LIGHTS, "hue", {"lights": {"on": "GET", "off", "GET"}});
+		createRestIfModuleActive(Module.ACTIVITIES, "main", {"activities": {"start": "GET", "stop": "GET"}});
+		createRestIfModuleActive(Module.LIGHTS, "hue", {"lights": {"on": "GET", "off": "GET"}});
 		createRestIfModuleActive(Module.DEVICES, "ir", {"devices": {}});
 		//TODO: maybe actually not use a REST client here? Just a URL call could work
 		//Otherwise: do use a REST client with a real JSON response, including e.g. time, value and direction (+ speed)
 		createRestIfModuleActive(Module.SENSORS, "sensors", {"sunDegree": {}});
 		
 		//TODO: create generic page for sensors - then use activeModules variable again.
-		pages.createModuleTopLevelPages([Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES]);
+		createModuleTopLevelPages([Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES]);
 		createStaticTopLevelPage("settings");
 		createStaticTopLevelPage("about");
 		
@@ -126,23 +141,23 @@ define(["jquery", "templates", "pages", "menu", "rest", "toast", "util", "settin
 		
 		$.when(templates.load(templateNames), loadDerivedMenuItems()).then(function() {
 			// To enable recursive template inclusion, used for sub pages.
-			Handlebars.registerPartial("menu", templates.get("menu"));
+			templates.enableRecursion("menu");
 			// Load the main menu DOM tree with the menu definition that we now know is available after the pre-loading.
-			$("#menu").html(templates["menu"]({ "pages": pages.allTopLevel() }));
+			$("#menu").html(templates.get("menu")({ "pages": pages.allTopLevel() }));
 			// Also, connect all menu click events to showing the appropriate page.
 			pages.all().forEach(function (page) {
 				$("#menu-link-" + page.id).click(function () {
-					pages.showPage(page.name);
+					pages.show(page.name);
 					// Do not return false here, since that interferes with mmenu handling the situation for us.
 				});
 			});
 			// Now we're ready to activate the actual menu on the page.
 			// We do this by calling the activateMenu function on the menu module, thereby providing the home page id.
-			menu.activateMenu();
+			menu.activate();
 			// Show the starting page as defined in the home page setting.
-			pages.showPage(settings.getSettingValue(SettingName.HOME_PAGE));
+			pages.show(settings.getSettingValue(SettingName.HOME_PAGE));
 			
-			events.subscribe(EventTopic.SUN_DEGREE, function (sunDegree) {
+			events.subscribeForText(EventTopic.SUN_DEGREE, function (sunDegree) {
 				title.sunDegree = sunDegree;
 				updateTitle();
             });
@@ -172,12 +187,12 @@ define(["jquery", "templates", "pages", "menu", "rest", "toast", "util", "settin
 
 	return {
 		// Start or stop an activity.
-		toggleActivity: function (id, currentlyActive) {
-			toggleRestResource(Module.ACTIVITIES, "start", "stop", id, currentlyActive);
+		toggleActivity: function (id) {
+			toggleRestResource(Module.ACTIVITIES, Module.ACTIVITIES, "start", "stop", id, pageJavascriptModules.getJavascriptModuleByPageName(Module.ACTIVITIES).isActive(id));
 		},
 		// Switch a light on or off.
 		toggleLight: function (id, currentlyOn) {
-			toggleRestResource(Module.LIGHTS, "on", "off", id, currentlyOn);
+			toggleRestResource(Module.LIGHTS, Module.LIGHTS, "on", "off", id, currentlyOn);
 		}
 	};
 

@@ -27,8 +27,8 @@ define(["jquery", "handlebars", "util", "log"],
 		    		templateLoading.reject();
 		    	}
 		    })
-		    .fail(util.createFailFunction("template " + templateName))
-		    .fail(templateLoading.reject);
+		    .fail(templateLoading.reject)
+		    .fail(util.createFailFunction("template " + templateName));
 		});
 		return templateLoading;
 	}

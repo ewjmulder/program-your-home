@@ -1,8 +1,8 @@
 "use strict";
 
 // Start a new require module.
-define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util", "log", "settings", "config", "pageJavascriptModules"],
-		function ($, events, enums, templates, pages, menu, rest, util, log, settings, config, pageJavascriptModules) {
+define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util", "log", "settings", "config"],
+		function ($, events, enums, templates, pages, menu, rest, util, log, settings, config) {
 	
 	// Save enum types from modules in local variables for easier accessing.
 	var EventTopic = enums.EventTopic;
@@ -53,7 +53,8 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		rest.readAll(Module.DEVICES, "devices").done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
-				pages.createSubPage(Module.DEVICES, "device-" + devices[i].name, "device", devices[i].name, "Device - " + devices[i].name, false, null, config.getValue("deviceIconMap")[devices[i].id], rest.get(Module.DEVICES)[Module.DEVICES], devices[i].id);
+				var dataFunction = function () { return rest.get(Module.DEVICES)[Module.DEVICES].read(devices[i].id); };
+				pages.createSubPage(Module.DEVICES, "device-" + devices[i].name, devices[i].name, config.getValue("deviceIconMap")[devices[i].id], "Device - " + devices[i].name, dataFunction);
 			}
 			deviceLoading.resolve();
 		});
@@ -84,9 +85,15 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 
 	function createPageByName(name, usesRest) {
 		var nameCamelCase = util.capitalizeFirstLetter(name);
-		var javascriptModule = pageJavascriptModules.getJavascriptModuleByPageName(name);
 		//FIXME: refactor so restClients is not needed here: eg use loadPage function as param
-		pages.createTopLevelPage(name, name, nameCamelCase, nameCamelCase, javascriptModule, config.getValue("topLevelIconMap")[name], usesRest ? rest.get(name)[name] : null, null);
+		
+		//FIXME: refactor
+		var dataFunction = function () { return {}; };
+		if (usesRest) {
+			dataFunction = function () { return rest.get(name)[name].read(); };
+		}
+		
+		pages.createTopLevelPage(name, nameCamelCase, config.getValue("topLevelIconMap")[name], nameCamelCase, dataFunction);
 	};
 
 	// Create a top level page with the given name as default for all naming and title properties.
@@ -102,18 +109,16 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	};
 	
 	function showPage(page) {
-		// Update the background color. Should be done on the content tag, so it fills the whole content area.
-		$("#content").css("background-color", currentPage.javascriptModule.backgroundColor);
+		// Do this first, since it's async and will require time. Better start it early then.s
+		pages.show(page);
 		// Update the on screen title.
 		//FIXME: sep title module/template or what?
 		//setTitleText(currentPage.title);
-		pages.show(page);
 	}
 	
 	//FIXME: before it will work:
 	// - pages contains restClients ref: refactor to use loadPage function as param.
 	// - solution for title handling
-	// - refactor out pageJavascriptModules
 	// - don't expose rest clients in rest!
 	// - find solution for using settingnames in modules
 	
@@ -143,7 +148,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		createStaticTopLevelPage("about");
 		
 		var templateNames = pages.all().map(function (page) {
-			return page.templateName;
+			return page.moduleName;
 		});
 		templateNames.push("device");
 		templateNames.push("menu");
@@ -197,7 +202,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	return {
 		// Start or stop an activity.
 		toggleActivity: function (id) {
-			toggleRestResource(Module.ACTIVITIES, Module.ACTIVITIES, "start", "stop", id, pageJavascriptModules.getJavascriptModuleByPageName(Module.ACTIVITIES).isActive(id));
+			toggleRestResource(Module.ACTIVITIES, Module.ACTIVITIES, "start", "stop", id, pages.get(Module.ACTIVITIES).javascriptModule.isActive(id));
 		},
 		// Switch a light on or off.
 		toggleLight: function (id, currentlyOn) {

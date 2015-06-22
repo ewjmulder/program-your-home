@@ -15,14 +15,14 @@ define(["jquery", "templates", "util"],
 	var topLevelPages = [];
 
 	// Definition of a Page class that represents both a menu entry and a content page.
-	var Page = function (name, menuName, iconName, title, isTopLevel, dataFunction, javascriptModule) {
+	function Page(name, menuName, iconName, title, isTopLevel, dataFunction) {
 		pageIdCounter++;
 		// Unique id for this page. Can be used as a safe identifier (no special chars) in the DOM etc.
 		this.id = pageIdCounter;
 		// Page name, for internal reference use only. Must be unique as well.
 		this.name = name;
-		// The name of the template for the page contents.
-		this.templateName = extractTemplateName(name);
+		// The name of the module for the page. Used as template name, javascript module name, etc.
+		this.moduleName = extractModuleName(name);
 		// The name of this page as it should be displayed in a menu.
 		this.menuName = menuName;
 		// The name of the icon to use for this page.
@@ -35,8 +35,8 @@ define(["jquery", "templates", "util"],
 		this.subPages = [];
 		// The function to be called to get the input data for this page.
 		this.dataFunction = dataFunction;
-		// The javascript module that contains the dynamic page logic.
-		this.javascriptModule = javascriptModule;
+		// The javascript module that contains the dynamic page logic, will be lazy loaded when required.
+		this.javascriptModule = null;
 		
 		// Create a span element for this page, that will be used to contain the DOM tree and show / hide the page.
 		this.contentElement = $(document.createElement("span"));
@@ -59,15 +59,15 @@ define(["jquery", "templates", "util"],
 		}
 	};
 
-	// Extract the template name from the page name. The template name is the same as the page name,
+	// Extract the module name from the page name. The module name is the same as the page name,
 	// except when the page name contains a '-', then the template name is the page name up until the '-'.
-	function extractTemplateName(name) {
-		var templateName = name;
+	function extractModuleName(name) {
+		var moduleName = name;
 		var indexOfDash = name.indexOf("-");
 		if (indexOfDash > -1) {
-			templateName = name.substring(indexOfDash);
+			moduleName = name.substring(indexOfDash);
 		}
-		return templateName;
+		return moduleName;
 	}
 	
 	// Show the page with the given name. This is the only function that should modify the currentPage variable.
@@ -84,23 +84,41 @@ define(["jquery", "templates", "util"],
 			// Set the 'new current page'.
 			currentPage = pages[pageName];
 			// Load the page if it's shown for the first time (one time action only).
+			//TODO: refactor
 			if (!currentPage.isLoaded()) {
-				loadPage(currentPage);
+				$.when(loadPage(currentPage)).done(displayCurrentPage);
+			} else {
+				displayCurrentPage();
 			}
-			// Show the 'new current page'.
-			currentPage.contentElement.removeClass("hidden-page");
-			currentPage.contentElement.addClass("current-page");
 		}
 	};
+
+	//TODO: refactor
+	function displayCurrentPage() {
+		// Show the 'new current page'.
+		currentPage.contentElement.removeClass("hidden-page");
+		currentPage.contentElement.addClass("current-page");
+		// Update the background color. Should be done on the content tag, so it fills the whole content area.
+		$("#content").css("background-color", currentPage.javascriptModule.backgroundColor);
+		currentPage.javascriptModule.show();
+	}
 	
 	// Load the page with the given name. Loading means processing the template with the required input data.
 	// This function should be called only once per page. After the initial loading, all updates should
 	// happen based on (state change) events coming in from the server.
 	function loadPage(page) {
+		var pageLoading = $.Deferred();
 		page.dataFunction().done(function (data) {
-			loadPageWithTemplate(page, createTemplateDataFromPage(page, data));
+			require(["page" + util.capitalizeFirstLetter(page.moduleName)], function (pageModule) {
+				page.javascriptModule = pageModule;
+				pageModule.init(page, data);
+				loadPageWithTemplate(page, createTemplateDataFromPage(page, data));
+				pageLoading.resolve();
+			});
 		})
+		.fail(pageLoading.reject)
 		.fail(util.createFailFunction("page " + page.name));
+		return pageLoading;
 	};
 	
 	// Create a template data input object based on the provided page.
@@ -109,28 +127,27 @@ define(["jquery", "templates", "util"],
 		// Use the template name as property name to feed the template with.
 		//TODO: assumption is that the template requires an 'outer' object with a named prop to start traversal.
 		//TODO: try out if you can feed the (eg) collection directly and then using the 'this' keyword (or similar) in the handlebars template
-		templateData[page.templateName] = data; 
+		templateData[page.moduleName] = data; 
 		return templateData;
 	};
 	
 	// Load the provided page, using the templateData to feed the template.
 	function loadPageWithTemplate(page, templateData) {
 		// 'unwrap' the data for direct usage.
-		var data = templateData[page.templateName];
-		var pageDomTree = templates.get(page.templateName)(templateData);
+		var data = templateData[page.moduleName];
+		var pageDomTree = templates.get(page.moduleName)(templateData);
 		// Put the DOM tree in the content element of the page.
 		page.contentElement.html(pageDomTree);
-		page.javascriptModule.createPage(data);
 	};
 	
 	
 	return {
-		createTopLevelPage: function (name, menuName, iconName, title, dataFunction, javascriptModule) {
-			new Page(name, menuName, iconName, title, true, dataFunction, javascriptModule);
+		createTopLevelPage: function (name, menuName, iconName, title, dataFunction) {
+			new Page(name, menuName, iconName, title, true, dataFunction);
 		},
 		
-		createSubPage: function (parentPageName, subPageName, menuName, iconName, title, dataFunction, javascriptModule) {
-			pages[parentPageName].subPages.push(new Page(subPageName, menuName, iconName, title, false, dataFunction, javascriptModule));
+		createSubPage: function (parentPageName, subPageName, menuName, iconName, title, dataFunction) {
+			pages[parentPageName].subPages.push(new Page(subPageName, menuName, iconName, title, false, dataFunction));
 		},
 
 		// Array with all pages.
@@ -153,28 +170,7 @@ define(["jquery", "templates", "util"],
 		// Show a page.
 		show: function (pageName) {
 			return showPage(pageName);
-		},
-
-		//FIXME: use smarter hierarchy / dependencies
-		// Create the 'createPage' function for a resource page. That is, a page that
-		// displays a collection of resources, indexed by id.
-		createPageFunctionForResources: function (pageName, cacheMap, eventTopicResource, updatePageFunction, subscribeFunction) {
-			return function (resources) {
-				resources.forEach(function (resource) {
-					// Register to update on state change events for this resource.
-					subscribeFunction(eventTopicResource(resource.id),
-							function (resource) {
-								// Always update the cache with the newly received value.
-								cacheMap[resource.id] = resource;
-								// Only update the page display if this is the current page.
-								if (pages[pageName].isCurrentPage()) {
-									updatePageFunction(resource);
-								}
-							});
-				});
-			};			
 		}
-
 
 	};
 

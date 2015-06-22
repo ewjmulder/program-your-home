@@ -15,7 +15,7 @@ define(["jquery", "util"],
 
 	//TODO: Create a spearate settings module, so we don't require circular dependencies.
 	// Definition of a Setting class that represents one changeable setting of the application.
-	var Setting = function (name, displayName, type, defaultValue) {
+	function Setting(name, displayName, type, defaultValue) {
 		var self = this;
 		this.name = name;
 		this.displayName = displayName;

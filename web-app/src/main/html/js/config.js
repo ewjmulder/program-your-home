@@ -46,7 +46,7 @@ define([],
 		var indexOfSlash = window.location.href.indexOf("/", 7);
 		var sliceIndex = indexOfColon > -1 ? indexOfColon : indexOfSlash;
 		// Take the same host on port 3737 as default server url for the Program Your Home server.
-		return window.location.href.slice(0, sliceIndex) + ":3737/";
+		return window.location.href.substring(0, sliceIndex) + ":3737/";
 	}
 	
 	return {

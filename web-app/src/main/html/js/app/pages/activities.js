@@ -1,8 +1,8 @@
 "use strict";
 
 // Start a new require module.
-define(["jquery", "util", "events", "enums"],
-		function ($, util, events, enums) {
+define(["jquery", "pages", "util", "events", "enums"],
+		function ($, pages, util, events, enums) {
 	
 	var activities = {};
 	
@@ -16,8 +16,9 @@ define(["jquery", "util", "events", "enums"],
 	
 	return {
 		backgroundColor: "white",
-		createPage: util.createPageFunctionForResources(
-				activities, enums.EventTopic.PYH_ACTIVITIES, updateActivity, events.subscribeForObject),
+		createPage: pages.createPageFunctionForResources(
+				"activities", activities, enums.EventTopic.PYH_ACTIVITIES, updateActivity, events.subscribeForObject),
+		showPage: 
 		isActive: function(id) {
 			return activities[id].active;
 		}

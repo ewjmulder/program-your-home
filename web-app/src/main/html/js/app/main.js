@@ -101,6 +101,15 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		});
 	};
 	
+	function showPage(page) {
+		// Update the background color. Should be done on the content tag, so it fills the whole content area.
+		$("#content").css("background-color", currentPage.javascriptModule.backgroundColor);
+		// Update the on screen title.
+		//FIXME: sep title module/template or what?
+		//setTitleText(currentPage.title);
+		pages.show(page);
+	}
+	
 	//FIXME: before it will work:
 	// - pages contains restClients ref: refactor to use loadPage function as param.
 	// - solution for title handling

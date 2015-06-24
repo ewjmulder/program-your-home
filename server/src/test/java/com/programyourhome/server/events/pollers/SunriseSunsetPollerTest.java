@@ -11,20 +11,20 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.programyourhome.sensors.SunDegreeSensor;
-import com.programyourhome.server.events.sundegree.SunriseSunsetEvent;
 import com.programyourhome.server.events.sundegree.SunDegreeMoment;
-import com.programyourhome.server.events.sundegree.SunDegreePoller;
 import com.programyourhome.server.events.sundegree.SunriseSunset;
+import com.programyourhome.server.events.sundegree.SunriseSunsetEvent;
+import com.programyourhome.server.events.sundegree.SunriseSunsetPoller;
 
-public class SunDegreePollerTest {
+public class SunriseSunsetPollerTest {
 
-    private SunDegreePoller poller;
+    private SunriseSunsetPoller poller;
     private ApplicationEventPublisher eventPublisherMock;
     private SunDegreeSensor sunDegreeSensorMock;
 
     @Before
     public void init() {
-        this.poller = new SunDegreePoller();
+        this.poller = new SunriseSunsetPoller();
         // TODO: is there a better, Springier way to set/autowire these fields?
         this.eventPublisherMock = Mockito.mock(ApplicationEventPublisher.class);
         this.sunDegreeSensorMock = Mockito.mock(SunDegreeSensor.class);

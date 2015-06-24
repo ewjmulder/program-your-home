@@ -1,9 +1,10 @@
 package com.programyourhome.server.activities.model;
 
+import com.programyourhome.common.model.PyhImpl;
 import com.programyourhome.server.config.model.Activity;
 
 //TODO: Abstract with interfaces?
-public class PyhActivity {
+public class PyhActivity extends PyhImpl {
 
     private final int id;
     private final String name;

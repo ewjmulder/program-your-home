@@ -13,14 +13,8 @@ public class SunDegreeValueChangedEvent extends ValueChangedEvent<BigDecimal> {
     }
 
     @Override
-    public Object getPayload() {
-        final SunDirection direction = this.getOldValue().compareTo(this.getNewValue()) > 0 ? SunDirection.DOWN : SunDirection.UP;
-        return this.createPayload("direction", direction, "degree", this.getNewValue());
-    }
-
-    @Override
     public String getTopic() {
-        return "/topic/sensors/sunDegree/state";
+        return "/topic/sensors/sunDegree/degree";
     }
 
 }

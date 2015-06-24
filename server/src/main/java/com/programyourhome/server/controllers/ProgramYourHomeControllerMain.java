@@ -16,8 +16,7 @@ import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
-import com.programyourhome.server.events.activities.ActivityStartedEvent;
-import com.programyourhome.server.events.activities.ActivityStoppedEvent;
+import com.programyourhome.server.events.activities.ActivityChangedEvent;
 import com.programyourhome.server.model.ServiceResult;
 
 @RestController
@@ -77,15 +76,19 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}")
     public PyhActivity getActivity(@PathVariable("id") final int id) {
-        final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
         final Optional<Activity> activity = this.findActivity(id);
         // TODO: see todo below
         if (!activity.isPresent()) {
             // TODO: or throw exception?
             return null;
         } else {
-            return new PyhActivity(activity.get(), this.activityCenter.isActive(activity.get()), "http://" + this.host + ":" + this.port + "/", defaultIcon);
+            return this.createPyhActivity(activity.get());
         }
+    }
+
+    public PyhActivity createPyhActivity(final Activity activity) {
+        final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
+        return new PyhActivity(activity, this.activityCenter.isActive(activity), "http://" + this.host + ":" + this.port + "/", defaultIcon);
     }
 
     @RequestMapping("activities/{id}/start")
@@ -104,8 +107,10 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         } else if (this.activityCenter.isActive(activity.get())) {
             return ServiceResult.error("Activity: '" + id + "' is already active.");
         } else {
+            final PyhActivity oldValue = this.createPyhActivity(activity.get());
             this.activityCenter.startActivity(activity.get());
-            this.eventPublisher.publishEvent(new ActivityStartedEvent(this.getActivity(id)));
+            final PyhActivity newValue = this.createPyhActivity(activity.get());
+            this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
             return ServiceResult.success();
         }
     }
@@ -118,8 +123,10 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         } else if (!this.activityCenter.isActive(activity.get())) {
             return ServiceResult.error("Activity: '" + id + "' is not active.");
         } else {
+            final PyhActivity oldValue = this.createPyhActivity(activity.get());
             this.activityCenter.stopActivity(activity.get());
-            this.eventPublisher.publishEvent(new ActivityStoppedEvent(this.getActivity(id)));
+            final PyhActivity newValue = this.createPyhActivity(activity.get());
+            this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
             return ServiceResult.success();
         }
     }

@@ -21,7 +21,10 @@ public abstract class PyhEvent extends ApplicationEvent {
         super(PyhEventSource.INSTANCE);
     }
 
-    public abstract boolean hasTopic();
+    // Override when the event subclass can be published to a topic.
+    public boolean hasTopic() {
+        return false;
+    }
 
     // Override when hasTopic() is set to return true.
     public String getTopic() {

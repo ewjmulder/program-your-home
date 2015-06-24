@@ -1,8 +1,8 @@
 "use strict";
 
 //Start a new require module.
-define(["jquery", "BasePage", "enums"],
-		function ($, BasePage, enums) {
+define(["jquery", "BasePage", "enums", "util"],
+		function ($, BasePage, enums, util) {
 
 	function Lights() {
 		BasePage.call(this, enums.EventTopic.HUE_LIGHTS);

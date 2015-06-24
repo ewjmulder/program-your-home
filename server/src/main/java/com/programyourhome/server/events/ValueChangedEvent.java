@@ -20,10 +20,6 @@ public abstract class ValueChangedEvent<T> extends PyhTopicEvent {
         return this.newValue;
     }
 
-    // The method getTopic should still be overridden by the subclass. This redefinition will force that.
-    @Override
-    public abstract String getTopic();
-
     @Override
     // Default implementation for the payload. Can be overridden by subclasses when a more specific payload is required.
     public Object getPayload() {

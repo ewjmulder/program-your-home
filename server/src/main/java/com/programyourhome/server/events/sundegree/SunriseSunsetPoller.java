@@ -1,6 +1,5 @@
 package com.programyourhome.server.events.sundegree;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +12,7 @@ import com.programyourhome.sensors.SunDegreeSensor;
 import com.programyourhome.server.events.Poller;
 
 @Component
-public class SunDegreePoller implements Poller {
+public class SunriseSunsetPoller implements Poller {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -22,35 +21,19 @@ public class SunDegreePoller implements Poller {
     private SunDegreeSensor sunDegreeSensor;
 
     private final Set<SunriseSunsetEvent> publishedSunsetSunriseEvents;
-    private BigDecimal lastPolledValue;
 
-    public SunDegreePoller() {
+    public SunriseSunsetPoller() {
         this.publishedSunsetSunriseEvents = new HashSet<>();
-        this.lastPolledValue = null;
     }
 
     @Override
     public long getIntervalInMillis() {
         // TODO: make configurable
-        return 30 * 1000;
+        return this.seconds(30);
     }
 
     @Override
     public void poll() {
-        this.pollForDegree();
-        this.pollForSunsetSunrise();
-    }
-
-    // TODO: generic poller logic?
-    private void pollForDegree() {
-        final BigDecimal currentValue = this.sunDegreeSensor.getSunDegree();
-        if (this.lastPolledValue != null && !currentValue.equals(this.lastPolledValue)) {
-            this.eventPublisher.publishEvent(new SunDegreeValueChangedEvent(this.lastPolledValue, currentValue));
-        }
-        this.lastPolledValue = currentValue;
-    }
-
-    private void pollForSunsetSunrise() {
         final int margin = 0;
         final SunDegreeMoment moment;
         final SunriseSunset type;

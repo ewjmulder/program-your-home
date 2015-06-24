@@ -2,9 +2,10 @@ package com.programyourhome.hue.model;
 
 import com.philips.lighting.hue.sdk.utilities.PHUtilities;
 import com.philips.lighting.model.PHLight;
+import com.programyourhome.common.model.PyhImpl;
 import com.programyourhome.hue.util.ValueUtil;
 
-public class PyhLightImpl implements PyhLight {
+public class PyhLightImpl extends PyhImpl implements PyhLight {
 
     private final int id;
     private final String name;
@@ -23,13 +24,13 @@ public class PyhLightImpl implements PyhLight {
         this.type = LightType.fromModelAbbreviation(phLight.getModelNumber().substring(0, 3));
         this.on = phLight.getLastKnownLightState().isOn();
         this.dim = phLight.getLastKnownLightState().getBrightness() == null ? null :
-            ValueUtil.brightnessToBasisPoints(phLight.getLastKnownLightState().getBrightness());
+                ValueUtil.brightnessToBasisPoints(phLight.getLastKnownLightState().getBrightness());
         this.hue = phLight.getLastKnownLightState().getHue() == null ? null :
-            ValueUtil.hueToBasisPoints(phLight.getLastKnownLightState().getHue());
+                ValueUtil.hueToBasisPoints(phLight.getLastKnownLightState().getHue());
         this.saturation = phLight.getLastKnownLightState().getSaturation() == null ? null :
-            ValueUtil.saturationToBasisPoints(phLight.getLastKnownLightState().getSaturation());
+                ValueUtil.saturationToBasisPoints(phLight.getLastKnownLightState().getSaturation());
         this.colorTemperature = phLight.getLastKnownLightState().getCt() == null ? null :
-            ValueUtil.colorTemperatureToBasisPoints(phLight.getLastKnownLightState().getCt());
+                ValueUtil.colorTemperatureToBasisPoints(phLight.getLastKnownLightState().getCt());
         if (phLight.getLastKnownLightState().getX() != null && phLight.getLastKnownLightState().getY() != null) {
             final float[] points = new float[2];
             points[0] = phLight.getLastKnownLightState().getX();
@@ -38,7 +39,7 @@ public class PyhLightImpl implements PyhLight {
             // TODO: these results are crap, take this: (hmm, probably the same).
             https: // github.com/PhilipsHue/PhilipsHueSDK-iOS-OSX/blob/master/ApplicationDesignNotes/RGB%20to%20xy%20Color%20conversion.md
 
-            this.colorRGB = new PyhColorRGBImpl(PHUtilities.colorFromXY(points, phLight.getModelNumber()));
+                this.colorRGB = new PyhColorRGBImpl(PHUtilities.colorFromXY(points, phLight.getModelNumber()));
         }
         // TODO: mood / how to know if a current light setting does actually match a mood?
     }

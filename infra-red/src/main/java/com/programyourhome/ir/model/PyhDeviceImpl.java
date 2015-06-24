@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.programyourhome.common.model.PyhImpl;
 import com.programyourhome.ir.config.Device;
 import com.programyourhome.ir.config.Key;
 import com.programyourhome.ir.config.KeyType;
 
-public class PyhDeviceImpl implements PyhDevice {
+public class PyhDeviceImpl extends PyhImpl implements PyhDevice {
 
     private final int id;
     private final String name;

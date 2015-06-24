@@ -1,8 +1,9 @@
 package com.programyourhome.hue.model;
 
 import com.philips.lighting.hue.sdk.utilities.impl.Color;
+import com.programyourhome.common.model.PyhImpl;
 
-public class PyhColorRGBImpl implements PyhColorRGB {
+public class PyhColorRGBImpl extends PyhImpl implements PyhColorRGB {
 
     private final int red;
     private final int green;

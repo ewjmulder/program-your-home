@@ -1,6 +1,8 @@
 package com.programyourhome.hue.model;
 
-public class PlugImpl implements PyhPlug {
+import com.programyourhome.common.model.PyhImpl;
+
+public class PlugImpl extends PyhImpl implements PyhPlug {
 
     private final String name;
 

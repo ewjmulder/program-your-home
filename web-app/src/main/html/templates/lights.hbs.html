@@ -1,6 +1,6 @@
 {{#each lights}}
 	{{name}}<br />
 	<a href="javascript:void(0)" onclick="require(['pyh', 'pageLights'], function (pyh, pageLights) {
-			pyh.toggleLight({{id}}, pageLights.getLightState({{id}}));
+			pyh.toggleLight({{id}}, pageLights.isOn({{id}}));
 	});"><span id="draw-light-{{id}}"></div></a><br />
 {{/each}}

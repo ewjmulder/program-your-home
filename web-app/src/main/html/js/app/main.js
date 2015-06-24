@@ -1,10 +1,12 @@
 "use strict";
 
 // Start a new require module.
-define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util", "log", "settings", "config"],
-		function ($, events, enums, templates, pages, menu, rest, util, log, settings, config) {
+define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util", "log", "settings", "config", "toast"],
+		function ($, events, enums, templates, pages, menu, rest, util, log, settings, config, toast) {
 	
 	// Save enum types from modules in local variables for easier accessing.
+	var Module = enums.Module;
+	var Resource = enums.Resource;
 	var EventTopic = enums.EventTopic;
 	var SettingName = enums.SettingName;
 	var SettingType = settings.SettingType;
@@ -13,8 +15,8 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Program Your Home module variables  //
 	/////////////////////////////////////////
 	
-	// The modules that are activated in the menu.
-	var activeModules = [];
+	// The resources that are activated in the menu. Most probably filtered by what is available on the server and maybe other filters.
+	var activeResources = [];
 	// The title object that contains all information to be displayed in the title.
 	var title = {};
 
@@ -23,13 +25,6 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Program Your Home class definitions //
 	/////////////////////////////////////////
 	
-	// Enum-like definition of all Program Your Home modules.
-	var Module = Object.freeze({
-		ACTIVITIES: "activities",
-		LIGHTS: "lights",
-		DEVICES: "devices",
-		SENSORS: "sensors"
-	});
 	
 	var Title = function () {
 		this.text = "Program Your Home";
@@ -50,11 +45,11 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Load the extra information that is needed to build the complete menu.
 	function loadDerivedMenuItems() {
 		var deviceLoading = $.Deferred();
-		rest.readAll(Module.DEVICES, "devices").done(function (devices) {
+		rest.readAll(Resource.DEVICES).done(function (devices) {
 			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
-				var dataFunction = function () { return rest.get(Module.DEVICES)[Module.DEVICES].read(devices[i].id); };
-				pages.createSubPage(Module.DEVICES, "device-" + devices[i].name, devices[i].name, config.getValue("deviceIconMap")[devices[i].id], "Device - " + devices[i].name, dataFunction);
+				var dataFunction = function () { return rest.read(Resource.DEVICES, devices[i].id); };
+				pages.createSubPage(Resource.DEVICES.name, "device-" + devices[i].name, devices[i].name, config.getValue("deviceIconMap")[devices[i].id], "Device - " + devices[i].name, dataFunction);
 			}
 			deviceLoading.resolve();
 		});
@@ -78,33 +73,25 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	}
 	
 	// Toggle a rest resource: set it to on if currently off and vice versa.
-	function toggleRestResource(module, resourceName, onVerb, offVerb, id, currentlyOn) {
+	function toggleRestResource(resource, onVerb, offVerb, id, currentlyOn) {
 		var verbToUse = currentlyOn ? offVerb : onVerb;
-		rest.verb(module, resourceName, id, verbToUse);
+		rest.verb(resource, id, verbToUse);
 	}
 
-	function createPageByName(name, usesRest) {
+	function createTopLevelPageByName(name, dataFunction) {
 		var nameCamelCase = util.capitalizeFirstLetter(name);
-		//FIXME: refactor so restClients is not needed here: eg use loadPage function as param
-		
-		//FIXME: refactor
-		var dataFunction = function () { return {}; };
-		if (usesRest) {
-			dataFunction = function () { return rest.get(name)[name].read(); };
-		}
-		
 		pages.createTopLevelPage(name, nameCamelCase, config.getValue("topLevelIconMap")[name], nameCamelCase, dataFunction);
 	};
 
 	// Create a top level page with the given name as default for all naming and title properties.
 	function createStaticTopLevelPage(name) {
-		createPageByName(name, false);
+		createTopLevelPageByName(name, util.functionReturn({}));
 	};
 	
 	// Create a top level page from a module name, using that name for all naming and title properties.
-	function createModuleTopLevelPages(modules) {
-		modules.forEach(function (module) {
-			createPageByName(module, true);
+	function createResourceTopLevelPages(resources) {
+		resources.forEach(function (resource) {
+			createTopLevelPageByName(resource.name, function () { return rest.readAll(resource); });
 		});
 	};
 	
@@ -120,7 +107,6 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// - pages contains restClients ref: refactor to use loadPage function as param.
 	// - solution for title handling
 	// - don't expose rest clients in rest!
-	// - find solution for using settingnames in modules
 	
 	
 	/////////////////////////////////////////////
@@ -133,17 +119,18 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		//TODO: per module, there might also be a 'meta' availability, for instance for sensors which ones are available + what their props are
 		// Some defaults will be provided as types: sun degree, temperature, humidity, sound level, light intensity, etc. + 'free format'
 		// Actually, is there any way you could display a non standard sensor but just the data value? (but might still be useful of course)
-		activeModules = [Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES, Module.SENSORS];
+		activeResources = [Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES, Resource.SUN_DEGREE];
 	
-		createRestIfModuleActive(Module.ACTIVITIES, "main", {"activities": {"start": "GET", "stop": "GET"}});
-		createRestIfModuleActive(Module.LIGHTS, "hue", {"lights": {"on": "GET", "off": "GET"}});
-		createRestIfModuleActive(Module.DEVICES, "ir", {"devices": {}});
+		createRestIfResourceActive(Resource.ACTIVITIES, {"start": "GET", "stop": "GET"});
+		createRestIfResourceActive(Resource.LIGHTS, "lights", {"on": "GET", "off": "GET"});
+		createRestIfResourceActive(Resource.DEVICES, "devices", {});
 		//TODO: maybe actually not use a REST client here? Just a URL call could work
 		//Otherwise: do use a REST client with a real JSON response, including e.g. time, value and direction (+ speed)
-		createRestIfModuleActive(Module.SENSORS, "sensors", {"sunDegree": {}});
+		// Yes, the last one is much cooler! :)
+		createRestIfResourceActive(Resource.SUN_DEGREE, "sunDegree", {});
 		
 		//TODO: create generic page for sensors - then use activeModules variable again.
-		createModuleTopLevelPages([Module.ACTIVITIES, Module.LIGHTS, Module.DEVICES]);
+		createResourceTopLevelPages([Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES]);
 		createStaticTopLevelPage("settings");
 		createStaticTopLevelPage("about");
 		
@@ -178,15 +165,15 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		}, util.createFailFunction("menu pre-loading"));
 	};
 	
-	function createRestIfModuleActive(module, prefix, resourceMap) {
-		if (util.contains(activeModules, module)) {
-			rest.create(module, prefix, resourceMap);
+	function createRestIfResourceActive(resource, verbMap) {
+		if (util.contains(activeResources, resource)) {
+			rest.create(resource, verbMap);
 		}
 	}
 	
 	// When the document becomes ready, we can start the application.
 	$(document).ready(function () {
-		log.setLevel(config.getValue("logLevel"));
+		initLogging();
 		// Before we start the application, we should make sure that the backend server is online and reachable.
 		$.ajax({url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000}).then(function (pong) {
 			// If we get a response, that's fine, not need to check the body.
@@ -195,18 +182,35 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		}, util.createFailFunction(null, "Program Your Home backend server is not online."));
 	});
 	
+	function initLogging() {
+		if (config.getValue("showErrorsOnScreen")) {
+			log.setErrorCallback(showErrorMessage);
+		}
+		log.setLevel(config.getValue("logLevel"));		
+	}
+
+	function showErrorMessage(error) {
+		// TODO: also include a 'report to developer' kind of button to get feedback
+		$().toastmessage("showToast", {
+		    text     : error,
+		    sticky   : true,
+		    type     : "error",
+		    position : "middle-center"
+		});
+	}
+
 	////////////////////////////////////////////////
 	// Program Your Home module exposed functions //
 	////////////////////////////////////////////////
 
 	return {
 		// Start or stop an activity.
-		toggleActivity: function (id) {
-			toggleRestResource(Module.ACTIVITIES, Module.ACTIVITIES, "start", "stop", id, pages.get(Module.ACTIVITIES).javascriptModule.isActive(id));
+		toggleActivity: function (id, isActive) {
+			toggleRestResource(Resource.ACTIVITIES, "start", "stop", id, isActive);
 		},
 		// Switch a light on or off.
-		toggleLight: function (id, currentlyOn) {
-			toggleRestResource(Module.LIGHTS, Module.LIGHTS, "on", "off", id, currentlyOn);
+		toggleLight: function (id, isOn) {
+			toggleRestResource(Resource.LIGHTS, "on", "off", id, isOn);
 		}
 	};
 

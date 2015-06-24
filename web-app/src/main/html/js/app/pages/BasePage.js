@@ -5,7 +5,7 @@
 define(["pages", "events"],
 		function (pages, events) {
 
-	function BasePage(eventTopicResource) {
+	return function BasePage(eventTopicResource) {
 		var self = this;
 		// Default null, will be set in the init.
 		this.page = null;
@@ -55,11 +55,6 @@ define(["pages", "events"],
 		};
 		
 	}
-
-    
-	return {
-		BasePage: BasePage
-	};
 
 
 // End of require module.

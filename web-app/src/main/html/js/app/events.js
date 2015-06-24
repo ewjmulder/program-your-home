@@ -43,10 +43,12 @@ define(["jquery", "stomp", "sock", "config", "util", "log"],
     };
     
 	return {
+		// Subscribe for plain text: the message body string is not modified.
 		subscribeForText: function (eventTopic, callback) {
 			subscribe(eventTopic, callback, util.identity);
 		},
 		
+		// Subscribe for an object: parse the message body string as JSON.
 		subscribeForObject: function (eventTopic, callback) {
 			subscribe(eventTopic, callback, JSON.parse);
 		}	

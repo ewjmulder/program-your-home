@@ -2,8 +2,10 @@
 
 // Start a new require module.
 // Thin wrapper around the used logging framework.
-define(["loglevel", "config", "toast"],
-		function (loglevel, config, toast) {
+define(["loglevel"],
+		function (loglevel) {
+	
+	var errorCallback = null;
 	
 	return {
 		trace: function (obj) {
@@ -24,14 +26,8 @@ define(["loglevel", "config", "toast"],
 		
 		error: function (obj) {
 			loglevel.error(obj);
-			if (config.getValue("showErrorsOnScreen")) {
-				// TODO: also include a 'report to developer' kind of button to get feedback
-				$().toastmessage("showToast", {
-				    text     : obj,
-				    sticky   : true,
-				    type     : "error",
-				    position : "middle-center"
-				});
+			if (errorCallback != null) {
+				errorCallback(obj);
 			}
 		},
 		
@@ -39,14 +35,19 @@ define(["loglevel", "config", "toast"],
 			loglevel.setLevel(level);
 		},
 
-		noLogging: function () {
+		none: function () {
 			loglevel.disableAll();
 		},
 
-		fullLogging: function () {
+		full: function () {
 			loglevel.enableAll()
 		},
 
+		// Possibility to set an error callback to be informed when an error occurs.
+		// NB: There is just one callback function possible. Calling the setter twice will override the previous value.
+		setErrorCallback: function (theErrorCallback) {
+			errorCallback = theErrorCallback;
+		}
 	};
 
 

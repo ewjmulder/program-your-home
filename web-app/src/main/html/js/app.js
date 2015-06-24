@@ -17,7 +17,7 @@ requirejs.config({
 		config: '../config',
 		
 		// Separate script files for the pages, naming convention is: "page" + util.capitalizeFirstLetter(pageName)
-		basePage: '../app/pages/basePage',
+		BasePage: '../app/pages/BasePage',
 		pageActivities: '../app/pages/activities',
 		pageLights: '../app/pages/lights',
 		pageDevices: '../app/pages/devices',

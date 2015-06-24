@@ -16,13 +16,18 @@ define(["log"],
 		},
 	
 		// Capitalize the first letter of the given string.
-		capitalizeFirstLetter: function(string) {
-		    return string.charAt(0).toUpperCase() + string.slice(1);
+		capitalizeFirstLetter: function (inputString) {
+		    return inputString.charAt(0).toUpperCase() + inputString.substring(1);
 		},
 		
 		// The identity function, just always return the argument 'as is'.
 		identity: function (obj) {
 			return obj;
+		},
+
+		// Return a function that returns the provided argument.
+		functionReturn: function(obj) {
+			return function() { return obj; };
 		},
 		
 		pythagoras: function (a, b) {

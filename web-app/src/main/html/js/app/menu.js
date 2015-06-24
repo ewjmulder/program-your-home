@@ -56,7 +56,7 @@ define(["jquery", "mmenu", "hammer", "settings", "pages", "enums"],
 			    [Hammer.Press, { threshold: 25, time: 0}]
             ];
 
-		// Create a hammer listener on the menu.
+		// Create a hammer listener on the menu DOM element.
 		var hammer = new Hammer($("#menu")[0], {});
 		// When a press is detected, programmatically click on the center of the press, effectively selecting an underlying menu item (if present).
 		hammer.on("pressup", function (e) {
@@ -89,9 +89,9 @@ define(["jquery", "mmenu", "hammer", "settings", "pages", "enums"],
 		// Function to be called once from the outside to activate the menu.
 		activate: function () {
 			createMenu();
+			configureSliding();
 			// Select the menu item (page) that is provided as the home page.
 			getMmenuApi().setSelected($("#menu-" + pages.byName(settings.getSettingValue(enums.SettingName.HOME_PAGE)).id));
-			configureSliding();
 		}
 	};
 

@@ -1,11 +1,11 @@
 "use strict";
 
 // Start a new require module.
-define(["jquery", "basePage", "enums"],
-		function ($, basePage, enums) {
+define(["jquery", "BasePage", "enums"],
+		function ($, BasePage, enums) {
 
 	function Activities() {
-		basePage.BasePage.call(this, enums.EventTopic.PYH_ACTIVITIES);
+		BasePage.call(this, enums.EventTopic.PYH_ACTIVITIES);
 		
 		this.isActive = function (id) {
 			return this.getResource(id).active;
@@ -21,7 +21,7 @@ define(["jquery", "basePage", "enums"],
 	};
 	
 	// Required code for making BasePage the 'superclass'.
-	Activities.prototype = Object.create(basePage.BasePage.prototype);
+	Activities.prototype = Object.create(BasePage.prototype);
 	Activities.prototype.constructor = Activities;
 	
 	// Return the 'singleton' object as external interface.

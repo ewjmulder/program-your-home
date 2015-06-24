@@ -1,8 +1,5 @@
 package com.programyourhome.server.events;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -34,22 +31,6 @@ public abstract class PyhEvent extends ApplicationEvent {
     // Override when hasTopic() is set to return true.
     public Object getPayload() {
         return null;
-    }
-
-    protected Map<String, Object> createPayload(final Object... keyValuePairs) {
-        if (keyValuePairs.length % 2 != 0) {
-            throw new IllegalArgumentException("Create payload must be called with an even number of parameters.");
-        }
-        final Map<String, Object> payload = new HashMap<>();
-        for (int i = 0; i < keyValuePairs.length; i += 2) {
-            final Object key = keyValuePairs[i];
-            final Object value = keyValuePairs[i + 1];
-            if (!(key instanceof String)) {
-                throw new IllegalArgumentException("A key of a payload property must be a String, not a '" + key.getClass().getName() + "'.");
-            }
-            payload.put((String) key, value);
-        }
-        return payload;
     }
 
     @Override

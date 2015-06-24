@@ -2,9 +2,9 @@ package com.programyourhome.server.events.sundegree;
 
 import java.time.LocalDate;
 
-import com.programyourhome.server.events.PyhEvent;
+import com.programyourhome.server.events.PyhTopicEvent;
 
-public class SunriseSunsetEvent extends PyhEvent {
+public class SunriseSunsetEvent extends PyhTopicEvent {
 
     private static final long serialVersionUID = 1L;
 
@@ -16,11 +16,6 @@ public class SunriseSunsetEvent extends PyhEvent {
         this.date = date;
         this.moment = moment;
         this.type = type;
-    }
-
-    @Override
-    public boolean hasTopic() {
-        return true;
     }
 
     @Override

@@ -1,16 +1,20 @@
 "use strict";
 
-// Start a new require module.
-define(["jquery", "util"],
-		function ($, util) {
+//Start a new require module.
+define(["jquery", "BasePage", "enums"],
+		function ($, BasePage, enums) {
 
-	var lastLights = {};
-	
-	function drawLights(lights, refreshOnly) {
-		// TODO: smarter refreshing the draw logic -> use lastLights to see if there are any changes to be drawn.
-		lights.forEach(function(light) {
-			// Cache the state of the light.
-			lastLights[light.id] = light;
+	function Lights() {
+		BasePage.call(this, enums.EventTopic.HUE_LIGHTS);
+
+		this.backgroundColor = "#CCCCCC";
+
+		this.isOn = function (id) {
+			return this.getResource(id).on;
+		};
+
+		this.updateResource = function (light) {
+			var contentElement = document.getElementById("draw-light-" + light.id);
 			if (light.type == "HUE_FULL_COLOR_BULB") {
 				// Create a new image.
 				var lightImage = new Image();
@@ -28,10 +32,9 @@ define(["jquery", "util"],
 					var canvasElement = document.createElement('canvas');
 					canvasElement.width = canvasWidth;
 					canvasElement.height = canvasHeight;
-					var canvasParent = document.getElementById("draw-light-" + light.id);
 					// Remove all current child elements.
-					$(canvasParent).empty();
-					canvasParent.appendChild(canvasElement);
+					$(contentElement).empty();
+					contentElement.appendChild(canvasElement);
 			
 					// Center image horizontally.
 					var imageX = canvasWidth / 2 - lightImage.width / 2;
@@ -132,27 +135,14 @@ define(["jquery", "util"],
 					src: "img/hue-full-color-bulb-small.png",
 				});
 			} else {
-				if (!refreshOnly) {
-					var span = document.createElement("span");
-					$(span).html("TODO: support multiple lights!<br />");
-					document.getElementById("draw-light-" + light.id).appendChild(span);
-				}
+				$(contentElement).html("TODO: support multiple light types!<br />");
 			}
-		});
+		};
 	};
 	
-	return {
-		backgroundColor: "#CCCCCC",
-		createPage: function (lights) {
-			drawLights(lights, false);
-		},
-		refreshPage: function (lights) {
-			drawLights(lights, true);
-		},
-		getLightState: function(id) {
-			return lastLights[id].on;
-		}
-	};
+	// Return the 'singleton' object as external interface.
+	return new Lights();
+
 
 // End of require module.
 });

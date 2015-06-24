@@ -32,8 +32,10 @@ define([],
 	// Enum-like definition of all possible event topics.
 	// Can be either a string with the name of the topic or a function that can build a topic name given a certain input.
 	var EventTopic = Object.freeze({
-		SUN_DEGREE: "/topic/event/sunDegree",
-		PYH_ACTIVITIES: function (id) { return "/topic/pyh/activities/" + id; }
+		PYH_ACTIVITIES: function (id) { return "/topic/pyh/activities/" + id; },
+		HUE_LIGHTS: function (id) { return "/topic/hue/lights/" + id; },
+		SUN_DEGREE_STATE: "/topic/sensors/sunDegree/state",
+		SUN_DEGREE_SUNRISE_SUNSET: "/topic/sensors/sunDegree/sunriseSunset",
 	});
 
 	// Expose the enums as properties of this module.

@@ -20,4 +20,8 @@ public abstract class ValueChangedEvent<T> extends PyhEvent {
         return this.newValue;
     }
 
+    @Override
+    public Object getPayload() {
+        return this.createPayload("oldValue", this.oldValue, "newValue", this.newValue);
+    }
 }

@@ -21,7 +21,7 @@ public class SunDegreePoller implements Poller {
     @Autowired
     private SunDegreeSensor sunDegreeSensor;
 
-    private final Set<SunsetSunriseEvent> publishedSunsetSunriseEvents;
+    private final Set<SunriseSunsetEvent> publishedSunsetSunriseEvents;
     private BigDecimal lastPolledValue;
 
     public SunDegreePoller() {
@@ -84,7 +84,7 @@ public class SunDegreePoller implements Poller {
         }
         if (moment != null && type != null) {
             final LocalDate today = LocalDate.now();
-            final SunsetSunriseEvent event = new SunsetSunriseEvent(today, moment, type);
+            final SunriseSunsetEvent event = new SunriseSunsetEvent(today, moment, type);
             // Prevent double events.
             if (!this.publishedSunsetSunriseEvents.contains(event)) {
                 this.publishedSunsetSunriseEvents.add(event);

@@ -158,9 +158,10 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 			// Show the starting page as defined in the home page setting.
 			pages.show(settings.getSettingValue(SettingName.HOME_PAGE));
 			
-			events.subscribeForText(EventTopic.SUN_DEGREE, function (sunDegree) {
-				title.sunDegree = sunDegree;
-				updateTitle();
+			events.subscribeForObject(EventTopic.SUN_DEGREE_STATE, function (sunDegreeState) {
+				//TODO: do something with state (display direction and degree)
+				//title.sunDegree = sunDegree;
+				//updateTitle();
             });
 		}, util.createFailFunction("menu pre-loading"));
 	};

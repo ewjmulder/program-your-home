@@ -19,11 +19,7 @@ define(["jquery", "BasePage", "enums"],
 			}
 		};
 	};
-	
-	// Required code for making BasePage the 'superclass'.
-	Activities.prototype = Object.create(BasePage.prototype);
-	Activities.prototype.constructor = Activities;
-	
+		
 	// Return the 'singleton' object as external interface.
 	return new Activities();
 

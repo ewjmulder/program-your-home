@@ -13,9 +13,4 @@ public abstract class ValueChangedTopicEvent<T> extends ValueChangedEvent<T> {
         return true;
     }
 
-    @Override
-    public Object getPayload() {
-        return this.getNewValue();
-    }
-
 }

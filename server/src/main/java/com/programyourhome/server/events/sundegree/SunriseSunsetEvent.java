@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import com.programyourhome.server.events.PyhEvent;
 
-public class SunsetSunriseEvent extends PyhEvent {
+public class SunriseSunsetEvent extends PyhEvent {
 
     private static final long serialVersionUID = 1L;
 
@@ -12,7 +12,7 @@ public class SunsetSunriseEvent extends PyhEvent {
     private final SunDegreeMoment moment;
     private final SunriseSunset type;
 
-    public SunsetSunriseEvent(final LocalDate date, final SunDegreeMoment moment, final SunriseSunset type) {
+    public SunriseSunsetEvent(final LocalDate date, final SunDegreeMoment moment, final SunriseSunset type) {
         this.date = date;
         this.moment = moment;
         this.type = type;
@@ -20,8 +20,17 @@ public class SunsetSunriseEvent extends PyhEvent {
 
     @Override
     public boolean hasTopic() {
-        // TODO: create topic for this.
-        return false;
+        return true;
+    }
+
+    @Override
+    public String getTopic() {
+        return "/topic/sensors/sunDegree/sunriseSunset";
+    }
+
+    @Override
+    public Object getPayload() {
+        return this.createPayload("moment", this.moment, "type", this.type);
     }
 
     public LocalDate getDate() {

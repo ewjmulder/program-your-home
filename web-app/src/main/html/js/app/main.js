@@ -122,12 +122,12 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		activeResources = [Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES, Resource.SUN_DEGREE];
 	
 		createRestIfResourceActive(Resource.ACTIVITIES, {"start": "GET", "stop": "GET"});
-		createRestIfResourceActive(Resource.LIGHTS, "lights", {"on": "GET", "off": "GET"});
-		createRestIfResourceActive(Resource.DEVICES, "devices", {});
+		createRestIfResourceActive(Resource.LIGHTS, {"on": "GET", "off": "GET"});
+		createRestIfResourceActive(Resource.DEVICES, {});
 		//TODO: maybe actually not use a REST client here? Just a URL call could work
 		//Otherwise: do use a REST client with a real JSON response, including e.g. time, value and direction (+ speed)
 		// Yes, the last one is much cooler! :)
-		createRestIfResourceActive(Resource.SUN_DEGREE, "sunDegree", {});
+		createRestIfResourceActive(Resource.SUN_DEGREE, {});
 		
 		//TODO: create generic page for sensors - then use activeModules variable again.
 		createResourceTopLevelPages([Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES]);

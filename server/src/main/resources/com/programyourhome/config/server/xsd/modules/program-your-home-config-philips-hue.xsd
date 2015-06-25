@@ -3,7 +3,7 @@
     <xsd:include schemaLocation="program-your-home-config-common.xsd" />
     <xsd:complexType name="philipsHueConfig">
         <xsd:sequence>
-            <xsd:element name="lights" type="lights" />
+            <xsd:element name="lights" type="lights" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="lights">
@@ -13,20 +13,20 @@
     </xsd:complexType>
     <xsd:complexType name="light">
         <xsd:sequence>
-            <xsd:element name="id" type="id" />
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
             <xsd:choice>
                 <xsd:sequence>
-                    <xsd:element name="turnOff" type="turnOff" />
+                    <xsd:element name="turnOff" type="turnOff" minOccurs="1" maxOccurs="1" />
                 </xsd:sequence>
                 <xsd:sequence>
-                    <xsd:element name="turnOn" type="turnOn" />
-                    <xsd:element name="dim" type="basisPoint" />
+                    <xsd:element name="turnOn" type="turnOn" minOccurs="1" maxOccurs="1" />
+                    <xsd:element name="dim" type="basisPoint" minOccurs="1" maxOccurs="1" />
                     <xsd:choice>
-                        <xsd:element name="colorRGB" type="colorRGB" />
-                        <xsd:element name="colorXY" type="colorXY" />
-                        <xsd:element name="colorHueSaturation" type="colorHueSaturation" />
-                        <xsd:element name="colorTemperature" type="basisPoint" />
-                        <xsd:element name="colorMood" type="colorMood" />
+                        <xsd:element name="colorRGB" type="colorRGB" minOccurs="1" maxOccurs="1" />
+                        <xsd:element name="colorXY" type="colorXY" minOccurs="1" maxOccurs="1" />
+                        <xsd:element name="colorHueSaturation" type="colorHueSaturation" minOccurs="1" maxOccurs="1" />
+                        <xsd:element name="colorTemperature" type="basisPoint" minOccurs="1" maxOccurs="1" />
+                        <xsd:element name="colorMood" type="colorMood" minOccurs="1" maxOccurs="1" />
                     </xsd:choice>
                 </xsd:sequence>
             </xsd:choice>
@@ -34,21 +34,21 @@
     </xsd:complexType>
     <xsd:complexType name="colorRGB">
         <xsd:sequence>
-            <xsd:element name="red" type="rgb" />
-            <xsd:element name="green" type="rgb" />
-            <xsd:element name="blue" type="rgb" />
+            <xsd:element name="red" type="rgb" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="green" type="rgb" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="blue" type="rgb" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="colorXY">
         <xsd:sequence>
-            <xsd:element name="x" type="xsd:float" />
-            <xsd:element name="y" type="xsd:float" />
+            <xsd:element name="x" type="xsd:float" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="y" type="xsd:float" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="colorHueSaturation">
         <xsd:sequence>
-            <xsd:element name="hue" type="basisPoint" />
-            <xsd:element name="saturation" type="basisPoint" />
+            <xsd:element name="hue" type="basisPoint" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="saturation" type="basisPoint" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:simpleType name="basisPoint">

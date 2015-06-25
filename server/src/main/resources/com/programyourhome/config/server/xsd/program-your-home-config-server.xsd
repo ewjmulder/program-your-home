@@ -6,15 +6,15 @@
     <xsd:element name="serverConfig">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="defaultLanguage" type="language" />
-                <xsd:element name="activitiesConfig" type="activitiesConfig" />
+                <xsd:element name="defaultLanguage" type="language" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="activitiesConfig" type="activitiesConfig" minOccurs="1" maxOccurs="1" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
     <xsd:complexType name="activitiesConfig">
         <xsd:sequence>
-            <xsd:element name="defaultIcon" type="xsd:string" />
-            <xsd:element name="activities" type="activities" />
+            <xsd:element name="defaultIcon" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="activities" type="activities" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="activities">
@@ -24,21 +24,21 @@
     </xsd:complexType>
     <xsd:complexType name="activity">
         <xsd:sequence>
-            <xsd:element name="id" type="id" />
-            <xsd:element name="name" type="xsd:string" />
-            <xsd:element name="description" type="xsd:string" />
-            <xsd:element name="icon" minOccurs="0" type="xsd:string">
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="name" type="xsd:string"  minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="icon" type="xsd:string" minOccurs="0" maxOccurs="1">
                 <xsd:annotation>
                     <xsd:documentation>
                         The file name of the icon image, located in the icons folder in the config root
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="modules">
+            <xsd:element name="modules" minOccurs="1" maxOccurs="1">
                 <xsd:complexType>
                     <xsd:sequence>
-                        <xsd:element name="philipsHue" type="philipsHueConfig" minOccurs="0" />
-                        <xsd:element name="infraRed" type="infraRedConfig" minOccurs="0" />
+                        <xsd:element name="philipsHue" type="philipsHueConfig" minOccurs="0" maxOccurs="1" />
+                        <xsd:element name="infraRed" type="infraRedConfig" minOccurs="0" maxOccurs="1" />
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>

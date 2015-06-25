@@ -4,7 +4,7 @@
     <xsd:element name="infraRedConfig">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="devices" type="devices" />
+                <xsd:element name="devices" type="devices" minOccurs="1" maxOccurs="1" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -15,30 +15,30 @@
     </xsd:complexType>
     <xsd:complexType name="device">
         <xsd:sequence>
-            <xsd:element name="id" type="id" />
-            <xsd:element name="name" type="xsd:string" />
-            <xsd:element name="description" type="xsd:string" />
-            <xsd:element name="defaultDelay" type="delay" />
-            <xsd:element name="prototypes" type="prototypes" />
-            <xsd:element name="remote" type="remote" />
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="defaultDelay" type="delay" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="prototypes" type="prototypes" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="remote" type="remote" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="prototypes">
         <xsd:sequence>
-            <xsd:element name="power" type="xsd:boolean" />
-            <xsd:element name="input" type="xsd:boolean" />
-            <xsd:element name="volume" type="xsd:boolean" />
-            <xsd:element name="channel" type="xsd:boolean" />
-            <xsd:element name="play" type="xsd:boolean" />
-            <xsd:element name="skip" type="xsd:boolean" />
-            <xsd:element name="record" type="xsd:boolean" />
-            <xsd:element name="menu" type="xsd:boolean" />
+            <xsd:element name="power" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="input" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="volume" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="channel" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="play" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="skip" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="record" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="menu" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="remote">
         <xsd:sequence>
-            <xsd:element name="name" type="xsd:string" />
-            <xsd:element name="keyMapping" type="keyMapping" />
+            <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="keyMapping" type="keyMapping" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="keyMapping">
@@ -46,8 +46,8 @@
             <xsd:documentation>Both key groups and 'separate' keys can be listed under the key mapping of a remote.</xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="keyGroups" type="keyGroups" minOccurs="0" />
-            <xsd:element name="keys" type="keys" minOccurs="0" />
+            <xsd:element name="keyGroups" type="keyGroups" minOccurs="0" maxOccurs="1" />
+            <xsd:element name="keys" type="keys" minOccurs="0" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="keyGroups">
@@ -66,10 +66,10 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="name" type="xsd:string" />
-            <xsd:element name="groupType" type="keyType" />
-            <xsd:element name="groupDelay" type="delay" />
-            <xsd:element name="keys" type="keys" />
+            <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="groupType" type="keyType" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="groupDelay" type="delay" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="keys" type="keys" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="keys">
@@ -79,11 +79,11 @@
     </xsd:complexType>
     <xsd:complexType name="key">
         <xsd:sequence>
-            <xsd:element name="id" type="id" />
-            <xsd:element name="name" type="xsd:string" />
-            <xsd:element name="winlircName" type="xsd:string" />
-            <xsd:element name="type" type="keyType" minOccurs="0" />
-            <xsd:element name="delay" type="delay" minOccurs="0" />
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="winlircName" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="type" type="keyType" minOccurs="0" maxOccurs="1" />
+            <xsd:element name="delay" type="delay" minOccurs="0" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:simpleType name="id">

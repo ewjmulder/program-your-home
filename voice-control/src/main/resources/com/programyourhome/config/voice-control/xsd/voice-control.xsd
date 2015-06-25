@@ -4,7 +4,7 @@
     <xsd:element name="voiceControlConfig">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="languages" type="languages" />
+                <xsd:element name="languages" type="languages" minOccurs="1" maxOccurs="1" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -15,11 +15,11 @@
     </xsd:complexType>
     <xsd:complexType name="language">
         <xsd:sequence>
-            <xsd:element name="id" type="id" />
-            <xsd:element name="name" type="xsd:string" />
-            <xsd:element name="locale" type="xsd:string" />
-            <xsd:element name="confirmations" type="confirmations" />
-            <xsd:element name="negations" type="negations" />
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="locale" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="confirmations" type="confirmations" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="negations" type="negations" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:simpleType name="id">

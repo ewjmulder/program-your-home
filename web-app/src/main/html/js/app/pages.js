@@ -83,26 +83,27 @@ define(["jquery", "templates", "util"],
 			}
 			// Set the 'new current page'.
 			currentPage = pages[pageName];
-			// Load the page if it's shown for the first time (one time action only).
-			//TODO: refactor
+			
+			var afterPageLoaded = function () {
+				// Show the 'new current page'.
+				currentPage.contentElement.removeClass("hidden-page");
+				currentPage.contentElement.addClass("current-page");
+				// Set the title.
+				$("#title").html(currentPage.title);
+				// Update the background color. Should be done on the content tag, so it fills the whole content area.
+				$("#content").css("background-color", currentPage.javascriptModule.backgroundColor);
+				currentPage.javascriptModule.show();
+			}
 			if (!currentPage.isLoaded()) {
-				$.when(loadPage(currentPage)).done(displayCurrentPage);
+				// Load the page if it's shown for the first time (one time action only).
+				$.when(loadPage(currentPage)).done(afterPageLoaded);
 			} else {
-				displayCurrentPage();
+				// Page already loaded, continue immediately.
+				afterPageLoaded();
 			}
 		}
 	};
 
-	//TODO: refactor
-	function displayCurrentPage() {
-		// Show the 'new current page'.
-		currentPage.contentElement.removeClass("hidden-page");
-		currentPage.contentElement.addClass("current-page");
-		// Update the background color. Should be done on the content tag, so it fills the whole content area.
-		$("#content").css("background-color", currentPage.javascriptModule.backgroundColor);
-		currentPage.javascriptModule.show();
-	}
-	
 	// Load the page with the given name. Loading means processing the template with the required input data.
 	// This function should be called only once per page. After the initial loading, all updates should
 	// happen based on (state change) events coming in from the server.
@@ -112,7 +113,7 @@ define(["jquery", "templates", "util"],
 			require(["page" + util.capitalizeFirstLetter(page.moduleName)], function (pageModule) {
 				page.javascriptModule = pageModule;
 				pageModule.init(page, data);
-				loadPageWithTemplate(page, createTemplateDataFromPage(page, data));
+				loadPageWithTemplate(page, data);
 				pageLoading.resolve();
 			});
 		})
@@ -120,21 +121,9 @@ define(["jquery", "templates", "util"],
 		.fail(util.createFailFunction("page " + page.name));
 		return pageLoading;
 	};
-	
-	// Create a template data input object based on the provided page.
-	function createTemplateDataFromPage(page, data) {
-		var templateData = {};
-		// Use the template name as property name to feed the template with.
-		//TODO: assumption is that the template requires an 'outer' object with a named prop to start traversal.
-		//TODO: try out if you can feed the (eg) collection directly and then using the 'this' keyword (or similar) in the handlebars template
-		templateData[page.moduleName] = data; 
-		return templateData;
-	};
-	
+
 	// Load the provided page, using the templateData to feed the template.
 	function loadPageWithTemplate(page, templateData) {
-		// 'unwrap' the data for direct usage.
-		var data = templateData[page.moduleName];
 		var pageDomTree = templates.get(page.moduleName)(templateData);
 		// Put the DOM tree in the content element of the page.
 		page.contentElement.html(pageDomTree);

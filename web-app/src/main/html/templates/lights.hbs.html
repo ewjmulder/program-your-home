@@ -1,4 +1,4 @@
-{{#each lights}}
+{{#each this}}
 	{{name}}<br />
 	<a href="javascript:void(0)" onclick="require(['main', 'pageLights'], function (main, pageLights) {
 			main.toggleLight({{id}}, pageLights.isOn({{id}}));

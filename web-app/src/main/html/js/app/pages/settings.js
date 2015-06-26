@@ -58,7 +58,11 @@ define(["jquery", "BasePage", "settings", "knockout"],
 			
 			// When the reload button is clicked, just set the browser url to the current url.
 			$("#reload-app-button").click(function() {
-				document.location.href = document.location.href;
+				var appUrl = document.location.href;
+				if (appUrl.indexOf("#") > -1) {
+					appUrl = appUrl.substring(0, appUrl.indexOf("#"));
+				}
+				document.location.href = appUrl;
 			});
 		};
 	

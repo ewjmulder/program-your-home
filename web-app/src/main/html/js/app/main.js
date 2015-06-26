@@ -19,23 +19,13 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	
 	// The resources that are activated in the menu. Most probably filtered by what is available on the server and maybe other filters.
 	var activeResources = [];
-	// The title object that contains all information to be displayed in the title.
-	var title = {};
 
 	
 	/////////////////////////////////////////
 	// Program Your Home class definitions //
 	/////////////////////////////////////////
 	
-	
-	var Title = function () {
-		this.text = "Program Your Home";
-		this.sunDegree = "";
-	}
-	title = new Title();
-	
 	// Create all available settings.
-	//TODO: expand possible settings.
 	settings.addSetting(SettingName.SLIDING_SUBMENUS, "Sliding sub-menu's", SettingType.BOOLEAN, true);
 	// TODO: make safer by using some sort of enum/list type and a drop down in the page.
 	settings.addSetting(SettingName.HOME_PAGE, "Home page", SettingType.STRING, "activities");
@@ -48,31 +38,14 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	function loadDerivedMenuItems() {
 		var deviceLoading = $.Deferred();
 		rest.readAll(Resource.DEVICES).done(function (devices) {
-			// TODO: you might want to add class="ui-link" to the <a>, that is done somewhere (in jquery (ui)) already for the other <a>'s.
 			for (var i = 0; i < devices.length; i++) {
 				var dataFunction = function () { return rest.read(Resource.DEVICES, devices[i].id); };
 				pages.createSubPage(Resource.DEVICES.name, "device-" + devices[i].name, devices[i].name, config.getValue("deviceIconMap")[devices[i].id], "Device - " + devices[i].name, dataFunction);
 			}
 			deviceLoading.resolve();
 		});
-		//TODO: add more menu loading stuff
 		return $.when(deviceLoading/*, moreLoading*/);
 	};
-	
-	// Set the title with the given text.
-	function setTitleText(titleText) {
-		title.text = titleText;
-		updateTitle();
-	};
-
-	// Update the title with the current data in the title object.
-	function updateTitle() {
-		//TODO: only display if sun degree sensor is available on server
-		//TODO: make a handlebars template out of this
-		$("#title-left").html("lefty");
-		$("#title-middle").html(title.text);
-		$("#title-right").html("<i class='fa fa-sun-o'></i> " + title.sundegree + "&deg;");
-	}
 	
 	// Toggle a rest resource: set it to on if currently off and vice versa.
 	function toggleRestResource(resource, onVerb, offVerb, id, currentlyOn) {
@@ -97,19 +70,6 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		});
 	};
 	
-	function showPage(page) {
-		// Do this first, since it's async and will require time. Better start it early then.s
-		pages.show(page);
-		// Update the on screen title.
-		//FIXME: sep title module/template or what?
-		//setTitleText(currentPage.title);
-	}
-	
-	//FIXME: before it will work:
-	// - pages contains restClients ref: refactor to use loadPage function as param.
-	// - solution for title handling
-	// - don't expose rest clients in rest!
-	
 	
 	/////////////////////////////////////////////
 	// Program Your Home document ready logic  //
@@ -126,9 +86,6 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		createRestIfResourceActive(Resource.ACTIVITIES, {"start": "GET", "stop": "GET"});
 		createRestIfResourceActive(Resource.LIGHTS, {"on": "GET", "off": "GET"});
 		createRestIfResourceActive(Resource.DEVICES, {});
-		//TODO: maybe actually not use a REST client here? Just a URL call could work
-		//Otherwise: do use a REST client with a real JSON response, including e.g. time, value and direction (+ speed)
-		// Yes, the last one is much cooler! :)
 		createRestIfResourceActive(Resource.SUN_DEGREE, {});
 		
 		//TODO: create generic page for sensors - then use activeModules variable again.
@@ -162,8 +119,6 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 			
 			events.subscribeForObject(EventTopic.SUN_DEGREE_STATE, function (sunDegreeChangedEvent) {
 				//TODO: do something with state (display direction and degree)
-				//title.sunDegree = sunDegree;
-				//updateTitle();
             });
 		}, util.createFailFunction("menu pre-loading"));
 	};
@@ -180,7 +135,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		// Before we start the application, we should make sure that the backend server is online and reachable.
 		$.ajax({url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000}).then(function (pong) {
 			// If we get a response, that's fine, not need to check the body.
-			// TOOD: maybe more health checks upon boot time to check?
+			// TODO: maybe more health checks upon boot time to check?
 			start();
 		}, util.createFailFunction(null, "Program Your Home backend server is not online."));
 	});

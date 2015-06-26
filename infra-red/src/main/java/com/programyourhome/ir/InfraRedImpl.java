@@ -126,13 +126,17 @@ public class InfraRedImpl implements InfraRed {
     @Override
     public Collection<PyhDevice> getDevices() {
         return this.configHolder.getConfig().getDevices().stream()
-                .map(device -> new PyhDeviceImpl(device))
+                .map(device -> this.createDeviceImpl(device))
                 .collect(Collectors.toList());
     }
 
     @Override
     public PyhDevice getDevice(final int deviceId) {
-        return new PyhDeviceImpl(this.getDeviceById(deviceId));
+        return this.createDeviceImpl(this.getDeviceById(deviceId));
+    }
+
+    private PyhDeviceImpl createDeviceImpl(final Device device) {
+        return new PyhDeviceImpl(device, this.deviceStates.get(device.getId()).isOn());
     }
 
     private Device getDeviceById(final int deviceId) {
@@ -199,7 +203,7 @@ public class InfraRedImpl implements InfraRed {
     @Override
     public synchronized void turnOn(final int deviceId) {
         // Only hit the power key if the device is currently off.
-        if (this.deviceStates.get(deviceId).isTurnedOff()) {
+        if (this.deviceStates.get(deviceId).isOff()) {
             this.deviceStates.get(deviceId).turnOn();
             this.pressRemoteKeyType(deviceId, KeyType.POWER);
         }
@@ -208,7 +212,7 @@ public class InfraRedImpl implements InfraRed {
     @Override
     public synchronized void turnOff(final int deviceId) {
         // Only hit the power key if the device is currently on.
-        if (this.deviceStates.get(deviceId).isTurnedOn()) {
+        if (this.deviceStates.get(deviceId).isOn()) {
             this.deviceStates.get(deviceId).turnOff();
             this.pressRemoteKeyType(deviceId, KeyType.POWER);
         }

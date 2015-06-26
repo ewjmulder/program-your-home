@@ -15,19 +15,27 @@ define(["pages", "events"],
 		
 		this.getResource = function (id) { return this.resourceCache[id]; };
 		
-		// Either of these (or exceptionally both) should be implemented in the subclass.
+		// Function that is called once in the lifetime of the object (before any others), but after the DOM is available.
+		this.initPage = function () { return "To be implemented in subclass"; };
+		// Function that is called once for every time the page is shown (selected).
+		this.showPage = function () { return "To be implemented in subclass"; };
+		// Either of these (or exceptionally both) should be implemented in the subclass (none if there are no resources on the page).
 		// If only the new values is good enough, updateResource should be used. If more fine
 		// grained control (eg individual value comparison) is needed, resourceValueChanged should be used.
 		this.resourceValueChanged = function (oldResourceValue, newResourceValue) { return "To be implemented in subclass"; };
 		this.updateResource = function (resource) { return "To be implemented in subclass"; };
-		this.showPage = function () { return "To be implemented in subclass"; };
 		
 		// Initialize logic. Must be called first, before any other function.
 		// Used as separate function instead of constructor, because now we can create the page module object before we have the page or data.
 		this.init = function (page, resources) {
+			if (!(resources instanceof Array)) {
+				// Wrap the single resource in an array of length 1, to keep the rest of the logic generic.
+				resources = [resources];
+			}
 			this.page = page;
 			this.fillCache(resources);
-			this.subscribe(resources, eventTopicResource);			
+			this.subscribe(resources, eventTopicResource);
+			this.initPage();
 		}
 		
 		this.fillCache = function (resources) {

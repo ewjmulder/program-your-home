@@ -25,7 +25,9 @@ public class PyhDeviceImpl extends PyhImpl implements PyhDevice {
     private final List<String> inputs;
     private final List<String> extraKeys;
 
-    public PyhDeviceImpl(final Device device) {
+    private final boolean on;
+
+    public PyhDeviceImpl(final Device device, final boolean on) {
         this.id = device.getId();
         this.name = device.getName();
         this.description = device.getDescription();
@@ -58,6 +60,8 @@ public class PyhDeviceImpl extends PyhImpl implements PyhDevice {
                 .filter(key -> key.getType() == null)
                 .map(Key::getName)
                 .collect(Collectors.toList()));
+
+        this.on = on;
     }
 
     @Override
@@ -123,6 +127,11 @@ public class PyhDeviceImpl extends PyhImpl implements PyhDevice {
     @Override
     public List<String> getExtraKeys() {
         return new ArrayList<>(this.extraKeys);
+    }
+
+    @Override
+    public boolean isOn() {
+        return this.on;
     }
 
 }

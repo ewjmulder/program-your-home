@@ -65,7 +65,7 @@ define(["jquery", "templates", "util"],
 		var moduleName = name;
 		var indexOfDash = name.indexOf("-");
 		if (indexOfDash > -1) {
-			moduleName = name.substring(indexOfDash);
+			moduleName = name.substring(0, indexOfDash);
 		}
 		return moduleName;
 	}
@@ -110,10 +110,10 @@ define(["jquery", "templates", "util"],
 	function loadPage(page) {
 		var pageLoading = $.Deferred();
 		page.dataFunction().done(function (data) {
+			loadPageWithTemplate(page, data);
 			require(["page" + util.capitalizeFirstLetter(page.moduleName)], function (pageModule) {
 				page.javascriptModule = pageModule;
-				pageModule.init(page, data);
-				loadPageWithTemplate(page, data);
+				page.javascriptModule.init(page, data);
 				pageLoading.resolve();
 			});
 		})

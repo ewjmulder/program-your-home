@@ -12,11 +12,6 @@ define(["jquery", "BasePage", "settings", "knockout"],
 	
 		var $settingsForm;
 		var settingsViewModel;
-
-		this.showPage = function () {
-			init();
-			doBind();
-		};
 		
 		function SettingsViewModel() {
 			Object.keys(settings).forEach(function (settingName) {
@@ -42,7 +37,7 @@ define(["jquery", "BasePage", "settings", "knockout"],
 			};
 		};
 	
-		function init() {
+		this.initPage = function () {
 			$settingsForm = $("#settingsForm");
 	
 			// Create one instance of the settings view model.
@@ -66,6 +61,10 @@ define(["jquery", "BasePage", "settings", "knockout"],
 			});
 		};
 	
+		this.showPage = function () {
+			doBind();
+		};
+
 		function doBind() {
 			// Create (or override) the settings fields on the view model object.
 			settingsViewModel.createSettingsFields();

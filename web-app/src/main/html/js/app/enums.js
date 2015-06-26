@@ -34,6 +34,7 @@ define([],
 	var EventTopic = Object.freeze({
 		PYH_ACTIVITIES: function (id) { return "/topic/pyh/activities/" + id; },
 		HUE_LIGHTS: function (id) { return "/topic/hue/lights/" + id; },
+		IR_DEVICES: function (id) { return "/topic/ir/devices/" + id; },
 		SUN_DEGREE_STATE: "/topic/sensors/sunDegree/degree",
 		SUN_DEGREE_SUNRISE_SUNSET: "/topic/sensors/sunDegree/sunriseSunset",
 	});

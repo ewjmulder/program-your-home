@@ -1,17 +1,15 @@
 "use strict";
 
 // Start a new require module.
-define([],
-		function () {
+define(["BasePage"],
+		function (BasePage) {
 	
-	// Nothing logic needed (yet).
-	return {
-		backgroundColor: "white",
-		createPage: function () {
-		},
-		refreshPage: function () {
-		},
+	function About() {
+		BasePage.call(this);
 	};
+		
+	// Return the 'singleton' object as external interface.
+	return new About();
 
 	
 // End of require module.

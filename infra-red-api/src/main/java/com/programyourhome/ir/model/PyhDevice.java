@@ -34,4 +34,6 @@ public interface PyhDevice {
     // Also add methods to resync cached state if out of sync, e.g. by using another (physical) remote or failed IR command, etc.
     // Probably easiest way to sync (power state) is when off (hmm, if only power, then why off, doesn't matter actually)
 
+    public boolean isOn();
+
 }

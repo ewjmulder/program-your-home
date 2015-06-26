@@ -2,20 +2,20 @@ package com.programyourhome.ir;
 
 public class DeviceState {
 
-    private boolean turnedOn;
+    private boolean on;
     private String input;
 
     public DeviceState() {
-        this.turnedOn = false;
+        this.on = false;
         this.input = null;
     }
 
-    public boolean isTurnedOn() {
-        return this.turnedOn;
+    public boolean isOn() {
+        return this.on;
     }
 
-    public boolean isTurnedOff() {
-        return !this.turnedOn;
+    public boolean isOff() {
+        return !this.on;
     }
 
     public String getInput() {
@@ -23,11 +23,11 @@ public class DeviceState {
     }
 
     public void turnOn() {
-        this.turnedOn = true;
+        this.on = true;
     }
 
     public void turnOff() {
-        this.turnedOn = false;
+        this.on = false;
     }
 
     public void setInput(final String input) {

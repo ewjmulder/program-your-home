@@ -38,10 +38,10 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	function loadDerivedMenuItems() {
 		var deviceLoading = $.Deferred();
 		rest.readAll(Resource.DEVICES).done(function (devices) {
-			for (var i = 0; i < devices.length; i++) {
-				var dataFunction = function () { return rest.read(Resource.DEVICES, devices[i].id); };
-				pages.createSubPage(Resource.DEVICES.name, "device-" + devices[i].name, devices[i].name, config.getValue("deviceIconMap")[devices[i].id], "Device - " + devices[i].name, dataFunction);
-			}
+			devices.forEach(function (device) {
+				var dataFunction = function () { return rest.read(Resource.DEVICES, device.id); };
+				pages.createSubPage(Resource.DEVICES.name, "device-" + device.name, device.name, config.getValue("deviceIconMap")[device.id], "Device - " + device.name, dataFunction);
+			});
 			deviceLoading.resolve();
 		});
 		return $.when(deviceLoading/*, moreLoading*/);

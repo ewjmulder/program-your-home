@@ -20,12 +20,14 @@ public class CORSFilter implements Filter {
     public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
         final HttpServletResponse response = (HttpServletResponse) res;
         // TODO: find a nicer way to filter out websocket requests.
-        final String uri = ((RequestFacade) req).getRequestURI();
-        if (!uri.contains("websocket")) {
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-            response.setHeader("Access-Control-Max-Age", "3600");
-            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+        if (req instanceof RequestFacade) {
+            final String uri = ((RequestFacade) req).getRequestURI();
+            if (!uri.contains("websocket")) {
+                response.setHeader("Access-Control-Allow-Origin", "*");
+                response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+                response.setHeader("Access-Control-Max-Age", "3600");
+                response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+            }
         }
         chain.doFilter(req, res);
     }

@@ -13,7 +13,6 @@ define(["jquery", "util"],
 		BOOLEAN: {name: "boolean", parseFunction: $.parseJSON},
 	});
 
-	//TODO: Create a spearate settings module, so we don't require circular dependencies.
 	// Definition of a Setting class that represents one changeable setting of the application.
 	function Setting(name, displayName, type, defaultValue) {
 		var self = this;
@@ -68,9 +67,7 @@ define(["jquery", "util"],
 			new Setting(name, displayName, type, defaultValue);
 		},
 		
-		getSettingsMap: function () {
-			return settings;
-		},
+		settings: settings,
 
 		getSetting: function (settingName) {
 			return settings[settingName];

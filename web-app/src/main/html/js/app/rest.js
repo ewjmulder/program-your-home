@@ -45,9 +45,7 @@ define(["jquery", "jqrest", "util", "config"],
 	}
 	
 	return {
-		create: function (resourceDefinition, verbMap) {
-			createRestClient(resourceDefinition, verbMap);
-		},
+		create: createRestClient,
 
 		readAll: function (resourceDefinition) {
 			return callVerb(resourceDefinition, null, "read");
@@ -57,9 +55,7 @@ define(["jquery", "jqrest", "util", "config"],
 			return callVerb(resourceDefinition, resourceId, "read");
 		},
 		
-		verb: function (resourceDefinition, resourceId, verb) {
-			return callVerb(resourceDefinition, resourceId, verb);
-		}
+		verb: callVerb
 		
 	};
 

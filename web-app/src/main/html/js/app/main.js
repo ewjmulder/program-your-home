@@ -4,6 +4,8 @@
 define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util", "log", "settings", "config", "toast"],
 		function ($, events, enums, templates, pages, menu, rest, util, log, settings, config, toast) {
 	
+	var EMPTY_DATA_FUNCTION = util.immediatePromiseFunction([]);
+	
 	// Save enum types from modules in local variables for easier accessing.
 	var Module = enums.Module;
 	var Resource = enums.Resource;
@@ -85,7 +87,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 
 	// Create a top level page with the given name as default for all naming and title properties.
 	function createStaticTopLevelPage(name) {
-		createTopLevelPageByName(name, util.functionReturn({}));
+		createTopLevelPageByName(name, EMPTY_DATA_FUNCTION);
 	};
 	
 	// Create a top level page from a module name, using that name for all naming and title properties.

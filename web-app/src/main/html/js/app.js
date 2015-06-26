@@ -6,7 +6,7 @@ requirejs.config({
 		mmenu: 'jquery.mmenu.min.all',
 		jqrest: 'jquery.rest.min',
 		handlebars: 'handlebars-v3.0.1.min',
-		knockout: 'knockout.3.3.0.min',
+		knockout: 'debug/knockout.3.3.0.debug',
 		hammer: 'hammer-2.0.4.min',
 		toast: 'jquery.toastmessage',
 		stomp: 'stomp.min',

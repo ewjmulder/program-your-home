@@ -20,6 +20,7 @@ define(["pages", "events"],
 		// grained control (eg individual value comparison) is needed, resourceValueChanged should be used.
 		this.resourceValueChanged = function (oldResourceValue, newResourceValue) { return "To be implemented in subclass"; };
 		this.updateResource = function (resource) { return "To be implemented in subclass"; };
+		this.showPage = function () { return "To be implemented in subclass"; };
 		
 		// Initialize logic. Must be called first, before any other function.
 		// Used as separate function instead of constructor, because now we can create the page module object before we have the page or data.
@@ -55,6 +56,7 @@ define(["pages", "events"],
 		
 		//TODO: only update 'dirty' resources, keep track in flag. This prevents full redraw when nothing in cache has changed.
 		this.show = function () {
+			self.showPage();
 			Object.keys(this.resourceCache).forEach(function (resourceId) {
 				var resource = self.resourceCache[resourceId];
 				self.updateResource(resource);

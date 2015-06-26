@@ -2,8 +2,8 @@
 
 // Start a new require module.
 //Start a new require module.
-define(["log"],
-		function (log) {
+define(["jquery", "log"],
+		function ($, log) {
 
 	return {
 		//////////////////////////////////////////////////
@@ -21,13 +21,16 @@ define(["log"],
 		},
 		
 		// The identity function, just always return the argument 'as is'.
-		identity: function (obj) {
-			return obj;
+		identity: function (arg) {
+			return arg;
 		},
 
-		// Return a function that returns the provided argument.
-		functionReturn: function(obj) {
-			return function() { return obj; };
+		// Return a function that results a promise that will immediately resolve with the provided argument.
+		// Note: The returned function will always return the exact same (object equals) promise.
+		immediatePromiseFunction: function (arg) {
+			var promise = $.Deferred();
+			promise.resolve(arg);
+			return function () { return promise };
 		},
 		
 		pythagoras: function (a, b) {

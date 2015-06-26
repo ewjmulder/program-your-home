@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.LightType;
+import com.programyourhome.hue.model.PyhColorRGB;
 import com.programyourhome.hue.model.PyhLight;
 
 @Configuration
@@ -33,6 +34,24 @@ public class PhilipsHueMock extends PyhMock {
         Mockito.when(light.getId()).thenReturn(1);
         Mockito.when(light.getName()).thenReturn("Mock name");
         Mockito.when(light.getType()).thenReturn(LightType.HUE_FULL_COLOR_BULB);
+        Mockito.when(light.getDim()).thenReturn(10000);
+        // TODO: use mock for this, eg 'forward calling' (simple mock somehow creates stackoverflow when marchalling)
+        Mockito.when(light.getColorRGB()).thenReturn(new PyhColorRGB() {
+            @Override
+            public int getRed() {
+                return 255;
+            }
+
+            @Override
+            public int getGreen() {
+                return 0;
+            }
+
+            @Override
+            public int getBlue() {
+                return 0;
+            }
+        });
         Mockito.when(light.isOn()).thenAnswer(invocation -> this.lightStates.get(1));
 
         final PyhLight light2 = Mockito.mock(PyhLight.class);

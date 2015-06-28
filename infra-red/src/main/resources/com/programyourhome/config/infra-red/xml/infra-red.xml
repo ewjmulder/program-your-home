@@ -229,7 +229,7 @@
             <id>3</id>
             <name>TV</name>
             <description>Television screen</description>
-            <defaultDelay>200</defaultDelay>
+            <defaultDelay>1500</defaultDelay>
             <prototypes>
                 <power>true</power>
                 <input>false</input> <!-- TODO: how to process input selection on tv if there is no direct key for it? (could be simulated of course) If simulated: find a way to configure it here, since 
@@ -250,44 +250,44 @@
                             <name>Power</name>
                             <winlircName>POWER</winlircName>
                             <type>power</type>
-                            <delay>5000</delay>
+                            <delay>18000</delay>
                         </key>
                         <!-- TODO make into key group? -->
                         <key>
                             <id>11</id>
                             <name>Source</name>
                             <winlircName>SOURCE</winlircName>
-                            <delay>1500</delay>
                         </key>
                         <key>
                             <id>12</id>
                             <name>TV</name>
                             <winlircName>KEY_TV</winlircName>
-                            <delay>1500</delay>
                         </key>
                         <key>
                             <id>13</id>
                             <name>HDMI</name>
                             <winlircName>HDMI</winlircName>
-                            <delay>1500</delay>
                         </key>
                         <key>
                             <id>21</id>
                             <name>Volume Up</name>
                             <winlircName>VOLUME_UP</winlircName>
                             <type>volumeUp</type>
+                            <delay>500</delay>
                         </key>
                         <key>
                             <id>22</id>
                             <name>Volume Down</name>
                             <winlircName>VOLUME_DOWN</winlircName>
                             <type>volumeDown</type>
+                            <delay>500</delay>
                         </key>
                         <key>
                             <id>23</id>
                             <name>Mute</name>
                             <winlircName>VOLUME_MUTE</winlircName>
                             <type>volumeMute</type>
+                            <delay>500</delay>
                         </key>
                         <key>
                             <id>30</id>
@@ -436,6 +436,20 @@
                     </keys>
                 </keyMapping>
             </remote>
+            <eventSequences>
+                <eventSequence>
+                    <type>afterPowerOn</type>
+                    <pressKeys>
+                        <pressKey>51</pressKey>
+                        <pressKey>53</pressKey>
+                        <pressKey>55</pressKey>
+                        <pressKey>55</pressKey>
+                        <pressKey>53</pressKey>
+                        <pressKey>52</pressKey>
+                        <pressKey>51</pressKey>
+                    </pressKeys>
+                </eventSequence>
+            </eventSequences>
         </device>
         <device>
             <id>4</id>

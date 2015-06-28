@@ -21,6 +21,7 @@
             <xsd:element name="defaultDelay" type="delay" minOccurs="1" maxOccurs="1" />
             <xsd:element name="prototypes" type="prototypes" minOccurs="1" maxOccurs="1" />
             <xsd:element name="remote" type="remote" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="eventSequences" type="eventSequences" minOccurs="0" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="prototypes">
@@ -86,6 +87,30 @@
             <xsd:element name="delay" type="delay" minOccurs="0" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="eventSequences">
+        <xsd:annotation>
+            <xsd:documentation>
+                An event sequence is a sequence of one or more key presses that should always be executed
+                automatically upon the moment an event of a certain type is triggered.
+                For example: when the device is powered on, there should always be a
+                certain sequence of key presses to select an always desired mode of operation.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="eventSequence" type="eventSequence" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="eventSequence">
+        <xsd:sequence>
+            <xsd:element name="type" type="eventSequenceType" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="pressKeys" type="pressKeys" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="pressKeys">
+        <xsd:sequence>
+            <xsd:element name="pressKey" type="id" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:simpleType name="id">
         <xsd:restriction base="xsd:unsignedShort" />
     </xsd:simpleType>
@@ -95,7 +120,8 @@
                 <xsd:documentation>
                     Delay is the amount of milliseconds to pause after 'pressing' this key, before pressing the next key on the same remote.
                     This is required for functions that take some time on the device before it is responsive again, like powering on.
-                    If not specified for a key individually, the required default value for the whole device will be used.
+                    If not specified for a key
+                    individually, the required default value for the whole device will be used.
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:restriction>
@@ -135,6 +161,11 @@
             <xsd:enumeration value="menuArrowDown"></xsd:enumeration>
             <xsd:enumeration value="menuArrowLeft"></xsd:enumeration>
             <xsd:enumeration value="menuArrowRight"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="eventSequenceType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="afterPowerOn"></xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
 </xsd:schema>

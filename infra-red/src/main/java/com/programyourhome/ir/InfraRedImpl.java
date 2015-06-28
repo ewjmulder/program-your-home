@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import com.programyourhome.ir.config.ConfigUtil;
 import com.programyourhome.ir.config.Device;
+import com.programyourhome.ir.config.EventSequenceType;
 import com.programyourhome.ir.config.InfraRedConfigHolder;
 import com.programyourhome.ir.config.Key;
 import com.programyourhome.ir.config.KeyType;
@@ -52,7 +53,7 @@ public class InfraRedImpl implements InfraRed {
 
     // TODO: document: a queue with keys to press for every device. always retains the last key pressed, to be able to check if the required delay has passed.
     // TODO: move queueing mechanism to seperate class?
-    private final Map<String, Queue<RemoteKeyPress>> keyPressQueues;
+    private final Map<Integer, Queue<RemoteKeyPress>> keyPressQueues;
 
     @Value("${winlirc.host}")
     private String winlircHost;
@@ -97,7 +98,7 @@ public class InfraRedImpl implements InfraRed {
         for (final Device device : this.configHolder.getConfig().getDevices()) {
             // Assume all devices are turned off at server startup time.
             this.deviceStates.put(device.getId(), new DeviceState());
-            this.keyPressQueues.put(device.getName(), new LinkedList<>(Arrays.asList(dummyKeyPress)));
+            this.keyPressQueues.put(device.getId(), new LinkedList<>(Arrays.asList(dummyKeyPress)));
         }
         this.pressRemoteKeyScheduler.scheduleAtFixedRate(this::pressKeys,
                 DateUtils.addMilliseconds(new Date(), this.keyPressInterval), this.keyPressInterval);
@@ -105,8 +106,7 @@ public class InfraRedImpl implements InfraRed {
     }
 
     private synchronized void pressKeys() {
-        for (final String deviceName : this.keyPressQueues.keySet()) {
-            final Queue<RemoteKeyPress> queue = this.keyPressQueues.get(deviceName);
+        for (final Queue<RemoteKeyPress> queue : this.keyPressQueues.values()) {
             if (queue.size() > 1) {
                 final RemoteKeyPress lastKeyPress = queue.peek();
                 // Can we press the next key yet? True if the current time is past the last key pressed time + the required delay.
@@ -176,6 +176,10 @@ public class InfraRedImpl implements InfraRed {
         return this.getKeyByPredicate(deviceId, key -> key.getName().equals(keyName));
     }
 
+    private Key getKeyById(final int deviceId, final int keyId) {
+        return this.getKeyByPredicate(deviceId, key -> key.getId() == keyId);
+    }
+
     private String getKeyNameByPredicate(final int deviceId, final Predicate<Key> predicate) {
         return this.getKeyByPredicate(deviceId, predicate).getName();
     }
@@ -195,9 +199,16 @@ public class InfraRedImpl implements InfraRed {
     }
 
     private void pressRemoteKeyName(final int deviceId, final String keyName) {
-        final Key key = this.getKeyByName(deviceId, keyName);
+        this.pressRemoteKey(deviceId, this.getKeyByName(deviceId, keyName));
+    }
+
+    private void pressRemoteKeyId(final int deviceId, final int keyId) {
+        this.pressRemoteKey(deviceId, this.getKeyById(deviceId, keyId));
+    }
+
+    private void pressRemoteKey(final int deviceId, final Key key) {
         // Put the key press on the queue for that device.
-        this.keyPressQueues.get(this.getDevice(deviceId).getName()).add(new RemoteKeyPress(this.getRemoteName(deviceId), key.getWinlircName(), key.getDelay()));
+        this.keyPressQueues.get(deviceId).add(new RemoteKeyPress(this.getRemoteName(deviceId), key.getWinlircName(), key.getDelay()));
     }
 
     @Override
@@ -206,6 +217,10 @@ public class InfraRedImpl implements InfraRed {
         if (this.deviceStates.get(deviceId).isOff()) {
             this.deviceStates.get(deviceId).turnOn();
             this.pressRemoteKeyType(deviceId, KeyType.POWER);
+            this.getDeviceById(deviceId).getEventSequences().stream()
+                    .filter(eventSequence -> eventSequence.getType() == EventSequenceType.AFTER_POWER_ON)
+                    .flatMap(eventSequence -> eventSequence.getPressKeys().stream())
+                    .forEach(keyId -> this.pressRemoteKeyId(deviceId, keyId));
         }
     }
 

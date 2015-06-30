@@ -1,9 +1,16 @@
 <span id="device-todo-{{this.id}}"></span><br />
 {{#if this.inputDevice}}
-	<select onchange="require(['main'], function (main) { main.selectInput({{id}}, 'this.value'); });">
+	<select onchange="require(['main'], function (main) { main.selectInput({{id}}, this.value); });">
 		<option value="-">-</option>
 		{{#each this.inputs}}
 			<option value="{{this}}">{{this}}</option>
 		{{/each}}
 	</select>
+{{/if}}
+{{#if this.volumeDevice}}
+	<input type="button" value="Volume up" onclick="require(['main'], function (main) { main.volumeUpDevice({{id}}); });" />
+	<input type="button" value="Volume down" onclick="require(['main'], function (main) { main.volumeDownDevice({{id}}); });" />
+	<input type="button" value="Volume mute" onclick="require(['main'], function (main) { main.volumeMuteDevice({{id}}); });" />
+	<br />
+	<input type="button" value="Move mouse" onclick="require(['main'], function (main) { main.moveMouseAbsolute(100, 100); });" />	
 {{/if}}

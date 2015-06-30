@@ -81,12 +81,14 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		//TODO: per module, there might also be a 'meta' availability, for instance for sensors which ones are available + what their props are
 		// Some defaults will be provided as types: sun degree, temperature, humidity, sound level, light intensity, etc. + 'free format'
 		// Actually, is there any way you could display a non standard sensor but just the data value? (but might still be useful of course)
-		activeResources = [Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES, Resource.SUN_DEGREE];
+		activeResources = [Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES, Resource.SUN_DEGREE, Resource.MOUSE];
 	
+		// TODO: put the API definition in the sep. module 'api'. Creating rest resources should still be triggered from inside main.
 		createRestIfResourceActive(Resource.ACTIVITIES, {"start": "GET", "stop": "GET"});
 		createRestIfResourceActive(Resource.LIGHTS, {"on": "GET", "off": "GET"});
-		createRestIfResourceActive(Resource.DEVICES, {});
+		createRestIfResourceActive(Resource.DEVICES, {"volume/up": "GET", "volume/down": "GET", "volume/mute": "GET"});
 		createRestIfResourceActive(Resource.SUN_DEGREE, {});
+		createRestIfResourceActive(Resource.MOUSE, {"moveAbsolute": "GET"});
 		
 		//TODO: create generic page for sensors - then use activeModules variable again.
 		createResourceTopLevelPages([Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES]);
@@ -169,6 +171,22 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		// Switch a light on or off.
 		toggleLight: function (id, isOn) {
 			toggleRestResource(Resource.LIGHTS, "on", "off", id, isOn);
+		},
+		// TODO: put this endless list in a sep. module: api.
+		volumeUpDevice: function(deviceId) {
+			rest.verb(Resource.DEVICES, deviceId, "volume/up");
+		},
+		volumeDownDevice: function(deviceId) {
+			rest.verb(Resource.DEVICES, deviceId, "volume/down");
+		},
+		volumeMuteDevice: function(deviceId) {
+			rest.verb(Resource.DEVICES, deviceId, "volume/mute");
+		},
+		//TODO: this is no rest at all! use simple $.get() for this and sanitize URL
+		// Also consider not using RestController on backend? (although default JSON is nice)
+		// Can still use that as result object for 'RPC' over HTTP
+		moveMouseAbsolute: function(x, y) {
+			rest.verbParam(Resource.MOUSE, 1, "moveAbsolute", x + "," + y);
 		}
 	};
 

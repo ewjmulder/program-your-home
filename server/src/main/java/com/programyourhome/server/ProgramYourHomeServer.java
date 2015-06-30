@@ -37,7 +37,10 @@ public class ProgramYourHomeServer {
         // annotation, because otherwise the logging properties will not be picked up. They must be available
         // very early in the boot process, see also: https://github.com/spring-projects/spring-boot/issues/2709
         System.setProperty(ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY, propertiesFile.toURI().toString());
-        final ApplicationContext springBootContext = SpringApplication.run(ProgramYourHomeServer.class, new String[0]);
+        final SpringApplication application = new SpringApplication(ProgramYourHomeServer.class);
+        // Should be enabled when using the PC Instructor module.
+        application.setHeadless(false);
+        final ApplicationContext springBootContext = application.run(new String[0]);
         // Start a shutdown poller for graceful shutdown when needed.
         new ShutdownPoller(springBootContext).start();
     }

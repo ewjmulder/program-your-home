@@ -17,6 +17,7 @@
         <module>infra-red-api</module>
         <module>sensors-api</module>
         <module>voice-control-api</module>
+        <module>pc-instructor-api</module>
 
         <module>voice-control-builder</module>
 
@@ -26,6 +27,7 @@
         <module>voice-control</module>
         <module>spotify</module>
         <module>eneco-toon</module>
+        <module>pc-instructor</module>
 
         <module>environment-mock</module>
 

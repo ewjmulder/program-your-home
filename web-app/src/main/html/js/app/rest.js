@@ -18,11 +18,16 @@ define(["jquery", "jqrest", "util", "config"],
 		restClients[asKey(resourceDefinition)] = restClient[resourceDefinition.name];
 	};
 
-	function callVerb(resourceDefinition, resourceId, verb) {
+	function callVerbNoParam(resourceDefinition, resourceId, verb) {
+		return callVerb(resourceDefinition, resourceId, verb, null);
+	}
+
+	function callVerb(resourceDefinition, resourceId, verb, verbParam) {
 		var loading = $.Deferred();
 		var client = restClients[asKey(resourceDefinition)];
-		// The loader either loads a specific resource (if id provided) or all resources.
-		var asyncCall = resourceId != null ? client[verb](resourceId) : client[verb]();
+		// The loader either calls the verb on a specific resource (if id provided) or all resources.
+		// Optionally, a param can be provided when calling a verb on a specific resource.
+		var asyncCall = resourceId != null ? (verbParam != null ? client[verb](resourceId, verbParam) : client[verb](resourceId)) : client[verb]();
 		asyncCall.done(function (result) {
 			if (!result.success && result.error) {
 				// If the result was not successful, but does contain an error property, log that as an error,
@@ -55,7 +60,9 @@ define(["jquery", "jqrest", "util", "config"],
 			return callVerb(resourceDefinition, resourceId, "read");
 		},
 		
-		verb: callVerb
+		verb: callVerbNoParam,
+		
+		verbParam: callVerb
 		
 	};
 

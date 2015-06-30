@@ -11,7 +11,8 @@ define([],
 		MAIN: "main",
 		HUE: "hue",
 		IR: "ir",
-		SENSORS: "sensors"
+		SENSORS: "sensors",
+		PC: "pc"
 	});
 	
 	// Enum-like definition of all Program Your Home resources, connected to their corresponding module.
@@ -21,6 +22,7 @@ define([],
 		LIGHTS:       { module: Module.HUE,      name: "lights"     },
 		DEVICES:      { module: Module.IR,       name: "devices"    },
 		SUN_DEGREE:   { module: Module.SENSORS,  name: "sunDegree"  },
+		MOUSE: 		  { module: Module.PC,       name: "mouse"      },
 	});
 
 	// Enum-like definition of all possible setting names. So essentially all settings that are available.

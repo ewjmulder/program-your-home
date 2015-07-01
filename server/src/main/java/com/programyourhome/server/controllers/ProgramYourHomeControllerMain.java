@@ -18,6 +18,7 @@ import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.events.activities.ActivityChangedEvent;
 import com.programyourhome.server.model.ServiceResult;
+import com.programyourhome.server.model.compose.ServiceResultComposer;
 
 @RestController
 @RequestMapping("main")
@@ -101,18 +102,36 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         // Idea: map over service resuls or at least in a similar way and as long as everything ok, kep the success
         // Upon exceptions, safe that error, and skip the rest of the mapped functions. Probably best to break from pure mapping
         // and use functions names like check, run, etc.
-        final Optional<Activity> activity = this.findActivity(id);
-        if (!activity.isPresent()) {
-            return ServiceResult.error("Activity: '" + id + "' not found in config.");
-        } else if (this.activityCenter.isActive(activity.get())) {
-            return ServiceResult.error("Activity: '" + id + "' is already active.");
-        } else {
-            final PyhActivity oldValue = this.createPyhActivity(activity.get());
-            this.activityCenter.startActivity(activity.get());
-            final PyhActivity newValue = this.createPyhActivity(activity.get());
-            this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
-            return ServiceResult.success();
-        }
+
+        // Try.apply(() ->
+
+        return ServiceResultComposer.create("Activity")
+                .find(Integer.toString(id), () -> this.findActivity(id))
+                .filter("active", this.activityCenter::isNotActive)
+                .
+
+                return this.findActivity(id)
+                        .filter(this.activityCenter::isNotActive)
+                        .map(activity -> {
+                            final PyhActivity oldValue = this.createPyhActivity(activity);
+                            this.activityCenter.startActivity(activity);
+                            final PyhActivity newValue = this.createPyhActivity(activity);
+                            this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
+                            return ServiceResult.success();
+                        }).orElse(ServiceResult.error("Activity: '" + id + "' not found in config."));
+
+        // final Optional<Activity> activity = this.findActivity(id);
+        // if (!activity.isPresent()) {
+        // return ServiceResult.error("Activity: '" + id + "' not found in config.");
+        // } else if (this.activityCenter.isActive(activity.get())) {
+        // return ServiceResult.error("Activity: '" + id + "' is already active.");
+        // } else {
+        // final PyhActivity oldValue = this.createPyhActivity(activity);
+        // this.activityCenter.startActivity(activity);
+        // final PyhActivity newValue = this.createPyhActivity(activity);
+        // this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
+        // return ServiceResult.success();
+        // }
     }
 
     @RequestMapping("activities/{id}/stop")

@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // Module that contains generic logic for creating and calling a REST service.
-define(["jquery", "jqrest", "util", "config"],
-		function ($, jqrest, util, config) {
+define(["jquery", "jqrest", "util", "config", "log"],
+		function ($, jqrest, util, config, log) {
 	
 	// Map with all rest client name->(resourceName->client object) pairs.
 	var restClients = {};
@@ -18,20 +18,15 @@ define(["jquery", "jqrest", "util", "config"],
 		restClients[asKey(resourceDefinition)] = restClient[resourceDefinition.name];
 	};
 
-	function callVerbNoParam(resourceDefinition, resourceId, verb) {
-		return callVerb(resourceDefinition, resourceId, verb, null);
-	}
-
-	function callVerb(resourceDefinition, resourceId, verb, verbParam) {
+	function callVerb(resourceDefinition, resourceId, verb) {
 		var loading = $.Deferred();
 		var client = restClients[asKey(resourceDefinition)];
-		// The loader either calls the verb on a specific resource (if id provided) or all resources.
-		// Optionally, a param can be provided when calling a verb on a specific resource.
-		var asyncCall = resourceId != null ? (verbParam != null ? client[verb](resourceId, verbParam) : client[verb](resourceId)) : client[verb]();
+		// The loader either loads a specific resource (if id provided) or all resources.
+		var asyncCall = resourceId != null ? client[verb](resourceId) : client[verb]();
 		asyncCall.done(function (result) {
 			if (!result.success && result.error) {
 				// If the result was not successful, but does contain an error property, log that as an error,
-				log.error("Rest command with resourceDefinition: '" + resourceDefinition + 
+				log.error("Rest command with resourceDefinition: '" + asKey(resourceDefinition) + 
 						"', resourceId: '" + resourceId + "', verb: '" + verb + "' returned an error: " + result.error);
 				// and reject the promise.
 				loading.reject();
@@ -60,9 +55,7 @@ define(["jquery", "jqrest", "util", "config"],
 			return callVerb(resourceDefinition, resourceId, "read");
 		},
 		
-		verb: callVerbNoParam,
-		
-		verbParam: callVerb
+		verb: callVerb
 		
 	};
 

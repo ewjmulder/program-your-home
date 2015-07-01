@@ -43,6 +43,10 @@ public class ActivityCenter {
         return this.activeActivities.contains(activity);
     }
 
+    public synchronized boolean isNotActive(final Activity activity) {
+        return !this.isActive(activity);
+    }
+
     // TODO: probable race condition: quickly starting/stopping activities one after the other.
     // Possible solution: make (de)activation actions guaranteed in order / remove from active after all modules completed deactivation
     // Isn't that just what the task executor per module will take care of?

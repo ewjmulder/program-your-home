@@ -32,6 +32,15 @@ define(["jquery", "log"],
 			promise.resolve(arg);
 			return function () { return promise };
 		},
+	
+		// String.format() for Javascript.
+		// http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
+		format: function (input) {
+		    var args = Array.prototype.slice.call(arguments, 1);
+		    return input.replace(/{(\d+)}/g, function (match, number) { 
+		    	return typeof args[number] != 'undefined' ? args[number] : match;
+		    });
+	  	},
 		
 		pythagoras: function (a, b) {
 			return Math.sqrt(a * a + b * b);

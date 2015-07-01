@@ -57,6 +57,9 @@ public class ServiceResultComposer<T> {
         return this;
     }
 
+    // TODO: map T -> U, flatMap T -> Option<U>, filter T -> Boolean (only fail possibility), others?
+
+    // Also run non-static! (use that for static version)
     public static ServiceResult run(final RunnableWithException<Exception> runnable) {
         return run(runnable, "Exception while excecuting");
     }

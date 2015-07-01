@@ -108,17 +108,18 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         return ServiceResultComposer.create("Activity")
                 .find(Integer.toString(id), () -> this.findActivity(id))
                 .filter("active", this.activityCenter::isNotActive)
-                .
+                .run(this::toggleActivity)
+                .result();
 
-                return this.findActivity(id)
-                        .filter(this.activityCenter::isNotActive)
-                        .map(activity -> {
-                            final PyhActivity oldValue = this.createPyhActivity(activity);
-                            this.activityCenter.startActivity(activity);
-                            final PyhActivity newValue = this.createPyhActivity(activity);
-                            this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
-                            return ServiceResult.success();
-                        }).orElse(ServiceResult.error("Activity: '" + id + "' not found in config."));
+        return this.findActivity(id)
+                .filter(this.activityCenter::isNotActive)
+                .map(activity -> {
+                    final PyhActivity oldValue = this.createPyhActivity(activity);
+                    this.activityCenter.startActivity(activity);
+                    final PyhActivity newValue = this.createPyhActivity(activity);
+                    this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
+                    return ServiceResult.success();
+                }).orElse(ServiceResult.error("Activity: '" + id + "' not found in config."));
 
         // final Optional<Activity> activity = this.findActivity(id);
         // if (!activity.isPresent()) {

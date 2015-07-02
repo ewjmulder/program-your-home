@@ -18,7 +18,6 @@ import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.events.activities.ActivityChangedEvent;
 import com.programyourhome.server.model.ServiceResult;
-import com.programyourhome.server.model.compose.ServiceResultComposer;
 
 @RestController
 @RequestMapping("main")
@@ -105,11 +104,16 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
         // Try.apply(() ->
 
-        return ServiceResultComposer.create("Activity")
-                .find(Integer.toString(id), () -> this.findActivity(id))
-                .filter("active", this.activityCenter::isNotActive)
-                .run(this::toggleActivity)
-                .result();
+        //TODO: create toggle activity util function
+        return find("Activity", id, () -> this.findActivity(id))
+                .filter(this.activityCenter::isNotActive, "Activity is already active")
+                //                .act(this::toggleActivity);
+                .act(activity -> {
+                    final PyhActivity oldValue = this.createPyhActivity(activity);
+                    this.activityCenter.startActivity(activity);
+                    final PyhActivity newValue = this.createPyhActivity(activity);
+                    this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue))
+                });
 
         return this.findActivity(id)
                 .filter(this.activityCenter::isNotActive)

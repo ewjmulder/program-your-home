@@ -3,7 +3,7 @@ package com.programyourhome.common.functional;
 
 /**
  * This class is semantically the same as the {@link java.util.function.Consumer} class apart from the fact that
- * its {@link FailableConsumer#get()} method may throw an {@link java.lang.Exception}.
+ * its {@link FailableConsumer#accept()} method may throw an {@link java.lang.Exception}.
  * Also, this interface lacks the andThen utility method.
  *
  * @author Alessandro Lacava

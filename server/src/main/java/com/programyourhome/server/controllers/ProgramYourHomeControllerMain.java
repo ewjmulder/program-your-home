@@ -1,6 +1,5 @@
 package com.programyourhome.server.controllers;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -68,22 +67,20 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     // TODO: put activities in separate module?
     @RequestMapping("activities")
-    public Collection<PyhActivity> getActivities() {
-        return this.getServerConfig().getActivitiesConfig().getActivities().stream()
-                .map(activity -> this.getActivity(activity.getId()))
-                .collect(Collectors.toList());
+    public ServiceResult getActivities() {
+        return this.produce("Activities", () -> this.getServerConfig().getActivitiesConfig().getActivities().stream()
+                .map(this::createPyhActivity)
+                .collect(Collectors.toList()));
     }
 
     @RequestMapping("activities/{id}")
-    public PyhActivity getActivity(@PathVariable("id") final int id) {
-        final Optional<Activity> activity = this.findActivity(id);
-        // TODO: see todo below
-        if (!activity.isPresent()) {
-            // TODO: or throw exception?
-            return null;
-        } else {
-            return this.createPyhActivity(activity.get());
-        }
+    public ServiceResult getActivity(@PathVariable("id") final int id) {
+        return this.find("Activity", id, this::findActivity)
+                .produce(this::createPyhActivity);
+    }
+
+    public Optional<PyhActivity> createPyhActivity(final int id) {
+        return this.findActivity(id).map(this::createPyhActivity);
     }
 
     public PyhActivity createPyhActivity(final Activity activity) {
@@ -93,84 +90,35 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}/start")
     public ServiceResult startActivity(@PathVariable("id") final int id) {
-        // TODO: generalize! (see below). How about a general 'ensure' for Option<T> with a message if not. But how to get that to the client?
-        // I guess I should have a custom Result type with ok or error, just like the in the Scala talks. Then all server/controller methods
-        // should return that and have some monadic way of not proceeding when a failure was encountered. Can that even be done in Java?
-        // Otherwise just custom or with helper method in common or so.
-        // -> yes, use the Optional.map function!
-        // Idea: map over service resuls or at least in a similar way and as long as everything ok, kep the success
-        // Upon exceptions, safe that error, and skip the rest of the mapped functions. Probably best to break from pure mapping
-        // and use functions names like check, run, etc.
-
-        // Try.apply(() ->
-
-        //TODO: create toggle activity util function
-        return find("Activity", id, () -> this.findActivity(id))
-                .filter(this.activityCenter::isNotActive, "Activity is already active")
-                //                .act(this::toggleActivity);
-                .act(activity -> {
-                    final PyhActivity oldValue = this.createPyhActivity(activity);
-                    this.activityCenter.startActivity(activity);
-                    final PyhActivity newValue = this.createPyhActivity(activity);
-                    this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue))
-                });
-
-        return this.findActivity(id)
-                .filter(this.activityCenter::isNotActive)
-                .map(activity -> {
-                    final PyhActivity oldValue = this.createPyhActivity(activity);
-                    this.activityCenter.startActivity(activity);
-                    final PyhActivity newValue = this.createPyhActivity(activity);
-                    this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
-                    return ServiceResult.success();
-                }).orElse(ServiceResult.error("Activity: '" + id + "' not found in config."));
-
-        // final Optional<Activity> activity = this.findActivity(id);
-        // if (!activity.isPresent()) {
-        // return ServiceResult.error("Activity: '" + id + "' not found in config.");
-        // } else if (this.activityCenter.isActive(activity.get())) {
-        // return ServiceResult.error("Activity: '" + id + "' is already active.");
-        // } else {
-        // final PyhActivity oldValue = this.createPyhActivity(activity);
-        // this.activityCenter.startActivity(activity);
-        // final PyhActivity newValue = this.createPyhActivity(activity);
-        // this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
-        // return ServiceResult.success();
-        // }
+        return this.find("Activity", id, this::findActivity)
+                .ensure(this.activityCenter::isNotActive, "Activity is already active")
+                .process(this::toggleActivity);
     }
 
     @RequestMapping("activities/{id}/stop")
     public ServiceResult stopActivity(@PathVariable("id") final int id) {
-        final Optional<Activity> activity = this.findActivity(id);
-        if (!activity.isPresent()) {
-            return ServiceResult.error("Activity: '" + id + "' not found in config.");
-        } else if (!this.activityCenter.isActive(activity.get())) {
-            return ServiceResult.error("Activity: '" + id + "' is not active.");
+        return this.find("Activity", id, this::findActivity)
+                .ensure(this.activityCenter::isActive, "Activity is not active")
+                .process(this::toggleActivity);
+    }
+
+    private void toggleActivity(final Activity activity) {
+        final PyhActivity oldValue = this.createPyhActivity(activity);
+        if (oldValue.isActive()) {
+            this.activityCenter.stopActivity(activity);
         } else {
-            final PyhActivity oldValue = this.createPyhActivity(activity.get());
-            this.activityCenter.stopActivity(activity.get());
-            final PyhActivity newValue = this.createPyhActivity(activity.get());
-            this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
-            return ServiceResult.success();
+            this.activityCenter.startActivity(activity);
         }
+        final PyhActivity newValue = this.createPyhActivity(activity);
+        this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
     }
 
     @RequestMapping("activities/{id}/volumeUp")
     public void activityVolumeUp(@PathVariable("id") final int id) {
-        final Optional<Activity> activity = this.findActivity(id);
-        if (!activity.isPresent()) {
-            // TODO: error 'page' -> double, see above.
-            throw new IllegalArgumentException("Activity: '" + id + "' not found in config.");
-            // TODO: no else, we'll just use the optional way in a smart way.
-        } else {
-            // TODO: Another step in the cycle: optional usage really wanted here (read online how to)
-            final Optional<Integer> volumeDevice = this.getVolumeDeviceId(activity.get());
-            if (!volumeDevice.isPresent()) {
-                // TODO: error 'page' -> double, see above.
-                throw new IllegalArgumentException("Activity: '" + id + "' has no volume device.");
-            }
-            this.infraRed.volumeUp(volumeDevice.get());
-        }
+        this.find("Activity", id, this::findActivity)
+        .ensure(this.activityCenter::isActive, "Activity not active")
+        .flatMap(this::getVolumeDeviceId, "Device id")
+        .process(this.infraRed::volumeUp);
     }
 
     private Optional<Integer> getVolumeDeviceId(final Activity activity) {

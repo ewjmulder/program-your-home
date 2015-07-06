@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
-import com.programyourhome.common.functional.RunnableWithException;
+import com.programyourhome.common.functional.FailableRunnable;
 import com.programyourhome.pc.PcInstructor;
 
 @Component
@@ -46,7 +46,7 @@ public class PcInstructorImpl implements PcInstructor {
         // TODO Auto-generated method stub
     }
 
-    private void tryRobot(final RunnableWithException<Exception> tryBlock) {
+    private void tryRobot(final FailableRunnable<Exception> tryBlock) {
         try {
             tryBlock.run();
         } catch (final Exception e) {

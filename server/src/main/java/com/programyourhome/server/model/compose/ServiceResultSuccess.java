@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import com.programyourhome.common.functional.FailableConsumer;
+import com.programyourhome.common.functional.FailableFunction;
 import com.programyourhome.common.functional.FailableSupplier;
 import com.programyourhome.server.model.ServiceResult;
 
@@ -37,14 +38,17 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
     }
 
     @Override
-    public ServiceResultTry<T> find(final Number id, final FailableSupplier<Optional<T>> supplier) {
+    public ServiceResultTry<T> find(final FailableSupplier<Optional<T>> supplier) {
+        if (this.value != null) {
+            throw new IllegalStateException("There is already a value present.");
+        }
         ServiceResultTry<T> result = this;
         try {
             final Optional<T> optionalResult = supplier.get();
             if (optionalResult.isPresent()) {
                 this.value = optionalResult.get();
             } else {
-                result = new ServiceResultError<T>(this.type + " with identifier: '" + id + "' could not be found.");
+                result = new ServiceResultError<T>(this.type + " could not be found.");
             }
         } catch (final Exception e) {
             result = new ServiceResultError<T>("Finding", this.type, e);
@@ -53,12 +57,12 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
     }
 
     @Override
-    public ServiceResultTry<T> filter(final Function<T, Boolean> predicate) {
-        return this.filter(predicate, "Predicate does not hold for " + this.type + ".");
+    public ServiceResultTry<T> ensure(final Function<T, Boolean> predicate) {
+        return this.ensure(predicate, this.type + " is not in the right state.");
     }
 
     @Override
-    public ServiceResultTry<T> filter(final Function<T, Boolean> predicate, final String errorMessage) {
+    public ServiceResultTry<T> ensure(final Function<T, Boolean> predicate, final String errorMessage) {
         ServiceResultTry<T> result = this;
         try {
             if (!predicate.apply(this.value)) {
@@ -72,29 +76,61 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
 
     @Override
     public <U> ServiceResultTry<U> map(final Function<T, U> function) {
+        return this.map(function, this.type);
+    }
+
+    @Override
+    public <U> ServiceResultTry<U> map(final Function<T, U> function, final String newType) {
         ServiceResultTry<U> result;
         try {
             final U mappedValue = function.apply(this.value);
-            result = new ServiceResultSuccess<U>(this.type, mappedValue);
+            result = new ServiceResultSuccess<U>(newType, mappedValue);
         } catch (final Exception e) {
             result = new ServiceResultError<U>("Mapping", this.type, e);
         }
         return result;
     }
 
-    // TODO: internal state consistency checks: eg no find on success that already has a value (would be overridden otherwise)
-    // TODO: map T -> U, flatMap T -> Option<U>, filter T -> Boolean (only fail possibility), others?
-
-    // TODO: besides act that acts on a value, have a run that does not use a value, although in that case the type is irrelevant,
-    // so maybe static somewhere else?
-
     @Override
-    public ServiceResult act(final FailableConsumer<T> consumer) {
-        return this.act(consumer, "Exception while excecuting");
+    public <U> ServiceResultTry<U> flatMap(final Function<T, Optional<U>> function) {
+        return this.flatMap(function, this.type);
     }
 
     @Override
-    public ServiceResult act(final FailableConsumer<T> consumer, final String errorMessage) {
+    public <U> ServiceResultTry<U> flatMap(final Function<T, Optional<U>> function, final String newType) {
+        ServiceResultTry<U> result;
+        try {
+            result = new ServiceResultSuccess<U>(newType).find(() -> function.apply(this.value));
+        } catch (final Exception e) {
+            result = new ServiceResultError<U>("Flatmapping", this.type, e);
+        }
+        return result;
+    }
+
+    @Override
+    public ServiceResult produce(final FailableFunction<T, Object> function) {
+        return this.produce(function, "Exception while producing output.");
+    }
+
+    @Override
+    public ServiceResult produce(final FailableFunction<T, Object> function, final String errorMessage) {
+        ServiceResult result;
+        try {
+            final Object payload = function.apply(this.value);
+            result = ServiceResult.success(payload);
+        } catch (final Exception e) {
+            result = new ServiceResultError<T>(errorMessage, e).result();
+        }
+        return result;
+    }
+
+    @Override
+    public ServiceResult process(final FailableConsumer<T> consumer) {
+        return this.process(consumer, "Exception while processing.");
+    }
+
+    @Override
+    public ServiceResult process(final FailableConsumer<T> consumer, final String errorMessage) {
         ServiceResult result;
         try {
             consumer.accept(this.value);

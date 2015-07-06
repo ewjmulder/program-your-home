@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.programyourhome.common.functional.RunnableWithException;
+import com.programyourhome.common.functional.FailableRunnable;
 import com.programyourhome.voice.format.PyhAudioFormat;
 import com.programyourhome.voice.model.googlespeech.GoogleSpeechResponse;
 
@@ -138,7 +138,7 @@ public class GoogleSpeechDetector implements SpeechDetector {
         return googleSpeechResponse;
     }
 
-    private void runWithExceptionHandling(final RunnableWithException<IOException> runnable) {
+    private void runWithExceptionHandling(final FailableRunnable<IOException> runnable) {
         try {
             runnable.run();
         } catch (final IOException e) {

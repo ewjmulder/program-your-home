@@ -3,7 +3,42 @@
     <xsd:include schemaLocation="program-your-home-config-common.xsd" />
     <xsd:complexType name="philipsHueConfig">
         <xsd:sequence>
+            <xsd:element name="dailyRhythm" type="dailyRhythm" minOccurs="1" maxOccurs="1" />
             <xsd:element name="lights" type="lights" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="dailyRhythm">
+        <xsd:sequence>
+            <xsd:element name="keyFrames" type="keyFrames" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keyFrames">
+        <xsd:sequence>
+            <xsd:element name="keyFrame" type="keyFrame" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keyFrame">
+        <xsd:sequence>
+            <xsd:element name="time" type="hourMinute" minOccurs="1" maxOccurs="1" />
+            <xsd:choice>
+	            <xsd:element name="trigger" type="triggerTypeAlwaysOff" minOccurs="1" maxOccurs="1" />            
+                <xsd:sequence>
+                    <xsd:element name="trigger" type="triggerTypeNotOff" minOccurs="1" maxOccurs="1" />
+		            <xsd:element name="state" type="lightState" minOccurs="1" maxOccurs="1" />
+                </xsd:sequence>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="lightState">
+        <xsd:sequence>
+		    <xsd:element name="dim" type="basisPoint" minOccurs="1" maxOccurs="1" />
+	        <xsd:choice>
+	            <xsd:element name="colorRGB" type="colorRGB" minOccurs="1" maxOccurs="1" />
+	            <xsd:element name="colorXY" type="colorXY" minOccurs="1" maxOccurs="1" />
+	            <xsd:element name="colorHueSaturation" type="colorHueSaturation" minOccurs="1" maxOccurs="1" />
+	            <xsd:element name="colorTemperature" type="basisPoint" minOccurs="1" maxOccurs="1" />
+	            <xsd:element name="colorMood" type="colorMood" minOccurs="1" maxOccurs="1" />
+	        </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="lights">
@@ -15,19 +50,10 @@
         <xsd:sequence>
             <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
             <xsd:choice>
-                <xsd:sequence>
-                    <xsd:element name="turnOff" type="turnOff" minOccurs="1" maxOccurs="1" />
-                </xsd:sequence>
+                <xsd:element name="turnOff" type="turnOff" minOccurs="1" maxOccurs="1" />
                 <xsd:sequence>
                     <xsd:element name="turnOn" type="turnOn" minOccurs="1" maxOccurs="1" />
-                    <xsd:element name="dim" type="basisPoint" minOccurs="1" maxOccurs="1" />
-                    <xsd:choice>
-                        <xsd:element name="colorRGB" type="colorRGB" minOccurs="1" maxOccurs="1" />
-                        <xsd:element name="colorXY" type="colorXY" minOccurs="1" maxOccurs="1" />
-                        <xsd:element name="colorHueSaturation" type="colorHueSaturation" minOccurs="1" maxOccurs="1" />
-                        <xsd:element name="colorTemperature" type="basisPoint" minOccurs="1" maxOccurs="1" />
-                        <xsd:element name="colorMood" type="colorMood" minOccurs="1" maxOccurs="1" />
-                    </xsd:choice>
+                    <csd:element name="state" type="lightState" minOccurs="1" maxOccurs="1" />
                 </xsd:sequence>
             </xsd:choice>
         </xsd:sequence>
@@ -51,6 +77,30 @@
             <xsd:element name="saturation" type="basisPoint" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:simpleType name="hourMinute">
+        <xsd:restriction base="xsd:time">
+            <xsd:pattern value="[0-9][0-9]:[0-9][0-9]" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    <!-- TODO: Loose this combined type? See what comes out of the JAXB generation. -->
+    <xsd:simpleType name="triggerType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="sensor"></xsd:enumeration>
+            <xsd:enumeration value="alwaysOn"></xsd:enumeration>
+            <xsd:enumeration value="alwaysOff"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="triggerTypeAlwaysOff">
+        <xsd:restriction base="triggerType">
+            <xsd:enumeration value="alwaysOff"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="triggerTypNotOff">
+        <xsd:restriction base="triggerType">
+            <xsd:enumeration value="sensor"></xsd:enumeration>
+            <xsd:enumeration value="alwaysOn"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="basisPoint">
         <xsd:restriction base="xsd:int">
             <xsd:minInclusive value="0" />

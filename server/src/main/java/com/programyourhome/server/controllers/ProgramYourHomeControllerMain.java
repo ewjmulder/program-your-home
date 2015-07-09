@@ -75,12 +75,12 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}")
     public ServiceResult getActivity(@PathVariable("id") final int id) {
-        return this.find("Activity", id, this::findActivity)
+        return this.find("Activity", id, this.activityCenter::findActivity)
                 .produce(this::createPyhActivity);
     }
 
     public Optional<PyhActivity> createPyhActivity(final int id) {
-        return this.findActivity(id).map(this::createPyhActivity);
+        return this.activityCenter.findActivity(id).map(this::createPyhActivity);
     }
 
     public PyhActivity createPyhActivity(final Activity activity) {
@@ -90,14 +90,14 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}/start")
     public ServiceResult startActivity(@PathVariable("id") final int id) {
-        return this.find("Activity", id, this::findActivity)
+        return this.find("Activity", id, this.activityCenter::findActivity)
                 .ensure(this.activityCenter::isNotActive, "Activity is already active")
                 .process(this::toggleActivity);
     }
 
     @RequestMapping("activities/{id}/stop")
     public ServiceResult stopActivity(@PathVariable("id") final int id) {
-        return this.find("Activity", id, this::findActivity)
+        return this.find("Activity", id, this.activityCenter::findActivity)
                 .ensure(this.activityCenter::isActive, "Activity is not active")
                 .process(this::toggleActivity);
     }
@@ -115,7 +115,7 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}/volumeUp")
     public void activityVolumeUp(@PathVariable("id") final int id) {
-        this.find("Activity", id, this::findActivity)
+        this.find("Activity", id, this.activityCenter::findActivity)
         .ensure(this.activityCenter::isActive, "Activity not active")
         .flatMap(this::getVolumeDeviceId, "Device id")
         .process(this.infraRed::volumeUp);

@@ -2,6 +2,8 @@ package com.programyourhome.server.activities;
 
 import java.awt.Color;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -12,15 +14,20 @@ import org.springframework.stereotype.Component;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.ir.InfraRed;
+import com.programyourhome.server.config.ServerConfigHolder;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.config.model.Device;
-import com.programyourhome.server.config.model.InfraRedConfig;
+import com.programyourhome.server.config.model.InfraRedActivityConfig;
 import com.programyourhome.server.config.model.Key;
 import com.programyourhome.server.config.model.Light;
-import com.programyourhome.server.config.model.PhilipsHueConfig;
+import com.programyourhome.server.config.model.LightState;
+import com.programyourhome.server.config.model.PhilipsHueActivityConfig;
 
 @Component
 public class ActivityCenter {
+
+    @Autowired
+    private ServerConfigHolder configHolder;
 
     @Autowired
     @Qualifier("PyhExecutor")
@@ -76,29 +83,30 @@ public class ActivityCenter {
         }
     }
 
-    private void activateHueModule(final PhilipsHueConfig hueConfig) {
+    private void activateHueModule(final PhilipsHueActivityConfig hueConfig) {
         for (final Light light : hueConfig.getLights()) {
             if (light.getTurnOff() != null) {
                 this.philipsHue.turnOffLight(light.getId());
             } else {
-                if (light.getColorRGB() != null) {
-                    this.philipsHue.dimToColorRGB(light.getId(), light.getDim(),
-                            new Color(light.getColorRGB().getRed(), light.getColorRGB().getGreen(), light.getColorRGB().getBlue()));
-                } else if (light.getColorXY() != null) {
-                    this.philipsHue.dimToColorXY(light.getId(), light.getDim(), light.getColorXY().getX(), light.getColorXY().getY());
-                } else if (light.getColorHueSaturation() != null) {
-                    this.philipsHue.dimToColorHueSaturation(light.getId(), light.getDim(), light.getColorHueSaturation().getHue(), light
-                            .getColorHueSaturation().getSaturation());
-                } else if (light.getColorTemperature() != null) {
-                    this.philipsHue.dimToColorTemperature(light.getId(), light.getDim(), light.getColorTemperature());
-                } else if (light.getColorMood() != null) {
-                    this.philipsHue.dimToMood(light.getId(), light.getDim(), Mood.valueOf(light.getColorMood().toString()));
+                final LightState lightState = light.getState();
+                if (lightState.getColorRGB() != null) {
+                    this.philipsHue.dimToColorRGB(light.getId(), lightState.getDim(),
+                            new Color(lightState.getColorRGB().getRed(), lightState.getColorRGB().getGreen(), lightState.getColorRGB().getBlue()));
+                } else if (lightState.getColorXY() != null) {
+                    this.philipsHue.dimToColorXY(light.getId(), lightState.getDim(), lightState.getColorXY().getX(), lightState.getColorXY().getY());
+                } else if (lightState.getColorHueSaturation() != null) {
+                    this.philipsHue.dimToColorHueSaturation(light.getId(), lightState.getDim(), lightState.getColorHueSaturation().getHue(),
+                            lightState.getColorHueSaturation().getSaturation());
+                } else if (lightState.getColorTemperature() != null) {
+                    this.philipsHue.dimToColorTemperature(light.getId(), lightState.getDim(), lightState.getColorTemperature());
+                } else if (lightState.getColorMood() != null) {
+                    this.philipsHue.dimToMood(light.getId(), lightState.getDim(), Mood.valueOf(lightState.getColorMood().toString()));
                 }
             }
         }
     }
 
-    private void activateIrModule(final InfraRedConfig irConfig) {
+    private void activateIrModule(final InfraRedActivityConfig irConfig) {
         for (final Device device : irConfig.getDevices()) {
             if (device.getTurnOff() != null) {
                 this.infraRed.turnOff(device.getId());
@@ -114,7 +122,7 @@ public class ActivityCenter {
         }
     }
 
-    private void deactivateHueModule(final PhilipsHueConfig hueConfig) {
+    private void deactivateHueModule(final PhilipsHueActivityConfig hueConfig) {
         for (final Light light : hueConfig.getLights()) {
             // TODO: what does it mean to deactivate an activity when talking about Hue?
             // Maybe go back to previous state? Or default state? Or default depending on time of day(light). -> yes, see general todo.
@@ -123,7 +131,7 @@ public class ActivityCenter {
         }
     }
 
-    private void deactivateIrModule(final InfraRedConfig irConfig) {
+    private void deactivateIrModule(final InfraRedActivityConfig irConfig) {
         for (final Device device : irConfig.getDevices()) {
             if (device.getTurnOff() != null) {
                 // TODO: Do not turn on devices again? probably best if there is a conflict in activities
@@ -134,6 +142,18 @@ public class ActivityCenter {
                 this.infraRed.turnOff(device.getId());
             }
         }
+    }
+
+    private List<Activity> getActivitiesFromConfig() {
+        return this.configHolder.getConfig().getActivitiesConfig().getActivities();
+    }
+
+    public Optional<Activity> findActivity(final int id) {
+        return this.getActivitiesFromConfig().stream().filter(activity -> activity.getId() == id).findFirst();
+    }
+
+    public Optional<Activity> findActivity(final String name) {
+        return this.getActivitiesFromConfig().stream().filter(activity -> activity.getName().equals(name)).findFirst();
     }
 
 }

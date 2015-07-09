@@ -8,6 +8,7 @@
             <xsd:sequence>
                 <xsd:element name="defaultLanguage" type="language" minOccurs="1" maxOccurs="1" />
                 <xsd:element name="activitiesConfig" type="activitiesConfig" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="dailyRhythm" type="philipsHueDailyRhythymConfig" minOccurs="1" maxOccurs="1" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -37,8 +38,8 @@
             <xsd:element name="modules" minOccurs="1" maxOccurs="1">
                 <xsd:complexType>
                     <xsd:sequence>
-                        <xsd:element name="philipsHue" type="philipsHueConfig" minOccurs="0" maxOccurs="1" />
-                        <xsd:element name="infraRed" type="infraRedConfig" minOccurs="0" maxOccurs="1" />
+                        <xsd:element name="philipsHue" type="philipsHueActivityConfig" minOccurs="0" maxOccurs="1" />
+                        <xsd:element name="infraRed" type="infraRedActivityConfig" minOccurs="0" maxOccurs="1" />
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>

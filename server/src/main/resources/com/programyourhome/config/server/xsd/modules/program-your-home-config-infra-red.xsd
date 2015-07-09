@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xsd:include schemaLocation="program-your-home-config-common.xsd" />
-    <xsd:complexType name="infraRedConfig">
+    <xsd:complexType name="infraRedActivityConfig">
         <xsd:sequence>
             <xsd:element name="devices" type="devices" minOccurs="1" maxOccurs="1" />
             <xsd:element name="keys" type ="keys" minOccurs="0" maxOccurs="1" />

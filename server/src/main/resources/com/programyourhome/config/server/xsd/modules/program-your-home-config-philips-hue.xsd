@@ -1,30 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xsd:include schemaLocation="program-your-home-config-common.xsd" />
-    <xsd:complexType name="philipsHueConfig">
+    <xsd:complexType name="philipsHueActivityConfig">
         <xsd:sequence>
-            <xsd:element name="dailyRhythm" type="dailyRhythm" minOccurs="1" maxOccurs="1" />
             <xsd:element name="lights" type="lights" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="dailyRhythm">
+        <xsd:complexType name="lights">
         <xsd:sequence>
-            <xsd:element name="keyFrames" type="keyFrames" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="light" type="light" minOccurs="1" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="keyFrames">
+    <xsd:complexType name="light">
         <xsd:sequence>
-            <xsd:element name="keyFrame" type="keyFrame" minOccurs="1" maxOccurs="unbounded" />
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="keyFrame">
-        <xsd:sequence>
-            <xsd:element name="time" type="hourMinute" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
             <xsd:choice>
-	            <xsd:element name="trigger" type="triggerTypeAlwaysOff" minOccurs="1" maxOccurs="1" />            
+                <xsd:element name="turnOff" type="turnOff" minOccurs="1" maxOccurs="1" />
                 <xsd:sequence>
-                    <xsd:element name="trigger" type="triggerTypeNotOff" minOccurs="1" maxOccurs="1" />
-		            <xsd:element name="state" type="lightState" minOccurs="1" maxOccurs="1" />
+                    <xsd:element name="turnOn" type="turnOn" minOccurs="1" maxOccurs="1" />
+                    <xsd:element name="state" type="lightState" minOccurs="1" maxOccurs="1" />
                 </xsd:sequence>
             </xsd:choice>
         </xsd:sequence>
@@ -39,23 +33,6 @@
 	            <xsd:element name="colorTemperature" type="basisPoint" minOccurs="1" maxOccurs="1" />
 	            <xsd:element name="colorMood" type="colorMood" minOccurs="1" maxOccurs="1" />
 	        </xsd:choice>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="lights">
-        <xsd:sequence>
-            <xsd:element name="light" type="light" minOccurs="1" maxOccurs="unbounded" />
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="light">
-        <xsd:sequence>
-            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
-            <xsd:choice>
-                <xsd:element name="turnOff" type="turnOff" minOccurs="1" maxOccurs="1" />
-                <xsd:sequence>
-                    <xsd:element name="turnOn" type="turnOn" minOccurs="1" maxOccurs="1" />
-                    <csd:element name="state" type="lightState" minOccurs="1" maxOccurs="1" />
-                </xsd:sequence>
-            </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="colorRGB">
@@ -77,30 +54,30 @@
             <xsd:element name="saturation" type="basisPoint" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:simpleType name="hourMinute">
-        <xsd:restriction base="xsd:time">
-            <xsd:pattern value="[0-9][0-9]:[0-9][0-9]" />
-        </xsd:restriction>
-    </xsd:simpleType>
-    <!-- TODO: Loose this combined type? See what comes out of the JAXB generation. -->
-    <xsd:simpleType name="triggerType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="sensor"></xsd:enumeration>
-            <xsd:enumeration value="alwaysOn"></xsd:enumeration>
-            <xsd:enumeration value="alwaysOff"></xsd:enumeration>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="triggerTypeAlwaysOff">
-        <xsd:restriction base="triggerType">
-            <xsd:enumeration value="alwaysOff"></xsd:enumeration>
-        </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:simpleType name="triggerTypNotOff">
-        <xsd:restriction base="triggerType">
-            <xsd:enumeration value="sensor"></xsd:enumeration>
-            <xsd:enumeration value="alwaysOn"></xsd:enumeration>
-        </xsd:restriction>
-    </xsd:simpleType>
+    
+    <xsd:complexType name="philipsHueDailyRhythymConfig">
+        <xsd:sequence>
+            <xsd:element name="keyFrames" type="keyFrames" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keyFrames">
+        <xsd:sequence>
+            <xsd:element name="keyFrame" type="keyFrame" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="keyFrame">
+        <xsd:sequence>
+            <xsd:element name="time" type="hourMinute" minOccurs="1" maxOccurs="1" />
+            <xsd:choice>
+	            <xsd:element name="turnOff" type="triggerTypeOff" minOccurs="1" maxOccurs="1" />            
+                <xsd:sequence>
+                    <xsd:element name="turnOn" type="triggerTypeOn" minOccurs="1" maxOccurs="1" />
+		            <xsd:element name="state" type="lightState" minOccurs="1" maxOccurs="1" />
+                </xsd:sequence>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
     <xsd:simpleType name="basisPoint">
         <xsd:restriction base="xsd:int">
             <xsd:minInclusive value="0" />
@@ -119,6 +96,23 @@
             <xsd:enumeration value="focus"></xsd:enumeration>
             <xsd:enumeration value="read"></xsd:enumeration>
             <xsd:enumeration value="relax"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+        <xsd:simpleType name="hourMinute">
+        <xsd:restriction base="xsd:time">
+            <xsd:pattern value="[0-9][0-9]:[0-9][0-9]" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="triggerTypeOff">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="alwaysOff"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="triggerTypeOn">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="sensor"></xsd:enumeration>
+            <xsd:enumeration value="alwaysOn"></xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
 </xsd:schema>

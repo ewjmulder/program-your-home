@@ -1,4 +1,4 @@
-package com.programyourhome.voice.tryout;
+package com.programyourhome.voice.util;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -15,6 +15,7 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.Port;
 
 public class PrintAllAudioInfo {
+
     public static void main(final String[] args) {
         final Mixer.Info[] aInfos = AudioSystem.getMixerInfo();
         for (int i = 0; i < aInfos.length; i++) {
@@ -126,4 +127,5 @@ public class PrintAllAudioInfo {
             System.out.println(indent + id + "Control: " + control);
         }
     }
+
 }

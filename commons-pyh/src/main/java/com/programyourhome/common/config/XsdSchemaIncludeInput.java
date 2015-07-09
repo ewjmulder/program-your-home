@@ -22,7 +22,7 @@ public class XsdSchemaIncludeInput implements LSInput {
 
     @Override
     public String getPublicId() {
-        return "MYMINE";// this.publicId;
+        return this.publicId;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class XsdSchemaIncludeInput implements LSInput {
 
     @Override
     public String getBaseURI() {
-        return "baseURI!";
+        return null;
     }
 
     @Override

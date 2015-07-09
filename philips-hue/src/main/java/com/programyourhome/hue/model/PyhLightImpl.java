@@ -35,11 +35,7 @@ public class PyhLightImpl extends PyhImpl implements PyhLight {
             final float[] points = new float[2];
             points[0] = phLight.getLastKnownLightState().getX();
             points[1] = phLight.getLastKnownLightState().getY();
-
-            // TODO: these results are crap, take this: (hmm, probably the same).
-            https: // github.com/PhilipsHue/PhilipsHueSDK-iOS-OSX/blob/master/ApplicationDesignNotes/RGB%20to%20xy%20Color%20conversion.md
-
-                this.colorRGB = new PyhColorRGBImpl(PHUtilities.colorFromXY(points, phLight.getModelNumber()));
+            this.colorRGB = new PyhColorRGBImpl(PHUtilities.colorFromXY(points, phLight.getModelNumber()));
         }
         // TODO: mood / how to know if a current light setting does actually match a mood?
     }

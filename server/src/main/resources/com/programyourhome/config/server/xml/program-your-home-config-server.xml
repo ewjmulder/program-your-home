@@ -32,28 +32,6 @@
                 <description>Watch Live TV channels, under a relaxing light.</description>
                 <icon>television.png</icon>
                 <modules>
-                    <philipsHue>
-                        <lights>
-                            <light>
-                                <id>2</id>
-                                <turnOn>true</turnOn>
-                                <dim>7500</dim>
-                                <colorMood>relax</colorMood>
-                            </light>
-                            <light>
-                                <id>1</id>
-                                <turnOn>true</turnOn>
-                                <dim>5000</dim>
-                                <colorMood>relax</colorMood>
-                            </light>
-                            <light>
-                                <id>3</id>
-                                <turnOn>true</turnOn>
-                                <dim>5000</dim>
-                                <colorMood>relax</colorMood>
-                            </light>
-                        </lights>
-                    </philipsHue>
                     <infraRed>
                         <devices>
                             <device>
@@ -80,7 +58,7 @@
             </activity>
             <activity>
                 <id>3</id>
-                <name>Test activitiy</name>
+                <name>Test activity</name>
                 <description>Just for testing</description>
                 <icon>night.png</icon>
                 <modules>

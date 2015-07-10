@@ -27,18 +27,18 @@ public class RhythymSectionTest {
     }
 
     @Test
-    public void testIsInSection() {
-        Assert.assertTrue(this.createRhythymSection("05:00", "10:00").isInSection(LocalTime.parse("07:35")));
-        Assert.assertTrue(this.createRhythymSection("00:00", "00:01").isInSection(LocalTime.parse("00:00")));
+    public void testContains() {
+        Assert.assertTrue(this.createRhythymSection("05:00", "10:00").contains(LocalTime.parse("07:35")));
+        Assert.assertTrue(this.createRhythymSection("00:00", "00:01").contains(LocalTime.parse("00:00")));
 
-        Assert.assertFalse(this.createRhythymSection("05:00", "10:00").isInSection(LocalTime.parse("17:00")));
-        Assert.assertFalse(this.createRhythymSection("00:00", "00:01").isInSection(LocalTime.parse("00:01")));
+        Assert.assertFalse(this.createRhythymSection("05:00", "10:00").contains(LocalTime.parse("17:00")));
+        Assert.assertFalse(this.createRhythymSection("00:00", "00:01").contains(LocalTime.parse("00:01")));
 
-        Assert.assertTrue(this.createRhythymSection("10:00", "05:00").isInSection(LocalTime.parse("19:00")));
-        Assert.assertTrue(this.createRhythymSection("10:00", "05:00").isInSection(LocalTime.parse("00:00")));
+        Assert.assertTrue(this.createRhythymSection("10:00", "05:00").contains(LocalTime.parse("19:00")));
+        Assert.assertTrue(this.createRhythymSection("10:00", "05:00").contains(LocalTime.parse("00:00")));
 
-        Assert.assertFalse(this.createRhythymSection("10:00", "05:00").isInSection(LocalTime.parse("07:00")));
-        Assert.assertFalse(this.createRhythymSection("10:00", "05:00").isInSection(LocalTime.parse("05:00")));
+        Assert.assertFalse(this.createRhythymSection("10:00", "05:00").contains(LocalTime.parse("07:00")));
+        Assert.assertFalse(this.createRhythymSection("10:00", "05:00").contains(LocalTime.parse("05:00")));
     }
 
     @Test

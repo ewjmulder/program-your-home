@@ -2,7 +2,7 @@ package com.programyourhome.server.dailyrhythym;
 
 import java.time.LocalTime;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.util.streamex.StreamEx;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import com.programyourhome.sensors.SunDegreeSensor;
 import com.programyourhome.server.config.ServerConfigHolder;
 import com.programyourhome.server.config.model.KeyFrame;
-import com.programyourhome.server.config.model.PhilipsHueDailyRhythymConfig;
 
 @Component
 public class DailyRythymManager {
@@ -58,13 +57,11 @@ public class DailyRythymManager {
      * @return the active section
      */
     private RhythymSection getActiveSection(final LocalTime time) {
-        final PhilipsHueDailyRhythymConfig dailyRhythm = this.configHolder.getConfig().getDailyRhythm();
-        final LinkedList<KeyFrame> keyFrames = new LinkedList<>(dailyRhythm.getKeyFrames());
+        final List<KeyFrame> keyFrames = this.configHolder.getConfig().getDailyRhythm().getKeyFrames();
         return StreamEx.of(keyFrames)
-                .append(keyFrames.getFirst())
+                .append(keyFrames.get(0)) // append the first item to 'close the loop'
                 .pairMap(RhythymSection::new)
-                .filter(section -> section.isInSection(time))
-                .findFirst().get();
+                .findFirst(section -> section.contains(time))
+                .get(); // save to call get(), since the sections cover the full day, so there must always be a section that contains the provided time
     }
-
 }

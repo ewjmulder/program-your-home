@@ -58,7 +58,7 @@ public class RhythymSection {
         return this.toKeyFrame.getEndState();
     }
 
-    public boolean isInSection(final LocalTime time) {
+    public boolean contains(final LocalTime time) {
         boolean inSection;
         if (this.doesCrossMidnight()) {
             inSection = time.isBefore(this.toTime) || LocalTimeUtil.isEqualOrAfter(time, this.fromTime);
@@ -76,7 +76,7 @@ public class RhythymSection {
      * @throws IllegalArgumentException if the provided time is not in this section
      */
     public double getFraction(final LocalTime time) {
-        if (!this.isInSection(time)) {
+        if (!this.contains(time)) {
             throw new IllegalArgumentException("The time must be inside the section to calculate a fraction.");
         }
         final double secondsSinceStart;

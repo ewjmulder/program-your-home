@@ -1,4 +1,4 @@
-package com.programyourhome.common.xml;
+package com.programyourhome.common.util;
 
 import java.io.ByteArrayOutputStream;
 import java.util.AbstractList;
@@ -27,6 +27,7 @@ import org.xml.sax.Attributes;
  * Custom extension: use generics to get a list of the desired subtype of Node.
  */
 public final class XmlUtil {
+
     private XmlUtil() {
     }
 

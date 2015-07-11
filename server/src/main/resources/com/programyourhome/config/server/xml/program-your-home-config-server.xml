@@ -76,6 +76,11 @@
         </activities>
     </activitiesConfig>
     <dailyRhythm>
+        <lights>
+            <id>1</id>
+            <id>2</id>
+            <id>3</id>
+        </lights>
         <keyFrames>
             <keyFrame>
                 <time>02:00</time>
@@ -83,9 +88,9 @@
                     <dim>0</dim>
                     <colorTemperature>10000</colorTemperature>
                 </endState>
-                <nextFrame>
+                <nextSection>
                     <trigger>sensor</trigger>
-                </nextFrame>
+                </nextSection>
             </keyFrame>
             <keyFrame>
                 <time>05:00</time>
@@ -93,9 +98,9 @@
                     <dim>10000</dim>
                     <colorTemperature>10000</colorTemperature>
                 </endState>
-                <nextFrame>
+                <nextSection>
                     <trigger>sensor</trigger>
-                </nextFrame>
+                </nextSection>
             </keyFrame>
             <keyFrame>
                 <time>06:30</time>
@@ -103,9 +108,9 @@
                     <dim>10000</dim>
                     <colorTemperature>0</colorTemperature>
                 </endState>
-                <nextFrame>
+                <nextSection>
                     <trigger>sensor</trigger>
-                </nextFrame>
+                </nextSection>
             </keyFrame>
             <keyFrame>
                 <time>18:00</time>
@@ -113,9 +118,9 @@
                     <dim>10000</dim>
                     <colorTemperature>0</colorTemperature>
                 </endState>
-                <nextFrame>
+                <nextSection>
                     <trigger>sensor</trigger>
-                </nextFrame>
+                </nextSection>
             </keyFrame>
             <keyFrame>
                 <time>23:00</time>
@@ -123,9 +128,9 @@
                     <dim>10000</dim>
                     <colorTemperature>10000</colorTemperature>
                 </endState>
-                <nextFrame>
+                <nextSection>
                     <trigger>sensor</trigger>
-                </nextFrame>
+                </nextSection>
             </keyFrame>
         </keyFrames>
     </dailyRhythm>

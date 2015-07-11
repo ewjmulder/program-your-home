@@ -24,7 +24,7 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.programyourhome.common.xml.XmlUtil;
+import com.programyourhome.common.util.XmlUtil;
 
 /**
  * Test class for validating the style compliancy of the XSD.

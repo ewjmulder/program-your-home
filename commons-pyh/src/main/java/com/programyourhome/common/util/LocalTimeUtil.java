@@ -1,4 +1,4 @@
-package com.programyourhome.common.time;
+package com.programyourhome.common.util;
 
 import java.time.LocalTime;
 

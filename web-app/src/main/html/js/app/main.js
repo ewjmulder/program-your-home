@@ -37,7 +37,9 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Load the extra information that is needed to build the complete menu.
 	function loadDerivedMenuItems() {
 		var deviceLoading = $.Deferred();
-		rest.readAll(Resource.DEVICES).done(function (devices) {
+		rest.readAll(Resource.DEVICES).done(function (response) {
+			// TODO: error handling?
+			var devices = response.payload;
 			devices.forEach(function (device) {
 				var dataFunction = function () { return rest.read(Resource.DEVICES, device.id); };
 				pages.createSubPage(Resource.DEVICES.name, "device-" + device.name, device.name, config.getValue("deviceIconMap")[device.id], "Device - " + device.name, dataFunction);

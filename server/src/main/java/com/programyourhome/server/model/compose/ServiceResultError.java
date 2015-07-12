@@ -42,7 +42,7 @@ public class ServiceResultError<T> implements ServiceResultTry<T> {
     }
 
     @Override
-    public ServiceResult result() {
+    public ServiceResult<T> result() {
         return ServiceResult.error(this.errorMessage);
     }
 
@@ -61,7 +61,7 @@ public class ServiceResultError<T> implements ServiceResultTry<T> {
         return this;
     }
 
-    // The value type doesn't matter for an Error, so all (flat)map methods can just return a casted value of this.
+    // The value type doesn't matter for an Error, so all (flat)map and produce and process methods can just return a casted value of this.
 
     @Override
     @SuppressWarnings("unchecked")
@@ -88,23 +88,27 @@ public class ServiceResultError<T> implements ServiceResultTry<T> {
     }
 
     @Override
-    public ServiceResult produce(final FailableFunction<T, Object> function) {
-        return this.result();
+    @SuppressWarnings("unchecked")
+    public <R> ServiceResult<R> produce(final FailableFunction<T, R> function) {
+        return (ServiceResult<R>) this.result();
     }
 
     @Override
-    public ServiceResult produce(final FailableFunction<T, Object> function, final String errorMessage) {
-        return this.result();
+    @SuppressWarnings("unchecked")
+    public <R> ServiceResult<R> produce(final FailableFunction<T, R> function, final String errorMessage) {
+        return (ServiceResult<R>) this.result();
     }
 
     @Override
-    public ServiceResult process(final FailableConsumer<T> consumer) {
-        return this.result();
+    @SuppressWarnings("unchecked")
+    public ServiceResult<Void> process(final FailableConsumer<T> consumer) {
+        return (ServiceResult<Void>) this.result();
     }
 
     @Override
-    public ServiceResult process(final FailableConsumer<T> consumer, final String errorMessage) {
-        return this.result();
+    @SuppressWarnings("unchecked")
+    public ServiceResult<Void> process(final FailableConsumer<T> consumer, final String errorMessage) {
+        return (ServiceResult<Void>) this.result();
     }
 
     private String toString(final Exception e) {

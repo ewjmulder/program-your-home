@@ -1,5 +1,6 @@
 package com.programyourhome.server.controllers;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,16 +66,15 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     @Value("${server.port}")
     private int port;
 
-    // TODO: put activities in separate module?
     @RequestMapping("activities")
-    public ServiceResult getActivities() {
+    public ServiceResult<Collection<PyhActivity>> getActivities() {
         return this.produce("Activities", () -> this.getServerConfig().getActivitiesConfig().getActivities().stream()
                 .map(this::createPyhActivity)
                 .collect(Collectors.toList()));
     }
 
     @RequestMapping("activities/{id}")
-    public ServiceResult getActivity(@PathVariable("id") final int id) {
+    public ServiceResult<PyhActivity> getActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
                 .produce(this::createPyhActivity);
     }
@@ -89,14 +89,14 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     }
 
     @RequestMapping("activities/{id}/start")
-    public ServiceResult startActivity(@PathVariable("id") final int id) {
+    public ServiceResult<Void> startActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
                 .ensure(this.activityCenter::isNotActive, "Activity is already active")
                 .process(this::toggleActivity);
     }
 
     @RequestMapping("activities/{id}/stop")
-    public ServiceResult stopActivity(@PathVariable("id") final int id) {
+    public ServiceResult<Void> stopActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
                 .ensure(this.activityCenter::isActive, "Activity is not active")
                 .process(this::toggleActivity);

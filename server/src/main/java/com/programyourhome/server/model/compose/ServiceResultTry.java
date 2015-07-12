@@ -14,7 +14,7 @@ public interface ServiceResultTry<T> {
 
     public boolean isSuccess();
 
-    public ServiceResult result();
+    public ServiceResult<T> result();
 
     public ServiceResultTry<T> find(final FailableSupplier<Optional<T>> supplier);
 
@@ -30,12 +30,12 @@ public interface ServiceResultTry<T> {
 
     public <U> ServiceResultTry<U> flatMap(final Function<T, Optional<U>> function, final String newType);
 
-    public ServiceResult produce(final FailableFunction<T, Object> function);
+    public <R> ServiceResult<R> produce(final FailableFunction<T, R> function);
 
-    public ServiceResult produce(final FailableFunction<T, Object> function, final String errorMessage);
+    public <R> ServiceResult<R> produce(final FailableFunction<T, R> function, final String errorMessage);
 
-    public ServiceResult process(final FailableConsumer<T> consumer);
+    public ServiceResult<Void> process(final FailableConsumer<T> consumer);
 
-    public ServiceResult process(final FailableConsumer<T> consumer, final String errorMessage);
+    public ServiceResult<Void> process(final FailableConsumer<T> consumer, final String errorMessage);
 
 }

@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // All pages administration and logic.
-define(["jquery", "templates", "util"],
-		function ($, templates, util) {
+define(["jquery", "templates", "util", "log"],
+		function ($, templates, util, log) {
 	
 	// The current page that is on screen.
 	var currentPage;
@@ -109,13 +109,18 @@ define(["jquery", "templates", "util"],
 	// happen based on (state change) events coming in from the server.
 	function loadPage(page) {
 		var pageLoading = $.Deferred();
-		page.dataFunction().done(function (data) {
-			loadPageWithTemplate(page, data);
-			require(["page" + util.capitalizeFirstLetter(page.moduleName)], function (pageModule) {
-				page.javascriptModule = pageModule;
-				page.javascriptModule.init(page, data);
-				pageLoading.resolve();
-			});
+		page.dataFunction().done(function (response) {
+			if (response.success) {
+				var data = response.payload;
+				loadPageWithTemplate(page, data);
+				require(["page" + util.capitalizeFirstLetter(page.moduleName)], function (pageModule) {
+					page.javascriptModule = pageModule;
+					page.javascriptModule.init(page, data);
+					pageLoading.resolve();
+				});				
+			} else {
+				log.error("Page: '" + page.name + "' could not be loaded. Server side error: '" + response.error + "'.");
+			}
 		})
 		.fail(pageLoading.reject)
 		.fail(util.createFailFunction("page " + page.name));

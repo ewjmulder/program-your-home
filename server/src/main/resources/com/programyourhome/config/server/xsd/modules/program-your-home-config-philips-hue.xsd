@@ -56,7 +56,8 @@
     </xsd:complexType>
 
     <xsd:complexType name="philipsHueDailyRhythymConfig">
-        <xsd:sequence>
+        <xsd:sequence>        
+            <xsd:element name="turnLightsOnBelowSunDegree" type="xsd:decimal" minOccurs="1" maxOccurs="1" />
             <xsd:element name="lights" type="lightIds" minOccurs="1" maxOccurs="1" />
             <xsd:element name="keyFrames" type="keyFrames" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>

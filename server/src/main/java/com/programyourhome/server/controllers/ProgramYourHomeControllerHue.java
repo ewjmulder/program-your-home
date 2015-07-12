@@ -23,8 +23,14 @@ public class ProgramYourHomeControllerHue extends AbstractProgramYourHomeControl
 
     @RequestMapping("lights")
     // TODO: filtering on known plug-lights on server side with config
-    public Collection<PyhLight> getLights() {
-        return this.philipsHue.getLights();
+    public ServiceResult<Collection<PyhLight>> getLights() {
+        return this.produce("Lights", () -> this.philipsHue.getLights());
+    }
+
+    @RequestMapping("lights/{id}")
+    // TODO: filtering on known plug-lights on server side with config
+    public ServiceResult<PyhLight> getLight(@PathVariable("id") final int id) {
+        return this.produce("Light", () -> this.philipsHue.getLight(id));
     }
 
     @RequestMapping("plugs")
@@ -35,56 +41,52 @@ public class ProgramYourHomeControllerHue extends AbstractProgramYourHomeControl
 
     @RequestMapping("lights/{id}/on")
     // TODO: filtering on known plug-lights on server side with config
-    public ServiceResult turnOn(@PathVariable("id") final int id) {
-        // TODO: check for id existence etc.
-        this.philipsHue.turnOnLight(id);
-        return ServiceResult.success();
+    public ServiceResult<Void> turnOn(@PathVariable("id") final int id) {
+        return this.run(() -> this.philipsHue.turnOnLight(id));
     }
 
     @RequestMapping("lights/{id}/off")
     // TODO: filtering on known plug-lights on server side with config
-    public ServiceResult turnOff(@PathVariable("id") final int id) {
-        // TODO: check for id existence etc.
-        this.philipsHue.turnOffLight(id);
-        return ServiceResult.success();
+    public ServiceResult<Void> turnOff(@PathVariable("id") final int id) {
+        return this.run(() -> this.philipsHue.turnOffLight(id));
     }
 
     @RequestMapping("lights/{id}/dim/{dim:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void dim(@PathVariable("id") final int id, @PathVariable("dim") final int dimBasisPoints) {
-        this.philipsHue.dim(id, dimBasisPoints);
+    public ServiceResult<Void> dim(@PathVariable("id") final int id, @PathVariable("dim") final int dimBasisPoints) {
+        return this.run(() -> this.philipsHue.dim(id, dimBasisPoints));
     }
 
     @RequestMapping("lights/{id}/colorRGB/{red:[0-9]+},{green:[0-9]+},{blue:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void setColor(@PathVariable("id") final int id,
+    public ServiceResult<Void> setColor(@PathVariable("id") final int id,
             @PathVariable("red") final int red, @PathVariable("green") final int green, @PathVariable("blue") final int blue) {
-        this.philipsHue.setColorRGB(id, new Color(red, green, blue));
+        return this.run(() -> this.philipsHue.setColorRGB(id, new Color(red, green, blue)));
     }
 
     @RequestMapping("lights/{id}/colorXY/{x:[0-9\\.]},{y:[0-9\\.]}")
     // TODO: filtering on known plug-lights on server side with config
-    public void setColorXY(@PathVariable("id") final int id, @PathVariable("x") final float x, @PathVariable("y") final float y) {
-        this.philipsHue.setColorXY(id, x, y);
+    public ServiceResult<Void> setColorXY(@PathVariable("id") final int id, @PathVariable("x") final float x, @PathVariable("y") final float y) {
+        return this.run(() -> this.philipsHue.setColorXY(id, x, y));
     }
 
     @RequestMapping("lights/{id}/colorHueSaturation/{hue:[0-9]+},{saturation:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void setColorHueSaturation(@PathVariable("id") final int id, @PathVariable("hue") final int hueBasisPoints,
+    public ServiceResult<Void> setColorHueSaturation(@PathVariable("id") final int id, @PathVariable("hue") final int hueBasisPoints,
             @PathVariable("saturation") final int saturationBasisPoints) {
-        this.philipsHue.setColorHueSaturation(id, hueBasisPoints, saturationBasisPoints);
+        return this.run(() -> this.philipsHue.setColorHueSaturation(id, hueBasisPoints, saturationBasisPoints));
     }
 
     @RequestMapping("lights/{id}/colorTemperature/{temperature:[0-9]+}")
     // TODO: filtering on known plug-lights on server side with config
-    public void setColorTemperature(@PathVariable("id") final int id, @PathVariable("temperature") final int temperatureBasisPoints) {
-        this.philipsHue.setColorTemperature(id, temperatureBasisPoints);
+    public ServiceResult<Void> setColorTemperature(@PathVariable("id") final int id, @PathVariable("temperature") final int temperatureBasisPoints) {
+        return this.run(() -> this.philipsHue.setColorTemperature(id, temperatureBasisPoints));
     }
 
     @RequestMapping("lights/{id}/mood/{moodName}")
     // TODO: filtering on known plug-lights on server side with config
-    public void setMood(@PathVariable("id") final int id, @PathVariable("moodName") final String moodName) {
-        this.philipsHue.setMood(id, Mood.valueOf(moodName.toUpperCase()));
+    public ServiceResult<Void> setMood(@PathVariable("id") final int id, @PathVariable("moodName") final String moodName) {
+        return this.run(() -> this.philipsHue.setMood(id, Mood.valueOf(moodName.toUpperCase())));
     }
 
 }

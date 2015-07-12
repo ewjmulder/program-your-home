@@ -27,6 +27,14 @@ public interface PhilipsHue {
     public Collection<PyhLight> getLights();
 
     /**
+     * Return a lights with the provided id.
+     *
+     * @param lightId the id of the light
+     * @return one light
+     */
+    public PyhLight getLight(int lightId);
+
+    /**
      * Returns all plugs that are connected to the Hue Bridge.
      *
      * Note: This also includes all plugs that are connected to a light, since this module

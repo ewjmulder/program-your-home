@@ -19,163 +19,138 @@ public class ProgramYourHomeControllerIr extends AbstractProgramYourHomeControll
     private InfraRed infraRed;
 
     @RequestMapping("devices")
-    public Collection<PyhDevice> getDevices() {
-        return this.infraRed.getDevices();
+    public ServiceResult<Collection<PyhDevice>> getDevices() {
+        return this.produce("Devices", () -> this.infraRed.getDevices());
     }
 
     @RequestMapping("devices/{id}")
-    public PyhDevice getDevice(@PathVariable("id") final int deviceId) {
-        return this.infraRed.getDevice(deviceId);
+    public ServiceResult<PyhDevice> getDevice(@PathVariable("id") final int deviceId) {
+        return this.produce("Device", () -> this.infraRed.getDevice(deviceId));
     }
 
     @RequestMapping("devices/{id}/power/on")
-    public ServiceResult turnOn(@PathVariable("id") final int deviceId) {
-        this.infraRed.turnOn(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> turnOn(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.turnOn(deviceId));
     }
 
     @RequestMapping("devices/{id}/power/off")
-    public ServiceResult turnOff(@PathVariable("id") final int deviceId) {
-        this.infraRed.turnOff(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> turnOff(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.turnOff(deviceId));
     }
 
     @RequestMapping("devices/{id}/input/{input}")
-    public ServiceResult setInput(@PathVariable("id") final int deviceId, @PathVariable("input") final String input) {
-        this.infraRed.setInput(deviceId, input);
-        return ServiceResult.success();
+    public ServiceResult<Void> setInput(@PathVariable("id") final int deviceId, @PathVariable("input") final String input) {
+        return this.run(() -> this.infraRed.setInput(deviceId, input));
     }
 
     @RequestMapping("devices/{id}/volume/up")
-    public ServiceResult volumeUp(@PathVariable("id") final int deviceId) {
-        this.infraRed.volumeUp(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> volumeUp(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.volumeUp(deviceId));
     }
 
     @RequestMapping("devices/{id}/volume/down")
-    public ServiceResult volumeDown(@PathVariable("id") final int deviceId) {
-        this.infraRed.volumeDown(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> volumeDown(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.volumeDown(deviceId));
     }
 
     @RequestMapping("devices/{id}/volume/mute")
-    public ServiceResult volumeMute(@PathVariable("id") final int deviceId) {
-        this.infraRed.volumeMute(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> volumeMute(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.volumeMute(deviceId));
     }
 
     @RequestMapping("devices/{id}/channel/up")
-    public ServiceResult channelUp(@PathVariable("id") final int deviceId) {
-        this.infraRed.channelUp(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> channelUp(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.channelUp(deviceId));
     }
 
     @RequestMapping("devices/{id}/channel/down")
-    public ServiceResult channelDown(@PathVariable("id") final int deviceId) {
-        this.infraRed.channelDown(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> channelDown(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.channelDown(deviceId));
     }
 
     @RequestMapping("devices/{id}/channel/set/{channel}")
-    public ServiceResult setChannel(@PathVariable("id") final int deviceId, @PathVariable("channel") final int channel) {
-        this.infraRed.setChannel(deviceId, channel);
-        return ServiceResult.success();
+    public ServiceResult<Void> setChannel(@PathVariable("id") final int deviceId, @PathVariable("channel") final int channel) {
+        return this.run(() -> this.infraRed.setChannel(deviceId, channel));
     }
 
     @RequestMapping("devices/{id}/play/play")
-    public ServiceResult play(@PathVariable("id") final int deviceId) {
-        this.infraRed.play(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> play(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.play(deviceId));
     }
 
     @RequestMapping("devices/{id}/play/pause")
-    public ServiceResult pause(@PathVariable("id") final int deviceId) {
-        this.infraRed.pause(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> pause(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.pause(deviceId));
     }
 
     @RequestMapping("devices/{id}/play/stop")
-    public ServiceResult stop(@PathVariable("id") final int deviceId) {
-        this.infraRed.stop(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> stop(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.stop(deviceId));
     }
 
     @RequestMapping("devices/{id}/play/fastForward")
-    public ServiceResult fastForward(@PathVariable("id") final int deviceId) {
-        this.infraRed.fastForward(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> fastForward(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.fastForward(deviceId));
     }
 
     @RequestMapping("devices/{id}/play/rewind")
-    public ServiceResult rewind(@PathVariable("id") final int deviceId) {
-        this.infraRed.rewind(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> rewind(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.rewind(deviceId));
     }
 
     @RequestMapping("devices/{id}/skip/next")
-    public ServiceResult skipNext(@PathVariable("id") final int deviceId) {
-        this.infraRed.skipNext(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> skipNext(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.skipNext(deviceId));
     }
 
     @RequestMapping("devices/{id}/skip/previous")
-    public ServiceResult skipPrevious(@PathVariable("id") final int deviceId) {
-        this.infraRed.skipPrevious(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> skipPrevious(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.skipPrevious(deviceId));
     }
 
     @RequestMapping("devices/{id}/record")
-    public ServiceResult record(@PathVariable("id") final int deviceId) {
-        this.infraRed.record(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> record(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.record(deviceId));
     }
 
     @RequestMapping("devices/{id}/menu/toggle")
-    public ServiceResult menuToggle(@PathVariable("id") final int deviceId) {
-        this.infraRed.menuToggle(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> menuToggle(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.menuToggle(deviceId));
     }
 
     @RequestMapping("devices/{id}/menu/select")
-    public ServiceResult menuSelect(@PathVariable("id") final int deviceId) {
-        this.infraRed.menuSelect(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> menuSelect(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.menuSelect(deviceId));
     }
 
     @RequestMapping("devices/{id}/menu/back")
-    public ServiceResult menuBack(@PathVariable("id") final int deviceId) {
-        this.infraRed.menuBack(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> menuBack(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.menuBack(deviceId));
     }
 
     @RequestMapping("devices/{id}/menu/up")
-    public ServiceResult menuUp(@PathVariable("id") final int deviceId) {
-        this.infraRed.menuUp(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> menuUp(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.menuUp(deviceId));
     }
 
     @RequestMapping("devices/{id}/menu/down")
-    public ServiceResult menuDown(@PathVariable("id") final int deviceId) {
-        this.infraRed.menuDown(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> menuDown(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.menuDown(deviceId));
     }
 
     @RequestMapping("devices/{id}/menu/left")
-    public ServiceResult menuLeft(@PathVariable("id") final int deviceId) {
-        this.infraRed.menuLeft(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> menuLeft(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.menuLeft(deviceId));
     }
 
     @RequestMapping("devices/{id}/menu/right")
-    public ServiceResult menuRight(@PathVariable("id") final int deviceId) {
-        this.infraRed.menuRight(deviceId);
-        return ServiceResult.success();
+    public ServiceResult<Void> menuRight(@PathVariable("id") final int deviceId) {
+        return this.run(() -> this.infraRed.menuRight(deviceId));
     }
 
     @RequestMapping("devices/{id}/pressKeyOnRemote/{keyId}")
-    public ServiceResult pressKeyOnRemote(@PathVariable("id") final int deviceId, @PathVariable("keyId") final int keyId) {
-        this.infraRed.pressKeyOnRemote(deviceId, keyId);
-        return ServiceResult.success();
+    public ServiceResult<Void> pressKeyOnRemote(@PathVariable("id") final int deviceId, @PathVariable("keyId") final int keyId) {
+        return this.run(() -> this.infraRed.pressKeyOnRemote(deviceId, keyId));
     }
 
 }

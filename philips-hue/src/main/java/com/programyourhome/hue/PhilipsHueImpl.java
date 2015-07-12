@@ -105,6 +105,11 @@ public class PhilipsHueImpl implements PhilipsHue {
     }
 
     @Override
+    public PyhLight getLight(final int lightId) {
+        return new PyhLightImpl(this.getPHLight(lightId));
+    }
+
+    @Override
     public Collection<PyhPlug> getPlugs() {
         return this.getLights().stream()
                 .filter(light -> light.getType() == LightType.LIVING_WHITES_PLUG)

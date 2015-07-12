@@ -26,19 +26,19 @@ public abstract class AbstractProgramYourHomeController {
         return new ServiceResultSuccess<T>(type).find(() -> finder.apply(id));
     }
 
-    public <T> ServiceResult produce(final String type, final FailableSupplier<T> supplier) {
+    public <T> ServiceResult<T> produce(final String type, final FailableSupplier<T> supplier) {
         return this.produce(type, supplier, "Exception while producing.");
     }
 
-    public <T> ServiceResult produce(final String type, final FailableSupplier<T> supplier, final String errorMessage) {
+    public <T> ServiceResult<T> produce(final String type, final FailableSupplier<T> supplier, final String errorMessage) {
         return new ServiceResultSuccess<T>(type).produce(value -> supplier.get(), errorMessage);
     }
 
-    public ServiceResult run(final FailableRunnable<Exception> runnable) {
+    public <T> ServiceResult<Void> run(final FailableRunnable<Exception> runnable) {
         return this.run(runnable, "Exception while running.");
     }
 
-    public ServiceResult run(final FailableRunnable<Exception> runnable, final String errorMessage) {
+    public <T> ServiceResult<Void> run(final FailableRunnable<Exception> runnable, final String errorMessage) {
         return new ServiceResultSuccess<Void>("Run wrapper").process(value -> runnable.run(), errorMessage);
     }
 

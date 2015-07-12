@@ -33,7 +33,7 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
     }
 
     @Override
-    public ServiceResult result() {
+    public ServiceResult<T> result() {
         return ServiceResult.success(this.value);
     }
 
@@ -108,37 +108,36 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
     }
 
     @Override
-    public ServiceResult produce(final FailableFunction<T, Object> function) {
+    public <R> ServiceResult<R> produce(final FailableFunction<T, R> function) {
         return this.produce(function, "Exception while producing output.");
     }
 
     @Override
-    public ServiceResult produce(final FailableFunction<T, Object> function, final String errorMessage) {
-        ServiceResult result;
+    public <R> ServiceResult<R> produce(final FailableFunction<T, R> function, final String errorMessage) {
+        ServiceResult<R> result;
         try {
-            final Object payload = function.apply(this.value);
+            final R payload = function.apply(this.value);
             result = ServiceResult.success(payload);
         } catch (final Exception e) {
-            result = new ServiceResultError<T>(errorMessage, e).result();
+            result = new ServiceResultError<R>(errorMessage, e).result();
         }
         return result;
     }
 
     @Override
-    public ServiceResult process(final FailableConsumer<T> consumer) {
+    public ServiceResult<Void> process(final FailableConsumer<T> consumer) {
         return this.process(consumer, "Exception while processing.");
     }
 
     @Override
-    public ServiceResult process(final FailableConsumer<T> consumer, final String errorMessage) {
-        ServiceResult result;
+    public ServiceResult<Void> process(final FailableConsumer<T> consumer, final String errorMessage) {
+        ServiceResult<Void> result;
         try {
             consumer.accept(this.value);
             result = ServiceResult.success();
         } catch (final Exception e) {
-            result = new ServiceResultError<T>(errorMessage, e).result();
+            result = new ServiceResultError<Void>(errorMessage, e).result();
         }
         return result;
     }
-
 }

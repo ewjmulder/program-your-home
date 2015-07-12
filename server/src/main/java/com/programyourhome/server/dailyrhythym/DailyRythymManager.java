@@ -1,9 +1,11 @@
 package com.programyourhome.server.dailyrhythym;
 
 import java.awt.Color;
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 import javax.util.streamex.StreamEx;
@@ -21,6 +23,7 @@ import com.programyourhome.sensors.SunDegreeSensor;
 import com.programyourhome.server.config.ServerConfigHolder;
 import com.programyourhome.server.config.model.KeyFrame;
 import com.programyourhome.server.config.model.LightState;
+import com.programyourhome.server.config.model.TriggerType;
 
 @Component
 public class DailyRythymManager {
@@ -49,52 +52,24 @@ public class DailyRythymManager {
         this.rhythymScheduler.scheduleAtFixedRate(this::updateRhythym, DateUtils.addMilliseconds(new Date(), UPDATE_INITIAL_DELAY), UPDATE_INTERVAL);
     }
 
-    // Note: this logic assumes the times of the keyframes were previously validated to be in ascending order.
     public void updateRhythym() {
         final List<Integer> lightIds = this.configHolder.getConfig().getDailyRhythm().getLights();
         final LocalTime currentTime = LocalTime.now();
         final RhythymSection activeSection = this.getActiveSection(currentTime);
 
-        // TODO: incorporate trigger! final activeSection.getTrigger();
+        final Consumer<Integer> action = this.defineAction(currentTime, activeSection);
 
-        final double fraction = activeSection.getFraction(currentTime);
-        final LightState fromLightState = activeSection.getFromLightState();
-        final LightState toLightState = activeSection.getToLightState();
-        final int dim = ValueRangeUtil.calculateIntFractionInRange(fraction, fromLightState.getDim(), toLightState.getDim());
-        // Assumption: both from and to light state have the same color definition type set.
-        if (fromLightState.getColorRGB() != null && toLightState.getColorRGB() != null) {
-            final int red = ValueRangeUtil.calculateIntFractionInRange(fraction, fromLightState.getColorRGB().getRed(), toLightState.getColorRGB().getRed());
-            final int green = ValueRangeUtil.calculateIntFractionInRange(fraction,
-                    fromLightState.getColorRGB().getGreen(), toLightState.getColorRGB().getGreen());
-            final int blue = ValueRangeUtil.calculateIntFractionInRange(fraction, fromLightState.getColorRGB().getBlue(), toLightState.getColorRGB().getBlue());
-            lightIds.forEach(id -> this.philipsHue.dimToColorRGB(id, dim, new Color(red, green, blue)));
-        } else if (fromLightState.getColorXY() != null && toLightState.getColorXY() != null) {
-            final float x = (float) ValueRangeUtil.calculateFractionInRange(fraction, fromLightState.getColorXY().getX(), toLightState.getColorXY().getX());
-            final float y = (float) ValueRangeUtil.calculateFractionInRange(fraction, fromLightState.getColorXY().getY(), toLightState.getColorXY().getY());
-            lightIds.forEach(id -> this.philipsHue.dimToColorXY(id, dim, x, y));
-        } else if (fromLightState.getColorHueSaturation() != null && toLightState.getColorHueSaturation() != null) {
-            final int hue = ValueRangeUtil.calculateIntFractionInRange(fraction,
-                    fromLightState.getColorHueSaturation().getHue(), toLightState.getColorHueSaturation().getHue());
-            final int saturation = ValueRangeUtil.calculateIntFractionInRange(fraction,
-                    fromLightState.getColorHueSaturation().getSaturation(), toLightState.getColorHueSaturation().getSaturation());
-            lightIds.forEach(id -> this.philipsHue.dimToColorHueSaturation(id, dim, hue, saturation));
-        } else if (fromLightState.getColorTemperature() != null && toLightState.getColorTemperature() != null) {
-            final int temperature = ValueRangeUtil.calculateIntFractionInRange(fraction,
-                    fromLightState.getColorTemperature(), toLightState.getColorTemperature());
-            lightIds.forEach(id -> this.philipsHue.dimToColorTemperature(id, dim, temperature));
-        } else if (fromLightState.getColorMood() != null && toLightState.getColorMood() != null) {
-            final int fromColorTemperature = Mood.valueOf(fromLightState.getColorMood().name()).getTemperature();
-            final int toColorTemperature = Mood.valueOf(toLightState.getColorMood().name()).getTemperature();
-            final int temperature = ValueRangeUtil.calculateIntFractionInRange(fraction, fromColorTemperature, toColorTemperature);
-            lightIds.forEach(id -> this.philipsHue.dimToColorTemperature(id, dim, temperature));
+        if (this.shouldTurnOn(activeSection)) {
+            lightIds.forEach(id -> action.accept(id));
         } else {
-            throw new IllegalArgumentException("No match found between from and to light state.");
+            lightIds.forEach(id -> this.philipsHue.turnOffLight(id));
         }
     }
 
     /**
      * Get the active section, that means the section that contains the provided time.
      * This method should always return a non-null result, since by design there will always be a active section.
+     * Note: this logic assumes the times of the keyframes were previously validated to be in ascending order.
      *
      * @param time the time
      * @return the active section
@@ -106,5 +81,60 @@ public class DailyRythymManager {
                 .pairMap(RhythymSection::new)
                 .findFirst(section -> section.contains(time))
                 .get(); // save to call get(), since the sections cover the full day, so there must always be a section that contains the provided time
+    }
+
+    private Consumer<Integer> defineAction(final LocalTime currentTime, final RhythymSection activeSection) {
+        final Consumer<Integer> action;
+        final double fraction = activeSection.getFraction(currentTime);
+        final LightState fromLightState = activeSection.getFromLightState();
+        final LightState toLightState = activeSection.getToLightState();
+        final int dim = ValueRangeUtil.calculateIntFractionInRange(fraction, fromLightState.getDim(), toLightState.getDim());
+        // Assumption: both from and to light state have the same color definition type set.
+        if (fromLightState.getColorRGB() != null && toLightState.getColorRGB() != null) {
+            final int red = ValueRangeUtil.calculateIntFractionInRange(fraction, fromLightState.getColorRGB().getRed(), toLightState.getColorRGB().getRed());
+            final int green = ValueRangeUtil.calculateIntFractionInRange(fraction,
+                    fromLightState.getColorRGB().getGreen(), toLightState.getColorRGB().getGreen());
+            final int blue = ValueRangeUtil.calculateIntFractionInRange(fraction, fromLightState.getColorRGB().getBlue(), toLightState.getColorRGB().getBlue());
+            action = id -> this.philipsHue.dimToColorRGB(id, dim, new Color(red, green, blue));
+        } else if (fromLightState.getColorXY() != null && toLightState.getColorXY() != null) {
+            final float x = (float) ValueRangeUtil.calculateFractionInRange(fraction, fromLightState.getColorXY().getX(), toLightState.getColorXY().getX());
+            final float y = (float) ValueRangeUtil.calculateFractionInRange(fraction, fromLightState.getColorXY().getY(), toLightState.getColorXY().getY());
+            action = id -> this.philipsHue.dimToColorXY(id, dim, x, y);
+        } else if (fromLightState.getColorHueSaturation() != null && toLightState.getColorHueSaturation() != null) {
+            final int hue = ValueRangeUtil.calculateIntFractionInRange(fraction,
+                    fromLightState.getColorHueSaturation().getHue(), toLightState.getColorHueSaturation().getHue());
+            final int saturation = ValueRangeUtil.calculateIntFractionInRange(fraction,
+                    fromLightState.getColorHueSaturation().getSaturation(), toLightState.getColorHueSaturation().getSaturation());
+            action = id -> this.philipsHue.dimToColorHueSaturation(id, dim, hue, saturation);
+        } else if (fromLightState.getColorTemperature() != null && toLightState.getColorTemperature() != null) {
+            final int temperature = ValueRangeUtil.calculateIntFractionInRange(fraction,
+                    fromLightState.getColorTemperature(), toLightState.getColorTemperature());
+            action = id -> this.philipsHue.dimToColorTemperature(id, dim, temperature);
+        } else if (fromLightState.getColorMood() != null && toLightState.getColorMood() != null) {
+            final int fromColorTemperature = Mood.valueOf(fromLightState.getColorMood().name()).getTemperature();
+            final int toColorTemperature = Mood.valueOf(toLightState.getColorMood().name()).getTemperature();
+            final int temperature = ValueRangeUtil.calculateIntFractionInRange(fraction, fromColorTemperature, toColorTemperature);
+            action = id -> this.philipsHue.dimToColorTemperature(id, dim, temperature);
+        } else {
+            throw new IllegalArgumentException("No match found between from and to light state.");
+        }
+        return action;
+    }
+
+    private boolean shouldTurnOn(final RhythymSection section) {
+        final TriggerType triggerType = section.getTrigger();
+        boolean turnOn;
+        if (triggerType == TriggerType.ALWAYS_ON) {
+            turnOn = true;
+        } else if (triggerType == TriggerType.ALWAYS_OFF) {
+            turnOn = false;
+        } else if (triggerType == TriggerType.SENSOR) {
+            final BigDecimal currentSunDegree = this.sunDegreeSensor.getSunDegree();
+            final BigDecimal turnLightsOnBelowSunDegree = this.configHolder.getConfig().getDailyRhythm().getTurnLightsOnBelowSunDegree();
+            turnOn = currentSunDegree.compareTo(turnLightsOnBelowSunDegree) < 0;
+        } else {
+            throw new IllegalStateException("Unknown trigger type: '" + triggerType + "'.");
+        }
+        return turnOn;
     }
 }

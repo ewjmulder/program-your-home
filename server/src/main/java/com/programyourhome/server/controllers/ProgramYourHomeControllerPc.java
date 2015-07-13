@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.pc.PcInstructor;
-import com.programyourhome.server.model.ServiceResult;
+import com.programyourhome.server.controllers.response.ServiceResult;
 
 @RestController
 @RequestMapping("pc")

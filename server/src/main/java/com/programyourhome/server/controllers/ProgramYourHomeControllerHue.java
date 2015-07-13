@@ -12,7 +12,7 @@ import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.model.PyhLight;
 import com.programyourhome.hue.model.PyhPlug;
-import com.programyourhome.server.model.ServiceResult;
+import com.programyourhome.server.controllers.response.ServiceResult;
 
 @RestController
 @RequestMapping("hue")

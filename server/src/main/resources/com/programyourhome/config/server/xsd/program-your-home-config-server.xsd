@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://programyourhome.com/config" targetNamespace="http://programyourhome.com/config"
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:pyh="http://programyourhome.com/config" xmlns="http://programyourhome.com/config" targetNamespace="http://programyourhome.com/config"
     elementFormDefault="qualified">
     <xsd:include schemaLocation="modules/program-your-home-config-philips-hue.xsd" />
     <xsd:include schemaLocation="modules/program-your-home-config-infra-red.xsd" />
@@ -7,11 +7,112 @@
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="defaultLanguage" type="language" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="security" type="security" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="people" type="people" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="stateConfig" type="stateConfig" minOccurs="1" maxOccurs="1" />
                 <xsd:element name="activitiesConfig" type="activitiesConfig" minOccurs="1" maxOccurs="1" />
                 <xsd:element name="dailyRhythm" type="philipsHueDailyRhythymConfig" minOccurs="1" maxOccurs="1" />
             </xsd:sequence>
         </xsd:complexType>
+        <!-- TODO: referential integrity checks! -->
+		<xsd:unique name="residentStates_uniqueName">
+			<xsd:selector xpath="pyh:people/pyh:residents/pyh:resident" />
+			<xsd:field xpath="pyh:name" />
+		</xsd:unique>
     </xsd:element>
+    <xsd:complexType name="security">
+        <xsd:sequence>
+		    <xsd:element name="users" type="users" minOccurs="1" maxOccurs="1" />
+		</xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="users">
+        <xsd:sequence>
+            <xsd:element name="user" type="user" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="user">
+        <xsd:sequence>
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="email" type="xsd:string"  minOccurs="1" maxOccurs="1" />
+            <xsd:element name="username" type="xsd:string"  minOccurs="1" maxOccurs="1" />
+            <xsd:element name="passwordHash" type="xsd:string"  minOccurs="1" maxOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+    <xsd:complexType name="people">
+        <xsd:sequence>
+		    <xsd:element name="residents" type="residents" minOccurs="1" maxOccurs="1" />
+		    <xsd:element name="guests" type="guests" minOccurs="1" maxOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+    <xsd:complexType name="residents">
+        <xsd:sequence>
+            <xsd:element name="resident" type="person" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="guests">
+        <xsd:sequence>
+            <xsd:element name="guest" type="person" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="person">
+        <xsd:sequence>
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="userid" type="id" minOccurs="0" maxOccurs="1" />
+            <xsd:element name="firstName" type="xsd:string"  minOccurs="1" maxOccurs="1" />
+            <xsd:element name="lastName" type="xsd:string"  minOccurs="1" maxOccurs="1" />
+            <xsd:element name="birthDate" type="xsd:date"  minOccurs="0" maxOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+    <xsd:complexType name="stateConfig">
+        <xsd:sequence>
+            <xsd:element name="resident" type="statesAndTransitions" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="guest" type="statesAndTransitions" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="statesAndTransitions">
+        <xsd:sequence>
+            <xsd:element name="defaultState" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="states" type="states" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="stateTransitions" type="stateTransitions" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="states">
+        <xsd:sequence>
+            <xsd:element name="state" type="state" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="state">
+        <xsd:sequence>
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="name" type="xsd:string"  minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="stateRestrictions" type="stateRestrictions" minOccurs="1" maxOccurs="1" />
+		</xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="stateTransitions">
+        <xsd:sequence>
+            <xsd:element name="stateTransition" type="stateTransition" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="stateTransition">
+        <xsd:sequence>
+            <xsd:element name="from" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="to" type="id"  minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="name" type="xsd:string"  minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
+		</xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="stateRestrictions">
+        <xsd:sequence>
+            <xsd:element name="stateRestriction" type="stateRestriction" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="stateRestriction">
+        <xsd:sequence>
+            <xsd:element name="canStartActivities" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <!-- TODO: expand this with a lot of possible restriction and implement them as well! -->
+		</xsd:sequence>
+    </xsd:complexType>
     <xsd:complexType name="activitiesConfig">
         <xsd:sequence>
             <xsd:element name="defaultIcon" type="xsd:string" minOccurs="1" maxOccurs="1" />
@@ -31,7 +132,7 @@
             <xsd:element name="icon" type="xsd:string" minOccurs="0" maxOccurs="1">
                 <xsd:annotation>
                     <xsd:documentation>
-                        The file name of the icon image, located in the icons folder in the config root
+                        The file name of the icon image, located in the icons folder in the config root.
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
@@ -45,6 +146,7 @@
             </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
+
     <xsd:simpleType name="language">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="English-USA" />
@@ -52,4 +154,5 @@
             <xsd:enumeration value="Dutch-NL" />
         </xsd:restriction>
     </xsd:simpleType>
+
 </xsd:schema>

@@ -1,4 +1,4 @@
-package com.programyourhome.server.model;
+package com.programyourhome.server.controllers.response;
 
 public class ServiceResult<T> {
 

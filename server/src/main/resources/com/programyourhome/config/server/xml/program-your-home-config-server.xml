@@ -1,6 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serverConfig xmlns="http://programyourhome.com/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config ../xsd/program-your-home-config-server.xsd">
     <defaultLanguage>English-USA</defaultLanguage>
+    <security>
+    	<users>
+    		<user>
+    			<id>1</id>
+    			<email>ewjmulder@yahoo.com</email>
+    			<username>emulder</username>
+    			<passwordHash>TODOTODOTODO</passwordHash>
+    		</user>
+    	</users>
+    </security>
+    <people>
+    	<residents>
+    		<resident>
+    			<id>1</id>
+    			<userid>1</userid>
+    			<firstName>Erik</firstName>
+    			<lastName>Mulder</lastName>
+    			<birthDate>1982-11-18</birthDate>
+    		</resident>
+    	</residents>
+    	<guests>
+			<guest>
+    			<id>1</id>
+    			<firstName>Guest</firstName>
+    			<lastName>Account</lastName>
+			</guest>
+    	</guests>
+    </people>
+    <stateConfig>
+    	<resident>
+			<defaultState>1</defaultState>
+			<states>
+				<state>
+					<id>1</id>
+					<name>active</name>
+					<description>Being at home and awake.</description>
+					<stateRestrictions>
+						<stateRestriction>
+							<canStartActivities>true</canStartActivities>
+						</stateRestriction>
+					</stateRestrictions>
+				</state>
+				<state>
+					<id>2</id>
+					<name>asleep</name>
+					<description>Being at home and asleep.</description>
+					<stateRestrictions>
+						<stateRestriction>
+							<canStartActivities>false</canStartActivities>
+						</stateRestriction>
+					</stateRestrictions>
+				</state>
+				<state>
+					<id>3</id>
+					<name>away</name>
+					<description>Not being at home during the day, but back before the night.</description>
+					<stateRestrictions>
+						<stateRestriction>
+							<canStartActivities>false</canStartActivities>
+						</stateRestriction>
+					</stateRestrictions>
+				</state>
+				<state>
+					<id>4</id>
+					<name>vacation</name>
+					<description>Not being at home during the day and the night.</description>
+					<stateRestrictions>
+						<stateRestriction>
+							<canStartActivities>false</canStartActivities>
+						</stateRestriction>
+					</stateRestrictions>
+				</state>
+			</states>
+			<stateTransitions>
+				<stateTransition>
+					<from>1</from>
+					<to>2</to>
+					<name>Go to sleep</name>
+					<description>Going to bed at home at the end of the day.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>1</from>
+					<to>3</to>
+					<name>Leave the house</name>
+					<description>Leaving the home, but return before the end of the day.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>1</from>
+					<to>4</to>
+					<name>Leave for vacation</name>
+					<description>Leaving the home and not returning for the night.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>2</from>
+					<to>1</to>
+					<name>Wake up</name>
+					<description>Waking up at home after a night of sleep.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>3</from>
+					<to>1</to>
+					<name>Come back</name>
+					<description>Coming back at home after being away during the day.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>3</from>
+					<to>4</to>
+					<name>Stay the night away</name>
+					<description>Not returning home for the night after all.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>4</from>
+					<to>1</to>
+					<name>Come home</name>
+					<description>Coming back at home after begin away for one or more nights.</description>
+				</stateTransition>
+			</stateTransitions>
+    	</resident>
+    	<guest>
+			<defaultState>1</defaultState>
+			<states>
+				<state>
+					<id>1</id>
+					<name>away</name>
+					<description>Not visiting.</description>
+					<stateRestrictions>
+						<stateRestriction>
+							<canStartActivities>false</canStartActivities>
+						</stateRestriction>
+					</stateRestrictions>
+				</state>
+				<state>
+					<id>2</id>
+					<name>visiting</name>
+					<description>Visiting the home during the day.</description>
+					<stateRestrictions>
+						<stateRestriction>
+							<canStartActivities>true</canStartActivities>
+						</stateRestriction>
+					</stateRestrictions>
+				</state>
+				<state>
+					<id>3</id>
+					<name>asleep</name>
+					<description>Visiting the home during the night.</description>
+					<stateRestrictions>
+						<stateRestriction>
+							<canStartActivities>false</canStartActivities>
+						</stateRestriction>
+					</stateRestrictions>
+				</state>
+			</states>
+			<stateTransitions>
+				<stateTransition>
+					<from>1</from>
+					<to>2</to>
+					<name>Visit</name>
+					<description>Arriving at the home to pay a visit.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>2</from>
+					<to>1</to>
+					<name>Leave</name>
+					<description>Leaving the home after a visit.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>2</from>
+					<to>3</to>
+					<name>Go to sleep</name>
+					<description>Going to bed at the home to stay for the night.</description>
+				</stateTransition>
+				<stateTransition>
+					<from>3</from>
+					<to>1</to>
+					<name>Wake up</name>
+					<description>Waking up at the home after a night of sleep.</description>
+				</stateTransition>
+			</stateTransitions>
+    	</guest>
+    </stateConfig>
     <activitiesConfig>
         <defaultIcon>default.png</defaultIcon>
         <activities>
@@ -29,7 +209,7 @@
             <activity>
                 <id>2</id>
                 <name>Watch TV</name>
-                <description>Watch Live TV channels, under a relaxing light.</description>
+                <description>Watch Live TV or recorded programs.</description>
                 <icon>television.png</icon>
                 <modules>
                     <infraRed>

@@ -16,8 +16,8 @@ import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.controllers.response.ServiceResult;
 import com.programyourhome.server.events.activities.ActivityChangedEvent;
-import com.programyourhome.server.model.ServiceResult;
 
 @RestController
 @RequestMapping("main")

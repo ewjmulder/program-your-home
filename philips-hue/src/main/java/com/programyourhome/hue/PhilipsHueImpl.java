@@ -117,7 +117,6 @@ public class PhilipsHueImpl implements PhilipsHue {
                 .collect(Collectors.toList());
     }
 
-    // TODO: error handling when light not found (or trust server side to do that?)
     private PHLight getPHLight(final int lightId) {
         return this.getCache().getAllLights().stream()
                 .filter(phLight -> phLight.getIdentifier().equals(Integer.toString(lightId)))

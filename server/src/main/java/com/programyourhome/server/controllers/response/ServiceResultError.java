@@ -1,4 +1,4 @@
-package com.programyourhome.server.model.compose;
+package com.programyourhome.server.controllers.response;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 import com.programyourhome.common.functional.FailableConsumer;
 import com.programyourhome.common.functional.FailableFunction;
 import com.programyourhome.common.functional.FailableSupplier;
-import com.programyourhome.server.model.ServiceResult;
 
 public class ServiceResultError<T> implements ServiceResultTry<T> {
 

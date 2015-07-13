@@ -76,6 +76,7 @@ define(["jquery", "log"],
 		// The source is a small description of what the async function was loading.
 		createXHRFailFunction: function (source, customErrorMessage) {
 			return function (jqXHR, status, error) {
+				alert("error: " + error);
 				if (error == "") {
 					if (customErrorMessage != null) {
 						log.error(customErrorMessage);

@@ -40,13 +40,18 @@ define([],
 	configMap["showErrorsOnScreen"] = true;
 
 	function buildDefaultServerUrl() {
-		// Search after the 'http://' part (length 7), find the first colon or slash from there gives us our default server URL.
-		// (this is also https compatible, since the 7th character of 'https://' is a '/' and so this will also skip the ':' after the protocol)
-		var indexOfColon = window.location.href.indexOf(":", 7);
-		var indexOfSlash = window.location.href.indexOf("/", 7);
-		var sliceIndex = indexOfColon > -1 ? indexOfColon : indexOfSlash;
+		var protocolLength = 7;
+		if (window.location.href.substring(0, 5) == "https") {
+			protocolLength = 8;
+		}
+		// Search after the 'http(s)://' part, find the first colon or slash from there gives us our default server URL.
+		var indexOfColon = window.location.href.indexOf(":", protocolLength);
+		var indexOfSlash = window.location.href.indexOf("/", protocolLength);
+		var cutIndex = indexOfColon > -1 ? indexOfColon : indexOfSlash;
 		// Take the same host on port 3737 as default server url for the Program Your Home server.
-		return window.location.href.substring(0, sliceIndex) + ":3737/";
+		// Also add the username / password as basic authentication in the url.
+		return window.location.href.substring(0, protocolLength)
+				+ window.location.href.substring(protocolLength, cutIndex) + ":3737/";
 	}
 	
 	return {

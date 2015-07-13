@@ -24,7 +24,7 @@ define(["jquery", "stomp", "sock", "config", "util", "log"],
 	    			log.info("Successfully connected to server websocket.");
 	    		},
 	    		function (error) {
-	    			connected.reject();
+	    			connected.reject("Connection error");
 	    			log.error("Error occured while connecting to websocket: " + error);
 	    		});
     };

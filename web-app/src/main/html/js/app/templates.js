@@ -24,11 +24,11 @@ define(["jquery", "handlebars", "util", "log"],
 			    	}
 		    	} catch (error) {
 		    		log.error("Error while compiling template: " + error);
-		    		templateLoading.reject();
+		    		templateLoading.reject("Template error");
 		    	}
 		    })
 		    .fail(templateLoading.reject)
-		    .fail(util.createFailFunction("template " + templateName));
+		    .fail(util.createXHRFailFunction("template " + templateName));
 		});
 		return templateLoading;
 	}

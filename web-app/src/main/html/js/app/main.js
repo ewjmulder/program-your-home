@@ -37,9 +37,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Load the extra information that is needed to build the complete menu.
 	function loadDerivedMenuItems() {
 		var deviceLoading = $.Deferred();
-		rest.readAll(Resource.DEVICES).done(function (response) {
-			// TODO: error handling?
-			var devices = response.payload;
+		rest.readAll(Resource.DEVICES).done(function (devices) {
 			devices.forEach(function (device) {
 				var dataFunction = function () { return rest.read(Resource.DEVICES, device.id); };
 				pages.createSubPage(Resource.DEVICES.name, "device-" + device.name, device.name, config.getValue("deviceIconMap")[device.id], "Device - " + device.name, dataFunction);
@@ -124,7 +122,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 			events.subscribeForObject(EventTopic.SUN_DEGREE_STATE, function (sunDegreeChangedEvent) {
 				//TODO: do something with state (display direction and degree)
             });
-		}, util.createFailFunction("menu pre-loading"));
+		}, util.createDeferredFailFunction("menu pre-loading"));
 	};
 	
 	function createRestIfResourceActive(resource, verbMap) {
@@ -141,7 +139,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 			// If we get a response, that's fine, not need to check the body.
 			// TODO: maybe more health checks upon boot time to check?
 			start();
-		}, util.createFailFunction(null, "Program Your Home backend server is not online."));
+		}, util.createXHRFailFunction(null, "Program Your Home backend server is not online."));
 	});
 	
 	function initLogging() {

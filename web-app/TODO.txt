@@ -20,3 +20,4 @@ X Figure out a nicer way to connect the click logic to the activities/lights/etc
 X Bug fix: after menu open-close, you can slide the page over the icon bar (somehow magically fixed by hammer) --> well, not really, so more deep diving was needed
 - Inform mmenu author about hammer improvement
 - Now that we have so many modules, we should have some way of merge+minify -> brunch!
+- Use Deferred.promise() as return value everywhere where Deferred is used

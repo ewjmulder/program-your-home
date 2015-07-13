@@ -116,9 +116,9 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     @RequestMapping("activities/{id}/volumeUp")
     public void activityVolumeUp(@PathVariable("id") final int id) {
         this.find("Activity", id, this.activityCenter::findActivity)
-        .ensure(this.activityCenter::isActive, "Activity not active")
-        .flatMap(this::getVolumeDeviceId, "Device id")
-        .process(this.infraRed::volumeUp);
+                .ensure(this.activityCenter::isActive, "Activity not active")
+                .flatMap(this::getVolumeDeviceId, "Device id")
+                .process(this.infraRed::volumeUp);
     }
 
     private Optional<Integer> getVolumeDeviceId(final Activity activity) {

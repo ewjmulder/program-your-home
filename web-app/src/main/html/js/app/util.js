@@ -74,7 +74,7 @@ define(["jquery", "log"],
 			
 		// Create a function that handles the result of a async function failure.
 		// The source is a small description of what the async function was loading.
-		createFailFunction: function (source, customErrorMessage) {
+		createXHRFailFunction: function (source, customErrorMessage) {
 			return function (jqXHR, status, error) {
 				if (error == "") {
 					if (customErrorMessage != null) {
@@ -88,6 +88,18 @@ define(["jquery", "log"],
 					} else {
 						log.error("Loading " + source + " failed with error: " + error);
 					}
+				}
+			};
+		},
+
+		// Create a function that handles the result of a async function failure.
+		// The source is a small description of what the async function was loading.
+		createDeferredFailFunction: function (source, customErrorMessage) {
+			return function (error) {
+				if (customErrorMessage != null) {
+					log.error(customErrorMessage);
+				} else {
+					log.error("Processing " + source + " failed with error: " + error);
 				}
 			};
 		},

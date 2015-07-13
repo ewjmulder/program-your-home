@@ -2,6 +2,9 @@
 
 // Start a new require module.
 // Module that contains generic logic for creating and calling a REST service.
+// Note: This module assumes that all rest responses are in the so called ServiceResult format,
+// meaning the outer JSON response object contains the properties success (boolean), error (string) and payload (object).
+// If success is true, the payload may contain a return value. If success if false, the error may contain an error message.
 define(["jquery", "jqrest", "util", "config", "log"],
 		function ($, jqrest, util, config, log) {
 	
@@ -24,20 +27,26 @@ define(["jquery", "jqrest", "util", "config", "log"],
 		// The loader either loads a specific resource (if id provided) or all resources.
 		var asyncCall = resourceId != null ? client[verb](resourceId) : client[verb]();
 		asyncCall.done(function (result) {
-			if (!result.success && result.error) {
-				// If the result was not successful, but does contain an error property, log that as an error,
-				log.error("Rest command with resourceDefinition: '" + asKey(resourceDefinition) + 
-						"', resourceId: '" + resourceId + "', verb: '" + verb + "' returned an error: " + result.error);
-				// and reject the promise.
-				loading.reject();
+			// We expect a result object with success (boolean), error (string) and payload (object).
+			if (result.hasOwnProperty("success") && result.hasOwnProperty("error") && result.hasOwnProperty("payload")) {
+				if (result.success) {
+					// If successful, resolve the promise with the payload of the result.
+					loading.resolve(result.payload);
+				} else {
+					// If the result was not successful, log that as an error,
+					log.error("Rest command with resourceDefinition: '" + asKey(resourceDefinition) + 
+							"', resourceId: '" + resourceId + "', verb: '" + verb + "' returned an error: " + result.error);
+					// and reject the promise.
+					loading.reject("Server error");
+				}
 			} else {
-				// Otherwise, resolve the promise with the result.
-				loading.resolve(result);
+				log.error("Invalid server response, expected properties 'success', 'error' and 'payload'.");
+				loading.reject("Invalid server response");				
 			}
 		})
-	    .fail(util.createFailFunction(resourceDefinition.name))
+	    .fail(util.createXHRFailFunction(resourceDefinition.name))
 	    .fail(loading.reject);
-		return loading;
+		return loading.promise();
 	};
 
 	function asKey(resourceDefinition) {

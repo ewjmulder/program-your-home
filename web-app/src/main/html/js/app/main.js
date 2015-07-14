@@ -135,8 +135,8 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	$(document).ready(function () {
 		initLogging();
 		// Before we start the application, we should make sure that the backend server is online and reachable.
-//		$.ajax({type: "GET", url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000, username: "user", password: "password"}).then(function (pong) {
-		$.ajax({type: "GET", xhrFields: { withCredentials: true }, crossDomain: true, url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000, username: "user", password: "password"}).then(function (pong) {
+		$.ajax({url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000,
+				headers: {"Pyh-Basic-Authentication-Username": "user", "Pyh-Basic-Authentication-Password": "password"}}).then(function (pong) {
 			// If we get a response, that's fine, not need to check the body.
 			// TODO: maybe more health checks upon boot time to check?
 			start();

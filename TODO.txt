@@ -20,6 +20,7 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Internally in modules: use mapping from id to model impl value object to easily do existence checks and retrieve data
 - Workaround for using qualifier on injected beans of type Executor? (result of using Spring Boot websockets with SockJS)
 - Consider moving to a relational database for storing the static data, instead of XML. (dynamic data should be put into a database anyway)
+- Move to a more standard form of authentication, like OAuth2 Resource Owner Password Flow. Compatible with Spring Security: http://projects.spring.io/spring-security-oauth/docs/oauth2.html
 - POM file management
   - right scopes for obvious dependencies in parent pom: e.g. test for junit (hmm, or not, not really clear on child project what the scope is)
   - bom dependencies in parent, e.g. Spring

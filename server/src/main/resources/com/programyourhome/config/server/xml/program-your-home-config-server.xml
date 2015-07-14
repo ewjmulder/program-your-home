@@ -246,7 +246,7 @@
         </activities>
     </activitiesConfig>
     <dailyRhythm>
-        <turnLightsOnBelowSunDegree>12</turnLightsOnBelowSunDegree>
+        <turnLightsOnBelowSunDegree>5</turnLightsOnBelowSunDegree>
         <lights>
             <id>1</id>
             <id>2</id>

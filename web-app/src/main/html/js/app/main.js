@@ -47,12 +47,6 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		return $.when(deviceLoading/*, moreLoading*/);
 	};
 	
-	// Toggle a rest resource: set it to on if currently off and vice versa.
-	function toggleRestResource(resource, onVerb, offVerb, id, currentlyOn) {
-		var verbToUse = currentlyOn ? offVerb : onVerb;
-		rest.verb(resource, id, verbToUse);
-	}
-
 	function createTopLevelPageByName(name, dataFunction) {
 		var nameCamelCase = util.capitalizeFirstLetter(name);
 		pages.createTopLevelPage(name, nameCamelCase, config.getValue("topLevelIconMap")[name], nameCamelCase, dataFunction);
@@ -135,8 +129,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	$(document).ready(function () {
 		initLogging();
 		// Before we start the application, we should make sure that the backend server is online and reachable.
-		$.ajax({url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000,
-				headers: {"Pyh-Basic-Authentication-Username": "user", "Pyh-Basic-Authentication-Password": "password"}}).then(function (pong) {
+		$.ajax({url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000}).then(function (pong) {
 			// If we get a response, that's fine, not need to check the body.
 			// TODO: maybe more health checks upon boot time to check?
 			start();
@@ -164,32 +157,8 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Program Your Home module exposed functions //
 	////////////////////////////////////////////////
 
-	return {
-		// Start or stop an activity.
-		toggleActivity: function (id, isActive) {
-			toggleRestResource(Resource.ACTIVITIES, "start", "stop", id, isActive);
-		},
-		// Switch a light on or off.
-		toggleLight: function (id, isOn) {
-			toggleRestResource(Resource.LIGHTS, "on", "off", id, isOn);
-		},
-		// TODO: put this endless list in a sep. module: api.
-		volumeUpDevice: function(deviceId) {
-			rest.verb(Resource.DEVICES, deviceId, "volume/up");
-		},
-		volumeDownDevice: function(deviceId) {
-			rest.verb(Resource.DEVICES, deviceId, "volume/down");
-		},
-		volumeMuteDevice: function(deviceId) {
-			rest.verb(Resource.DEVICES, deviceId, "volume/mute");
-		},
-		//TODO: this is no rest at all! use simple $.get() for this and sanitize URL
-		// Also consider not using RestController on backend? (although default JSON is nice)
-		// Can still use that as result object for 'RPC' over HTTP
-		moveMouseAbsolute: function(x, y) {
-			rest.verbParam(Resource.MOUSE, 1, "moveAbsolute", x + "," + y);
-		}
-	};
+	// Main module is for bootstrapping and initializing. It does not have a public API.
+	return {};
 
 		
 // End of require module.

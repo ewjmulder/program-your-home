@@ -32,11 +32,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // Allow all OPTIONS requests, since those cannot have credentials.
                 .requestMatchers(request -> HttpMethods.isOptions(request.getMethod())).permitAll()
-                // Specific paths require specific roles. TODO: real config, dummy testing for now...
-                .antMatchers("/ir").permitAll()
-                .antMatchers("/meta/**").hasRole("ADMIN")
-                // All other paths do need at least successful authentication.
-                .anyRequest().authenticated()
+                // TODO: create real config here, for now allow all
+                .requestMatchers(request -> true).permitAll()
+                /*
+         * // Specific paths require specific roles. TODO: real config, dummy testing for now...
+         * .antMatchers("/ir").permitAll()
+         * .antMatchers("/meta/**").hasRole("ADMIN")
+         * // All other paths do need at least successful authentication.
+         * .anyRequest().authenticated()
+         */
                 .and()
                 // Add our own (custom) basic authentication filter to grab the username/password to the chain,
                 // before the filter that would normally do that for basic authentication.

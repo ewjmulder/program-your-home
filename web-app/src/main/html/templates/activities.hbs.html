@@ -1,6 +1,6 @@
 {{#each this}}
 	{{name}}<br />
-	<a href="javascript:void(0)" onclick="require(['main', 'pageActivities'], function (main, pageActivities) {
-		main.toggleActivity('{{id}}', pageActivities.isActive({{id}}));
+	<a href="javascript:void(0)" onclick="require(['api', 'pageActivities'], function (api, pageActivities) {
+		api.toggleActivity('{{id}}', pageActivities.isActive({{id}}));
 	});"><img id="activity-img-{{id}}" src="{{iconUrl}}" width="128" height="128" /></a><br />
 {{/each}}

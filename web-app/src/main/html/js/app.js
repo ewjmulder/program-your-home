@@ -35,6 +35,7 @@ requirejs.config({
 		events: '../app/events',
 		enums: '../app/enums',
 		log: '../app/log',
+		api: '../app/api',
 		main: '../app/main'
 	},
 	shim: {

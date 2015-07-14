@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,10 +50,7 @@ public class PyhBasicAuthenticationFilter implements Filter {
             String username = request.getHeader(SecurityConstants.PYH_BASIC_AUTHENTICATION_USERNAME_HEADER);
             String password = request.getHeader(SecurityConstants.PYH_BASIC_AUTHENTICATION_PASSWORD_HEADER);
             if (username == null && password == null) {
-                // For OPTIONS requests, it is expected to not have any credentials in the request.
-                if (!request.getMethod().equals(HttpMethod.OPTIONS)) {
-                    this.log.warn("No username and password found in the request headers. Using default guest account.");
-                }
+                this.log.warn("No username and password found in the request headers. Using default guest account.");
                 username = SecurityConstants.PYH_GUEST_ACCOUNT_USERNAME;
                 password = SecurityConstants.PYH_GUEST_ACCOUNT_PASSWORD;
             }

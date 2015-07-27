@@ -75,14 +75,13 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		//TODO: per module, there might also be a 'meta' availability, for instance for sensors which ones are available + what their props are
 		// Some defaults will be provided as types: sun degree, temperature, humidity, sound level, light intensity, etc. + 'free format'
 		// Actually, is there any way you could display a non standard sensor but just the data value? (but might still be useful of course)
-		activeResources = [Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES, Resource.SUN_DEGREE, Resource.MOUSE];
+		activeResources = [Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES, Resource.SUN_DEGREE];
 	
 		// TODO: put the API definition in the sep. module 'api'. Creating rest resources should still be triggered from inside main.
 		createRestIfResourceActive(Resource.ACTIVITIES, {"start": "GET", "stop": "GET"});
 		createRestIfResourceActive(Resource.LIGHTS, {"on": "GET", "off": "GET"});
 		createRestIfResourceActive(Resource.DEVICES, {"volume/up": "GET", "volume/down": "GET", "volume/mute": "GET"});
 		createRestIfResourceActive(Resource.SUN_DEGREE, {});
-		createRestIfResourceActive(Resource.MOUSE, {"moveAbsolute": "GET"});
 		
 		//TODO: create generic page for sensors - then use activeModules variable again.
 		createResourceTopLevelPages([Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES]);
@@ -130,7 +129,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		initLogging();
 		// Before we start the application, we should make sure that the backend server is online and reachable.
 		$.ajax({url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000}).then(function (pong) {
-			// If we get a response, that's fine, not need to check the body.
+			// If we get a response, that's fine, no need to check the body.
 			// TODO: maybe more health checks upon boot time to check?
 			start();
 		}, util.createXHRFailFunction(null, "Program Your Home backend server is not online."));

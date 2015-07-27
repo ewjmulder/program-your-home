@@ -4,7 +4,16 @@
 //Start a new require module.
 define(["jquery", "log"],
 		function ($, log) {
-
+	
+	String.prototype.format = function() {
+	    var str = this;
+	    var i = arguments.length;
+	    while (i--) {
+	        str = str.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+	    }
+	    return str;
+	};
+	
 	return {
 		//////////////////////////////////////////////////
 		// Program Your Home basic JS utility functions //
@@ -18,6 +27,11 @@ define(["jquery", "log"],
 		// Capitalize the first letter of the given string.
 		capitalizeFirstLetter: function (inputString) {
 		    return inputString.charAt(0).toUpperCase() + inputString.substring(1);
+		},
+		
+		// No-operation function, does nothing. Can be provided as 'empty' callback parameter.
+		noop: function () {
+			
 		},
 		
 		// The identity function, just always return the argument 'as is'.
@@ -104,6 +118,22 @@ define(["jquery", "log"],
 			};
 		},
 
+		handleServiceResult: function (result, errorCallback, successCallback) {
+			// We expect a result object with success (boolean), error (string) and payload (object).
+			if (result.hasOwnProperty("success") && result.hasOwnProperty("error") && result.hasOwnProperty("payload")) {
+				if (result.success) {
+					successCallback(result.payload);
+				} else {
+					// If the result was not successful, log that as an error.
+					log.error("Server response contained an error: '" + result.error + "'.");
+					errorCallback("Server error");
+				}
+			} else {
+				log.error("Invalid server response, expected properties 'success', 'error' and 'payload'.");
+				errorCallback("Invalid server response");		
+			}
+		},
+		
 	}
 
 // End of require module.

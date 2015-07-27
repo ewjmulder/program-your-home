@@ -22,27 +22,14 @@ define(["jquery", "jqrest", "util", "config", "log"],
 	};
 
 	function callVerb(resourceDefinition, resourceId, verb) {
+		log.trace("Performing rest command with resourceDefinition: '" + asKey(resourceDefinition) + 
+				"', resourceId: '" + resourceId + "', verb: '" + verb + "'.");
 		var loading = $.Deferred();
 		var client = restClients[asKey(resourceDefinition)];
 		// The loader either loads a specific resource (if id provided) or all resources.
 		var asyncCall = resourceId != null ? client[verb](resourceId) : client[verb]();
 		asyncCall.done(function (result) {
-			// We expect a result object with success (boolean), error (string) and payload (object).
-			if (result.hasOwnProperty("success") && result.hasOwnProperty("error") && result.hasOwnProperty("payload")) {
-				if (result.success) {
-					// If successful, resolve the promise with the payload of the result.
-					loading.resolve(result.payload);
-				} else {
-					// If the result was not successful, log that as an error,
-					log.error("Rest command with resourceDefinition: '" + asKey(resourceDefinition) + 
-							"', resourceId: '" + resourceId + "', verb: '" + verb + "' returned an error: " + result.error);
-					// and reject the promise.
-					loading.reject("Server error");
-				}
-			} else {
-				log.error("Invalid server response, expected properties 'success', 'error' and 'payload'.");
-				loading.reject("Invalid server response");				
-			}
+			util.handleServiceResult(result, loading.reject, loading.resolve);
 		})
 	    .fail(util.createXHRFailFunction(resourceDefinition.name))
 	    .fail(loading.reject);

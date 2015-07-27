@@ -29,6 +29,11 @@ public class PollerCaller {
         this.random = new Random();
     }
 
+    // TODO: idea: create flag in Poller interface that does:
+    // - when a change is detected (boolean return value of poll()
+    // - increase the polling frequency by a certain factor (eg 10)
+    // - until for the normal polling interval time, no more changes are detected
+    // - example use case: keeping track of the mouse that is moving, keeping a light state in sync that is changing
     @PostConstruct
     public void init() {
         final Map<String, Poller> pollers = this.applicationContext.getBeansOfType(Poller.class);

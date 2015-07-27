@@ -55,7 +55,7 @@ public class PcInstructorImpl implements PcInstructor {
     public void moveMouseRelative(final int dx, final int dy) {
         final PyhPoint mousePosition = this.getMousePosition();
         final int newX = mousePosition.getX() + dx;
-        final int newY = mousePosition.getX() + dx;
+        final int newY = mousePosition.getY() + dy;
         this.log.trace("Moving mouse (relative) to position: (" + newX + ", " + newY + ").");
         this.tryRobot(() -> this.robot.mouseMove(newX, newY));
     }

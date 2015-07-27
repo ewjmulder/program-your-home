@@ -15,12 +15,29 @@ public class ProgramYourHomeControllerPc extends AbstractProgramYourHomeControll
     @Autowired
     private PcInstructor pcInstructor;
 
-    // TODO: keep REST style? which dictates that there could be several mouses? (if so, then also getter for all mouses + mouse of certain id)
-    // Sounds nice and all, but this is actually more of an API over HTTP, isn't there anything for that more flexible besides REST? eg Json RPC
-    @RequestMapping("mouse/1/moveAbsolute/{x},{y}")
-    public ServiceResult getActivity(@PathVariable("x") final int x, @PathVariable("y") final int y) {
-        this.pcInstructor.moveMouseAbsolute(x, y);
-        return ServiceResult.success();
+    @RequestMapping("mouse/moveAbsolute/{x},{y}")
+    public ServiceResult<Void> moveMouseAbsolute(@PathVariable("x") final int x, @PathVariable("y") final int y) {
+        return this.run(() -> this.pcInstructor.moveMouseAbsolute(x, y));
+    }
+
+    @RequestMapping("mouse/moveRelative/{dx},{dy}")
+    public ServiceResult<Void> moveMouseRelative(@PathVariable("dx") final int dx, @PathVariable("dy") final int dy) {
+        return this.run(() -> this.pcInstructor.moveMouseRelative(dx, dy));
+    }
+
+    @RequestMapping("mouse/click/left")
+    public ServiceResult<Void> clickLeftMouseButton() {
+        return this.run(() -> this.pcInstructor.clickLeftMouseButton());
+    }
+
+    @RequestMapping("mouse/click/middle")
+    public ServiceResult<Void> clickMiddleMouseButton() {
+        return this.run(() -> this.pcInstructor.clickMiddleMouseButton());
+    }
+
+    @RequestMapping("mouse/click/right")
+    public ServiceResult<Void> clickRightMouseButton() {
+        return this.run(() -> this.pcInstructor.clickRightMouseButton());
     }
 
 }

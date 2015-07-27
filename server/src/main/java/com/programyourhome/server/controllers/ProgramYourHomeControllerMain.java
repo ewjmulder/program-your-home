@@ -2,6 +2,7 @@ package com.programyourhome.server.controllers;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +12,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.programyourhome.common.functional.FailableConsumer;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.config.model.Activity.Modules;
+import com.programyourhome.server.config.model.InfraRedActivityConfig;
 import com.programyourhome.server.controllers.response.ServiceResult;
 import com.programyourhome.server.events.activities.ActivityChangedEvent;
 
@@ -113,20 +117,143 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
     }
 
-    @RequestMapping("activities/{id}/volumeUp")
-    public void activityVolumeUp(@PathVariable("id") final int id) {
-        this.find("Activity", id, this.activityCenter::findActivity)
-                .ensure(this.activityCenter::isActive, "Activity not active")
-                .flatMap(this::getVolumeDeviceId, "Device id")
-                .process(this.infraRed::volumeUp);
+    @RequestMapping("activities/{id}/volume/up")
+    public ServiceResult<Void> activityVolumeUp(@PathVariable("id") final int id) {
+        return this.activityVolumeAction(id, this.infraRed::volumeDown);
     }
 
-    private Optional<Integer> getVolumeDeviceId(final Activity activity) {
-        Optional<Integer> volumeDevice = Optional.empty();
-        if (activity.getModules().getInfraRed() != null) {
-            volumeDevice = Optional.ofNullable(activity.getModules().getInfraRed().getVolumeControl());
-        }
-        return volumeDevice;
+    @RequestMapping("activities/{id}/volume/down")
+    public ServiceResult<Void> activityVolumeDown(@PathVariable("id") final int id) {
+        return this.activityVolumeAction(id, this.infraRed::volumeDown);
+    }
+
+    @RequestMapping("activities/{id}/volume/mute")
+    public ServiceResult<Void> activityVolumeMute(@PathVariable("id") final int id) {
+        return this.activityVolumeAction(id, this.infraRed::volumeMute);
+    }
+
+    @RequestMapping("activities/{id}/channel/up")
+    public ServiceResult<Void> activityChannelUp(@PathVariable("id") final int id) {
+        return this.activityChannelAction(id, this.infraRed::channelUp);
+    }
+
+    @RequestMapping("activities/{id}/channel/down")
+    public ServiceResult<Void> activityChannelDown(@PathVariable("id") final int id) {
+        return this.activityChannelAction(id, this.infraRed::channelDown);
+    }
+
+    @RequestMapping("activities/{id}/channel/set/{channel}")
+    public ServiceResult<Void> activitySetChannel(@PathVariable("id") final int id, @PathVariable("channel") final int channel) {
+        return this.activityChannelAction(id, deviceId -> this.infraRed.setChannel(deviceId, channel));
+    }
+
+    @RequestMapping("activities/{id}/play/play")
+    public ServiceResult<Void> activityPlay(@PathVariable("id") final int id) {
+        return this.activityPlayAction(id, this.infraRed::play);
+    }
+
+    @RequestMapping("activities/{id}/play/pause")
+    public ServiceResult<Void> activityPause(@PathVariable("id") final int id) {
+        return this.activityPlayAction(id, this.infraRed::pause);
+    }
+
+    @RequestMapping("activities/{id}/play/stop")
+    public ServiceResult<Void> activityStop(@PathVariable("id") final int id) {
+        return this.activityPlayAction(id, this.infraRed::stop);
+    }
+
+    @RequestMapping("activities/{id}/play/fastForward")
+    public ServiceResult<Void> activityFastForward(@PathVariable("id") final int id) {
+        return this.activityPlayAction(id, this.infraRed::fastForward);
+    }
+
+    @RequestMapping("activities/{id}/play/rewind")
+    public ServiceResult<Void> activityRewind(@PathVariable("id") final int id) {
+        return this.activityPlayAction(id, this.infraRed::rewind);
+    }
+
+    @RequestMapping("activities/{id}/skip/next")
+    public ServiceResult<Void> activitySkipNext(@PathVariable("id") final int id) {
+        return this.activitySkipAction(id, this.infraRed::skipNext);
+    }
+
+    @RequestMapping("activities/{id}/skip/previous")
+    public ServiceResult<Void> activitySkipPrevious(@PathVariable("id") final int id) {
+        return this.activitySkipAction(id, this.infraRed::skipPrevious);
+    }
+
+    @RequestMapping("activities/{id}/record")
+    public ServiceResult<Void> activityRecord(@PathVariable("id") final int id) {
+        return this.activityRecordAction(id, this.infraRed::record);
+    }
+
+    @RequestMapping("activities/{id}/menu/toggle")
+    public ServiceResult<Void> activityMenuToggle(@PathVariable("id") final int id) {
+        return this.activityMenuAction(id, this.infraRed::menuToggle);
+    }
+
+    @RequestMapping("activities/{id}/menu/select")
+    public ServiceResult<Void> activityMenuSelect(@PathVariable("id") final int id) {
+        return this.activityMenuAction(id, this.infraRed::menuSelect);
+    }
+
+    @RequestMapping("activities/{id}/menu/back")
+    public ServiceResult<Void> activityMenuBack(@PathVariable("id") final int id) {
+        return this.activityMenuAction(id, this.infraRed::menuBack);
+    }
+
+    @RequestMapping("activities/{id}/menu/up")
+    public ServiceResult<Void> activityMenuUp(@PathVariable("id") final int id) {
+        return this.activityMenuAction(id, this.infraRed::menuUp);
+    }
+
+    @RequestMapping("activities/{id}/menu/down")
+    public ServiceResult<Void> activityMenuDown(@PathVariable("id") final int id) {
+        return this.activityMenuAction(id, this.infraRed::menuDown);
+    }
+
+    @RequestMapping("activities/{id}/menu/left")
+    public ServiceResult<Void> activityMenuLeft(@PathVariable("id") final int id) {
+        return this.activityMenuAction(id, this.infraRed::menuLeft);
+    }
+
+    @RequestMapping("activities/{id}/menu/right")
+    public ServiceResult<Void> activityMenuRight(@PathVariable("id") final int id) {
+        return this.activityMenuAction(id, this.infraRed::menuRight);
+    }
+
+    private ServiceResult<Void> activityVolumeAction(final int id, final FailableConsumer<Integer> infraRedAction) {
+        return this.activityInfraRedAction(id, InfraRedActivityConfig::getVolumeControl, infraRedAction);
+    }
+
+    private ServiceResult<Void> activityChannelAction(final int id, final FailableConsumer<Integer> infraRedAction) {
+        return this.activityInfraRedAction(id, InfraRedActivityConfig::getChannelControl, infraRedAction);
+    }
+
+    private ServiceResult<Void> activityPlayAction(final int id, final FailableConsumer<Integer> infraRedAction) {
+        return this.activityInfraRedAction(id, InfraRedActivityConfig::getPlayControl, infraRedAction);
+    }
+
+    private ServiceResult<Void> activitySkipAction(final int id, final FailableConsumer<Integer> infraRedAction) {
+        return this.activityInfraRedAction(id, InfraRedActivityConfig::getSkipControl, infraRedAction);
+    }
+
+    private ServiceResult<Void> activityRecordAction(final int id, final FailableConsumer<Integer> infraRedAction) {
+        return this.activityInfraRedAction(id, InfraRedActivityConfig::getRecordControl, infraRedAction);
+    }
+
+    private ServiceResult<Void> activityMenuAction(final int id, final FailableConsumer<Integer> infraRedAction) {
+        return this.activityInfraRedAction(id, InfraRedActivityConfig::getMenuControl, infraRedAction);
+    }
+
+    private ServiceResult<Void> activityInfraRedAction(final int id, final Function<InfraRedActivityConfig, Integer> getDeviceId,
+            final FailableConsumer<Integer> infraRedAction) {
+        return this.find("Activity", id, this.activityCenter::findActivity)
+                .ensure(this.activityCenter::isActive, "Activity not active")
+                .map(Activity::getModules, "Modules")
+                .map(Modules::getInfraRed, "InfraRed")
+                .map(getDeviceId, "Device id")
+                .process(infraRedAction);
     }
 
 }

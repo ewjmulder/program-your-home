@@ -7,6 +7,7 @@ import com.programyourhome.common.functional.FailableConsumer;
 import com.programyourhome.common.functional.FailableFunction;
 import com.programyourhome.common.functional.FailableSupplier;
 
+//TODO: documentation: null means failure.
 public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
 
     private final String type;
@@ -41,11 +42,12 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
         if (this.value != null) {
             throw new IllegalStateException("There is already a value present.");
         }
-        ServiceResultTry<T> result = this;
+        ServiceResultTry<T> result;
         try {
             final Optional<T> optionalResult = supplier.get();
             if (optionalResult.isPresent()) {
                 this.value = optionalResult.get();
+                result = errorOnNullValue(this);
             } else {
                 result = new ServiceResultError<T>(this.type + " could not be found.");
             }
@@ -83,7 +85,7 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
         ServiceResultTry<U> result;
         try {
             final U mappedValue = function.apply(this.value);
-            result = new ServiceResultSuccess<U>(newType, mappedValue);
+            result = errorOnNullValue(new ServiceResultSuccess<U>(newType, mappedValue));
         } catch (final Exception e) {
             result = new ServiceResultError<U>("Mapping", this.type, e);
         }
@@ -99,7 +101,7 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
     public <U> ServiceResultTry<U> flatMap(final Function<T, Optional<U>> function, final String newType) {
         ServiceResultTry<U> result;
         try {
-            result = new ServiceResultSuccess<U>(newType).find(() -> function.apply(this.value));
+            result = errorOnNullValue(new ServiceResultSuccess<U>(newType)).find(() -> function.apply(this.value));
         } catch (final Exception e) {
             result = new ServiceResultError<U>("Flatmapping", this.type, e);
         }
@@ -139,4 +141,15 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
         }
         return result;
     }
+
+    private static <X> ServiceResultTry<X> errorOnNullValue(final ServiceResultSuccess<X> success) {
+        ServiceResultTry<X> result;
+        if (success.value == null) {
+            result = new ServiceResultError<X>(success.type + " 'null' value.");
+        } else {
+            result = success;
+        }
+        return result;
+    }
+
 }

@@ -1,6 +1,13 @@
 package com.programyourhome.pc;
 
+import com.programyourhome.pc.model.PyhDimension;
+import com.programyourhome.pc.model.PyhPoint;
+
 public interface PcInstructor {
+
+    public PyhDimension getScreenResolution();
+
+    public PyhPoint getMousePosition();
 
     public void moveMouseAbsolute(int x, int y);
 
@@ -8,9 +15,13 @@ public interface PcInstructor {
 
     public void clickLeftMouseButton();
 
+    public void clickMiddleMouseButton();
+
     public void clickRightMouseButton();
 
-    public void clickMiddleMouseButton();
+    public void scrollUp(int amount);
+
+    public void scrollDown(int amount);
 
     // TODO: scrolling, pressing keys
 

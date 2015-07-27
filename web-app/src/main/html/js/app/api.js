@@ -32,7 +32,6 @@ define(["rest", "util", "enums"],
 		toggleLight: function (id, isOn) {
 			toggleRestResource(Resource.LIGHTS, "on", "off", id, isOn);
 		},
-		// TODO: put this endless list in a sep. module: api.
 		volumeUpDevice: function(deviceId) {
 			rest.verb(Resource.DEVICES, deviceId, "volume/up");
 		},

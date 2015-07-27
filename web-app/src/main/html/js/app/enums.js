@@ -21,8 +21,7 @@ define([],
 		ACTIVITIES:   { module: Module.MAIN,     name: "activities" },
 		LIGHTS:       { module: Module.HUE,      name: "lights"     },
 		DEVICES:      { module: Module.IR,       name: "devices"    },
-		SUN_DEGREE:   { module: Module.SENSORS,  name: "sunDegree"  },
-		MOUSE: 		  { module: Module.PC,       name: "mouse"      },
+		SUN_DEGREE:   { module: Module.SENSORS,  name: "sunDegree"  }
 	});
 
 	// Enum-like definition of all possible setting names. So essentially all settings that are available.
@@ -39,6 +38,7 @@ define([],
 		IR_DEVICES: function (id) { return "/topic/ir/devices/" + id; },
 		SUN_DEGREE_STATE: "/topic/sensors/sunDegree/degree",
 		SUN_DEGREE_SUNRISE_SUNSET: "/topic/sensors/sunDegree/sunriseSunset",
+		MOUSE_POSITION: "/topic/pc/mouse/position",
 	});
 
 	// Expose the enums as properties of this module.

@@ -1,6 +1,12 @@
 {{#each this}}
 	{{name}}<br />
-	<a href="javascript:void(0)" onclick="require(['api', 'pageActivities'], function (api, pageActivities) {
-		api.toggleActivity('{{id}}', pageActivities.isActive({{id}}));
+	<a href="javascript:void(0)" onclick="require(['api', 'pageActivities', 'pages'], function (api, pageActivities, pages) {
+		var isActive = pageActivities.isActive({{id}});
+		var becomesActive = !isActive;
+		api.toggleActivity({{id}}, isActive);
+		if (becomesActive) {
+			// If the activitiy will become active by clicking the icon, go to the activity page for details.
+			pages.show('{{name}}');
+		}
 	});"><img id="activity-img-{{id}}" src="{{iconUrl}}" width="128" height="128" /></a><br />
 {{/each}}

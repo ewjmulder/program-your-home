@@ -36,6 +36,14 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	
 	// Load the extra information that is needed to build the complete menu.
 	function loadDerivedMenuItems() {
+		var activityLoading = $.Deferred();
+		rest.readAll(Resource.ACTIVITIES).done(function (activities) {
+			devices.forEach(function (activity) {
+				var dataFunction = function () { return rest.read(Resource.ACTIVITIES, activity.id); };
+				pages.createSubPage(Resource.ACTIVITIES.name, "activity-" + activity.name, activity.name, config.getValue("activityIconMap")[activity.id], "Activity - " + activity.name, dataFunction);
+			});
+			activityLoading.resolve();
+		}).fail(activityLoading.reject);
 		var deviceLoading = $.Deferred();
 		rest.readAll(Resource.DEVICES).done(function (devices) {
 			devices.forEach(function (device) {
@@ -43,8 +51,8 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 				pages.createSubPage(Resource.DEVICES.name, "device-" + device.name, device.name, config.getValue("deviceIconMap")[device.id], "Device - " + device.name, dataFunction);
 			});
 			deviceLoading.resolve();
-		});
-		return $.when(deviceLoading/*, moreLoading*/);
+		}).fail(deviceLoading.reject);
+		return $.when(activityLoading, deviceLoading);
 	};
 	
 	function createTopLevelPageByName(name, dataFunction) {
@@ -91,6 +99,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		var templateNames = pages.all().map(function (page) {
 			return page.moduleName;
 		});
+		templateNames.push("activity");
 		templateNames.push("device");
 		templateNames.push("menu");
 		

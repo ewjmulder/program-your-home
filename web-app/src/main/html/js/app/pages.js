@@ -119,7 +119,7 @@ define(["jquery", "templates", "util", "log"],
 		})
 		.fail(pageLoading.reject)
 		.fail(util.createDeferredFailFunction("page " + page.name));
-		return pageLoading;
+		return pageLoading.promise();
 	};
 
 	// Load the provided page, using the templateData to feed the template.

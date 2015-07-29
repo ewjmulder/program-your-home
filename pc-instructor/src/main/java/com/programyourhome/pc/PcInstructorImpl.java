@@ -83,13 +83,13 @@ public class PcInstructorImpl implements PcInstructor {
     }
 
     @Override
-    public void scrollUp(final int amount) {
+    public void scrollMouseUp(final int amount) {
         // A negative amount means up.
         this.tryRobot(() -> this.robot.mouseWheel(-1 * amount));
     }
 
     @Override
-    public void scrollDown(final int amount) {
+    public void scrollMouseDown(final int amount) {
         this.tryRobot(() -> this.robot.mouseWheel(amount));
     }
 

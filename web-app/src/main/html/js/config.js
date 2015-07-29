@@ -6,6 +6,14 @@ define([],
 		function () {
 
 	var configMap = [];
+	
+	var activityIconMap = [];
+	activityIconMap[1] = "server";
+	activityIconMap[2] = "server";
+	activityIconMap[3] = "server";
+	
+	configMap["activityIconMap"] = activityIconMap;
+
 	var deviceIconMap = [];
 	deviceIconMap[1] = "server";
 	deviceIconMap[2] = "desktop";
@@ -14,7 +22,7 @@ define([],
 	deviceIconMap[5] = "desktop";
 	
 	configMap["deviceIconMap"] = deviceIconMap;
-
+	
 	var topLevelIconMap = [];
 	topLevelIconMap["activities"] = "star";
 	topLevelIconMap["lights"] = "lightbulb-o";

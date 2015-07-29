@@ -1,0 +1,34 @@
+<span id="activity-todo-{{this.id}}"></span><br />
+<!-- TODO: Use with(this) or so to skip repeating this all the time (also in device page) -->
+{{#if this.volumeActivity}}
+	<input type="button" value="Volume up" onclick="require(['api'], function (api) { api.volumeUpActivity({{id}}); });" />
+	<input type="button" value="Volume down" onclick="require(['api'], function (api) { api.volumeDownActivity({{id}}); });" />
+	<input type="button" value="Volume mute" onclick="require(['api'], function (api) { api.volumeMuteActivity({{id}}); });" />
+{{/if}}
+{{#if this.channelActivity}}
+	<input type="button" value="Channel up" onclick="require(['api'], function (api) { api.channelUpActivity({{id}}); });" />
+	<input type="button" value="Channel down" onclick="require(['api'], function (api) { api.channelDownActivity({{id}}); });" />
+{{/if}}
+{{#if this.playActivity}}
+	<input type="button" value="Play" onclick="require(['api'], function (api) { api.playActivity({{id}}); });" />
+	<input type="button" value="Pause" onclick="require(['api'], function (api) { api.pauseActivity({{id}}); });" />
+	<input type="button" value="Stop" onclick="require(['api'], function (api) { api.stopActivity({{id}}); });" />
+	<input type="button" value="Fast forward" onclick="require(['api'], function (api) { api.fastForwardActivity({{id}}); });" />
+	<input type="button" value="Rewind" onclick="require(['api'], function (api) { api.rewindActivity({{id}}); });" />
+{{/if}}
+{{#if this.playActivity}}
+	<input type="button" value="Skip next" onclick="require(['api'], function (api) { api.skipNextActivity({{id}}); });" />
+	<input type="button" value="Skip previous" onclick="require(['api'], function (api) { api.skipPreviousActivity({{id}}); });" />
+{{/if}}
+{{#if this.recordActivity}}
+	<input type="button" value="Record" onclick="require(['api'], function (api) { api.recordActivity({{id}}); });" />
+{{/if}}
+{{#if this.menuActivity}}
+	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
+	<!-- TODO: fill out these below -->
+	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
+	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
+	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
+	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
+	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
+{{/if}}

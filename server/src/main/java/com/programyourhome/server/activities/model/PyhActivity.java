@@ -1,50 +1,27 @@
 package com.programyourhome.server.activities.model;
 
-import com.programyourhome.common.model.PyhImpl;
-import com.programyourhome.server.config.model.Activity;
+public interface PyhActivity {
 
-//TODO: Abstract with interfaces?
-public class PyhActivity extends PyhImpl {
+    public int getId();
 
-    private final int id;
-    private final String name;
-    private final String description;
-    private final String iconUrl;
-    private final boolean isActive;
+    public String getName();
 
-    // TODO: Weird to provide baseUrl to activity, make a separate icon/image class?
-    public PyhActivity(final Activity activity, final boolean isActive, final String baseUrl, final String defaultIconFilename) {
-        this.id = activity.getId();
-        this.name = activity.getName();
-        this.description = activity.getDescription();
-        final String iconFilename;
-        if (activity.getIcon() != null) {
-            iconFilename = activity.getIcon();
-        } else {
-            iconFilename = defaultIconFilename;
-        }
-        this.iconUrl = baseUrl + "/img/icons/" + iconFilename;
-        this.isActive = isActive;
-    }
+    public String getDescription();
 
-    public int getId() {
-        return this.id;
-    }
+    public String getIconUrl();
 
-    public String getName() {
-        return this.name;
-    }
+    public boolean isVolumeActivity();
 
-    public String getDescription() {
-        return this.description;
-    }
+    public boolean isChannelActivity();
 
-    public String getIconUrl() {
-        return this.iconUrl;
-    }
+    public boolean isPlayActivity();
 
-    public boolean isActive() {
-        return this.isActive;
-    }
+    public boolean isSkipActivity();
+
+    public boolean isRecordActivity();
+
+    public boolean isMenuActivity();
+
+    public boolean isActive();
 
 }

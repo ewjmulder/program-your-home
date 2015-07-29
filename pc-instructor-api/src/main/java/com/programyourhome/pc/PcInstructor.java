@@ -19,9 +19,9 @@ public interface PcInstructor {
 
     public void clickRightMouseButton();
 
-    public void scrollUp(int amount);
+    public void scrollMouseUp(int amount);
 
-    public void scrollDown(int amount);
+    public void scrollMouseDown(int amount);
 
     // TODO: scrolling, pressing keys
 

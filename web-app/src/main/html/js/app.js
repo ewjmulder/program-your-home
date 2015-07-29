@@ -23,6 +23,7 @@ requirejs.config({
 		pageDevices: '../app/pages/devices',
 		pageSettings: '../app/pages/settings',
 		pageAbout: '../app/pages/about',
+		pageActivity: '../app/pages/activity',
 		pageDevice: '../app/pages/device',
 
 		// Main application modules.

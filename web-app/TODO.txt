@@ -4,7 +4,7 @@ X move to handlebars prod (runtime) version
 - find out if we need all mmenu css and js stuff
 X Figure out a nicer way to connect the click logic to the activities/lights/etc pages
 - Refactor out local images (refreshable ones at least) and use all images from server
-  - Serve module depenent images from the main server -> individual modules should not be required to provide context images for their functionality!
+  - Serve module dependent images from the main server -> individual modules should not be required to provide context images for their functionality!
 - Document specifics of used JS stuff on menu / pages / rest / etc
   - mmenu: href='#' will have default behavior blocked!
   - mmenu: explicitely setting offCanvas: true will trigger a menu sliding bug!
@@ -20,4 +20,11 @@ X Figure out a nicer way to connect the click logic to the activities/lights/etc
 X Bug fix: after menu open-close, you can slide the page over the icon bar (somehow magically fixed by hammer) --> well, not really, so more deep diving was needed
 - Inform mmenu author about hammer improvement
 - Now that we have so many modules, we should have some way of merge+minify -> brunch!
-- Use Deferred.promise() as return value everywhere where Deferred is used
+X Use Deferred.promise() as return value everywhere where Deferred is used
+- Find a (proper) solution for possible race condition when activating an activity and then switching to the child page
+  - Details: toggle in progress, child page gets inactive current state, toggle finishes, update event broadcasted, child subscribes for updates
+  - Possible solution: at least the subscribe must be done before the get current status. Then when current status returns it should check if no changed event has
+    been processed meanwhile. Furthermore: state change event handlers should be able to handle the case where the cache is still empty, but a change comes in anyway.
+    - Possible sub-solution for last problem: keep track of initial current status loading done.
+      Then, if not but change comes in, save the new state in temp var, when the current status does come in, use latest from state change (if available) instead of state request result.
+- Only use enums in api module (or is it really needed in main or somewhere else as well?) -> idea: api contains all fine grained api stuff, no need to use enums 'yourself'.

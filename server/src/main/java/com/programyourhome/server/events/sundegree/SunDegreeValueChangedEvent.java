@@ -14,7 +14,7 @@ public class SunDegreeValueChangedEvent extends ValueChangedEvent<BigDecimal> {
 
     @Override
     public String getTopic() {
-        return "/topic/sensors/sunDegree/degree";
+        return "/topic/sensors/sunDegree/angle";
     }
 
 }

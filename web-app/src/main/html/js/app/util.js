@@ -5,6 +5,8 @@
 define(["jquery", "log"],
 		function ($, log) {
 	
+	// String.format() function like in OO languages. Copied from Stackoverflow thread.
+	// Will be available on String objects, since the String prototype is updated.
 	String.prototype.format = function() {
 	    var str = this;
 	    var i = arguments.length;
@@ -42,19 +44,10 @@ define(["jquery", "log"],
 		// Return a function that results a promise that will immediately resolve with the provided argument.
 		// Note: The returned function will always return the exact same (object equals) promise.
 		immediatePromiseFunction: function (arg) {
-			var promise = $.Deferred();
-			promise.resolve(arg);
-			return function () { return promise };
+			var deferred = $.Deferred();
+			deferred.resolve(arg);
+			return function () { return deferred.promise() };
 		},
-	
-		// String.format() for Javascript.
-		// http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
-		format: function (input) {
-		    var args = Array.prototype.slice.call(arguments, 1);
-		    return input.replace(/{(\d+)}/g, function (match, number) { 
-		    	return typeof args[number] != 'undefined' ? args[number] : match;
-		    });
-	  	},
 		
 		pythagoras: function (a, b) {
 			return Math.sqrt(a * a + b * b);

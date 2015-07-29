@@ -1,26 +1,17 @@
 "use strict";
 
 // Start a new require module.
-define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util", "log", "settings", "config", "toast"],
-		function ($, events, enums, templates, pages, menu, rest, util, log, settings, config, toast) {
+define(["jquery", "api", "enums", "templates", "pages", "menu", "util", "log", "settings", "config", "toast"],
+		function ($, api, enums, templates, pages, menu, util, log, settings, config, toast) {
 	
 	var EMPTY_DATA_FUNCTION = util.immediatePromiseFunction([]);
 	
 	// Save enum types from modules in local variables for easier accessing.
-	var Module = enums.Module;
 	var Resource = enums.Resource;
 	var EventTopic = enums.EventTopic;
 	var SettingName = enums.SettingName;
 	var SettingType = settings.SettingType;
-	
-	/////////////////////////////////////////
-	// Program Your Home module variables  //
-	/////////////////////////////////////////
-	
-	// The resources that are activated in the menu. Most probably filtered by what is available on the server and maybe other filters.
-	var activeResources = [];
 
-	
 	/////////////////////////////////////////
 	// Program Your Home class definitions //
 	/////////////////////////////////////////
@@ -37,22 +28,22 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Load the extra information that is needed to build the complete menu.
 	function loadDerivedMenuItems() {
 		var activityLoading = $.Deferred();
-		rest.readAll(Resource.ACTIVITIES).done(function (activities) {
-			devices.forEach(function (activity) {
-				var dataFunction = function () { return rest.read(Resource.ACTIVITIES, activity.id); };
+		api.getActivities().done(function (activities) {
+			activities.forEach(function (activity) {
+				var dataFunction = function () { return api.getActivity(activity.id); };
 				pages.createSubPage(Resource.ACTIVITIES.name, "activity-" + activity.name, activity.name, config.getValue("activityIconMap")[activity.id], "Activity - " + activity.name, dataFunction);
 			});
 			activityLoading.resolve();
 		}).fail(activityLoading.reject);
 		var deviceLoading = $.Deferred();
-		rest.readAll(Resource.DEVICES).done(function (devices) {
+		api.getDevices().done(function (devices) {
 			devices.forEach(function (device) {
-				var dataFunction = function () { return rest.read(Resource.DEVICES, device.id); };
+				var dataFunction = function () { return api.getDevice(device.id); };
 				pages.createSubPage(Resource.DEVICES.name, "device-" + device.name, device.name, config.getValue("deviceIconMap")[device.id], "Device - " + device.name, dataFunction);
 			});
 			deviceLoading.resolve();
 		}).fail(deviceLoading.reject);
-		return $.when(activityLoading, deviceLoading);
+		return $.when(activityLoading, deviceLoading).promise();
 	};
 	
 	function createTopLevelPageByName(name, dataFunction) {
@@ -68,7 +59,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	// Create a top level page from a module name, using that name for all naming and title properties.
 	function createResourceTopLevelPages(resources) {
 		resources.forEach(function (resource) {
-			createTopLevelPageByName(resource.name, function () { return rest.readAll(resource); });
+			createTopLevelPageByName(resource.name, function () { return api.getResources(resource); });
 		});
 	};
 	
@@ -78,19 +69,6 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 	/////////////////////////////////////////////
 	
 	function start() {
-		//TODO: The server can provide a list of activated modules and the UI can enable/disable pages based on that info.
-		//TODO: define module / page filter based on API response from server that tells us what modules are available.
-		//TODO: per module, there might also be a 'meta' availability, for instance for sensors which ones are available + what their props are
-		// Some defaults will be provided as types: sun degree, temperature, humidity, sound level, light intensity, etc. + 'free format'
-		// Actually, is there any way you could display a non standard sensor but just the data value? (but might still be useful of course)
-		activeResources = [Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES, Resource.SUN_DEGREE];
-	
-		// TODO: put the API definition in the sep. module 'api'. Creating rest resources should still be triggered from inside main.
-		createRestIfResourceActive(Resource.ACTIVITIES, {"start": "GET", "stop": "GET"});
-		createRestIfResourceActive(Resource.LIGHTS, {"on": "GET", "off": "GET"});
-		createRestIfResourceActive(Resource.DEVICES, {"volume/up": "GET", "volume/down": "GET", "volume/mute": "GET"});
-		createRestIfResourceActive(Resource.SUN_DEGREE, {});
-		
 		//TODO: create generic page for sensors - then use activeModules variable again.
 		createResourceTopLevelPages([Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES]);
 		createStaticTopLevelPage("settings");
@@ -103,7 +81,7 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 		templateNames.push("device");
 		templateNames.push("menu");
 		
-		$.when(templates.load(templateNames), loadDerivedMenuItems()).then(function() {
+		$.when(templates.load(templateNames), loadDerivedMenuItems()).done(function() {
 			// To enable recursive template inclusion, used for sub pages.
 			templates.enableRecursion("menu");
 			// Load the main menu DOM tree with the menu definition that we now know is available after the pre-loading.
@@ -120,28 +98,16 @@ define(["jquery", "events", "enums", "templates", "pages", "menu", "rest", "util
 			menu.activate();
 			// Show the starting page as defined in the home page setting.
 			pages.show(settings.getSettingValue(SettingName.HOME_PAGE));
-			
-			events.subscribeForObject(EventTopic.SUN_DEGREE_STATE, function (sunDegreeChangedEvent) {
-				//TODO: do something with state (display direction and degree)
-            });
-		}, util.createDeferredFailFunction("menu pre-loading"));
+		})
+		.fail(util.createDeferredFailFunction("menu pre-loading"));
 	};
-	
-	function createRestIfResourceActive(resource, verbMap) {
-		if (util.contains(activeResources, resource)) {
-			rest.create(resource, verbMap);
-		}
-	}
 	
 	// When the document becomes ready, we can start the application.
 	$(document).ready(function () {
 		initLogging();
-		// Before we start the application, we should make sure that the backend server is online and reachable.
-		$.ajax({url: config.getValue("serverUrl") + "meta/status/ping", timeout: 3000}).then(function (pong) {
-			// If we get a response, that's fine, no need to check the body.
-			// TODO: maybe more health checks upon boot time to check?
-			start();
-		}, util.createXHRFailFunction(null, "Program Your Home backend server is not online."));
+		// Before we start the application, we should connect the api to the backend.
+		api.connect().done(start)
+		.fail(util.createXHRFailFunction(null, "Server connection not successful, cannot start the client application."));
 	});
 	
 	function initLogging() {

@@ -20,7 +20,7 @@ public class SunriseSunsetEvent extends PyhTopicEvent {
 
     @Override
     public String getTopic() {
-        return "/topic/sensors/sunDegree/sunriseSunset";
+        return "/topic/sensors/sunDegree/event";
     }
 
     @Override

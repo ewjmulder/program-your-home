@@ -14,9 +14,11 @@ define(["jquery", "jqrest", "util", "config", "log"],
 	function createRestClient(resourceDefinition, verbMap) {
 		var restClient = new $.RestClient(config.getValue("serverUrl") + resourceDefinition.module + "/");
 		restClient.add(resourceDefinition.name);
-		Object.keys(verbMap).forEach(function (verbName) {
-			var httpMethod = verbMap[verbName];
-			restClient[resourceDefinition.name].addVerb(verbName, httpMethod);
+		Object.keys(verbMap).forEach(function (httpMethod) {
+			var verbArray = verbMap[httpMethod];
+			verbArray.forEach(function (verbName) {
+				restClient[resourceDefinition.name].addVerb(verbName, httpMethod);
+			});
 		});
 		restClients[asKey(resourceDefinition)] = restClient[resourceDefinition.name];
 	};

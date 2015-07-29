@@ -119,7 +119,7 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     @RequestMapping("activities/{id}/volume/up")
     public ServiceResult<Void> activityVolumeUp(@PathVariable("id") final int id) {
-        return this.activityVolumeAction(id, this.infraRed::volumeDown);
+        return this.activityVolumeAction(id, this.infraRed::volumeUp);
     }
 
     @RequestMapping("activities/{id}/volume/down")

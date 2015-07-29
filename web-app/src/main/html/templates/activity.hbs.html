@@ -25,10 +25,10 @@
 {{/if}}
 {{#if this.menuActivity}}
 	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
-	<!-- TODO: fill out these below -->
-	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
-	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
-	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
-	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
-	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
+	<input type="button" value="Menu select" onclick="require(['api'], function (api) { api.menuSelectActivity({{id}}); });" />
+	<input type="button" value="Menu back" onclick="require(['api'], function (api) { api.menuBackActivity({{id}}); });" />
+	<input type="button" value="Menu up" onclick="require(['api'], function (api) { api.menuUpActivity({{id}}); });" />
+	<input type="button" value="Menu down" onclick="require(['api'], function (api) { api.menuDownActivity({{id}}); });" />
+	<input type="button" value="Menu left" onclick="require(['api'], function (api) { api.menuLeftActivity({{id}}); });" />
+	<input type="button" value="Menu right" onclick="require(['api'], function (api) { api.menuRightActivity({{id}}); });" />
 {{/if}}

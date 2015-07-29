@@ -4,7 +4,18 @@
 // Contains and exposes all PYH specific enums in the app that are used by several modules.
 define([],
 		function () {
-	
+
+	// Enum-like definition of all HTTP methods.
+	var HttpMethod = Object.freeze({
+		GET: "GET",
+		POST: "POST",
+		PUT: "PUT",
+		DELETE: "DELETE",
+		HEAD: "HEAD",
+		OPTIONS: "OPTIONS",
+		TRACE: "TRACE"
+	});
+
 	// Enum-like definition of all Program Your Home modules.
 	// The values are the URL prefixes on the server.
 	var Module = Object.freeze({
@@ -36,17 +47,26 @@ define([],
 		PYH_ACTIVITIES: function (id) { return "/topic/pyh/activities/" + id; },
 		HUE_LIGHTS: function (id) { return "/topic/hue/lights/" + id; },
 		IR_DEVICES: function (id) { return "/topic/ir/devices/" + id; },
-		SUN_DEGREE_STATE: "/topic/sensors/sunDegree/degree",
-		SUN_DEGREE_SUNRISE_SUNSET: "/topic/sensors/sunDegree/sunriseSunset",
+		SUN_DEGREE_ANGLE: "/topic/sensors/sunDegree/angle",
+		SUN_DEGREE_EVENT: "/topic/sensors/sunDegree/event",
 		MOUSE_POSITION: "/topic/pc/mouse/position",
 	});
 
+	// Enum-like definition of all possible REST verbs.
+	var RestVerb = Object.freeze({
+		VOLUME_UP: "volume/up",
+		VOLUME_DOWN: "volume/down",
+		VOLUME_MUTE: "volume/mute",
+	});
+	
 	// Expose the enums as properties of this module.
 	return {
+		HttpMethod: HttpMethod,
 		Module: Module,
 		Resource: Resource,
 		SettingName: SettingName,
-		EventTopic: EventTopic
+		EventTopic: EventTopic,
+		RestVerb: RestVerb
 	};
 
 

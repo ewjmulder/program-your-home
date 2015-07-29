@@ -30,7 +30,7 @@ define(["jquery", "handlebars", "util", "log"],
 		    .fail(templateLoading.reject)
 		    .fail(util.createXHRFailFunction("template " + templateName));
 		});
-		return templateLoading;
+		return templateLoading.promise();
 	}
 	
 	return {

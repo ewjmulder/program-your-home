@@ -9,7 +9,7 @@ define(["pages", "events"],
 		var self = this;
 		// Default null, will be set in the init.
 		this.page = null;
-		// Default background color, can be overridden bu subclasses.
+		// Default background color, can be overridden by subclasses.
 		this.backgroundColor = "white";
 		this.resourceCache = {};
 		

@@ -34,7 +34,7 @@ define(["jquery", "stomp", "sock", "config", "util", "log"],
     	if (stompClient == null) { connect(); }
     	// Always make conditional on connected promise.
     	// This will wait if not connected yet or continue directly if already resolved.
-    	$.when(connected).then(function () {
+    	$.when(connected).done(function () {
             stompClient.subscribe(eventTopic, function (message) {
         		callback(preprocessor(message.body));
             });

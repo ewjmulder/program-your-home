@@ -14,7 +14,7 @@ define(["jquery", "stomp", "sock", "config", "util", "log"],
 	var stompClient = null;
 
     function connect(callback) {
-        var socket = new SockJS(config.getValue("serverUrl") + "/websocket");
+        var socket = new SockJS(config.getValue("serverUrl") + "websocket");
         stompClient = Stomp.over(socket);
         // Connect to the server over the websocket. Note the use of the empty object {} here.
         // This means no (additional) headers are sent, so also no login/account info is provided.

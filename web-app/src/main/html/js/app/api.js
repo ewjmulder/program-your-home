@@ -14,9 +14,9 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 	var Resource = enums.Resource;
 	var RestVerb = enums.RestVerb;
 	
-	const GET_MOUSE_POSITION = "pc/mouse/position";
-	const MOVE_MOUSE_ABSOLUTE = "pc/mouse/moveAbsolute/{0},{1}";
-	const MOVE_MOUSE_RELATIVE = "pc/mouse/moveRelative/{0},{1}";
+	var GET_MOUSE_POSITION = "pc/mouse/position";
+	var MOVE_MOUSE_ABSOLUTE = "pc/mouse/moveAbsolute/{0},{1}";
+	var MOVE_MOUSE_RELATIVE = "pc/mouse/moveRelative/{0},{1}";
 	
 	// The PYH modules that are available on the server. Filtered by what is running on the server and maybe other filters, like authorization.
 	var availableModules = [];

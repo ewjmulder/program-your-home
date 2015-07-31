@@ -17,6 +17,8 @@ public class ProgramYourHomeControllerPc extends AbstractProgramYourHomeControll
     @Autowired
     private PcInstructor pcInstructor;
 
+    // TODO: split into sep controllers for screen / mouse?
+
     @RequestMapping("screen/resolution")
     public ServiceResult<PyhDimension> getScreenResolution() {
         return this.produce("Screen resolution", () -> this.pcInstructor.getScreenResolution());

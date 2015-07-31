@@ -1,7 +1,6 @@
 package com.programyourhome.server.dailyrhythym;
 
 import java.awt.Color;
-import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +22,6 @@ import com.programyourhome.sensors.SunDegreeSensor;
 import com.programyourhome.server.config.ServerConfigHolder;
 import com.programyourhome.server.config.model.KeyFrame;
 import com.programyourhome.server.config.model.LightState;
-import com.programyourhome.server.config.model.TriggerType;
 
 @Component
 public class DailyRythymManager {
@@ -53,7 +51,7 @@ public class DailyRythymManager {
     }
 
     public void updateRhythym() {
-        final List<Integer> lightIds = this.configHolder.getConfig().getDailyRhythm().getLights();
+        final List<Integer> lightIds = this.configHolder.getConfig().getDailyRhythm().getLightsDailyRhythymConfig().getLights();
         final LocalTime currentTime = LocalTime.now();
         final RhythymSection activeSection = this.getActiveSection(currentTime);
 
@@ -75,7 +73,7 @@ public class DailyRythymManager {
      * @return the active section
      */
     private RhythymSection getActiveSection(final LocalTime time) {
-        final List<KeyFrame> keyFrames = this.configHolder.getConfig().getDailyRhythm().getKeyFrames();
+        final List<KeyFrame> keyFrames = this.configHolder.getConfig().getDailyRhythm().getLightsDailyRhythymConfig().getKeyFrames();
         return StreamEx.of(keyFrames)
                 .append(keyFrames.get(0)) // append the first item to 'close the loop'
                 .pairMap(RhythymSection::new)
@@ -122,19 +120,21 @@ public class DailyRythymManager {
     }
 
     private boolean shouldTurnOn(final RhythymSection section) {
-        final TriggerType triggerType = section.getTrigger();
-        boolean turnOn;
-        if (triggerType == TriggerType.ALWAYS_ON) {
-            turnOn = true;
-        } else if (triggerType == TriggerType.ALWAYS_OFF) {
-            turnOn = false;
-        } else if (triggerType == TriggerType.SENSOR) {
-            final BigDecimal currentSunDegree = this.sunDegreeSensor.getSunDegree();
-            final BigDecimal turnLightsOnBelowSunDegree = this.configHolder.getConfig().getDailyRhythm().getTurnLightsOnBelowSunDegree();
-            turnOn = currentSunDegree.compareTo(turnLightsOnBelowSunDegree) < 0;
-        } else {
-            throw new IllegalStateException("Unknown trigger type: '" + triggerType + "'.");
-        }
-        return turnOn;
+        return true;
+        // TODO: go fix
+        // final TriggerType triggerType = section.getTrigger();
+        // boolean turnOn;
+        // if (triggerType == TriggerType.ALWAYS_ON) {
+        // turnOn = true;
+        // } else if (triggerType == TriggerType.ALWAYS_OFF) {
+        // turnOn = false;
+        // } else if (triggerType == TriggerType.SENSOR) {
+        // final BigDecimal currentSunDegree = this.sunDegreeSensor.getSunDegree();
+        // final BigDecimal turnLightsOnBelowSunDegree = this.configHolder.getConfig().getDailyRhythm().getTurnLightsOnBelowSunDegree();
+        // turnOn = currentSunDegree.compareTo(turnLightsOnBelowSunDegree) < 0;
+        // } else {
+        // throw new IllegalStateException("Unknown trigger type: '" + triggerType + "'.");
+        // }
+        // return turnOn;
     }
 }

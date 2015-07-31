@@ -11,6 +11,7 @@
                 <xsd:element name="stateConfig" type="stateConfig" minOccurs="1" maxOccurs="1" />
                 <xsd:element name="activitiesConfig" type="activitiesConfig" minOccurs="1" maxOccurs="1" />
                 <xsd:element name="dailyRhythm" type="dailyRhythymConfig" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="customBehaviors" type="customBehaviors" minOccurs="1" maxOccurs="1" />
             </xsd:sequence>
         </xsd:complexType>
         <!-- TODO: referential integrity checks! -->
@@ -48,7 +49,7 @@
         <xsd:sequence>
             <xsd:element name="resident" type="statesAndTransitions" minOccurs="1" maxOccurs="1" />
             <xsd:element name="guest" type="statesAndTransitions" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="home" type="derivedStates" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="home" type="homeStateConfig" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="statesAndTransitions">
@@ -68,7 +69,6 @@
             <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
             <xsd:element name="name" type="xsd:string"  minOccurs="1" maxOccurs="1"/>
             <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="stateRestrictions" type="stateRestrictions" minOccurs="1" maxOccurs="1" />
 		</xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="stateTransitions">
@@ -86,37 +86,43 @@
     </xsd:complexType>
     <!-- TODO: documentation / description / default if none applies? / overriding / priority? -->
     <!-- Idea: validation with some logic library that all possible states of people result in one and only one home state. -->
-    <xsd:complexType name="derivedStates">
+    <xsd:complexType name="homeStateConfig">
         <xsd:sequence>
-            <xsd:element name="derivedState" type="derivedState" minOccurs="1" maxOccurs="unbounded" />
+            <xsd:element name="homeStates" type="homeStates" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="derivedState">
+    <xsd:complexType name="homeStates">
         <xsd:sequence>
-            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="name" type="xsd:string"  minOccurs="1" maxOccurs="1"/>
-            <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="residentsState" type="stateRule" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="guestsState" type="stateRule" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="homeState" type="homeState" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="homeState">
+        <xsd:sequence>
+            <xsd:element name="state" type="state" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="trigger" type="stateTrigger" minOccurs="1" maxOccurs="1" />
 		</xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="stateRule">
+    <xsd:complexType name="stateTrigger">
         <xsd:choice>
-            <xsd:element name="all" type="id" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="some" type="id" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="none" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="manual" type="manual" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="derived" type="derivedStateRule" minOccurs="1" maxOccurs="1" />
 		</xsd:choice>
     </xsd:complexType>
-    <!-- TODO: do we actually want this? If state sleeping, why not start watch ing TV? -->
-    <xsd:complexType name="stateRestrictions">
+    <xsd:complexType name="derivedStateRule">
         <xsd:sequence>
-            <xsd:element name="stateRestriction" type="stateRestriction" minOccurs="0" maxOccurs="unbounded" />
-        </xsd:sequence>
+            <xsd:element name="and" type="ors" minOccurs="1" maxOccurs="unbounded" />
+		</xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="stateRestriction">
+    <xsd:complexType name="ors">
         <xsd:sequence>
-            <xsd:element name="canStartActivities" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
-            <!-- TODO: expand this with a lot of possible restriction and implement them as well! -->
+            <xsd:element name="or" type="logicRule" minOccurs="1" maxOccurs="unbounded" />
+		</xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="logicRule">
+        <xsd:sequence>
+            <xsd:element name="logicGrouping" type="logicGrouping" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="people" type="peopleType" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="state" type="id" minOccurs="1" maxOccurs="1" />
 		</xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="activitiesConfig">
@@ -155,13 +161,31 @@
     <xsd:complexType name="dailyRhythymConfig">
         <xsd:sequence>
             <xsd:element name="lightsDailyRhythymConfig" type="philipsHueDailyRhythymConfig" minOccurs="1" maxOccurs="1" />
-            <xsd:element name="activation" type="dailyRhythymActivation" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="activations" type="dailyRhythymActivations" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="dailyRhythymActivations">
+        <xsd:sequence>
+            <xsd:element name="activation" type="dailyRhythymActivation" minOccurs="1" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="dailyRhythymActivation">
         <xsd:sequence>
-        <!_--TODO: complete!! --></!>
-            <xsd:element name="dailyRhythymState" type="activity" minOccurs="1" maxOccurs="unbounded" />
+            <xsd:element name="homeState" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="dailyRhytymTrigger" type="lightsTrigger" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+<!-- TODO: this should actually work on the room level, not the house level. For the house the only interesting thing is: are people home or not and for how long. -->
+    <xsd:complexType name="customBehaviors">
+        <xsd:sequence>
+            <xsd:element name="customBehavior" type="customBehavior" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="customBehavior">
+        <xsd:sequence>
+            <xsd:element name="homeState" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="lightsRecipe" type="id" minOccurs="0" maxOccurs="1" />
         </xsd:sequence>
     </xsd:complexType>
 
@@ -173,4 +197,32 @@
         </xsd:restriction>
     </xsd:simpleType>
 
+    <xsd:simpleType name="lightsTrigger">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="sensor"></xsd:enumeration>
+            <xsd:enumeration value="alwaysOn"></xsd:enumeration>
+            <xsd:enumeration value="alwaysOff"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="logicGrouping">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="all"></xsd:enumeration>
+            <xsd:enumeration value="some"></xsd:enumeration>
+            <xsd:enumeration value="none"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="peopleType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="residents"></xsd:enumeration>
+            <xsd:enumeration value="guests"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="manual">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="true" />
+        </xsd:restriction>
+    </xsd:simpleType>
 </xsd:schema>

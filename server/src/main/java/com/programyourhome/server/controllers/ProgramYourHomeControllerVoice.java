@@ -22,6 +22,8 @@ public class ProgramYourHomeControllerVoice extends AbstractProgramYourHomeContr
     @Autowired
     private VoiceControl voiceControl;
 
+    // TODO: real usage of controller
+
     @RequestMapping("languages")
     public Collection<PyhLanguage> getLanguage() {
         return this.voiceControl.getSupportedLanguages();

@@ -1,4 +1,4 @@
-package com.programyourhome.server.controllers;
+package com.programyourhome.server.controllers.main;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -20,37 +20,13 @@ import com.programyourhome.server.activities.model.PyhActivityImpl;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.config.model.Activity.Modules;
 import com.programyourhome.server.config.model.InfraRedActivityConfig;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 import com.programyourhome.server.controllers.response.ServiceResult;
 import com.programyourhome.server.events.activities.ActivityChangedEvent;
 
 @RestController
-@RequestMapping("main")
-public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeController {
-
-    /*
-     * 6.3. @RequestMapping – a fallback for all requests
-     * To implement a simple fallback for all requests using a specific HTTP method:
-     * @RequestMapping(value = "*")
-     * @ResponseBody
-     * public String getFallback() {
-     * return "Fallback for GET Requests";
-     * }
-     * Or even for all request:
-     * @RequestMapping(value = "*", method = { RequestMethod.GET, RequestMethod.POST ... })
-     * @ResponseBody
-     * public String allFallback() {
-     * return "Fallback for All Requests";
-     * }
-     */
-
-    // TODO: change HTTP Methods to specific GET, PUT, POST, DELETE according to functionality. (keep simple URL, no put payload)
-    // Introduce debug mode: listen on both GET and PUT, allow GET only in debug mode to easily test with browser.
-
-    // TODO: exception handling for parameter parsing.
-    // Choice: request map all probably better, so you can give a 'usage' error instead of general 404. (see e.g. dim fraction and color)
-    // TODO: Related to the point described above, the number parsing now is locale dependent, so we should take that out of Spring into our own hands anyway.
-
-    // TODO: Result values for action method calls with info about success / error / message / overrides / etc
+@RequestMapping("main/activities")
+public class ProgramYourHomeControllerMainActivities extends AbstractProgramYourHomeController {
 
     @Autowired
     private PhilipsHue philipsHue;
@@ -70,14 +46,14 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
     @Value("${server.port}")
     private int port;
 
-    @RequestMapping("activities")
+    @RequestMapping("")
     public ServiceResult<Collection<PyhActivityImpl>> getActivities() {
         return this.produce("Activities", () -> this.getServerConfig().getActivitiesConfig().getActivities().stream()
                 .map(this::createPyhActivity)
                 .collect(Collectors.toList()));
     }
 
-    @RequestMapping("activities/{id}")
+    @RequestMapping("{id}")
     public ServiceResult<PyhActivityImpl> getActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
                 .produce(this::createPyhActivity);
@@ -89,17 +65,17 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
 
     public PyhActivityImpl createPyhActivity(final Activity activity) {
         final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
-        return new PyhActivityImpl(activity, this.activityCenter.isActive(activity), "http://" + this.host + ":" + this.port + "/", defaultIcon);
+        return new PyhActivityImpl(activity, this.activityCenter.isActive(activity), "http://" + this.host + ":" + this.port + "", defaultIcon);
     }
 
-    @RequestMapping("activities/{id}/start")
+    @RequestMapping("{id}/start")
     public ServiceResult<Void> startActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
                 .ensure(this.activityCenter::isNotActive, "Activity is already active")
                 .process(this::toggleActivity);
     }
 
-    @RequestMapping("activities/{id}/stop")
+    @RequestMapping("{id}/stop")
     public ServiceResult<Void> stopActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
                 .ensure(this.activityCenter::isActive, "Activity is not active")
@@ -117,107 +93,107 @@ public class ProgramYourHomeControllerMain extends AbstractProgramYourHomeContro
         this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
     }
 
-    @RequestMapping("activities/{id}/volume/up")
+    @RequestMapping("{id}/volume/up")
     public ServiceResult<Void> activityVolumeUp(@PathVariable("id") final int id) {
         return this.activityVolumeAction(id, this.infraRed::volumeUp);
     }
 
-    @RequestMapping("activities/{id}/volume/down")
+    @RequestMapping("{id}/volume/down")
     public ServiceResult<Void> activityVolumeDown(@PathVariable("id") final int id) {
         return this.activityVolumeAction(id, this.infraRed::volumeDown);
     }
 
-    @RequestMapping("activities/{id}/volume/mute")
+    @RequestMapping("{id}/volume/mute")
     public ServiceResult<Void> activityVolumeMute(@PathVariable("id") final int id) {
         return this.activityVolumeAction(id, this.infraRed::volumeMute);
     }
 
-    @RequestMapping("activities/{id}/channel/up")
+    @RequestMapping("{id}/channel/up")
     public ServiceResult<Void> activityChannelUp(@PathVariable("id") final int id) {
         return this.activityChannelAction(id, this.infraRed::channelUp);
     }
 
-    @RequestMapping("activities/{id}/channel/down")
+    @RequestMapping("{id}/channel/down")
     public ServiceResult<Void> activityChannelDown(@PathVariable("id") final int id) {
         return this.activityChannelAction(id, this.infraRed::channelDown);
     }
 
-    @RequestMapping("activities/{id}/channel/set/{channel}")
+    @RequestMapping("{id}/channel/set/{channel}")
     public ServiceResult<Void> activitySetChannel(@PathVariable("id") final int id, @PathVariable("channel") final int channel) {
         return this.activityChannelAction(id, deviceId -> this.infraRed.setChannel(deviceId, channel));
     }
 
-    @RequestMapping("activities/{id}/play/play")
+    @RequestMapping("{id}/play/play")
     public ServiceResult<Void> activityPlay(@PathVariable("id") final int id) {
         return this.activityPlayAction(id, this.infraRed::play);
     }
 
-    @RequestMapping("activities/{id}/play/pause")
+    @RequestMapping("{id}/play/pause")
     public ServiceResult<Void> activityPause(@PathVariable("id") final int id) {
         return this.activityPlayAction(id, this.infraRed::pause);
     }
 
-    @RequestMapping("activities/{id}/play/stop")
+    @RequestMapping("{id}/play/stop")
     public ServiceResult<Void> activityStop(@PathVariable("id") final int id) {
         return this.activityPlayAction(id, this.infraRed::stop);
     }
 
-    @RequestMapping("activities/{id}/play/fastForward")
+    @RequestMapping("{id}/play/fastForward")
     public ServiceResult<Void> activityFastForward(@PathVariable("id") final int id) {
         return this.activityPlayAction(id, this.infraRed::fastForward);
     }
 
-    @RequestMapping("activities/{id}/play/rewind")
+    @RequestMapping("{id}/play/rewind")
     public ServiceResult<Void> activityRewind(@PathVariable("id") final int id) {
         return this.activityPlayAction(id, this.infraRed::rewind);
     }
 
-    @RequestMapping("activities/{id}/skip/next")
+    @RequestMapping("{id}/skip/next")
     public ServiceResult<Void> activitySkipNext(@PathVariable("id") final int id) {
         return this.activitySkipAction(id, this.infraRed::skipNext);
     }
 
-    @RequestMapping("activities/{id}/skip/previous")
+    @RequestMapping("{id}/skip/previous")
     public ServiceResult<Void> activitySkipPrevious(@PathVariable("id") final int id) {
         return this.activitySkipAction(id, this.infraRed::skipPrevious);
     }
 
-    @RequestMapping("activities/{id}/record")
+    @RequestMapping("{id}/record")
     public ServiceResult<Void> activityRecord(@PathVariable("id") final int id) {
         return this.activityRecordAction(id, this.infraRed::record);
     }
 
-    @RequestMapping("activities/{id}/menu/toggle")
+    @RequestMapping("{id}/menu/toggle")
     public ServiceResult<Void> activityMenuToggle(@PathVariable("id") final int id) {
         return this.activityMenuAction(id, this.infraRed::menuToggle);
     }
 
-    @RequestMapping("activities/{id}/menu/select")
+    @RequestMapping("{id}/menu/select")
     public ServiceResult<Void> activityMenuSelect(@PathVariable("id") final int id) {
         return this.activityMenuAction(id, this.infraRed::menuSelect);
     }
 
-    @RequestMapping("activities/{id}/menu/back")
+    @RequestMapping("{id}/menu/back")
     public ServiceResult<Void> activityMenuBack(@PathVariable("id") final int id) {
         return this.activityMenuAction(id, this.infraRed::menuBack);
     }
 
-    @RequestMapping("activities/{id}/menu/up")
+    @RequestMapping("{id}/menu/up")
     public ServiceResult<Void> activityMenuUp(@PathVariable("id") final int id) {
         return this.activityMenuAction(id, this.infraRed::menuUp);
     }
 
-    @RequestMapping("activities/{id}/menu/down")
+    @RequestMapping("{id}/menu/down")
     public ServiceResult<Void> activityMenuDown(@PathVariable("id") final int id) {
         return this.activityMenuAction(id, this.infraRed::menuDown);
     }
 
-    @RequestMapping("activities/{id}/menu/left")
+    @RequestMapping("{id}/menu/left")
     public ServiceResult<Void> activityMenuLeft(@PathVariable("id") final int id) {
         return this.activityMenuAction(id, this.infraRed::menuLeft);
     }
 
-    @RequestMapping("activities/{id}/menu/right")
+    @RequestMapping("{id}/menu/right")
     public ServiceResult<Void> activityMenuRight(@PathVariable("id") final int id) {
         return this.activityMenuAction(id, this.infraRed::menuRight);
     }

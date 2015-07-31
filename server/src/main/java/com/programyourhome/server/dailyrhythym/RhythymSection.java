@@ -5,7 +5,6 @@ import java.time.LocalTime;
 import com.programyourhome.common.util.LocalTimeUtil;
 import com.programyourhome.server.config.model.KeyFrame;
 import com.programyourhome.server.config.model.LightState;
-import com.programyourhome.server.config.model.TriggerType;
 
 public class RhythymSection {
 
@@ -31,10 +30,6 @@ public class RhythymSection {
         return this.toTime;
     }
 
-    public TriggerType getTrigger() {
-        return this.fromKeyFrame.getNextSection().getTrigger();
-    }
-
     public boolean doesCrossMidnight() {
         return this.toTime.isBefore(this.fromTime);
     }
@@ -51,8 +46,8 @@ public class RhythymSection {
 
     public LightState getFromLightState() {
         LightState fromLightState;
-        if (this.fromKeyFrame.getNextSection().getStartState() != null) {
-            fromLightState = this.fromKeyFrame.getNextSection().getStartState();
+        if (this.fromKeyFrame.getStartState() != null) {
+            fromLightState = this.fromKeyFrame.getStartState();
         } else {
             fromLightState = this.fromKeyFrame.getEndState();
         }

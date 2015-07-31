@@ -27,41 +27,21 @@
 					<id>1</id>
 					<name>active</name>
 					<description>Being at home and awake.</description>
-					<stateRestrictions>
-						<stateRestriction>
-							<canStartActivities>true</canStartActivities>
-						</stateRestriction>
-					</stateRestrictions>
 				</state>
 				<state>
 					<id>2</id>
 					<name>asleep</name>
 					<description>Being at home and asleep.</description>
-					<stateRestrictions>
-						<stateRestriction>
-							<canStartActivities>false</canStartActivities>
-						</stateRestriction>
-					</stateRestrictions>
 				</state>
 				<state>
 					<id>3</id>
 					<name>away</name>
 					<description>Not being at home during the day, but back before the night.</description>
-					<stateRestrictions>
-						<stateRestriction>
-							<canStartActivities>false</canStartActivities>
-						</stateRestriction>
-					</stateRestrictions>
 				</state>
 				<state>
 					<id>4</id>
 					<name>vacation</name>
 					<description>Not being at home during the day and the night.</description>
-					<stateRestrictions>
-						<stateRestriction>
-							<canStartActivities>false</canStartActivities>
-						</stateRestriction>
-					</stateRestrictions>
 				</state>
 			</states>
 			<stateTransitions>
@@ -116,31 +96,16 @@
 					<id>1</id>
 					<name>away</name>
 					<description>Not visiting.</description>
-					<stateRestrictions>
-						<stateRestriction>
-							<canStartActivities>false</canStartActivities>
-						</stateRestriction>
-					</stateRestrictions>
 				</state>
 				<state>
 					<id>2</id>
 					<name>visiting</name>
 					<description>Visiting the home during the day.</description>
-					<stateRestrictions>
-						<stateRestriction>
-							<canStartActivities>true</canStartActivities>
-						</stateRestriction>
-					</stateRestrictions>
 				</state>
 				<state>
 					<id>3</id>
 					<name>asleep</name>
 					<description>Visiting the home during the night.</description>
-					<stateRestrictions>
-						<stateRestriction>
-							<canStartActivities>false</canStartActivities>
-						</stateRestriction>
-					</stateRestrictions>
 				</state>
 			</states>
 			<stateTransitions>
@@ -170,6 +135,148 @@
 				</stateTransition>
 			</stateTransitions>
     	</guest>
+    	<home>
+    		<homeStates>
+    			<homeState>
+	    			<state>
+	    				<id>1</id>
+	    				<name>active</name>
+	    				<description>Someone in the home is active.</description>
+	    			</state>
+	    			<trigger>
+	    				<derived>
+	    					<and>
+	    						<or>
+	    							<logicGrouping>some</logicGrouping>
+	    							<people>residents</people>
+	    							<state>1</state>
+	    						</or>
+	    						<or>
+	    							<logicGrouping>some</logicGrouping>
+	    							<people>guests</people>
+	    							<state>2</state>
+	    						</or>
+	    					</and>
+	    				</derived>
+	    			</trigger>
+    			</homeState>
+    			<homeState>
+	    			<state>
+	    				<id>2</id>
+	    				<name>sleeping</name>
+	    				<description>Everybody in the home is sleeping.</description>
+	    			</state>
+	    			<trigger>
+	    				<derived>
+	    					<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>residents</people>
+	    							<state>1</state>
+	    						</or>
+    						</and>
+    						<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>guests</people>
+	    							<state>2</state>
+	    						</or>
+	    					</and>
+	    					<and>
+	    						<or>
+	    							<logicGrouping>some</logicGrouping>
+	    							<people>residents</people>
+	    							<state>2</state>
+	    						</or>
+	    						<or>
+	    							<logicGrouping>some</logicGrouping>
+	    							<people>guests</people>
+	    							<state>3</state>
+	    						</or>
+	    					</and>
+	    				</derived>
+	    			</trigger>
+    			</homeState>
+    			<homeState>
+	    			<state>
+	    				<id>3</id>
+	    				<name>away</name>
+	    				<description>Nobody is in the home, but someone is expected to return before the night.</description>
+	    			</state>
+	    			<trigger>
+	    				<derived>
+	    					<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>residents</people>
+	    							<state>1</state>
+	    						</or>
+    						</and>
+    						<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>guests</people>
+	    							<state>2</state>
+	    						</or>
+	    					</and>
+	    					<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>residents</people>
+	    							<state>2</state>
+	    						</or>
+    						</and>
+    						<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>guests</people>
+	    							<state>3</state>
+	    						</or>
+	    					</and>
+	    					<and>
+	    						<or>
+	    							<logicGrouping>some</logicGrouping>
+	    							<people>residents</people>
+	    							<state>3</state>
+	    						</or>
+	    					</and>
+	    				</derived>
+	    			</trigger>
+    			</homeState>
+    			<homeState>
+	    			<state>
+	    				<id>4</id>
+	    				<name>holiday</name>
+	    				<description>Nobody is in the home, and nobody is expected to return before the night.</description>
+	    			</state>
+	    			<trigger>
+	    				<derived>
+	    					<and>
+	    						<or>
+	    							<logicGrouping>all</logicGrouping>
+	    							<people>residents</people>
+	    							<state>4</state>
+	    						</or>
+    						</and>
+    						<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>guests</people>
+	    							<state>2</state>
+	    						</or>
+	    					</and>
+    						<and>
+	    						<or>
+	    							<logicGrouping>none</logicGrouping>
+	    							<people>guests</people>
+	    							<state>3</state>
+	    						</or>
+	    					</and>
+	    				</derived>
+	    			</trigger>
+    			</homeState>
+    		</homeStates>
+    	</home>
     </stateConfig>
     <activitiesConfig>
         <defaultIcon>default.png</defaultIcon>
@@ -246,63 +353,70 @@
         </activities>
     </activitiesConfig>
     <dailyRhythm>
-        <turnLightsOnBelowSunDegree>5</turnLightsOnBelowSunDegree>
-        <lights>
-            <id>1</id>
-            <id>2</id>
-            <id>3</id>
-        </lights>
-        <keyFrames>
-            <keyFrame>
-                <time>02:00</time>
-                <endState>
-                    <dim>0</dim>
-                    <colorTemperature>10000</colorTemperature>
-                </endState>
-                <nextSection>
-                    <trigger>sensor</trigger>
-                </nextSection>
-            </keyFrame>
-            <keyFrame>
-                <time>05:00</time>
-                <endState>
-                    <dim>10000</dim>
-                    <colorTemperature>10000</colorTemperature>
-                </endState>
-                <nextSection>
-                    <trigger>sensor</trigger>
-                </nextSection>
-            </keyFrame>
-            <keyFrame>
-                <time>06:30</time>
-                <endState>
-                    <dim>10000</dim>
-                    <colorTemperature>0</colorTemperature>
-                </endState>
-                <nextSection>
-                    <trigger>sensor</trigger>
-                </nextSection>
-            </keyFrame>
-            <keyFrame>
-                <time>18:00</time>
-                <endState>
-                    <dim>10000</dim>
-                    <colorTemperature>0</colorTemperature>
-                </endState>
-                <nextSection>
-                    <trigger>sensor</trigger>
-                </nextSection>
-            </keyFrame>
-            <keyFrame>
-                <time>23:00</time>
-                <endState>
-                    <dim>10000</dim>
-                    <colorTemperature>10000</colorTemperature>
-                </endState>
-                <nextSection>
-                    <trigger>sensor</trigger>
-                </nextSection>
-            </keyFrame>
-        </keyFrames>
+	    <lightsDailyRhythymConfig>
+	        <turnLightsOnBelowSunDegree>5</turnLightsOnBelowSunDegree>
+	        <lights>
+	            <id>1</id>
+	            <id>2</id>
+	            <id>3</id>
+	        </lights>
+	        <keyFrames>
+	            <keyFrame>
+	                <time>02:00</time>
+	                <endState>
+	                    <dim>0</dim>
+	                    <colorTemperature>10000</colorTemperature>
+	                </endState>
+	            </keyFrame>
+	            <keyFrame>
+	                <time>05:00</time>
+	                <endState>
+	                    <dim>10000</dim>
+	                    <colorTemperature>10000</colorTemperature>
+	                </endState>
+	            </keyFrame>
+	            <keyFrame>
+	                <time>06:30</time>
+	                <endState>
+	                    <dim>10000</dim>
+	                    <colorTemperature>0</colorTemperature>
+	                </endState>
+	            </keyFrame>
+	            <keyFrame>
+	                <time>18:00</time>
+	                <endState>
+	                    <dim>10000</dim>
+	                    <colorTemperature>0</colorTemperature>
+	                </endState>
+	            </keyFrame>
+	            <keyFrame>
+	                <time>23:00</time>
+	                <endState>
+	                    <dim>10000</dim>
+	                    <colorTemperature>10000</colorTemperature>
+	                </endState>
+	            </keyFrame>
+	        </keyFrames>
+        </lightsDailyRhythymConfig>
+        <activations>
+        	<activation>
+        		<homeState>1</homeState>
+        		<dailyRhytymTrigger>sensor</dailyRhytymTrigger>
+       		</activation>
+        	<activation>
+        		<homeState>2</homeState>
+        		<dailyRhytymTrigger>alwaysOff</dailyRhytymTrigger>
+       		</activation>
+        	<activation>
+        		<homeState>3</homeState>
+        		<dailyRhytymTrigger>alwaysOff</dailyRhytymTrigger>
+       		</activation>
+        	<activation>
+        		<homeState>4</homeState>
+        		<dailyRhytymTrigger>alwaysOff</dailyRhytymTrigger>
+       		</activation>
+        </activations>
     </dailyRhythm>
+    <customBehaviors>
+    </customBehaviors>
 </serverConfig>

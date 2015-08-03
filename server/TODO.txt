@@ -8,3 +8,4 @@
 
 - Use JSON Schema - http://json-schema.org/ and Java validation library: https://github.com/fge/json-schema-validator
   - Jackson ObjectMapper can generate JSON schema from a POJO! ObjectMapper.generateJsonSchema
+- Introduce term 'household' in XSD as grouping of people and states

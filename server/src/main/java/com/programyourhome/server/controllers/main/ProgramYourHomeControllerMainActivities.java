@@ -16,13 +16,14 @@ import com.programyourhome.common.functional.FailableConsumer;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
+import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.activities.model.PyhActivityImpl;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.config.model.Activity.Modules;
 import com.programyourhome.server.config.model.InfraRedActivityConfig;
 import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
-import com.programyourhome.server.controllers.response.ServiceResult;
 import com.programyourhome.server.events.activities.ActivityChangedEvent;
+import com.programyourhome.server.response.ServiceResult;
 
 @RestController
 @RequestMapping("main/activities")
@@ -46,24 +47,24 @@ public class ProgramYourHomeControllerMainActivities extends AbstractProgramYour
     @Value("${server.port}")
     private int port;
 
-    @RequestMapping("")
-    public ServiceResult<Collection<PyhActivityImpl>> getActivities() {
+    @RequestMapping("/")
+    public ServiceResult<Collection<PyhActivity>> getActivities() {
         return this.produce("Activities", () -> this.getServerConfig().getActivitiesConfig().getActivities().stream()
                 .map(this::createPyhActivity)
                 .collect(Collectors.toList()));
     }
 
     @RequestMapping("{id}")
-    public ServiceResult<PyhActivityImpl> getActivity(@PathVariable("id") final int id) {
+    public ServiceResult<PyhActivity> getActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
                 .produce(this::createPyhActivity);
     }
 
-    public Optional<PyhActivityImpl> createPyhActivity(final int id) {
+    public Optional<PyhActivity> createPyhActivity(final int id) {
         return this.activityCenter.findActivity(id).map(this::createPyhActivity);
     }
 
-    public PyhActivityImpl createPyhActivity(final Activity activity) {
+    public PyhActivity createPyhActivity(final Activity activity) {
         final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
         return new PyhActivityImpl(activity, this.activityCenter.isActive(activity), "http://" + this.host + ":" + this.port + "", defaultIcon);
     }
@@ -83,13 +84,13 @@ public class ProgramYourHomeControllerMainActivities extends AbstractProgramYour
     }
 
     private void toggleActivity(final Activity activity) {
-        final PyhActivityImpl oldValue = this.createPyhActivity(activity);
+        final PyhActivity oldValue = this.createPyhActivity(activity);
         if (oldValue.isActive()) {
             this.activityCenter.stopActivity(activity);
         } else {
             this.activityCenter.startActivity(activity);
         }
-        final PyhActivityImpl newValue = this.createPyhActivity(activity);
+        final PyhActivity newValue = this.createPyhActivity(activity);
         this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
     }
 

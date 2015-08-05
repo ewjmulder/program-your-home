@@ -1,4 +1,4 @@
-package com.programyourhome.server.controllers.response;
+package com.programyourhome.server.response;
 
 import java.util.Optional;
 import java.util.function.Function;

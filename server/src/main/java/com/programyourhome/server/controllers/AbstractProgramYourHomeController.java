@@ -9,9 +9,9 @@ import com.programyourhome.common.functional.FailableRunnable;
 import com.programyourhome.common.functional.FailableSupplier;
 import com.programyourhome.server.config.ServerConfigHolder;
 import com.programyourhome.server.config.model.ServerConfig;
-import com.programyourhome.server.controllers.response.ServiceResult;
-import com.programyourhome.server.controllers.response.ServiceResultSuccess;
-import com.programyourhome.server.controllers.response.ServiceResultTry;
+import com.programyourhome.server.response.ServiceResult;
+import com.programyourhome.server.response.ServiceResultSuccess;
+import com.programyourhome.server.response.ServiceResultTry;
 
 public abstract class AbstractProgramYourHomeController {
 

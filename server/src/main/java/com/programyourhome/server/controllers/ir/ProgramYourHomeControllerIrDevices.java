@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.ir.model.PyhDevice;
 import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
-import com.programyourhome.server.controllers.response.ServiceResult;
+import com.programyourhome.server.response.ServiceResult;
 
 @RestController
 @RequestMapping("ir/devices")

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programyourhome.pc.PcInstructor;
 import com.programyourhome.pc.model.PyhDimension;
 import com.programyourhome.pc.model.PyhPoint;
-import com.programyourhome.server.controllers.response.ServiceResult;
+import com.programyourhome.server.response.ServiceResult;
 
 @RestController
 @RequestMapping("pc")

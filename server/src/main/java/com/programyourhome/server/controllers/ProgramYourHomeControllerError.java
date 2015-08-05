@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.programyourhome.server.controllers.response.ServiceResult;
+import com.programyourhome.server.response.ServiceResult;
 
 @RestController
 public class ProgramYourHomeControllerError extends AbstractProgramYourHomeController implements ErrorController {

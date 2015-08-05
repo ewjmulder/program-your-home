@@ -1,9 +1,9 @@
 package com.programyourhome.server.household;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +24,8 @@ public class PeopleManager {
         return this.configHolder.getConfig().getPeople().getGuests();
     }
 
-    public List<Person> getAllPeople() {
-        final List<Person> allPeople = new ArrayList<>(this.getResidents());
-        allPeople.addAll(this.getGuests());
-        return allPeople;
+    public List<Person> getPeople() {
+        return ListUtils.union(this.getResidents(), this.getGuests());
     }
 
     public Optional<Person> getResident(final int id) {
@@ -39,7 +37,7 @@ public class PeopleManager {
     }
 
     public Optional<Person> getPerson(final int id) {
-        return this.findPersonWithId(this.getAllPeople(), id);
+        return this.findPersonWithId(this.getPeople(), id);
     }
 
     private Optional<Person> findPersonWithId(final List<Person> people, final int id) {

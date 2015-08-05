@@ -1,13 +1,13 @@
 package com.programyourhome.server.events.activities;
 
-import com.programyourhome.server.activities.model.PyhActivityImpl;
+import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.events.ValueChangedEvent;
 
-public class ActivityChangedEvent extends ValueChangedEvent<PyhActivityImpl> {
+public class ActivityChangedEvent extends ValueChangedEvent<PyhActivity> {
 
     private static final long serialVersionUID = 1L;
 
-    public ActivityChangedEvent(final PyhActivityImpl oldValue, final PyhActivityImpl newValue) {
+    public ActivityChangedEvent(final PyhActivity oldValue, final PyhActivity newValue) {
         super(oldValue, newValue);
     }
 

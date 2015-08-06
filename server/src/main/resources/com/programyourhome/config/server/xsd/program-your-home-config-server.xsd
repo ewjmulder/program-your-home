@@ -22,24 +22,14 @@
     </xsd:element>
     <xsd:complexType name="people">
         <xsd:sequence>
-		    <xsd:element name="residents" type="residents" minOccurs="1" maxOccurs="1" />
-		    <xsd:element name="guests" type="guests" minOccurs="1" maxOccurs="1" />
-		</xsd:sequence>
-	</xsd:complexType>
-    <xsd:complexType name="residents">
-        <xsd:sequence>
-            <xsd:element name="resident" type="person" minOccurs="1" maxOccurs="unbounded" />
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="guests">
-        <xsd:sequence>
-            <xsd:element name="guest" type="person" minOccurs="0" maxOccurs="unbounded" />
+		    <xsd:element name="person" type="person" minOccurs="1" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="person">
         <xsd:sequence>
             <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
             <xsd:element name="userid" type="id" minOccurs="0" maxOccurs="1" />
+            <xsd:element name="type" type="personType" minOccurs="1" maxOccurs="1" />
             <xsd:element name="firstName" type="xsd:string"  minOccurs="1" maxOccurs="1" />
             <xsd:element name="lastName" type="xsd:string"  minOccurs="1" maxOccurs="1" />
             <xsd:element name="birthDate" type="xsd:date"  minOccurs="0" maxOccurs="1" />
@@ -66,7 +56,11 @@
     </xsd:complexType>
     <xsd:complexType name="state">
         <xsd:sequence>
-            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="id" type="id" minOccurs="1" maxOccurs="1">
+            	<xsd:annotation>
+            		<xsd:documentation>A state id should be overall unique!</xsd:documentation>
+            	</xsd:annotation>
+            </xsd:element>
             <xsd:element name="name" type="xsd:string"  minOccurs="1" maxOccurs="1"/>
             <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1" />
 		</xsd:sequence>
@@ -213,6 +207,13 @@
         </xsd:restriction>
     </xsd:simpleType>
     
+    <xsd:simpleType name="personType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="resident"></xsd:enumeration>
+            <xsd:enumeration value="guest"></xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <xsd:simpleType name="peopleType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="residents"></xsd:enumeration>

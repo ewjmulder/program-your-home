@@ -2,6 +2,7 @@ package com.programyourhome.server.household.model;
 
 import com.programyourhome.common.model.PyhImpl;
 import com.programyourhome.server.config.model.Person;
+import com.programyourhome.server.config.model.PersonType;
 import com.programyourhome.server.config.model.State;
 
 public class PyhPersonImpl extends PyhImpl implements PyhPerson {
@@ -12,9 +13,9 @@ public class PyhPersonImpl extends PyhImpl implements PyhPerson {
     private final String lastName;
     private final PyhState state;
 
-    public PyhPersonImpl(final Person person, final PersonType personType, final State state) {
+    public PyhPersonImpl(final Person person, final State state) {
         this.id = person.getId();
-        this.type = personType;
+        this.type = person.getType();
         this.firstName = person.getFirstName();
         this.lastName = person.getLastName();
         this.state = new PyhStateImpl(state);

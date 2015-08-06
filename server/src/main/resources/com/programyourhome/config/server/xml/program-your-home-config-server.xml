@@ -2,26 +2,24 @@
 <serverConfig xmlns="http://programyourhome.com/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://programyourhome.com/config ../xsd/program-your-home-config-server.xsd">
     <defaultLanguage>English-USA</defaultLanguage>
     <people>
-    	<residents>
-    		<resident>
-    			<id>1</id>
-    			<userid>1</userid>
-    			<firstName>Erik</firstName>
-    			<lastName>Mulder</lastName>
-    			<birthDate>1982-11-18</birthDate>
-    		</resident>
-    	</residents>
-    	<guests>
-			<guest>
-    			<id>1</id>
-    			<firstName>Guest</firstName>
-    			<lastName>Account</lastName>
-			</guest>
-    	</guests>
+   		<person>
+   			<id>1</id>
+   			<userid>1</userid>
+   			<type>resident</type>
+   			<firstName>Erik</firstName>
+   			<lastName>Mulder</lastName>
+   			<birthDate>1982-11-18</birthDate>
+   		</person>
+		<person>
+   			<id>1</id>
+   			<type>guest</type>
+   			<firstName>Guest</firstName>
+   			<lastName>Account</lastName>
+		</person>
     </people>
     <stateConfig>
     	<resident>
-			<defaultState>1</defaultState>
+			<defaultState>2</defaultState>
 			<states>
 				<state>
 					<id>1</id>

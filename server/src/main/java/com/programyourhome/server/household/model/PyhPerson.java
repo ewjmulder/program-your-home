@@ -1,5 +1,7 @@
 package com.programyourhome.server.household.model;
 
+import com.programyourhome.server.config.model.PersonType;
+
 public interface PyhPerson {
 
     public int getId();

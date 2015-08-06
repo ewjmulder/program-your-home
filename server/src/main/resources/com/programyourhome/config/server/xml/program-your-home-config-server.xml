@@ -11,7 +11,7 @@
    			<birthDate>1982-11-18</birthDate>
    		</person>
 		<person>
-   			<id>1</id>
+   			<id>2</id>
    			<type>guest</type>
    			<firstName>Guest</firstName>
    			<lastName>Account</lastName>
@@ -91,43 +91,43 @@
 			<defaultState>1</defaultState>
 			<states>
 				<state>
-					<id>1</id>
+					<id>11</id>
 					<name>away</name>
 					<description>Not visiting.</description>
 				</state>
 				<state>
-					<id>2</id>
+					<id>12</id>
 					<name>visiting</name>
 					<description>Visiting the home during the day.</description>
 				</state>
 				<state>
-					<id>3</id>
+					<id>13</id>
 					<name>asleep</name>
 					<description>Visiting the home during the night.</description>
 				</state>
 			</states>
 			<stateTransitions>
 				<stateTransition>
-					<from>1</from>
-					<to>2</to>
+					<from>11</from>
+					<to>12</to>
 					<name>Visit</name>
 					<description>Arriving at the home to pay a visit.</description>
 				</stateTransition>
 				<stateTransition>
-					<from>2</from>
-					<to>1</to>
+					<from>12</from>
+					<to>11</to>
 					<name>Leave</name>
 					<description>Leaving the home after a visit.</description>
 				</stateTransition>
 				<stateTransition>
-					<from>2</from>
-					<to>3</to>
+					<from>12</from>
+					<to>13</to>
 					<name>Go to sleep</name>
 					<description>Going to bed at the home to stay for the night.</description>
 				</stateTransition>
 				<stateTransition>
-					<from>3</from>
-					<to>1</to>
+					<from>13</from>
+					<to>12</to>
 					<name>Wake up</name>
 					<description>Waking up at the home after a night of sleep.</description>
 				</stateTransition>

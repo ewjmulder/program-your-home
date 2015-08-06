@@ -30,7 +30,7 @@ public class PeopleStateManager {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    private final Map<Person, State> personStates;
+    private final Map<Integer, State> personStates;
 
     public PeopleStateManager() {
         this.personStates = new HashMap<>();
@@ -41,12 +41,16 @@ public class PeopleStateManager {
     // This is quite essential when rebooting every night, so the people states stay intact
     // https://geteventstore.com/downloads/ !!
     public void init() {
-        this.peopleManager.getResidents().forEach(resident -> this.personStates.put(resident, this.getDefaultResidentState()));
-        this.peopleManager.getGuests().forEach(guest -> this.personStates.put(guest, this.getDefaultGuestState()));
+        this.peopleManager.getResidents().forEach(resident -> this.personStates.put(resident.getId(), this.getDefaultResidentState()));
+        this.peopleManager.getGuests().forEach(guest -> this.personStates.put(guest.getId(), this.getDefaultGuestState()));
     }
 
-    public State getState(final Person person) {
-        return this.personStates.get(person);
+    public State getStateOfPerson(final Person person) {
+        return this.getStateOfPerson(person.getId());
+    }
+
+    public State getStateOfPerson(final int personId) {
+        return this.personStates.get(personId);
     }
 
     public Collection<State> getResidentStates() {
@@ -57,9 +61,13 @@ public class PeopleStateManager {
         return this.configHolder.getConfig().getStateConfig().getResident().getStates();
     }
 
-    public Optional<State> getPersonState(final int id) {
-        return CollectionUtils.union(this.getResidentStates(), this.getGuestStates()).stream()
-                .filter(state -> state.getId() == id)
+    public Collection<State> getPersonStates() {
+        return CollectionUtils.union(this.getResidentStates(), this.getGuestStates());
+    }
+
+    public Optional<State> getPersonState(final int stateId) {
+        return this.getPersonStates().stream()
+                .filter(state -> state.getId() == stateId)
                 .findFirst();
     }
 
@@ -80,22 +88,22 @@ public class PeopleStateManager {
     }
 
     public void setPersonState(final Person person, final int stateId) {
-        if (!this.personStates.containsKey(person)) {
+        if (!this.personStates.containsKey(person.getId())) {
             throw new IllegalArgumentException("Person: '" + person + "' not found in person state map.");
         }
-        final State oldState = this.getState(person);
+        final State oldState = this.getStateOfPerson(person);
         final State newState = this.getPersonState(stateId).get();
         if (person.getType() == PersonType.RESIDENT && !this.isValidResidentStateTransition(oldState, newState)) {
             throw new IllegalArgumentException("Invalid resident state transition from: '" + oldState + "' to '" + newState + "'.");
         } else if (person.getType() == PersonType.GUEST && !this.isValidGuestStateTransition(oldState, newState)) {
             throw new IllegalArgumentException("Invalid guest state transition from: '" + oldState + "' to '" + newState + "'.");
         } else {
-            this.personStates.put(person, newState);
+            this.personStates.put(person.getId(), newState);
         }
     }
 
     public boolean isValidResidentStateTransition(final State oldState, final State newState) {
-        return this.isValidStateTransition(this.getGuestStateTransitions(), oldState, newState);
+        return this.isValidStateTransition(this.getResidentStateTransitions(), oldState, newState);
     }
 
     public boolean isValidGuestStateTransition(final State oldState, final State newState) {

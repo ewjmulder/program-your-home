@@ -2,14 +2,12 @@ package com.programyourhome.server.dailyrhythym;
 
 import java.awt.Color;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 import javax.util.streamex.StreamEx;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
@@ -47,7 +45,8 @@ public class DailyRythymManager {
 
     @PostConstruct
     public void init() {
-        this.rhythymScheduler.scheduleAtFixedRate(this::updateRhythym, DateUtils.addMilliseconds(new Date(), UPDATE_INITIAL_DELAY), UPDATE_INTERVAL);
+        // TODO: Turned off until ready to test again.
+        // this.rhythymScheduler.scheduleAtFixedRate(this::updateRhythym, DateUtils.addMilliseconds(new Date(), UPDATE_INITIAL_DELAY), UPDATE_INTERVAL);
     }
 
     public void updateRhythym() {

@@ -14,6 +14,8 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 	var Resource = enums.Resource;
 	var RestVerb = enums.RestVerb;
 	
+	var SET_CHANNEL_DEVICE = "ir/devices/{0}/channel/set/{1}";
+	var SET_CHANNEL_ACTIVITY = "main/activities/{0}/channel/set/{1}";
 	var GET_MOUSE_POSITION = "pc/mouse/position";
 	var MOVE_MOUSE_ABSOLUTE = "pc/mouse/moveAbsolute/{0},{1}";
 	var MOVE_MOUSE_RELATIVE = "pc/mouse/moveRelative/{0},{1}";
@@ -49,14 +51,14 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 	// See also: http://stackoverflow.com/questions/5640988/how-do-i-interpolate-a-variable-as-a-key-in-a-javascript-object
 	function createRestResources() {
 		if (isModuleAvailable(Module.MAIN)) {
-			rest.create(Resource.ACTIVITIES, {GET: ["start", "stop", RestVerb.VOLUME_UP, RestVerb.VOLUME_DOWN, RestVerb.VOLUME_MUTE]});
+			rest.create(Resource.ACTIVITIES, {GET: [RestVerb.START, RestVerb.STOP, RestVerb.VOLUME_UP, RestVerb.VOLUME_DOWN, RestVerb.VOLUME_MUTE, RestVerb.CHANNEL_UP, RestVerb.CHANNEL_DOWN, RestVerb.PLAY_PLAY, RestVerb.PLAY_PAUSE, RestVerb.PLAY_STOP, RestVerb.PLAY_FAST_FORWARD, RestVerb.PLAY_REWIND, RestVerb.SKIP_NEXT, RestVerb.SKIP_PREVIOUS, RestVerb.RECORD, RestVerb.MENU_TOGGLE, RestVerb.MENU_SELECT, RestVerb.MENU_BACK, RestVerb.MENU_UP, RestVerb.MENU_DOWN, RestVerb.MENU_LEFT, RestVerb.MENU_RIGHT]});
 		}
 		if (isModuleAvailable(Module.HUE)) {
-			rest.create(Resource.LIGHTS, {GET: ["on", "off"]});
+			rest.create(Resource.LIGHTS, {GET: [RestVerb.TURN_ON, RestVerb.TURN_OFF]});
 			//TODO: plugs!
 		}
 		if (isModuleAvailable(Module.IR)) {
-			rest.create(Resource.DEVICES, {GET: [RestVerb.VOLUME_UP, RestVerb.VOLUME_DOWN, RestVerb.VOLUME_MUTE]});
+			rest.create(Resource.DEVICES, {GET: [RestVerb.POWER_ON, RestVerb.POWER_OFF, RestVerb.VOLUME_UP, RestVerb.VOLUME_DOWN, RestVerb.VOLUME_MUTE, RestVerb.CHANNEL_UP, RestVerb.CHANNEL_DOWN, RestVerb.PLAY_PLAY, RestVerb.PLAY_PAUSE, RestVerb.PLAY_STOP, RestVerb.PLAY_FAST_FORWARD, RestVerb.PLAY_REWIND, RestVerb.SKIP_NEXT, RestVerb.SKIP_PREVIOUS, RestVerb.RECORD, RestVerb.MENU_TOGGLE, RestVerb.MENU_SELECT, RestVerb.MENU_BACK, RestVerb.MENU_UP, RestVerb.MENU_DOWN, RestVerb.MENU_LEFT, RestVerb.MENU_RIGHT]});
 		}
 		if (isModuleAvailable(Module.SENSORS)) {
 			rest.create(Resource.SUN_DEGREE, {});
@@ -171,10 +173,12 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 		toggleActivity: function (id, isActive) {
 			return toggleRestResource(Resource.ACTIVITIES, "start", "stop", id, isActive);
 		},
+		
 		// Switch a light on or off.
 		toggleLight: function (id, isOn) {
 			return toggleRestResource(Resource.LIGHTS, "on", "off", id, isOn);
 		},
+		
 		volumeUpDevice: function (deviceId) {
 			return rest.verb(Resource.DEVICES, deviceId, RestVerb.VOLUME_UP);
 		},
@@ -185,13 +189,58 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 			return rest.verb(Resource.DEVICES, deviceId, RestVerb.VOLUME_MUTE);
 		},
 		channelUpDevice: function (deviceId) {
-			return rest.verb(Resource.DEVICES, deviceId, "channel/up");
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.CHANNEL_UP);
 		},
 		channelDownDevice: function (deviceId) {
-			return rest.verb(Resource.DEVICES, deviceId, "channel/down");
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.CHANNEL_DOWN);
 		},
 		setChannelDevice: function (deviceId, channel) {
-			return rest.verb(Resource.DEVICES, deviceId, "channel/set/" + channel);
+			return performAction(SET_CHANNEL_DEVICE.format(deviceId, channel));
+		},
+		playDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.PLAY_PLAY);
+		},
+		pauseDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.PLAY_PAUSE);
+		},
+		stopDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.PLAY_STOP);
+		},
+		fastForwardDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.PLAY_FAST_FORWARD);
+		},
+		rewindDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.PLAY_REWIND);
+		},
+		skipNextDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.SKIP_NEXT);
+		},
+		skipPreviousDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.SKIP_PREVIOUS);
+		},
+		recordDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.RECORD);
+		},
+		menuToggleDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.MENU_TOGGLE);
+		},
+		menuSelectDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.MENU_SELECT);
+		},
+		menuBackDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.MENU_BACK);
+		},
+		menuUpDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.MENU_UP);
+		},
+		menuDownDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.MENU_DOWN);
+		},
+		menuLeftDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.MENU_LEFT);
+		},
+		menuRightDevice: function (deviceId) {
+			return rest.verb(Resource.DEVICES, deviceId, RestVerb.MENU_RIGHT);
 		},
 		
 		volumeUpActivity: function (activityId) {
@@ -204,59 +253,60 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.VOLUME_MUTE);
 		},
 		channelUpActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "channel/up");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.CHANNEL_UP);
 		},
 		channelDownActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "channel/down");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.CHANNEL_DOWN);
 		},
 		setChannelActivity: function (activityId, channel) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "channel/set/" + channel);
+			return performAction(SET_CHANNEL_ACTIVITY.format(activityId, channel));
 		},
 		playActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "play/play");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.PLAY_PLAY);
 		},
 		pauseActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "play/pause");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.PLAY_PAUSE);
 		},
 		stopActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "play/stop");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.PLAY_STOP);
 		},
 		fastForwardActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "play/fastForward");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.PLAY_FAST_FORWARD);
 		},
 		rewindActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "play/rewind");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.PLAY_REWIND);
 		},
 		skipNextActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "skip/next");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.SKIP_NEXT);
 		},
 		skipPreviousActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "skip/previous");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.SKIP_PREVIOUS);
 		},
 		recordActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "record");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.RECORD);
 		},
 		menuToggleActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "menu/toggle");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_TOGGLE);
 		},
 		menuSelectActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "menu/select");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_SELECT);
 		},
 		menuBackActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "menu/back");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_BACK);
 		},
 		menuUpActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "menu/up");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_UP);
 		},
 		menuDownActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "menu/down");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_DOWN);
 		},
 		menuLeftActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "menu/left");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_LEFT);
 		},
 		menuRightActivity: function (activityId) {
-			return rest.verb(Resource.ACTIVITIES, activityId, "menu/right");
+			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_RIGHT);
 		},
+		
 		moveMouseAbsolute: function(x, y) {
 			return performAction(MOVE_MOUSE_ABSOLUTE.format(x, y));
 		},

@@ -54,9 +54,38 @@ define([],
 
 	// Enum-like definition of all possible REST verbs.
 	var RestVerb = Object.freeze({
+		// Main - activities
+		START: "start",
+		STOP: "stop",
+		
+		// Hue - lights
+		TURN_ON: "on",
+		TURN_OFF: "off",
+		
+		// Ir - devices
+		POWER_ON: "power/on",
+		POWER_OFF: "power/off",
 		VOLUME_UP: "volume/up",
 		VOLUME_DOWN: "volume/down",
 		VOLUME_MUTE: "volume/mute",
+		CHANNEL_UP: "channel/up",
+		CHANNEL_DOWN: "channel/down",
+		//CHANNEL_SET cannot be implemented as a rest verb!
+		PLAY_PLAY: "play/play",
+		PLAY_PAUSE: "play/pause",
+		PLAY_STOP: "play/stop",
+		PLAY_FAST_FORWARD: "play/fastForward",
+		PLAY_REWIND: "play/rewind",
+		SKIP_NEXT: "skip/next",
+		SKIP_PREVIOUS: "skip/previous",
+		RECORD: "record",
+		MENU_TOGGLE: "menu/toggle",
+		MENU_SELECT: "menu/select",
+		MENU_BACK: "menu/back",
+		MENU_UP: "menu/up",
+		MENU_DOWN: "menu/down",
+		MENU_LEFT: "menu/left",
+		MENU_RIGHT: "menu/right"
 	});
 	
 	// Expose the enums as properties of this module.

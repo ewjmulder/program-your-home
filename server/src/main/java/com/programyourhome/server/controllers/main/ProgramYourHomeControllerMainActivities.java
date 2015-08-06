@@ -47,7 +47,7 @@ public class ProgramYourHomeControllerMainActivities extends AbstractProgramYour
     @Value("${server.port}")
     private int port;
 
-    @RequestMapping("/")
+    @RequestMapping("")
     public ServiceResult<Collection<PyhActivity>> getActivities() {
         return this.produce("Activities", () -> this.getServerConfig().getActivitiesConfig().getActivities().stream()
                 .map(this::createPyhActivity)

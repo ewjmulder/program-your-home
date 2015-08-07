@@ -18,13 +18,13 @@ requirejs.config({
 		
 		// Separate script files for the pages, naming convention is: "page" + util.capitalizeFirstLetter(pageName)
 		BasePage: '../app/pages/BasePage',
-		pageActivities: '../app/pages/activities',
-		pageLights: '../app/pages/lights',
-		pageDevices: '../app/pages/devices',
-		pageSettings: '../app/pages/settings',
-		pageAbout: '../app/pages/about',
-		pageActivity: '../app/pages/activity',
-		pageDevice: '../app/pages/device',
+		pageActivities: '../app/pages/Activities',
+		pageLights: '../app/pages/Lights',
+		pageDevices: '../app/pages/Devices',
+		pageSettings: '../app/pages/Settings',
+		pageAbout: '../app/pages/About',
+		pageActivity: '../app/pages/Activity',
+		pageDevice: '../app/pages/Device',
 
 		// Main application modules.
 		util: '../app/util',
@@ -68,5 +68,10 @@ requirejs.config({
 	}
 });
 
-// Start by loading the main app file.
+// We'll allow ourselves one global variable here, so all the page template code doesn't need to use require() boilerplate to call an api function.
+var api = null;
+require(['api'], function (apiModule) { api = apiModule; });
+
+// Now start the application by loading the main app file.
 require(['main']);
+

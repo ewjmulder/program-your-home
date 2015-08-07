@@ -1,4 +1,4 @@
-{{#each this}}
+{{#each data}}
 	{{name}}<br />
 	<a href="javascript:void(0)" onclick="require(['api', 'pageLights'], function (api, pageLights) {
 			api.toggleLight({{id}}, pageLights.isOn({{id}}));

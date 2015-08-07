@@ -36,7 +36,7 @@ define(["jquery", "templates", "util", "log"],
 		// The function to be called to get the input data for this page.
 		this.dataFunction = dataFunction;
 		// The javascript module that contains the dynamic page logic, will be lazy loaded when required.
-		this.javascriptModule = null;
+		this.jsObject = null;
 		
 		// Create a span element for this page, that will be used to contain the DOM tree and show / hide the page.
 		this.contentElement = $(document.createElement("span"));
@@ -91,8 +91,8 @@ define(["jquery", "templates", "util", "log"],
 				// Set the title.
 				$("#title").html(currentPage.title);
 				// Update the background color. Should be done on the content tag, so it fills the whole content area.
-				$("#content").css("background-color", currentPage.javascriptModule.backgroundColor);
-				currentPage.javascriptModule.show();
+				$("#content").css("background-color", currentPage.jsObject.backgroundColor);
+				currentPage.jsObject.show();
 			}
 			if (!currentPage.isLoaded()) {
 				// Load the page if it's shown for the first time (one time action only).
@@ -111,11 +111,12 @@ define(["jquery", "templates", "util", "log"],
 		var pageLoading = $.Deferred();
 		page.dataFunction().done(function (data) {
 			loadPageWithTemplate(page, data);
-			require(["page" + util.capitalizeFirstLetter(page.moduleName)], function (pageModule) {
-				page.javascriptModule = pageModule;
-				page.javascriptModule.init(page, data);
+			require(["page" + util.capitalizeFirstLetter(page.moduleName)], function (PageClass) {
+				// Create a new object for this page.
+				page.jsObject = new PageClass();
+				page.jsObject.init(page, data);
 				pageLoading.resolve();
-			});				
+			});
 		})
 		.fail(pageLoading.reject)
 		.fail(util.createDeferredFailFunction("page " + page.name));
@@ -124,7 +125,7 @@ define(["jquery", "templates", "util", "log"],
 
 	// Load the provided page, using the templateData to feed the template.
 	function loadPageWithTemplate(page, templateData) {
-		var pageDomTree = templates.get(page.moduleName)(templateData);
+		var pageDomTree = templates.get(page.moduleName)({pageName: page.name, data: templateData});
 		// Put the DOM tree in the content element of the page.
 		page.contentElement.html(pageDomTree);
 	};

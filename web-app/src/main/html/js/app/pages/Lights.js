@@ -4,7 +4,7 @@
 define(["jquery", "BasePage", "enums", "util"],
 		function ($, BasePage, enums, util) {
 
-	function Lights() {
+	return function Lights() {
 		BasePage.call(this, enums.EventTopic.HUE_LIGHTS);
 
 		this.backgroundColor = "#CCCCCC";
@@ -139,10 +139,6 @@ define(["jquery", "BasePage", "enums", "util"],
 			}
 		};
 	};
-	
-	// Return the 'singleton' object as external interface.
-	return new Lights();
-
 
 // End of require module.
 });

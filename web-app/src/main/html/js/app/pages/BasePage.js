@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // Abstract BasePage 'class' with common page logic.
-define(["pages", "events"],
-		function (pages, events) {
+define(["pages", "events", "log"],
+		function (pages, events, log) {
 
 	return function BasePage(eventTopicResource) {
 		var self = this;
@@ -70,9 +70,7 @@ define(["pages", "events"],
 				self.updateResource(resource);
 			});
 		};
-		
-	}
-
+	};
 
 // End of require module.
 });

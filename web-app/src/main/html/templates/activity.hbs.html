@@ -1,34 +1,53 @@
-<span id="activity-todo-{{this.id}}"></span><br />
-<!-- TODO: Use with(this) or so to skip repeating this all the time (also in device page) -->
-{{#if this.volumeActivity}}
-	<input type="button" value="Volume up" onclick="require(['api'], function (api) { api.volumeUpActivity({{id}}); });" />
-	<input type="button" value="Volume down" onclick="require(['api'], function (api) { api.volumeDownActivity({{id}}); });" />
-	<input type="button" value="Volume mute" onclick="require(['api'], function (api) { api.volumeMuteActivity({{id}}); });" />
-{{/if}}
-{{#if this.channelActivity}}
-	<input type="button" value="Channel up" onclick="require(['api'], function (api) { api.channelUpActivity({{id}}); });" />
-	<input type="button" value="Channel down" onclick="require(['api'], function (api) { api.channelDownActivity({{id}}); });" />
-{{/if}}
-{{#if this.playActivity}}
-	<input type="button" value="Play" onclick="require(['api'], function (api) { api.playActivity({{id}}); });" />
-	<input type="button" value="Pause" onclick="require(['api'], function (api) { api.pauseActivity({{id}}); });" />
-	<input type="button" value="Stop" onclick="require(['api'], function (api) { api.stopActivity({{id}}); });" />
-	<input type="button" value="Fast forward" onclick="require(['api'], function (api) { api.fastForwardActivity({{id}}); });" />
-	<input type="button" value="Rewind" onclick="require(['api'], function (api) { api.rewindActivity({{id}}); });" />
-{{/if}}
-{{#if this.playActivity}}
-	<input type="button" value="Skip next" onclick="require(['api'], function (api) { api.skipNextActivity({{id}}); });" />
-	<input type="button" value="Skip previous" onclick="require(['api'], function (api) { api.skipPreviousActivity({{id}}); });" />
-{{/if}}
-{{#if this.recordActivity}}
-	<input type="button" value="Record" onclick="require(['api'], function (api) { api.recordActivity({{id}}); });" />
-{{/if}}
-{{#if this.menuActivity}}
-	<input type="button" value="Menu toggle" onclick="require(['api'], function (api) { api.menuToggleActivity({{id}}); });" />
-	<input type="button" value="Menu select" onclick="require(['api'], function (api) { api.menuSelectActivity({{id}}); });" />
-	<input type="button" value="Menu back" onclick="require(['api'], function (api) { api.menuBackActivity({{id}}); });" />
-	<input type="button" value="Menu up" onclick="require(['api'], function (api) { api.menuUpActivity({{id}}); });" />
-	<input type="button" value="Menu down" onclick="require(['api'], function (api) { api.menuDownActivity({{id}}); });" />
-	<input type="button" value="Menu left" onclick="require(['api'], function (api) { api.menuLeftActivity({{id}}); });" />
-	<input type="button" value="Menu right" onclick="require(['api'], function (api) { api.menuRightActivity({{id}}); });" />
-{{/if}}
+{{#with data}}
+	<a href="javascript:void(0)" onclick="require(['pages'], function (pages) {
+		pages.byName('{{../pageName}}').jsObject.clickPower({{id}});
+	});"><span class="fa fa-power-off fa-2x"></span></a>
+	<br />
+	<br />
+	<span id="activity-active-{{id}}" style="color: black;">
+		{{#if volumeActivity}}
+			Volume control:<br />
+			<a href="javascript:void(0)" onclick="api.volumeMuteActivity({{id}});"><span class="fa-stack fa-lg"><span class="fa fa-volume-up fa-stack-1x"></span><span class="fa fa-ban fa-stack-2x text-danger"></span></span></a>
+			<a href="javascript:void(0)" onclick="api.volumeDownActivity({{id}});"><span class="fa fa-caret-up fa-4x"></span></a>
+			<a href="javascript:void(0)" onclick="api.volumeUpActivity({{id}});"><span class="fa fa-caret-down fa-4x"></span></a>
+			<br />
+		{{/if}}
+		{{#if channelActivity}}
+			Channel control:<br />
+			<a href="javascript:void(0)" onclick="api.channelUpActivity({{id}});"><span class="fa fa-caret-up fa-4x"></span></a>
+			<a href="javascript:void(0)" onclick="api.channelDownActivity({{id}});"><span class="fa fa-caret-down fa-4x"></span></a>
+			<br />
+		{{/if}}
+		{{#if playActivity}}
+			Playback control:<br />
+			<a href="javascript:void(0)" onclick="api.rewindActivity({{id}});"><span class="fa fa-backward fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.playActivity({{id}});"><span class="fa fa-play fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.pauseActivity({{id}});"><span class="fa fa-pause fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.stopActivity({{id}});"><span class="fa fa-stop fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.fastForwardActivity({{id}});"><span class="fa fa-forward fa-2x"></span></a>
+			<br />
+		{{/if}}
+		{{#if skipActivity}}
+			Track control:<br />
+			<input type="button" value="Skip next" onclick="api.skipNextActivity({{id}});" />
+			<input type="button" value="Skip previous" onclick="api.skipPreviousActivity({{id}});" />
+			<br />
+		{{/if}}
+		{{#if recordActivity}}
+			Record control:<br />
+			<input type="button" value="Record" onclick="api.recordActivity({{id}});" />
+			<br />
+		{{/if}}
+		{{#if menuActivity}}
+			Menu control:<br />
+			<input type="button" value="Menu toggle" onclick="api.menuToggleActivity({{id}});" />
+			<input type="button" value="Menu select" onclick="api.menuSelectActivity({{id}});" />
+			<input type="button" value="Menu back" onclick="api.menuBackActivity({{id}});" />
+			<input type="button" value="Menu up" onclick="api.menuUpActivity({{id}});" />
+			<input type="button" value="Menu down" onclick="api.menuDownActivity({{id}});" />
+			<input type="button" value="Menu left" onclick="api.menuLeftActivity({{id}});" />
+			<input type="button" value="Menu right" onclick="api.menuRightActivity({{id}});" />
+			<br />
+		{{/if}}
+	</span>
+{{/with}}

@@ -3,7 +3,7 @@
 define(["jquery", "BasePage", "settings", "knockout"],
 		function ($, BasePage, settingsModule, ko) {
 
-	function Settings() {
+	return function Settings() {
 		BasePage.call(this);
 
 		// Save settings data in local variables for easier accessing.
@@ -76,11 +76,6 @@ define(["jquery", "BasePage", "settings", "knockout"],
 			ko.applyBindings(settingsViewModel, domSettingsForm);
 		};
 	};
-
-	
-	// Return the 'singleton' object as external interface.
-	return new Settings();
-
 
 // End of require module.	
 });

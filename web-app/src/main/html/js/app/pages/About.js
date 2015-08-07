@@ -4,13 +4,9 @@
 define(["BasePage"],
 		function (BasePage) {
 	
-	function About() {
+	return function About() {
 		BasePage.call(this);
 	};
-		
-	// Return the 'singleton' object as external interface.
-	return new About();
-
 	
 // End of require module.
 });

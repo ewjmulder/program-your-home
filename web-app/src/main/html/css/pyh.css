@@ -20,10 +20,15 @@ body {
 	font-family: Arial, Helvetica, Verdana;
 	font-size: 14px;
 	line-height: 22px;
-	color: #666;
 	min-height: 100%;
 	position: relative;
 	-webkit-text-size-adjust: none;
+}
+
+/* Affects only font awesome icons that use the <span> tag. */
+span.fa {
+	color: black;
+	text-shadow: 2px 2px #AAAAAA;
 }
 
 span.current-page {
@@ -31,6 +36,14 @@ span.current-page {
 }
 
 span.hidden-page {
+	display: none;
+}
+
+span.visible {
+	display: inline;
+}
+
+span.hidden {
 	display: none;
 }
 

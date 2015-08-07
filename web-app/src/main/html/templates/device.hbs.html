@@ -1,16 +1,18 @@
 <span id="device-todo-{{this.id}}"></span><br />
-{{#if this.inputDevice}}
-	<select onchange="require(['api'], function (api) { api.selectInput({{id}}, this.value); });">
-		<option value="-">-</option>
-		{{#each this.inputs}}
-			<option value="{{this}}">{{this}}</option>
-		{{/each}}
-	</select>
-{{/if}}
-{{#if this.volumeDevice}}
-	<input type="button" value="Volume up" onclick="require(['api'], function (api) { api.volumeUpDevice({{id}}); });" />
-	<input type="button" value="Volume down" onclick="require(['api'], function (api) { api.volumeDownDevice({{id}}); });" />
-	<input type="button" value="Volume mute" onclick="require(['api'], function (api) { api.volumeMuteDevice({{id}}); });" />
-	<br />
-	<input type="button" value="Move mouse" onclick="require(['api'], function (api) { api.moveMouseAbsolute(100, 100); });" />	
-{{/if}}
+{{#with data}}
+	{{#if inputDevice}}
+		<select onchange="require(['api'], function (api) { api.selectInput({{id}}, this.value); });">
+			<option value="-">-</option>
+			{{#each inputs}}
+				<option value="{{this}}">{{this}}</option>
+			{{/each}}
+		</select>
+	{{/if}}
+	{{#if volumeDevice}}
+		<input type="button" value="Volume up" onclick="api.volumeUpDevice({{id}});" />
+		<input type="button" value="Volume down" onclick="api.volumeDownDevice({{id}});" />
+		<input type="button" value="Volume mute" onclick="api.volumeMuteDevice({{id}});" />
+		<br />
+		<input type="button" value="Move mouse" onclick="api.moveMouseAbsolute(100, 100);" />	
+	{{/if}}
+{{/with}}

@@ -1,6 +1,6 @@
-{{#each this}}
+{{#each data}}
 	{{name}}<br />
-	<a href="javascript:void(0)" onclick="require(['pageActivities'], function (pageActivities) {
-		pageActivities.clickActivity({{id}}, '{{name}}');
+	<a href="javascript:void(0)" onclick="require(['pages'], function (pages) {
+		pages.byName('{{../pageName}}').jsObject.clickActivity({{id}});
 	});"><img id="activity-img-{{id}}" src="{{iconUrl}}" width="128" height="128" /></a><br />
 {{/each}}

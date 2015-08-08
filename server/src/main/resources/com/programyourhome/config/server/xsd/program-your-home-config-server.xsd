@@ -3,6 +3,7 @@
     elementFormDefault="qualified">
     <xsd:include schemaLocation="modules/program-your-home-config-philips-hue.xsd" />
     <xsd:include schemaLocation="modules/program-your-home-config-infra-red.xsd" />
+    <xsd:include schemaLocation="modules/program-your-home-config-pc-instructor.xsd" />
     <xsd:element name="serverConfig">
         <xsd:complexType>
             <xsd:sequence>
@@ -147,6 +148,7 @@
                     <xsd:sequence>
                         <xsd:element name="philipsHue" type="philipsHueActivityConfig" minOccurs="0" maxOccurs="1" />
                         <xsd:element name="infraRed" type="infraRedActivityConfig" minOccurs="0" maxOccurs="1" />
+                        <xsd:element name="pcInstructor" type="pcInstructorActivityConfig" minOccurs="0" maxOccurs="1" />
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>

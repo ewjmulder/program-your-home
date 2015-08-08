@@ -17,8 +17,11 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 	var SET_CHANNEL_DEVICE = "ir/devices/{0}/channel/set/{1}";
 	var SET_CHANNEL_ACTIVITY = "main/activities/{0}/channel/set/{1}";
 	var GET_MOUSE_POSITION = "pc/mouse/position";
-	var MOVE_MOUSE_ABSOLUTE = "pc/mouse/moveAbsolute/{0},{1}";
-	var MOVE_MOUSE_RELATIVE = "pc/mouse/moveRelative/{0},{1}";
+	var MOUSE_MOVE_ABSOLUTE = "pc/mouse/moveAbsolute/{0},{1}";
+	var MOUSE_MOVE_RELATIVE = "pc/mouse/moveRelative/{0},{1}";
+	var MOUSE_CLICK_LEFT = "pc/mouse/click/left";
+	var MOUSE_CLICK_MIDDLE = "pc/mouse/click/middle";
+	var MOUSE_CLICK_RIGHT = "pc/mouse/click/right";
 	
 	// The PYH modules that are available on the server. Filtered by what is running on the server and maybe other filters, like authorization.
 	var availableModules = [];
@@ -307,11 +310,20 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 			return rest.verb(Resource.ACTIVITIES, activityId, RestVerb.MENU_RIGHT);
 		},
 		
-		moveMouseAbsolute: function(x, y) {
-			return performAction(MOVE_MOUSE_ABSOLUTE.format(x, y));
+		moveMouseAbsolute: function (x, y) {
+			return performAction(MOUSE_MOVE_ABSOLUTE.format(x, y));
 		},
-		moveMouseRelative: function(dx, dy) {
-			return performAction(MOVE_MOUSE_RELATIVE.format(dx, dy));
+		moveMouseRelative: function (dx, dy) {
+			return performAction(MOUSE_MOVE_RELATIVE.format(dx, dy));
+		},
+		clickLeftMouseButton: function () {
+			return performAction(MOUSE_CLICK_LEFT);
+		},
+		clickMiddleMouseButton: function () {
+			return performAction(MOUSE_CLICK_MIDDLE);
+		},
+		clickRightMouseButton: function () {
+			return performAction(MOUSE_CLICK_RIGHT);
 		},
 	};
 

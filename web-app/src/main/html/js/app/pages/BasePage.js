@@ -16,7 +16,9 @@ define(["pages", "events", "log"],
 		this.getResource = function (id) { return this.resourceCache[id]; };
 		
 		// Function that is called once in the lifetime of the object (before any others), but after the DOM is available.
-		this.initPage = function () { return "To be implemented in subclass"; };
+		// It does have an argument for the initial state of the resources. This is mainly to get an id or some other
+		// static piece of information and should not be used to perform regular, repeating update logic.
+		this.initPage = function (resources) { return "To be implemented in subclass"; };
 		// Function that is called once for every time the page is shown (selected).
 		this.showPage = function () { return "To be implemented in subclass"; };
 		// Either of these (or exceptionally both) should be implemented in the subclass (none if there are no resources on the page).
@@ -35,7 +37,7 @@ define(["pages", "events", "log"],
 			this.page = page;
 			this.fillCache(resources);
 			this.subscribe(resources, eventTopicResource);
-			this.initPage();
+			this.initPage(resources);
 		}
 		
 		this.fillCache = function (resources) {

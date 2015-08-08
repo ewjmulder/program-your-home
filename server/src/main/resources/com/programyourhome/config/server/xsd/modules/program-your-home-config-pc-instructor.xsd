@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xsd:include schemaLocation="program-your-home-config-common.xsd" />
+    <xsd:complexType name="pcInstructorActivityConfig">
+        <xsd:sequence>
+            <xsd:element name="mouseControl" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="keyboardControl" type="xsd:boolean" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

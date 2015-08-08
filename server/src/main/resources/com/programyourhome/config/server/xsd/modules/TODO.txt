@@ -1,1 +1,0 @@
-common xsd for types used in several modules? like for instance turnOn / turnOff

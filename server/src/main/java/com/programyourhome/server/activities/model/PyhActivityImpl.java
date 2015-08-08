@@ -1,7 +1,11 @@
 package com.programyourhome.server.activities.model;
 
+import java.util.function.Function;
+
 import com.programyourhome.common.model.PyhImpl;
 import com.programyourhome.server.config.model.Activity;
+import com.programyourhome.server.config.model.InfraRedActivityConfig;
+import com.programyourhome.server.config.model.PcInstructorActivityConfig;
 
 public class PyhActivityImpl extends PyhImpl implements PyhActivity {
 
@@ -15,6 +19,8 @@ public class PyhActivityImpl extends PyhImpl implements PyhActivity {
     private final boolean skipActivity;
     private final boolean recordActivity;
     private final boolean menuActivity;
+    private final boolean mouseActivity;
+    private final boolean keyboardActivity;
     private final boolean active;
 
     // TODO: Weird to provide baseUrl to activity, make a separate icon/image class?
@@ -29,13 +35,23 @@ public class PyhActivityImpl extends PyhImpl implements PyhActivity {
             iconFilename = defaultIconFilename;
         }
         this.iconUrl = baseUrl + "/img/icons/" + iconFilename;
-        this.volumeActivity = activity.getModules().getInfraRed().getVolumeControl() != null;
-        this.channelActivity = activity.getModules().getInfraRed().getChannelControl() != null;
-        this.playActivity = activity.getModules().getInfraRed().getPlayControl() != null;
-        this.skipActivity = activity.getModules().getInfraRed().getSkipControl() != null;
-        this.recordActivity = activity.getModules().getInfraRed().getRecordControl() != null;
-        this.menuActivity = activity.getModules().getInfraRed().getMenuControl() != null;
+        this.volumeActivity = this.hasIrControl(activity, InfraRedActivityConfig::getVolumeControl);
+        this.channelActivity = this.hasIrControl(activity, InfraRedActivityConfig::getChannelControl);
+        this.playActivity = this.hasIrControl(activity, InfraRedActivityConfig::getPlayControl);
+        this.skipActivity = this.hasIrControl(activity, InfraRedActivityConfig::getSkipControl);
+        this.recordActivity = this.hasIrControl(activity, InfraRedActivityConfig::getRecordControl);
+        this.menuActivity = this.hasIrControl(activity, InfraRedActivityConfig::getMenuControl);
+        this.mouseActivity = this.hasPcControl(activity, PcInstructorActivityConfig::isMouseControl);
+        this.keyboardActivity = this.hasPcControl(activity, PcInstructorActivityConfig::isKeyboardControl);
         this.active = active;
+    }
+
+    private boolean hasIrControl(final Activity activity, final Function<InfraRedActivityConfig, Integer> controlGetter) {
+        return activity.getModules().getInfraRed() != null && controlGetter.apply(activity.getModules().getInfraRed()) != null;
+    }
+
+    private boolean hasPcControl(final Activity activity, final Function<PcInstructorActivityConfig, Boolean> hasControlFunction) {
+        return activity.getModules().getPcInstructor() != null && hasControlFunction.apply(activity.getModules().getPcInstructor());
     }
 
     @Override
@@ -86,6 +102,16 @@ public class PyhActivityImpl extends PyhImpl implements PyhActivity {
     @Override
     public boolean isMenuActivity() {
         return this.menuActivity;
+    }
+
+    @Override
+    public boolean isMouseActivity() {
+        return this.mouseActivity;
+    }
+
+    @Override
+    public boolean isKeyboardActivity() {
+        return this.keyboardActivity;
     }
 
     @Override

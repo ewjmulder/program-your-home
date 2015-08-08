@@ -8,8 +8,8 @@
 		{{#if volumeActivity}}
 			Volume control:<br />
 			<a href="javascript:void(0)" onclick="api.volumeMuteActivity({{id}});"><span class="fa-stack fa-lg"><span class="fa fa-volume-up fa-stack-1x"></span><span class="fa fa-ban fa-stack-2x text-danger"></span></span></a>
-			<a href="javascript:void(0)" onclick="api.volumeDownActivity({{id}});"><span class="fa fa-caret-up fa-4x"></span></a>
-			<a href="javascript:void(0)" onclick="api.volumeUpActivity({{id}});"><span class="fa fa-caret-down fa-4x"></span></a>
+			<a href="javascript:void(0)" onclick="api.volumeUpActivity({{id}});"><span class="fa fa-caret-up fa-4x"></span></a>
+			<a href="javascript:void(0)" onclick="api.volumeDownActivity({{id}});"><span class="fa fa-caret-down fa-4x"></span></a>
 			<br />
 		{{/if}}
 		{{#if channelActivity}}
@@ -29,24 +29,31 @@
 		{{/if}}
 		{{#if skipActivity}}
 			Track control:<br />
-			<input type="button" value="Skip next" onclick="api.skipNextActivity({{id}});" />
-			<input type="button" value="Skip previous" onclick="api.skipPreviousActivity({{id}});" />
+			<a href="javascript:void(0)" onclick="api.skipPreviousActivity({{id}});"><span class="fa fa-step-backward fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.skipNextActivity({{id}});"><span class="fa fa-step-forward fa-2x"></span></a>
 			<br />
 		{{/if}}
 		{{#if recordActivity}}
 			Record control:<br />
-			<input type="button" value="Record" onclick="api.recordActivity({{id}});" />
+			<a href="javascript:void(0)" onclick="api.recordActivity({{id}});"><span style="color: red;" class="fa fa-circle fa-2x"></span></a>
 			<br />
 		{{/if}}
 		{{#if menuActivity}}
 			Menu control:<br />
-			<input type="button" value="Menu toggle" onclick="api.menuToggleActivity({{id}});" />
-			<input type="button" value="Menu select" onclick="api.menuSelectActivity({{id}});" />
-			<input type="button" value="Menu back" onclick="api.menuBackActivity({{id}});" />
-			<input type="button" value="Menu up" onclick="api.menuUpActivity({{id}});" />
-			<input type="button" value="Menu down" onclick="api.menuDownActivity({{id}});" />
-			<input type="button" value="Menu left" onclick="api.menuLeftActivity({{id}});" />
-			<input type="button" value="Menu right" onclick="api.menuRightActivity({{id}});" />
+			<a href="javascript:void(0)" onclick="api.menuToggleActivity({{id}});"><span class="fa fa-bars fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.menuSelectActivity({{id}});"><span class="fa fa-sign-in fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.menuBackActivity({{id}});"><span class="fa fa-undo fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.menuUpActivity({{id}});"><span class="fa fa-arrow-up fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.menuDownActivity({{id}});"><span class="fa fa-arrow-down fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.menuLeftActivity({{id}});"><span class="fa fa-arrow-left fa-2x"></span></a>
+			<a href="javascript:void(0)" onclick="api.menuRightActivity({{id}});"><span class="fa fa-arrow-right fa-2x"></span></a>
+			<br />
+		{{/if}}
+		{{#if mouseActivity}}
+			Mouse control:<br />
+ 			<img id="activity-trackpad-{{id}}" src="img/touchpad-small.png"><br />
+			<input type="button" value="LMB" onclick="api.clickLeftMouseButton();">
+			<input type="button" value="RMB" onclick="api.clickRightMouseButton();">
 			<br />
 		{{/if}}
 	</span>

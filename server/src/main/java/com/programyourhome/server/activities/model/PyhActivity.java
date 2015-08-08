@@ -22,6 +22,10 @@ public interface PyhActivity {
 
     public boolean isMenuActivity();
 
+    public boolean isMouseActivity();
+
+    public boolean isKeyboardActivity();
+
     public boolean isActive();
 
 }

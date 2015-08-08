@@ -299,6 +299,10 @@
                         </devices>
                         <volumeControl>1</volumeControl>
                     </infraRed>
+                    <pcInstructor>
+                        <mouseControl>true</mouseControl>
+                        <keyboardControl>true</keyboardControl>
+                    </pcInstructor>
                 </modules>
             </activity>
             <activity>

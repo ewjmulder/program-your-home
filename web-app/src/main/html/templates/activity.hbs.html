@@ -4,7 +4,7 @@
 	});"><span class="fa fa-power-off fa-2x"></span></a>
 	<br />
 	<br />
-	<span id="activity-active-{{id}}" style="color: black;">
+	<div id="activity-active-{{id}}" style="color: black;">
 		{{#if volumeActivity}}
 			Volume control:<br />
 			<a href="javascript:void(0)" onclick="api.volumeMuteActivity({{id}});"><span class="fa-stack fa-lg"><span class="fa fa-volume-up fa-stack-1x"></span><span class="fa fa-ban fa-stack-2x text-danger"></span></span></a>
@@ -51,10 +51,13 @@
 		{{/if}}
 		{{#if mouseActivity}}
 			Mouse control:<br />
- 			<img id="activity-trackpad-{{id}}" src="img/touchpad-small.png"><br />
-			<input type="button" value="LMB" onclick="api.clickLeftMouseButton();">
-			<input type="button" value="RMB" onclick="api.clickRightMouseButton();">
-			<br />
+			<!-- A 'parent' div for the touchpad images to use as anchor for absolute positioning. -->
+			<!-- Relative positioning seems to break the center alignment, so bring it back with some CSS trickery. -->
+			<div style="position: relative; left: 50%; margin-left: -126px;">
+				<div style="position: absolute; top: 0px; left: 0px;" id="draw-activity-touch-area-{{id}}"></div>
+				<div style="position: absolute; top: 167px; left: 0px;" id="draw-activity-lmb-{{id}}"></div>
+				<div style="position: absolute; top: 167px; left: 130px;" id="draw-activity-rmb-{{id}}"></div>
+			</div>
 		{{/if}}
-	</span>
+	</div>
 {{/with}}

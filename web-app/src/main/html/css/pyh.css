@@ -19,7 +19,6 @@ body {
 	background-color: #fff;
 	font-family: Arial, Helvetica, Verdana;
 	font-size: 14px;
-	line-height: 22px;
 	min-height: 100%;
 	position: relative;
 	-webkit-text-size-adjust: none;
@@ -31,19 +30,19 @@ span.fa {
 	text-shadow: 2px 2px #AAAAAA;
 }
 
-span.current-page {
+div.current-page {
 	display: inline;
 }
 
-span.hidden-page {
+div.hidden-page {
 	display: none;
 }
 
-span.visible {
+div.visible, span.visible {
 	display: inline;
 }
 
-span.hidden {
+div.hidden, span.hidden {
 	display: none;
 }
 

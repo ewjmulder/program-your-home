@@ -44,7 +44,7 @@ define(["jquery", "BasePage", "enums", "util"],
 					// The location and size of the shining part of the bulb in the image, relative to the canvas top left corner.
 					var shineX = imageX + 0;
 					var shineY = imageY + 0;
-					// Magix numbers, different per image.
+					// Magic numbers, different per image.
 					var shineWidth = lightImage.width;
 					var shineHeight = 33;
 			

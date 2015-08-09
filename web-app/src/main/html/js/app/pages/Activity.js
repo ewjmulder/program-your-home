@@ -7,10 +7,18 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 	return function Activity() {
 		BasePage.call(this, enums.EventTopic.PYH_ACTIVITIES);
 
+		// DOM content elements for drawing the touch pad.
+		var touchAreaContentElement = null;
+		var lmbContentElement = null;
+		var rmbContentElement = null;
+		
 		// PanData class that keeps track of the last (cumulative) delta x and y of a pan.
 		function PanData() {
 			var lastDeltaX = 0;
 			var lastDeltaY = 0;
+			this.isEmpty = function () {
+				return lastDeltaX == 0 && lastDeltaY == 0;
+			};
 			this.reset = function () {
 				lastDeltaX = 0;
 				lastDeltaY = 0;				
@@ -31,11 +39,45 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 		var currentPan = new PanData();
 		
 		this.initPage = function (resources) {
-			// This is a page for one specific activity, so we should be able to safely get the id of the first element.
-			var activityId = resources[0].id;
+			// This is a page for one specific activity, so we should be able to safely get the first element.
+			var activity = resources[0];
+			var activityId = activity.id;
+			if (activity.mouseActivity) {
+				touchAreaContentElement = document.getElementById("draw-activity-touch-area-" + activityId);
+				lmbContentElement = document.getElementById("draw-activity-lmb-" + activityId);
+				rmbContentElement = document.getElementById("draw-activity-rmb-" + activityId);
+				
+				this.drawTouchPadImage(touchAreaContentElement, "touchpad-move-area.png");
+				this.drawTouchPadImage(lmbContentElement, "touchpad-lmb.png");
+				this.drawTouchPadImage(rmbContentElement, "touchpad-rmb.png");
+				this.configureTouchEvents();
+			}
+		}
+		
+		this.drawTouchPadImage = function (contentElement, imageFilename) {
+			var touchPadImage = new Image();
+			$(touchPadImage).load(function() {
+				// Create a canvas element dynamically, with the right size and add it to the DOM tree.
+				var canvasElement = document.createElement('canvas');
+				canvasElement.width = touchPadImage.width;
+				canvasElement.height = touchPadImage.height;
+				contentElement.appendChild(canvasElement);
+		
+				// Get the drawing context from the canvas.
+				var context = canvasElement.getContext('2d');
+				context.drawImage(touchPadImage, 0, 0);
+			})
+			// Set the source at the end, so we'll be sure the load() function will be called.
+			.attr({ src: "img/" + imageFilename });
+		};
+		
+		this.configureTouchEvents = function () {
 			// For the trackpad area, configure a pan recognizer as the single recognizer.
-			var hammerManager = new Hammer.Manager(document.getElementById("activity-trackpad-" + activityId), {
+			var hammerManager = new Hammer.Manager(touchAreaContentElement, {
 			    recognizers: [
+			        // Set the threshold very low, to detect any mouse/finger movement as soon as possible.
+			        // In practice, most mobile browsers will force a higher threshold, probably a best practice
+			        // for human finger touch movement detection.
 	  			    [Hammer.Pan, {threshold: 1, direction: Hammer.DIRECTION_ALL}]
 			    ]
 			});
@@ -43,25 +85,29 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 			// The panmove event has deltaX and deltaY properties, but those are cumulative. So we have to calculate
 			// a diff on the previous delta that was recorded and use that as input for the server.
 			hammerManager.on("panmove", function (e) {
-				var diffDeltaX = currentPan.nextDeltaX(e.deltaX);
-				var diffDeltaY = currentPan.nextDeltaY(e.deltaY);
 				// TODO: make the mutiplier into a setting
 				var multiplier = 3;
-				api.moveMouseRelative(diffDeltaX * multiplier, diffDeltaY * multiplier);
+				// Do not use the multiplier on the first movement, because the high browser minimum movement
+				// for pan detection will cause a big first 'jump' otherwise.
+				if (currentPan.isEmpty()) {
+					multiplier = 1;
+				}
+				var paramDeltaX = currentPan.nextDeltaX(e.deltaX) * multiplier;
+				var paramDeltaY = currentPan.nextDeltaY(e.deltaY) * multiplier;
+				// Only do a server call if there is any actual movement to process.
+				if (paramDeltaX != 0 || paramDeltaY != 0) {
+					api.moveMouseRelative(paramDeltaX, paramDeltaY);
+				}
 			});
 			// When a pan stops (either end or cancel), reset the currentPan to erase the delta diff records.
 			hammerManager.on("panend pancancel", function (e) {
 				currentPan.reset();
 			});
-			
-			//TODO:
-			//- Try to get pan minimum treshold, config of 1 is not working
-			//(alternative: first pan in series no multiplier)
-			//(second alternative: use tap or press (prob press) to get the first movement)
-			//-don't work with <img> directly, as it triggers image saving browser logic, but use canvas and draw image on it
-			//-split images for main movement and LMB, RMB
-			//-Make it possible to hold LMB, RMB for dragging? (needs API/REST update for pressLMB/RMB, releaseLMB/RMB (with timeout?))
-		}
+			// For the left and right mouse buttons, we can simply suffice with on click events.
+			//TODO: mouse down/up events for dragging etc.
+			$(lmbContentElement).click(api.clickLeftMouseButton);
+			$(rmbContentElement).click(api.clickRightMouseButton);
+		};
 		
 		this.updateResource = function (activity) {
 			if (activity.active) {

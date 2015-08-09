@@ -69,14 +69,6 @@ define(["jquery", "api", "enums", "templates", "pages", "menu", "util", "log", "
 	/////////////////////////////////////////////
 	
 	function start() {
-		// Disable image dragging, we want to have full control over moving over images.
-/*
-		$(document).on("dragstart", function(e) {
-		     if (e.target.nodeName.toUpperCase() == "IMG") {
-		         return false;
-		     }
-		});
-*/		
 		//TODO: create generic page for sensors - then use activeModules variable again.
 		createResourceTopLevelPages([Resource.ACTIVITIES, Resource.LIGHTS, Resource.DEVICES]);
 		createStaticTopLevelPage("settings");

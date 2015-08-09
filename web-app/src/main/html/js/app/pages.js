@@ -38,8 +38,8 @@ define(["jquery", "templates", "util", "log"],
 		// The javascript module that contains the dynamic page logic, will be lazy loaded when required.
 		this.jsObject = null;
 		
-		// Create a span element for this page, that will be used to contain the DOM tree and show / hide the page.
-		this.contentElement = $(document.createElement("span"));
+		// Create a div element for this page, that will be used to contain the DOM tree and show / hide the page.
+		this.contentElement = $(document.createElement("div"));
 		this.contentElement.attr("id", "content-page-" + this.id);
 		// Default to a hidden page.
 		this.contentElement.addClass("hidden-page");

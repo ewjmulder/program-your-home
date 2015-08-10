@@ -1,6 +1,6 @@
 {{#each data}}
 	{{name}}<br />
-	<a href="javascript:void(0)" onclick="require(['api', 'pageLights'], function (api, pageLights) {
-			api.toggleLight({{id}}, pageLights.isOn({{id}}));
+	<a href="javascript:void(0)" onclick="require(['pages'], function (pages) {
+		pages.byName('{{../pageName}}').jsObject.clickLight({{id}});
 	});"><span id="draw-light-{{id}}"></span></a><br />
 {{/each}}

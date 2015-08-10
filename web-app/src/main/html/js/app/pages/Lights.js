@@ -1,17 +1,13 @@
 "use strict";
 
 //Start a new require module.
-define(["jquery", "BasePage", "enums", "util"],
-		function ($, BasePage, enums, util) {
+define(["jquery", "BasePage", "api", "enums", "util"],
+		function ($, BasePage, api, enums, util) {
 
 	return function Lights() {
 		BasePage.call(this, enums.EventTopic.HUE_LIGHTS);
 
 		this.backgroundColor = "#CCCCCC";
-
-		this.isOn = function (id) {
-			return this.getResource(id).on;
-		};
 
 		this.updateResource = function (light) {
 			var contentElement = document.getElementById("draw-light-" + light.id);
@@ -136,8 +132,18 @@ define(["jquery", "BasePage", "enums", "util"],
 				});
 			} else {
 				$(contentElement).html("TODO: support multiple light types!<br />");
-			}
+			};
+			
+			this.isOn = function (id) {
+				return this.getResource(id).on;
+			};
+			
+			this.clickLight = function (id) {
+				api.toggleLight(id, this.isOn(id));
+			};
+
 		};
+		
 	};
 
 // End of require module.

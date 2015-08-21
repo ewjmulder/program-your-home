@@ -53,14 +53,14 @@ define(["jquery", "mmenu", "hammer", "settings", "pages", "enums"],
 		Hammer.defaults.preset =
 			[
 			    [Hammer.Pan, {threshold: 25, direction: Hammer.DIRECTION_HORIZONTAL}],
-			    [Hammer.Press, { threshold: 25, time: 0}]
+			    [Hammer.Press, {threshold: 25, time: 0}]
             ];
 
 		// Create a hammer listener on the menu DOM element.
 		var hammer = new Hammer($("#menu")[0], {});
 		// When a press is detected, programmatically click on the center of the press, effectively selecting an underlying menu item (if present).
 		hammer.on("pressup", function (e) {
-			$(document.elementFromPoint(e.center.x, e.center.y)).click();  
+			$(document.elementFromPoint(e.center.x, e.center.y)).click();
 		});
 		
 		// Bind to the touchstart event to be able to close the menu on touch events.

@@ -38,9 +38,9 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 		};
 		var currentPan = new PanData();
 		
-		this.initPage = function (resources) {
+		this.initPage = function () {
 			// This is a page for one specific activity, so we should be able to safely get the first element.
-			var activity = resources[0];
+			var activity = this.getResources()[0];
 			var activityId = activity.id;
 			if (activity.mouseActivity) {
 				touchAreaContentElement = document.getElementById("draw-activity-touch-area-" + activityId);
@@ -109,7 +109,14 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 			$(rmbContentElement).click(api.clickRightMouseButton);
 		};
 		
-		this.updateResource = function (activity) {
+		this.resourceChanged = function (oldActivityValue, newActivityValue) {
+			// If we become inactive and are currently shown, switch back to the main activities page.
+			if (!newActivityValue.active && this.isCurrentPage()) {
+				pages.show("activities");
+			}
+		};
+
+		this.updateUI = function (activity) {
 			if (activity.active) {
 				$("#activity-active-" + activity.id).removeClass("hidden");
 				$("#activity-active-" + activity.id).addClass("visible");
@@ -121,15 +128,7 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 		
 		this.clickPower = function (id) {
 			var activity = this.getResource(id);
-			var becomesInactive = activity.active;
-			// First complete the toggle, then switch the page, to make sure we don't run into
-			// a race condition where the main page ends up with the wrong activity state (if it was not already loaded).
-			api.toggleActivity(id, activity.active).done(function() {
-				if (becomesInactive) {
-					// If the activity will become inactive by clicking the power button, go to the general activities page.
-					pages.show("activities");
-				}
-			});
+			api.toggleActivity(id, activity.active);
 		};
 	};
 	

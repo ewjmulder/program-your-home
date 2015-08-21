@@ -6,8 +6,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,12 +15,10 @@ import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.activities.model.PyhActivity;
-import com.programyourhome.server.activities.model.PyhActivityImpl;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.config.model.Activity.Modules;
 import com.programyourhome.server.config.model.InfraRedActivityConfig;
 import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
-import com.programyourhome.server.events.activities.ActivityChangedEvent;
 import com.programyourhome.server.response.ServiceResult;
 
 @RestController
@@ -38,35 +34,21 @@ public class ProgramYourHomeControllerMainActivities extends AbstractProgramYour
     @Autowired
     private ActivityCenter activityCenter;
 
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
-    @Value("${server.address}")
-    private String host;
-
-    @Value("${server.port}")
-    private int port;
-
     @RequestMapping("")
     public ServiceResult<Collection<PyhActivity>> getActivities() {
         return this.produce("Activities", () -> this.getServerConfig().getActivitiesConfig().getActivities().stream()
-                .map(this::createPyhActivity)
+                .map(this.activityCenter::createPyhActivity)
                 .collect(Collectors.toList()));
     }
 
     @RequestMapping("{id}")
     public ServiceResult<PyhActivity> getActivity(@PathVariable("id") final int id) {
         return this.find("Activity", id, this.activityCenter::findActivity)
-                .produce(this::createPyhActivity);
+                .produce(this.activityCenter::createPyhActivity);
     }
 
     public Optional<PyhActivity> createPyhActivity(final int id) {
-        return this.activityCenter.findActivity(id).map(this::createPyhActivity);
-    }
-
-    public PyhActivity createPyhActivity(final Activity activity) {
-        final String defaultIcon = this.getServerConfig().getActivitiesConfig().getDefaultIcon();
-        return new PyhActivityImpl(activity, this.activityCenter.isActive(activity), "http://" + this.host + ":" + this.port + "", defaultIcon);
+        return this.activityCenter.findActivity(id).map(this.activityCenter::createPyhActivity);
     }
 
     @RequestMapping("{id}/start")
@@ -84,14 +66,11 @@ public class ProgramYourHomeControllerMainActivities extends AbstractProgramYour
     }
 
     private void toggleActivity(final Activity activity) {
-        final PyhActivity oldValue = this.createPyhActivity(activity);
-        if (oldValue.isActive()) {
+        if (this.activityCenter.isActive(activity)) {
             this.activityCenter.stopActivity(activity);
         } else {
             this.activityCenter.startActivity(activity);
         }
-        final PyhActivity newValue = this.createPyhActivity(activity);
-        this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
     }
 
     @RequestMapping("{id}/volume/up")

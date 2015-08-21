@@ -42,6 +42,8 @@ define(["jquery", "stomp", "sock", "config", "util", "log"],
     	});
     };
     
+    // TODO: Consider giving a nice readable (debuggable) name to the subscriptions: http://jmesnil.net/stomp-websocket/doc/, look for: { id: mysubid }
+    
 	return {
 		// Subscribe for plain text: the message body string is not modified.
 		subscribeForText: function (eventTopic, callback) {

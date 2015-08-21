@@ -9,7 +9,7 @@ define(["jquery", "BasePage", "api", "enums", "util"],
 
 		this.backgroundColor = "#CCCCCC";
 
-		this.updateResource = function (light) {
+		this.updateUI = function (light) {
 			var contentElement = document.getElementById("draw-light-" + light.id);
 			if (light.type == "HUE_FULL_COLOR_BULB") {
 				// Create a new image.

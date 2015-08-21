@@ -5,6 +5,12 @@
 define(["pages", "events", "log"],
 		function (pages, events, log) {
 
+	// TODO: Implement a 'global' resource cache for all pages. This should include the type of resource and the id as the key.
+	// Reason: no possibility to be out of sync between parent/child pages cache state (eg activities)
+	// Currently this seems to cause no problems, so think through thoroughly before doign this,
+	// since it might have undesired side effects, like how can you still know which resources are out of sync: than that should be global as well
+	// Etc, this might snowball into too much. Conclusion: only fix if found to be really necessary because of bugs that cannot be resolved otherwise.
+	
 	return function BasePage(eventTopicResource) {
 		var self = this;
 		// Default null, will be set in the init.
@@ -12,20 +18,32 @@ define(["pages", "events", "log"],
 		// Default background color, can be overridden by subclasses.
 		this.backgroundColor = "white";
 		this.resourceCache = {};
-		
-		this.getResource = function (id) { return this.resourceCache[id]; };
+		this.resourceIdsOutOfSyncWithUI = [];
+
+		this.getPage = function () { return self.page; };
+
+		this.isCurrentPage = function () { return self.page.isCurrentPage(); };
+
+		this.getResources = function () {
+			return Object.keys(self.resourceCache).map(function (resourceId) {
+				return self.resourceCache[resourceId];
+			});
+		};
+
+		this.getResource = function (id) { return self.resourceCache[id]; };
 		
 		// Function that is called once in the lifetime of the object (before any others), but after the DOM is available.
-		// It does have an argument for the initial state of the resources. This is mainly to get an id or some other
-		// static piece of information and should not be used to perform regular, repeating update logic.
-		this.initPage = function (resources) { return "To be implemented in subclass"; };
+		// When this function is called, the resources are already cached, so they can be retrieved through getResources().
+		// Use the resource data only to get an id or another static piece of information and do not perform any regular, repeating update logic.
+		this.initPage = function () { return "To be implemented in subclass"; };
 		// Function that is called once for every time the page is shown (selected).
 		this.showPage = function () { return "To be implemented in subclass"; };
-		// Either of these (or exceptionally both) should be implemented in the subclass (none if there are no resources on the page).
-		// If only the new values is good enough, updateResource should be used. If more fine
-		// grained control (eg individual value comparison) is needed, resourceValueChanged should be used.
-		this.resourceValueChanged = function (oldResourceValue, newResourceValue) { return "To be implemented in subclass"; };
-		this.updateResource = function (resource) { return "To be implemented in subclass"; };
+		// Signals the value changed event of a resource. This function will always be called when the event is received to inform the
+		// page of the state change. Typically, the implementation should not contain any UI updates (which should be done in updateUI), but just handle general state logic.
+		this.resourceChanged = function (oldResourceValue, newResourceValue) { return "To be implemented in subclass"; };
+		// Update the UI for the provided resource. This function will only be called when the page is currently displayed.
+		// Note: this means the event happened in the past. This function is just for doing UI updates, any state logic should be handled in resourceChanged.
+		this.updateUI = function (resource) { return "To be implemented in subclass"; };
 		
 		// Initialize logic. Must be called first, before any other function.
 		// Used as separate function instead of constructor, because now we can create the page module object before we have the page or data.
@@ -37,12 +55,13 @@ define(["pages", "events", "log"],
 			this.page = page;
 			this.fillCache(resources);
 			this.subscribe(resources, eventTopicResource);
-			this.initPage(resources);
+			this.initPage();
 		}
 		
 		this.fillCache = function (resources) {
 			resources.forEach(function (resource) {
 				self.resourceCache[resource.id] = resource;
+				self.resourceIdsOutOfSyncWithUI.push(resource.id);
 			});
 		};
 		
@@ -51,26 +70,32 @@ define(["pages", "events", "log"],
 				// Register to update on state change events for this resource.
 				events.subscribeForObject(eventTopicResource(resource.id),
 						function (valueChangedEvent) {
+							log.debug("Event change for page " + self.page.name);
 							var oldResourceValue = valueChangedEvent.oldValue;
 							var newResourceValue = valueChangedEvent.newValue;
 							// Always update the cache with the newly received value.
 							self.resourceCache[newResourceValue.id] = newResourceValue;
-							// Only update the page display if this is the current page.
+							// Always call the resourceChanged function to inform about the event.
+							self.resourceChanged(oldResourceValue, newResourceValue);
+							// Only update the UI if this is the current page, otherwise mark as out of sync.
 							if (self.page.isCurrentPage()) {
-								self.resourceValueChanged(oldResourceValue, newResourceValue);
-								self.updateResource(newResourceValue);
+								self.updateUI(newResourceValue);
+							} else {
+								self.resourceIdsOutOfSyncWithUI.push(resource.id);
 							}
 						});
 			});
 		};
 		
-		//TODO: only update 'dirty' resources, keep track in flag. This prevents full redraw when nothing in cache has changed.
 		this.show = function () {
 			self.showPage();
-			Object.keys(this.resourceCache).forEach(function (resourceId) {
-				var resource = self.resourceCache[resourceId];
-				self.updateResource(resource);
+			// Sync all out of sync resources when the page is shown.
+			// This mechanism allows for 'lazy loading' of UI updates.
+			self.resourceIdsOutOfSyncWithUI.forEach(function (resourceId) {
+				self.updateUI(self.getResource(resourceId));
 			});
+			// And we're completely in sync again.
+			self.resourceIdsOutOfSyncWithUI = [];
 		};
 	};
 

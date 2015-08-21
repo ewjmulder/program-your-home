@@ -7,7 +7,7 @@ define(["jquery", "BasePage", "enums"],
 	return function Device() {
 		BasePage.call(this, enums.EventTopic.IR_DEVICES);
 		
-		this.updateResource = function (device) {
+		this.updateUI = function (device) {
 			$("#device-todo-" + device.id).html(device.on ? "On todo" : "Off todo");
 		};
 	};

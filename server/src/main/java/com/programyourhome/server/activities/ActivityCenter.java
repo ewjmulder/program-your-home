@@ -1,19 +1,21 @@
 package com.programyourhome.server.activities;
 
 import java.awt.Color;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.ir.InfraRed;
+import com.programyourhome.server.activities.model.PyhActivity;
+import com.programyourhome.server.activities.model.PyhActivityImpl;
 import com.programyourhome.server.config.ServerConfigHolder;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.config.model.Device;
@@ -22,9 +24,13 @@ import com.programyourhome.server.config.model.Key;
 import com.programyourhome.server.config.model.Light;
 import com.programyourhome.server.config.model.LightState;
 import com.programyourhome.server.config.model.PhilipsHueActivityConfig;
+import com.programyourhome.server.events.activities.ActivityChangedEvent;
 
 @Component
 public class ActivityCenter {
+
+    // TODO: Think about the detailed 'working' of activities: for now only one overall activity active is allowed.
+    // Maybe split up per 'type' of activity, etc.
 
     @Autowired
     private ServerConfigHolder configHolder;
@@ -39,19 +45,33 @@ public class ActivityCenter {
     @Autowired
     private InfraRed infraRed;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     // TODO: naming: active / started / running / ongoing?
-    private final Set<Activity> activeActivities;
+    private Activity activeActivity;
+
+    @Value("${server.address}")
+    private String host;
+
+    @Value("${server.port}")
+    private int port;
 
     public ActivityCenter() {
-        this.activeActivities = new HashSet<Activity>();
+        this.activeActivity = null;
     }
 
     public synchronized boolean isActive(final Activity activity) {
-        return this.activeActivities.contains(activity);
+        return activity.equals(this.activeActivity);
     }
 
     public synchronized boolean isNotActive(final Activity activity) {
         return !this.isActive(activity);
+    }
+
+    public synchronized PyhActivity createPyhActivity(final Activity activity) {
+        final String defaultIcon = this.configHolder.getConfig().getActivitiesConfig().getDefaultIcon();
+        return new PyhActivityImpl(activity, this.isActive(activity), "http://" + this.host + ":" + this.port + "", defaultIcon);
     }
 
     // TODO: probable race condition: quickly starting/stopping activities one after the other.
@@ -61,26 +81,37 @@ public class ActivityCenter {
         if (this.isActive(activity)) {
             throw new IllegalStateException("Activity already active");
         }
-        this.activeActivities.add(activity);
+        if (this.activeActivity != null) {
+            // Another activity is currently active, so stop that one first.
+            // TODO: Don't turn off / turn on overlapping devices, but only change channels where needed.
+            this.stopActivity(this.activeActivity);
+        }
+        final PyhActivity oldValue = this.createPyhActivity(activity);
+        this.activeActivity = activity;
         if (activity.getModules().getPhilipsHue() != null) {
             this.taskExecutor.execute(() -> this.activateHueModule(activity.getModules().getPhilipsHue()));
         }
         if (activity.getModules().getInfraRed() != null) {
             this.taskExecutor.execute(() -> this.activateIrModule(activity.getModules().getInfraRed()));
         }
+        final PyhActivity newValue = this.createPyhActivity(activity);
+        this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
     }
 
     public synchronized void stopActivity(final Activity activity) {
         if (!this.isActive(activity)) {
             throw new IllegalStateException("Activity is not active");
         }
-        this.activeActivities.remove(activity);
+        final PyhActivity oldValue = this.createPyhActivity(activity);
         if (activity.getModules().getPhilipsHue() != null) {
             this.taskExecutor.execute(() -> this.deactivateHueModule(activity.getModules().getPhilipsHue()));
         }
         if (activity.getModules().getInfraRed() != null) {
             this.taskExecutor.execute(() -> this.deactivateIrModule(activity.getModules().getInfraRed()));
         }
+        this.activeActivity = null;
+        final PyhActivity newValue = this.createPyhActivity(activity);
+        this.eventPublisher.publishEvent(new ActivityChangedEvent(oldValue, newValue));
     }
 
     private void activateHueModule(final PhilipsHueActivityConfig hueConfig) {

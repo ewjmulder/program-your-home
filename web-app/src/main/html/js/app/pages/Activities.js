@@ -7,11 +7,33 @@ define(["jquery", "BasePage", "enums", 'api', 'pages'],
 	return function Activities() {
 		BasePage.call(this, enums.EventTopic.PYH_ACTIVITIES);
 		
+		var self = this;
+		
+		// When this page is shown, but one of the activities is active, go to that activity details page instead.
+		this.showPage = function () {
+			self.getResources().forEach(function (activity) {
+				if (activity.active) {
+					self.showActivityDetailsPage(activity);
+				}
+			});
+		};
+		
 		this.isActive = function (id) {
-			return this.getResource(id).active;
+			return self.getResource(id).active;
+		};
+		
+		this.showActivityDetailsPage = function (activity) {
+			pages.show("activity-" + activity.name);
 		};
 
-		this.updateResource = function (activity) {
+		this.resourceChanged = function (oldActivityValue, newActivityValue) {
+			// If an activity becomes active and we are the current page, go to that activity page for details.
+			if (newActivityValue.active && self.isCurrentPage()) {
+				self.showActivityDetailsPage(newActivityValue);
+			}
+		};
+		
+		this.updateUI = function (activity) {
 			if (activity.active) {
 				$("#activity-img-" + activity.id).removeClass("grayscale");
 			} else {
@@ -20,17 +42,9 @@ define(["jquery", "BasePage", "enums", 'api', 'pages'],
 		};
 		
 		this.clickActivity = function (id) {
-			var activity = this.getResource(id);
-			var isActive = this.isActive(id);
-			var becomesActive = !isActive;
-			// First complete the toggle, then switch the page, to make sure we don't run into
-			// a race condition where the child page ends up with the wrong activity state.
-			api.toggleActivity(id, isActive).done(function() {
-				if (becomesActive) {
-					// If the activity will become active by clicking the icon, go to the activity page for details.
-					pages.show("activity-" + activity.name);
-				}
-			});
+			var activity = self.getResource(id);
+			var isActive = self.isActive(id);
+			api.toggleActivity(id, isActive);
 		};
 	};
 	

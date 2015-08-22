@@ -86,11 +86,12 @@ define(["jquery", "api", "enums", "templates", "pages", "menu", "util", "log", "
 			templates.enableRecursion("menu");
 			// Load the main menu DOM tree with the menu definition that we now know is available after the pre-loading.
 			$("#menu").html(templates.get("menu")({ "pages": pages.allTopLevel() }));
-			// Also, connect all menu click events to showing the appropriate page.
+			// Connect all menu click events to showing the appropriate page.
 			pages.all().forEach(function (page) {
 				$("#menu-link-" + page.id).click(function () {
 					pages.show(page.name);
-					// Do not return false here, since that interferes with mmenu handling the situation for us.
+					// Suppress mmenu handling the click, since we handle calling setSelected for the right menu item ourselves.
+					return false;
 				});
 			});
 			// Now we're ready to activate the actual menu on the page.

@@ -31,5 +31,6 @@ X Find a (proper) solution for possible race condition when activating an activi
 Problem described above is probably successfully eliminated by the 'global' resource cache over all pages. Untick when it might reappear.
 
 - Only use enums in api module (or is it really needed in main or somewhere else as well?) -> idea: api contains all fine grained api stuff, no need to use enums 'yourself'.
-- Home page is sub menu item -> auto-slideout the menu to that submenu (setting selected actually works)
-- Keep selected page in menu in sync with auto-parent-child forwarding (eg activities)
+X Home page is sub menu item -> auto-slideout the menu to that submenu (setting selected actually works)
+X Keep selected page in menu in sync with auto-parent-child forwarding (eg activities)
+- Home page where you can add your own 'tiles' as favorite menu items (also all the way down to like play music in the kitchen - spotify trance)

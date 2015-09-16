@@ -21,10 +21,16 @@ X Bug fix: after menu open-close, you can slide the page over the icon bar (some
 - Inform mmenu author about hammer improvement
 - Now that we have so many modules, we should have some way of merge+minify -> brunch!
 X Use Deferred.promise() as return value everywhere where Deferred is used
-- Find a (proper) solution for possible race condition when activating an activity and then switching to the child page
+X Find a (proper) solution for possible race condition when activating an activity and then switching to the child page
   - Details: toggle in progress, child page gets inactive current state, toggle finishes, update event broadcasted, child subscribes for updates
   - Possible solution: at least the subscribe must be done before the get current status. Then when current status returns it should check if no changed event has
     been processed meanwhile. Furthermore: state change event handlers should be able to handle the case where the cache is still empty, but a change comes in anyway.
     - Possible sub-solution for last problem: keep track of initial current status loading done.
       Then, if not but change comes in, save the new state in temp var, when the current status does come in, use latest from state change (if available) instead of state request result.
+
+Problem described above is probably successfully eliminated by the 'global' resource cache over all pages. Untick when it might reappear.
+
 - Only use enums in api module (or is it really needed in main or somewhere else as well?) -> idea: api contains all fine grained api stuff, no need to use enums 'yourself'.
+X Home page is sub menu item -> auto-slideout the menu to that submenu (setting selected actually works)
+X Keep selected page in menu in sync with auto-parent-child forwarding (eg activities)
+- Home page where you can add your own 'tiles' as favorite menu items (also all the way down to like play music in the kitchen - spotify trance)

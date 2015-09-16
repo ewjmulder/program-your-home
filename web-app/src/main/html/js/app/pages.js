@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // All pages administration and logic.
-define(["jquery", "templates", "util", "log"],
-		function ($, templates, util, log) {
+define(["jquery", "menu", "templates", "util", "log"],
+		function ($, menu, templates, util, log) {
 	
 	// The current page that is on screen.
 	var currentPage;
@@ -83,6 +83,8 @@ define(["jquery", "templates", "util", "log"],
 			}
 			// Set the 'new current page'.
 			currentPage = pages[pageName];
+			// Select the matching menu item for this page.
+			menu.selectItem(currentPage.id);
 			
 			var afterPageLoaded = function () {
 				// Show the 'new current page'.

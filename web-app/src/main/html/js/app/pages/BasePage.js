@@ -5,11 +5,99 @@
 define(["pages", "events", "log"],
 		function (pages, events, log) {
 
-	// TODO: Implement a 'global' resource cache for all pages. This should include the type of resource and the id as the key.
-	// Reason: no possibility to be out of sync between parent/child pages cache state (eg activities)
-	// Currently this seems to cause no problems, so think through thoroughly before doign this,
-	// since it might have undesired side effects, like how can you still know which resources are out of sync: than that should be global as well
-	// Etc, this might snowball into too much. Conclusion: only fix if found to be really necessary because of bugs that cannot be resolved otherwise.
+	// Internally used resource cache definition. This is 'global' for all subpages,
+	// so they will share a mutual resource cache and resource state cannot be out of sync between the different pages.
+	// This is required to keep sane and predictable behavior when pages forward to each other based on a certain resource state.
+	function ResourceCache() {
+		var self = this;
+		
+		this.cache = {};
+		this.pageResources = {};
+		this.updateSubscriptions = {};
+
+		// Each page should call this function for every resource it's interested in.
+		// This function will also make sure to register for update events for this resource.
+		this.enableCacheFor = function (page, eventTopicResource, resourceId) {
+			// If the cache does not contain an entry yet for this event topic resource, create it
+			// and initialize it empty. Otherwise it's already present, so enabled.
+			if (self.cache[eventTopicResource] == null) {
+				self.cache[eventTopicResource] = {};
+			}
+			// Currently, there is no known value for this resource, so initialize it to null.
+			self.cache[eventTopicResource][resourceId] = null;
+			
+			// If the page is not listed yet, initialize it.
+			if (self.pageResources[page.name] == null) {
+				self.pageResources[page.name] = {};
+			}
+			// If the page / eventTopicResource combination is not known yet, initialize it with an empty array.
+			if (self.pageResources[page.name][eventTopicResource] == null) {
+				self.pageResources[page.name][eventTopicResource] = [];
+			}
+			// Register the interest of this page / eventTopicResource combination for the given resource id.
+			self.pageResources[page.name][eventTopicResource].push(resourceId);
+			
+			// If this eventTopicResource is not listed for subscriptions yet, initialize it.
+			if (self.updateSubscriptions[eventTopicResource] == null) {
+				self.updateSubscriptions[eventTopicResource] = {};
+			}
+			// If the subscription for this resource does not yet exist, do subscribe for update events.
+			if (self.updateSubscriptions[eventTopicResource][resourceId] == null) {
+				// Initialize to an empty array, where the individual page callbacks can be stored.
+				self.updateSubscriptions[eventTopicResource][resourceId] = [];
+				// Do the actual event subscription.
+				events.subscribeForObject(eventTopicResource(resourceId),
+						function (valueChangedEvent) {
+							var oldResourceValue = valueChangedEvent.oldValue;
+							var newResourceValue = valueChangedEvent.newValue;
+							log.debug("ResourceCache received changed event on eventTopicResource: '" + eventTopicResource(newResourceValue.id) + "'.");
+							// Always update the cache with the newly received value.
+							self.addToCache(eventTopicResource, newResourceValue);
+							// Call all registered page callbacks for this update event.
+							self.updateSubscriptions[eventTopicResource][resourceId].forEach(function (callback) {
+								callback(oldResourceValue, newResourceValue);
+							});
+						});
+			}
+			
+
+		};
+
+		// Add a resource of a certain eventTopicResource to the cache.
+		// This must be the latest possible value known to all pages.
+		// In practice that means it should be just received from a server call or event.
+		this.addToCache = function (eventTopicResource, resource) {
+			self.cache[eventTopicResource][resource.id] = resource;
+		};
+		
+		// Add a resource of a certain eventTopicResource from the cache.
+		this.getFromCache = function (eventTopicResource, resourceId) {
+			return self.cache[eventTopicResource][resourceId];
+		};
+
+		// Get an array of resources from the cache.
+		this.getAllFromCache = function (eventTopicResource) {
+			return Object.keys(self.cache[eventTopicResource]).map(function (resourceId) {
+				return self.cache[eventTopicResource][resourceId];
+			});
+		};
+
+		// Get an array of resources of that a certain page is interested in from the cache.
+		this.getAllFromCacheForPage = function (page, eventTopicResource) {
+			return self.pageResources[page.name][eventTopicResource].map(function (resourceId) {
+				return self.cache[eventTopicResource][resourceId];
+			});
+		};
+		
+		// Register a callback to be called upon getting an update event for a certain eventTopicResource / resourceId combination.
+		this.registerForUpdates = function (eventTopicResource, resourceId, callback) {
+			self.updateSubscriptions[eventTopicResource][resourceId].push(callback);
+		};
+
+	};
+	
+	// Shared resource cache variable (essentially sortof a singleton) for all pages.
+	var resourceCache = new ResourceCache();
 	
 	return function BasePage(eventTopicResource) {
 		var self = this;
@@ -17,20 +105,15 @@ define(["pages", "events", "log"],
 		this.page = null;
 		// Default background color, can be overridden by subclasses.
 		this.backgroundColor = "white";
-		this.resourceCache = {};
 		this.resourceIdsOutOfSyncWithUI = [];
 
 		this.getPage = function () { return self.page; };
 
 		this.isCurrentPage = function () { return self.page.isCurrentPage(); };
 
-		this.getResources = function () {
-			return Object.keys(self.resourceCache).map(function (resourceId) {
-				return self.resourceCache[resourceId];
-			});
-		};
+		this.getResources = function () { return resourceCache.getAllFromCacheForPage(self.page, eventTopicResource); };
 
-		this.getResource = function (id) { return self.resourceCache[id]; };
+		this.getResource = function (id) { return resourceCache.getFromCache(eventTopicResource, id); };
 		
 		// Function that is called once in the lifetime of the object (before any others), but after the DOM is available.
 		// When this function is called, the resources are already cached, so they can be retrieved through getResources().
@@ -54,36 +137,35 @@ define(["pages", "events", "log"],
 			}
 			this.page = page;
 			this.fillCache(resources);
-			this.subscribe(resources, eventTopicResource);
+			this.subscribe(resources);
 			this.initPage();
 		}
 		
 		this.fillCache = function (resources) {
 			resources.forEach(function (resource) {
-				self.resourceCache[resource.id] = resource;
+				resourceCache.enableCacheFor(self.page, eventTopicResource, resource.id);
+				resourceCache.addToCache(eventTopicResource, resource);
 				self.resourceIdsOutOfSyncWithUI.push(resource.id);
 			});
 		};
 		
-		this.subscribe = function (resources, eventTopicResource) {
+		//TODO: move the actual subscription of the event to the cache and register the page function as a callback.
+		
+		this.subscribe = function (resources) {
 			resources.forEach(function (resource) {
 				// Register to update on state change events for this resource.
-				events.subscribeForObject(eventTopicResource(resource.id),
-						function (valueChangedEvent) {
-							log.debug("Event change for page " + self.page.name);
-							var oldResourceValue = valueChangedEvent.oldValue;
-							var newResourceValue = valueChangedEvent.newValue;
-							// Always update the cache with the newly received value.
-							self.resourceCache[newResourceValue.id] = newResourceValue;
-							// Always call the resourceChanged function to inform about the event.
-							self.resourceChanged(oldResourceValue, newResourceValue);
-							// Only update the UI if this is the current page, otherwise mark as out of sync.
-							if (self.page.isCurrentPage()) {
-								self.updateUI(newResourceValue);
-							} else {
-								self.resourceIdsOutOfSyncWithUI.push(resource.id);
-							}
-						});
+				resourceCache.registerForUpdates(eventTopicResource, resource.id, function (oldResourceValue, newResourceValue) {
+					log.debug("Changed event received for eventTopicResource: '" +
+							eventTopicResource(newResourceValue.id) + "' and page: '" + self.page.name + "'.");
+					// Always call the resourceChanged function to inform about the event.
+					self.resourceChanged(oldResourceValue, newResourceValue);
+					// Only update the UI if this is the current page, otherwise mark as out of sync.
+					if (self.page.isCurrentPage()) {
+						self.updateUI(newResourceValue);
+					} else {
+						self.resourceIdsOutOfSyncWithUI.push(resource.id);
+					}
+				});
 			});
 		};
 		

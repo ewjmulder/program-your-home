@@ -2,8 +2,8 @@
 
 // Start a new require module.
 // Lets you activate the menu of the application. This module contains the technical details of this activation and hides the frameworks used.
-define(["jquery", "mmenu", "hammer", "settings", "pages", "enums"],
-		function ($, mmenu, Hammer, settings, pages, enums) {
+define(["jquery", "mmenu", "hammer", "settings", "enums"],
+		function ($, mmenu, Hammer, settings, enums) {
 	
 	// Create the menu, meaning invoking mmenu() on the html list that was dynamically build for that.
 	function createMenu() {
@@ -90,8 +90,15 @@ define(["jquery", "mmenu", "hammer", "settings", "pages", "enums"],
 		activate: function () {
 			createMenu();
 			configureSliding();
-			// Select the menu item (page) that is provided as the home page.
-			getMmenuApi().setSelected($("#menu-" + pages.byName(settings.getSettingValue(enums.SettingName.HOME_PAGE)).id));
+		},
+
+		// Select a menu item and open the corresponding menu panel.
+		selectItem: function (id) {
+			var $menuItem = $("#menu-" + id);
+			// Select the menu item (page) with the id that is provided.
+			getMmenuApi().setSelected($menuItem);
+			// Two levels up in the DOM tree is the panel for this menu item, open that as well.
+			getMmenuApi().openPanel($menuItem.parent().parent());
 		}
 	};
 

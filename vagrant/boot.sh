@@ -14,6 +14,8 @@ chown vagrant:vagrant $LOG_FILE
 
 #TODO
 #- Start LIRC
+#- Start postgres (or auto configure to start at boot time)
+#- Start event store (or auto configure to start at boot time)
 #- Start Spring boot PYH server
 #- Start webserver for webapp
 

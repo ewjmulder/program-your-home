@@ -35,5 +35,7 @@ apt-get install --yes oracle-java8-installer >> $LOG_FILE 2>&1
 #TODO:
 #- auto-install 3rd party libs in maven repo
 #- LIRC (vs WinLIRC)
+#- PostgreSQL
+#- Event Store - docs.geteventstore.com/server/3.1.0/installing-from-debian-repositories/
 
 echo "Finished Program Your Home provisioning script"

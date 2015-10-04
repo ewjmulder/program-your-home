@@ -1,0 +1,32 @@
+- Technical TODO after first 'poc' working:
+  - Use schema 'shopping' instead of 'public'
+  - Don't use auto-create (at least not by default (validate)), see how to do this dynamically
+  - Get datasource definition from properties instead of tempfix bean (and where to place - currently sep application.properties file)
+  - Read more about possible config of DB for spring boot / data jpa and finetune (eg pooling / entity manager (factory) config details)
+  - Do/don't include driver class in config?
+  - What hibernate maven includes are needed?
+  - DB constraints with JPA annotations
+    - Unique constraint on barcode
+  - Fully model out JPA entities
+  - Reseach on JPA (2.1) and which features we'd like
+  - Document somewhere internal trickery of so much auto-config:
+    - Just an interface definition of the Spring Data JPA for the entity to be used.
+    - @SpringBootApplication annotation should be used to enable auto JPA configuration
+    - Hibernate / JPA persistence provider must be on classpath
+    - Driver of specific DB must be on classpath
+    - Anything else?
+    
+
+
+
+- Add some extra 'real life use' flexibility, like:
+  - Several different products (different bar code) can be 1 pyh product, like oude/extra belegen kaas or pindakaas with(out) nuts
+  - amount of 2 products can be 1 other product, like 2 small smeerkaasjes can be 1 large
+
+
+- For now: barcode is assumed to be overall unique. Which is the case if one system is used
+  (like EAN in most of Europe). In theory this can be broken by having products in the system
+  that use different barcode systems with the same length and have a number clash.
+  An idea is to extend the modeling to incorporate the barcode system into the products.
+  This makes adding products more difficult, since a barcode scanner cannot easily 'see' the
+  system used, other than the length. Or can it? Either way, for now 1 code is both easy and sufficient.

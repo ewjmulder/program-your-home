@@ -7,8 +7,7 @@
 		<artifactId>program-your-home</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>sql</artifactId>
-	<name>sql</name>
+	<artifactId>shopping-api</artifactId>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

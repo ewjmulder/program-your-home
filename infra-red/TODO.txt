@@ -1,3 +1,3 @@
 - Merge remote config files during build instead of duplicating everything
 - Use Jirc to parse remote files? -> zie lib dir en http://www.harctoolbox.org/Jirc.html
-- Colored keys as seperate group?
+- Colored keys as seperate group!

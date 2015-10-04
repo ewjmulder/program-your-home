@@ -3,20 +3,14 @@ package com.programyourhome.server;
 import java.io.File;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.config.ConfigFileApplicationListener;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 
-import com.programyourhome.ComponentScanBase;
-
-@EnableAutoConfiguration
-@ComponentScan(basePackageClasses = ComponentScanBase.class)
 public class ProgramYourHomeServer {
 
     private static boolean shutdown = false;
 
-    public static void startServer() {
+    public static void startServer(final Class<?> springBootApplicationClass) {
         final String usageMessage = "Please provide the correct path to the Program Your Home property location with: -Dpyh.properties.location=/path/to/file";
         final String pyhPropertyLocation = System.getProperty("pyh.properties.location");
         if (pyhPropertyLocation == null) {
@@ -37,7 +31,7 @@ public class ProgramYourHomeServer {
         // annotation, because otherwise the logging properties will not be picked up. They must be available
         // very early in the boot process, see also: https://github.com/spring-projects/spring-boot/issues/2709
         System.setProperty(ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY, propertiesFile.toURI().toString());
-        final SpringApplication application = new SpringApplication(ProgramYourHomeServer.class);
+        final SpringApplication application = new SpringApplication(springBootApplicationClass);
         // Should be enabled when using the PC Instructor module.
         application.setHeadless(false);
         final ApplicationContext springBootContext = application.run(new String[0]);
@@ -64,7 +58,7 @@ public class ProgramYourHomeServer {
 
         @Override
         public void run() {
-            while (!shutdown) {
+            while (!ProgramYourHomeServer.shutdown) {
                 try {
                     Thread.sleep(100);
                 } catch (final InterruptedException e) {

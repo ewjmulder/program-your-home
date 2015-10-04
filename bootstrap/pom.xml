@@ -89,6 +89,11 @@
                     <artifactId>pc-instructor</artifactId>
                     <version>${project.version}</version>
                 </dependency>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>shopping</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
             </dependencies>
         </profile>
 
@@ -103,6 +108,12 @@
                 <dependency>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>pc-instructor</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <!-- TODO: remove shopping from mock when module is sorta finished and/or well mockable. -->
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>shopping</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>

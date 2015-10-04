@@ -1,2 +1,0 @@
-CREATE TABLE
-  name ... TODO

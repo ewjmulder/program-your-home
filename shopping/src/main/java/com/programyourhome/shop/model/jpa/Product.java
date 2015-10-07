@@ -1,54 +1,43 @@
 package com.programyourhome.shop.model.jpa;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+
+import com.programyourhome.common.jpa.NamedEntity;
 
 @Entity
-public class Product {
+public class Product extends NamedEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
     @Column(unique = true, nullable = false)
     private String barcode;
-    @Column(nullable = false)
-    private String name;
-    @Column(nullable = false)
-    private String description;
 
-    // @Embedded
-    // private ProductImage image;
-    // private
+    @Embedded
+    private ProductImage image;
 
-    /** For JPA */
-    @SuppressWarnings("unused")
-    private Product() {
+    public Product() {
     }
 
-    public Product(final String barcode, final String name, final String description) {
-        // Value for id should be auto-generated.
+    public Product(final String barcode, final String name, final String description, final ProductImage image) {
+        super(name, description);
         this.barcode = barcode;
-        this.name = name;
-        this.description = description;
-    }
-
-    public int getId() {
-        return this.id;
+        this.image = image;
     }
 
     public String getBarcode() {
         return this.barcode;
     }
 
-    public String getName() {
-        return this.name;
+    public void setBarcode(final String barcode) {
+        this.barcode = barcode;
     }
 
-    public String getDescription() {
-        return this.description;
+    public ProductImage getImage() {
+        return this.image;
+    }
+
+    public void setImage(final ProductImage image) {
+        this.image = image;
     }
 
 }

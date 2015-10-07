@@ -9,10 +9,16 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.util.StreamUtil;
+import com.programyourhome.shop.dao.CompanyRepository;
+import com.programyourhome.shop.dao.CompanyTypeRepository;
 import com.programyourhome.shop.dao.ProductRepository;
+import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.api.PyhProductImpl;
+import com.programyourhome.shop.model.jpa.Company;
+import com.programyourhome.shop.model.jpa.CompanyType;
 import com.programyourhome.shop.model.jpa.Product;
+import com.programyourhome.shop.model.jpa.ProductImage;
 
 @Component
 public class ShoppingImpl implements Shopping {
@@ -20,11 +26,22 @@ public class ShoppingImpl implements Shopping {
     @Inject
     private ProductRepository productRepository;
 
+    @Inject
+    private CompanyRepository companyRepository;
+
+    @Inject
+    private CompanyTypeRepository companyTypeRepository;
+
     // TODO: Temp code to test
     @PostConstruct
     public void init() {
-        this.productRepository.save(new Product("1234", "Spappel", "SPA Fruit Appel"));
-        this.productRepository.save(new Product("5678", "Pindakaas", "AH Pindakaas met stukjes noot"));
+        final CompanyType supermarket = new CompanyType("Supermarket", "Where you can buy your groceries");
+        this.companyTypeRepository.save(supermarket);
+
+        this.companyRepository.save(new Company("AH", "Albert Heijn", supermarket));
+
+        this.productRepository.save(new Product("1234", "Spappel", "SPA Fruit Appel", new ProductImage(ImageMimeType.JPG, "1234")));
+        this.productRepository.save(new Product("5678", "Pindakaas", "AH Pindakaas met stukjes noot", new ProductImage(ImageMimeType.PNG, "5678")));
     }
 
     @Override

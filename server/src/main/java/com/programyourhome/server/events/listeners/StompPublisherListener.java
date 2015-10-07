@@ -1,8 +1,9 @@
 package com.programyourhome.server.events.listeners;
 
+import javax.inject.Inject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class StompPublisherListener implements ApplicationListener<PyhEvent> {
 
     private final Log log = LogFactory.getLog(this.getClass());
 
-    @Autowired
+    @Inject
     private SimpMessagingTemplate template;
 
     @Override

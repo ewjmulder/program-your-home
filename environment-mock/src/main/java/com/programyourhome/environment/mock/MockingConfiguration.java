@@ -3,7 +3,8 @@ package com.programyourhome.environment.mock;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -19,7 +20,7 @@ public class MockingConfiguration {
     // TODO: Get the list of types to create a mixin for dynamically?
     private static final List<Class<?>> CLASSES = Arrays.asList(PyhDevice.class, PyhLight.class, PyhLanguage.class);
 
-    @Autowired
+    @Inject
     private DynamicJsonSerializeMixinGenerator classGenerator;
 
     @Bean

@@ -1,10 +1,11 @@
 package com.programyourhome.environment.mock;
 
+import javax.inject.Inject;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -15,7 +16,7 @@ public class DynamicJsonSerializeMixinGenerator {
     private static final String PACKAGE = "com.programyourhome.environment.mock";
     private static final String POSTFIX = "Annotated";
 
-    @Autowired
+    @Inject
     private ByteArrayClassLoader classDefinitionLoader;
 
     public Class<?> generateClass(final Class<?> forType) {

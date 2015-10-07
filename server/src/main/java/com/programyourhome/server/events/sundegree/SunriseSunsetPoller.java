@@ -4,7 +4,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +15,10 @@ import com.programyourhome.server.events.Poller;
 @Component
 public class SunriseSunsetPoller implements Poller {
 
-    @Autowired
+    @Inject
     private ApplicationEventPublisher eventPublisher;
 
-    @Autowired
+    @Inject
     private SunDegreeSensor sunDegreeSensor;
 
     private final Set<SunriseSunsetEvent> publishedSunsetSunriseEvents;

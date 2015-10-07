@@ -1,6 +1,7 @@
 package com.programyourhome.ir.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.config.ConfigLoader;
@@ -16,7 +17,7 @@ public class InfraRedConfigLoader extends ConfigLoader<InfraRedConfig> {
     private static final String XSD_FILENAME = "infra-red.xsd";
     private static final String XML_FILENAME = "infra-red.xml";
 
-    @Autowired
+    @Inject
     private InfraRed infraRed;
 
     @Override

@@ -1,12 +1,11 @@
 package com.programyourhome.common.config;
 
 import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 
 public abstract class ConfigHolder<ConfigType> {
 
-    @Autowired
+    @Inject
     private ConfigLoader<ConfigType> configLoader;
     private ConfigType config;
 

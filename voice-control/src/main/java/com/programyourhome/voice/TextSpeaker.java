@@ -5,7 +5,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ public class TextSpeaker {
     @Value("${googleSpeechTts.userAgent}")
     private String googleSpeechUserAgent;
 
-    @Autowired
+    @Inject
     private AudioPlayer audioPlayer;
 
     // TODO: implement caching!!

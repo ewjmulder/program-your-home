@@ -2,7 +2,8 @@ package com.programyourhome.server.events.lights;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.hue.PhilipsHue;
@@ -12,7 +13,7 @@ import com.programyourhome.server.events.MapValueChangedPoller;
 @Component
 public class LightsChangedPoller extends MapValueChangedPoller<Integer, PyhLight> {
 
-    @Autowired
+    @Inject
     private PhilipsHue philipsHue;
 
     public LightsChangedPoller() {

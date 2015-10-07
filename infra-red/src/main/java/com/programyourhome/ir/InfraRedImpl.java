@@ -13,11 +13,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -47,7 +47,7 @@ public class InfraRedImpl implements InfraRed {
 
     // TODO: failover possiblilities for non existing key types / names? (instead of Optional.get())
 
-    @Autowired
+    @Inject
     @Qualifier("PyhExecutor")
     private TaskScheduler pressRemoteKeyScheduler;
 
@@ -64,13 +64,13 @@ public class InfraRedImpl implements InfraRed {
     @Value("${keyPressInterval}")
     private int keyPressInterval;
 
-    @Autowired
+    @Inject
     private InfraRedConfigHolder configHolder;
 
-    @Autowired
+    @Inject
     private WinLIRCClient winLircClient;
 
-    @Autowired
+    @Inject
     @Qualifier("PyhExecutor")
     private TaskExecutor initExecutor;
 

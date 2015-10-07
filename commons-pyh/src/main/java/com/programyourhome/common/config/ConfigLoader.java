@@ -1,15 +1,14 @@
 package com.programyourhome.common.config;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 //TODO: have abstract methods for getting base paths and xsd and xml file names instead of defining those in every subclass.
 public abstract class ConfigLoader<ConfigType> {
 
-    @Autowired
+    @Inject
     private ConfigXsdSchema configXsdSchema;
 
     /**

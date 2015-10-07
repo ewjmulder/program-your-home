@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.server.config.ServerConfigHolder;
@@ -14,7 +15,7 @@ import com.programyourhome.server.config.model.PersonType;
 @Component
 public class PeopleManager {
 
-    @Autowired
+    @Inject
     private ServerConfigHolder configHolder;
 
     public List<Person> getResidents() {

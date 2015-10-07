@@ -4,7 +4,8 @@ import java.awt.Color;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,7 +21,7 @@ import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 @RequestMapping("huebridgesimulator")
 public class HueBridgeSimulatorController extends AbstractProgramYourHomeController {
 
-    @Autowired
+    @Inject
     private ActivityCenter activityCenter;
 
     @RequestMapping(value = "currentMenu", method = RequestMethod.GET)

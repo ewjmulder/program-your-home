@@ -2,7 +2,7 @@ package com.programyourhome.server.controllers;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 
 import com.programyourhome.common.functional.FailableFunction;
 import com.programyourhome.common.functional.FailableRunnable;
@@ -15,7 +15,7 @@ import com.programyourhome.server.response.ServiceResultTry;
 
 public abstract class AbstractProgramYourHomeController {
 
-    @Autowired
+    @Inject
     private ServerConfigHolder configHolder;
 
     protected ServerConfig getServerConfig() {

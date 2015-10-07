@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.util.streamex.StreamEx;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -29,18 +29,18 @@ public class DailyRythymManager {
     private static final int UPDATE_INITIAL_DELAY = 2000;
     private static final long UPDATE_INTERVAL = 60 * 1000;
 
-    @Autowired
+    @Inject
     private ServerConfigHolder configHolder;
 
-    @Autowired
+    @Inject
     private SunDegreeSensor sunDegreeSensor;
 
     // TODO: use Spring scheduling annotations?
-    @Autowired
+    @Inject
     @Qualifier("PyhExecutor")
     private TaskScheduler rhythymScheduler;
 
-    @Autowired
+    @Inject
     private PhilipsHue philipsHue;
 
     @PostConstruct

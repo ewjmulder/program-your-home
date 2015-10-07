@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -21,13 +21,13 @@ import com.programyourhome.server.config.model.StateTransition;
 @Component
 public class PeopleStateManager {
 
-    @Autowired
+    @Inject
     private ServerConfigHolder configHolder;
 
-    @Autowired
+    @Inject
     private PeopleManager peopleManager;
 
-    @Autowired
+    @Inject
     private ApplicationEventPublisher eventPublisher;
 
     private final Map<Integer, State> personStates;

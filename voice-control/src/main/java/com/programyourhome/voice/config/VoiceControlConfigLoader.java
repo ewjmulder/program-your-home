@@ -1,6 +1,7 @@
 package com.programyourhome.voice.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.config.ConfigLoader;
@@ -16,7 +17,7 @@ public class VoiceControlConfigLoader extends ConfigLoader<VoiceControlConfig> {
     private static final String XSD_FILENAME = "voice-control.xsd";
     private static final String XML_FILENAME = "voice-control.xml";
 
-    @Autowired
+    @Inject
     private VoiceControl voiceControl;
 
     @Override

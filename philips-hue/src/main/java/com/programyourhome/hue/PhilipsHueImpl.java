@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -55,7 +55,7 @@ public class PhilipsHueImpl implements PhilipsHue {
     @Value("${api.username}")
     private String username;
 
-    @Autowired
+    @Inject
     private SDKListener sdkListener;
 
     private final PHHueSDK sdk;

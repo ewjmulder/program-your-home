@@ -8,11 +8,11 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -33,17 +33,17 @@ public class VoiceControlImpl implements VoiceControl {
 
     private final Log log = LogFactory.getLog(this.getClass());
 
-    @Autowired
+    @Inject
     @Qualifier("PyhExecutor")
     private TaskScheduler questionProcessingScheduler;
 
-    @Autowired
+    @Inject
     private VoiceControlConfigHolder configHolder;
 
-    @Autowired
+    @Inject
     private TextSpeaker textSpeaker;
 
-    @Autowired
+    @Inject
     private AnswerListener answerListener;
 
     @Value("${questionQueuePoller.interval}")

@@ -2,9 +2,9 @@ package com.programyourhome.server.controllers;
 
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +32,7 @@ public class ProgramYourHomeControllerError extends AbstractProgramYourHomeContr
 
     private final ErrorAttributes errorAttributes;
 
-    @Autowired
+    @Inject
     public ProgramYourHomeControllerError(final ErrorAttributes errorAttributes) {
         this.errorAttributes = errorAttributes;
     }

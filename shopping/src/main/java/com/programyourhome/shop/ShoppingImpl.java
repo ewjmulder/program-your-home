@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.util.StreamUtil;
@@ -17,7 +17,7 @@ import com.programyourhome.shop.model.jpa.Product;
 @Component
 public class ShoppingImpl implements Shopping {
 
-    @Autowired
+    @Inject
     private ProductRepository productRepository;
 
     // TODO: Temp code to test

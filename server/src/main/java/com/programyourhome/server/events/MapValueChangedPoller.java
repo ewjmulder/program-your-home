@@ -4,7 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 /**
@@ -16,7 +17,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
  */
 public abstract class MapValueChangedPoller<Key, T> implements Poller {
 
-    @Autowired
+    @Inject
     private AutowireCapableBeanFactory factory;
 
     private final Class<T> valueClass;

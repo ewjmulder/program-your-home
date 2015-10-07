@@ -2,7 +2,8 @@ package com.programyourhome.server.controllers.shop;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,7 @@ import com.programyourhome.shop.model.PyhProduct;
 @RequestMapping("shop/products")
 public class ProgramYourHomeControllerShopProducts extends AbstractProgramYourHomeController {
 
-    @Autowired
+    @Inject
     private Shopping shopping;
 
     @RequestMapping("")

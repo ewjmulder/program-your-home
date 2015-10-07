@@ -13,10 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -52,7 +53,7 @@ public class WinLIRCClient {
 
     private final Log log = LogFactory.getLog(this.getClass());
 
-    @Autowired
+    @Inject
     @Qualifier("PyhExecutor")
     private TaskScheduler refreshScheduler;
 

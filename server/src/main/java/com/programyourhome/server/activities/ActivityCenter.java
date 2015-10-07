@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,20 +33,20 @@ public class ActivityCenter {
     // TODO: Think about the detailed 'working' of activities: for now only one overall activity active is allowed.
     // Maybe split up per 'type' of activity, etc.
 
-    @Autowired
+    @Inject
     private ServerConfigHolder configHolder;
 
-    @Autowired
+    @Inject
     @Qualifier("PyhExecutor")
     private Executor taskExecutor;
 
-    @Autowired
+    @Inject
     private PhilipsHue philipsHue;
 
-    @Autowired
+    @Inject
     private InfraRed infraRed;
 
-    @Autowired
+    @Inject
     private ApplicationEventPublisher eventPublisher;
 
     // TODO: naming: active / started / running / ongoing?

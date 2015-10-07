@@ -2,7 +2,8 @@ package com.programyourhome.server.controllers.hue;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,7 +15,7 @@ import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 @RequestMapping("hue/plugs")
 public class ProgramYourHomeControllerHuePlugs extends AbstractProgramYourHomeController {
 
-    @Autowired
+    @Inject
     private PhilipsHue philipsHue;
 
     @RequestMapping("")

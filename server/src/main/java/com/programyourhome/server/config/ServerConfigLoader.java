@@ -2,8 +2,9 @@ package com.programyourhome.server.config;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.config.ConfigLoader;
@@ -23,10 +24,10 @@ public class ServerConfigLoader extends ConfigLoader<ServerConfig> {
     private static final String XSD_FILENAME = "program-your-home-config-server.xsd";
     private static final String XML_FILENAME = "program-your-home-config-server.xml";
 
-    @Autowired
+    @Inject
     private PhilipsHue philipsHue;
 
-    @Autowired
+    @Inject
     private InfraRed infraRed;
 
     @Override

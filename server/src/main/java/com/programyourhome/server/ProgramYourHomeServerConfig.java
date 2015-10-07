@@ -1,6 +1,7 @@
 package com.programyourhome.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -9,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 public class ProgramYourHomeServerConfig {
 
-    @Autowired
+    @Inject
     private CacheControlWebContentInterceptor cacheControlWebContentInterceptor;
 
     @Bean

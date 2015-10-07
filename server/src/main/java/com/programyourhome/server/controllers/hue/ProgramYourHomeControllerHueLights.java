@@ -3,7 +3,8 @@ package com.programyourhome.server.controllers.hue;
 import java.awt.Color;
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,7 @@ import com.programyourhome.server.response.ServiceResult;
 @RequestMapping("hue/lights")
 public class ProgramYourHomeControllerHueLights extends AbstractProgramYourHomeController {
 
-    @Autowired
+    @Inject
     private PhilipsHue philipsHue;
 
     @RequestMapping("")

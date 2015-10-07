@@ -2,9 +2,10 @@ package com.programyourhome.server.events;
 
 import java.lang.reflect.Constructor;
 
+import javax.inject.Inject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -16,7 +17,7 @@ public abstract class ValueChangedPoller<T> implements Poller {
 
     private final Log log = LogFactory.getLog(this.getClass());
 
-    @Autowired
+    @Inject
     private ApplicationEventPublisher eventPublisher;
 
     private final Class<T> valueClass;

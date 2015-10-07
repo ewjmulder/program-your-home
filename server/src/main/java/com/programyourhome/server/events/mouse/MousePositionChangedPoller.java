@@ -1,6 +1,7 @@
 package com.programyourhome.server.events.mouse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.pc.PcInstructor;
@@ -10,7 +11,7 @@ import com.programyourhome.server.events.ValueChangedPoller;
 @Component
 public class MousePositionChangedPoller extends ValueChangedPoller<PyhPoint> {
 
-    @Autowired
+    @Inject
     private PcInstructor pcInstructor;
 
     public MousePositionChangedPoller() {

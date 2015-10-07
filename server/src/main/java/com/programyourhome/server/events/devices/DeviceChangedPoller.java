@@ -2,7 +2,8 @@ package com.programyourhome.server.events.devices;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.ir.InfraRed;
@@ -12,7 +13,7 @@ import com.programyourhome.server.events.MapValueChangedPoller;
 @Component
 public class DeviceChangedPoller extends MapValueChangedPoller<Integer, PyhDevice> {
 
-    @Autowired
+    @Inject
     private InfraRed infraRed;
 
     public DeviceChangedPoller() {

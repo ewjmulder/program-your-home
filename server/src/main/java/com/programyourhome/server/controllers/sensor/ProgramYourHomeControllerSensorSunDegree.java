@@ -2,7 +2,8 @@ package com.programyourhome.server.controllers.sensor;
 
 import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,7 +14,7 @@ import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 @RequestMapping("sensors/sunDegree")
 public class ProgramYourHomeControllerSensorSunDegree extends AbstractProgramYourHomeController {
 
-    @Autowired
+    @Inject
     private SunDegreeSensor sunDegreeSensor;
 
     @RequestMapping("")

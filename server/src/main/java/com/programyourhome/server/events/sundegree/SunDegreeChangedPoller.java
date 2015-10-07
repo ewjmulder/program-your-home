@@ -2,7 +2,8 @@ package com.programyourhome.server.events.sundegree;
 
 import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.sensors.SunDegreeSensor;
@@ -11,7 +12,7 @@ import com.programyourhome.server.events.ValueChangedPoller;
 @Component
 public class SunDegreeChangedPoller extends ValueChangedPoller<BigDecimal> {
 
-    @Autowired
+    @Inject
     private SunDegreeSensor sunDegreeSensor;
 
     public SunDegreeChangedPoller() {

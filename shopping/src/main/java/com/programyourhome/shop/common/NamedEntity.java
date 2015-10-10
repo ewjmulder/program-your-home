@@ -1,4 +1,4 @@
-package com.programyourhome.common.jpa;
+package com.programyourhome.shop.common;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -6,7 +6,7 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class NamedEntity extends Entity {
 
-    @Column(nullable = false, length = 512)
+    @Column(nullable = false, unique = true, length = 512)
     private String name;
     @Column(nullable = true, length = 4096)
     private String description;

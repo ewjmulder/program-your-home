@@ -1,4 +1,4 @@
-package com.programyourhome.common.jpa;
+package com.programyourhome.shop.common;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

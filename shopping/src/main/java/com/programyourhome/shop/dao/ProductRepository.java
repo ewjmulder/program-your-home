@@ -1,10 +1,9 @@
 package com.programyourhome.shop.dao;
 
-import org.springframework.data.repository.CrudRepository;
-
+import com.programyourhome.shop.common.NamedEntityRepository;
 import com.programyourhome.shop.model.jpa.Product;
 
-public interface ProductRepository extends CrudRepository<Product, Integer> {
+public interface ProductRepository extends NamedEntityRepository<Product, Integer> {
 
     public Product findByBarcode(String barcode);
 

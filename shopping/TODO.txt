@@ -1,3 +1,6 @@
+- Move common stuff to commons-pyh-jpa
+- Make department dependent on company? pro: easier linking & thinking, con: departments in same branch overlap a lot
+- Sequence per entity instead of overall?
 - Technical TODO after first 'poc' working:
   - Use schema 'shopping' instead of 'public'
   - Don't use auto-create (at least not by default (validate)), see how to do this dynamically
@@ -5,6 +8,7 @@
   - Read more about possible config of DB for spring boot / data jpa and finetune (eg pooling / entity manager (factory) config details)
   X Do/don't include driver class in config?
   X What hibernate maven includes are needed?
+  - Check all columns on nullable definition
   X DB constraints with JPA annotations
     X Unique constraint on barcode
   - Fully model out JPA entities

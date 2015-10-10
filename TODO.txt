@@ -7,6 +7,11 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Document all various comments in some kind of format (Github Flavored MD?)
 - Document configuration decisions: properties file for technical stuff (connection info, account info, datasources, etc.)
 - PYH Utils: extract the common module functionality
+- Add dependencies on specific general API's only at bootstrap level, they should only be needed at runtime 
+  - Hibernate for JPA
+  - Moneta for Money API?
+  - Spring for @Inject?
+  - Database driver for JDBC  
 - Persistence (sensor data in DB), current config as memory dump or so, should be restorable after midnight reboot.
 - Add geografical data to items (floor, room, location in room, size)
 - Introduce Maven plugin that will fail the build if there are multiple versions on the classpath of the same dependency - to try to avoid classpath conflict issues

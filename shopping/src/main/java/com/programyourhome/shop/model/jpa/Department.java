@@ -2,7 +2,7 @@ package com.programyourhome.shop.model.jpa;
 
 import javax.persistence.Entity;
 
-import com.programyourhome.common.jpa.NamedEntity;
+import com.programyourhome.shop.common.NamedEntity;
 
 @Entity
 public class Department extends NamedEntity {

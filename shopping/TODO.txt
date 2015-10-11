@@ -2,6 +2,7 @@
 - Make department dependent on company? pro: easier linking & thinking, con: departments in same branch overlap a lot
 - Sequence per entity instead of overall?
 - Technical TODO after first 'poc' working:
+  - Get @Converter(autoApply = true) to work instead of @Convert 'manual' annotation on each field
   - Use schema 'shopping' instead of 'public'
   - Don't use auto-create (at least not by default (validate)), see how to do this dynamically
   X Get datasource definition from properties instead of tempfix bean (and where to place - currently sep application.properties file)
@@ -27,9 +28,6 @@
     - Driver of specific DB must be on classpath
     - Anything else?
     
-
-
-
 - Add some extra 'real life use' flexibility, like:
   - Several different products (different bar code) can be 1 pyh product, like oude/extra belegen kaas or pindakaas with(out) nuts
   - amount of 2 products can be 1 other product, like 2 small smeerkaasjes can be 1 large

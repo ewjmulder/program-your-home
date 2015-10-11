@@ -1,0 +1,4 @@
+- Aggregation over ProductAggregations
+  - Meaning: general product category, like 'zoet beleg', which contains pindakaas, appelstroop, etc (which themselves are aggregates)
+  - Dynamic preference based on static pref and knowlegde about shopping history of the last few weeks.
+

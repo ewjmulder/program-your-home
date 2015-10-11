@@ -12,7 +12,7 @@ public class ProductImage {
 
     // TODO: smarter annotation or validator that checks that if either field is not null, both aren't.
 
-    // Set the max size of an image to 1 MB (base64 that is, so actual file is somewhat smaller).
+    // Set the max size of an image to 1 MB (base64 that is, so actual image file is somewhat smaller).
     private static final int MAX_IMAGE_SIZE = 1024 * 1024;
 
     @Column(nullable = true)

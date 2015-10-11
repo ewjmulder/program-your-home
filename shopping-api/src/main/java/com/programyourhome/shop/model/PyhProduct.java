@@ -12,6 +12,8 @@ public interface PyhProduct {
 
     public PyhProductImage getImage();
 
+    // FIXME: amount should not be a field of product. Static and dynamic data should be separated, at least in this PYH model. (maybe others as well)
+
     /**
      * Get the number of items of this type of product that are 'available'. This means either
      * in stock or in use. This amount should be reduced if an item is finished / thrown away / no longer usable.

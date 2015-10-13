@@ -19,6 +19,7 @@ import com.programyourhome.shop.dao.ProductRepository;
 import com.programyourhome.shop.dao.ShopRepository;
 import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhProduct;
+import com.programyourhome.shop.model.PyhProductState;
 import com.programyourhome.shop.model.api.PyhProductImpl;
 import com.programyourhome.shop.model.jpa.Company;
 import com.programyourhome.shop.model.jpa.CompanyProduct;
@@ -95,6 +96,11 @@ public class ShoppingImpl implements Shopping {
     @Override
     public PyhProduct getProduct(final int productId) {
         return new PyhProductImpl(this.productRepository.findOne(productId));
+    }
+
+    @Override
+    public PyhProductState getProductState(final int productId) {
+        return null;// TODO new PyhProductImpl(this.productRepository.findOne(productId));
     }
 
 }

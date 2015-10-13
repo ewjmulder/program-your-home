@@ -12,7 +12,6 @@ public class PyhProductImpl extends PyhImpl implements PyhProduct {
     private final String name;
     private final String description;
     private PyhProductImage image;
-    private int amount;
     private int minimumAmount;
     private int maximumAmount;
 
@@ -49,11 +48,6 @@ public class PyhProductImpl extends PyhImpl implements PyhProduct {
     @Override
     public PyhProductImage getImage() {
         return this.image;
-    }
-
-    @Override
-    public int getAmount() {
-        return this.amount;
     }
 
     @Override

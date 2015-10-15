@@ -1,38 +1,20 @@
 package com.programyourhome.shop.model;
 
+import java.math.BigDecimal;
+
 public interface PyhProductAggregationPart {
 
-    public int getId();
-
-    public String getBarcode();
-
-    public String getName();
-
-    public String getDescription();
-
-    public PyhProductImage getImage();
-
     /**
-     * Get the number of items of this type of product that are 'available'. This means either
-     * in stock or in use. This amount should be reduced if an item is finished / thrown away / no longer usable.
-     * This amount should be increased when new (a) item(s) are bought and put in stock or in use.
+     * Get the product that is part of the aggregation. It's assumed that in the API
+     * this object will always be 'navigated to' from the aggregation side, never from
+     * the product side. That's why there is no getAggregation method.
      *
-     * @return the amount 'available'
+     * @return the product
      */
-    public int getAmount();
+    public PyhProduct getProduct();
 
-    /**
-     * Get the minimum amount of items that should be 'available' of this product.
-     *
-     * @return the minimum amount
-     */
-    public int getMinimumAmount();
+    public BigDecimal getQuantity();
 
-    /**
-     * Get the maximum amount of items that should be 'available' of this product.
-     *
-     * @return the maximum amount
-     */
-    public int getMaximumAmount();
+    public Integer getPreference();
 
 }

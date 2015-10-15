@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.javamoney.moneta.internal.MoneyAmountBuilder;
 import org.springframework.stereotype.Component;
 
+import com.programyourhome.common.serialize.SerializationSettings;
 import com.programyourhome.common.util.StreamUtil;
 import com.programyourhome.shop.dao.CompanyRepository;
 import com.programyourhome.shop.dao.CompanyTypeRepository;
@@ -19,8 +20,10 @@ import com.programyourhome.shop.dao.ProductRepository;
 import com.programyourhome.shop.dao.ShopRepository;
 import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhProduct;
+import com.programyourhome.shop.model.PyhProductAggregation;
+import com.programyourhome.shop.model.PyhProductAggregationPart;
+import com.programyourhome.shop.model.PyhProductImage;
 import com.programyourhome.shop.model.PyhProductState;
-import com.programyourhome.shop.model.api.PyhProductImpl;
 import com.programyourhome.shop.model.jpa.Company;
 import com.programyourhome.shop.model.jpa.CompanyProduct;
 import com.programyourhome.shop.model.jpa.CompanyType;
@@ -53,6 +56,15 @@ public class ShoppingImpl implements Shopping {
     @Inject
     private ProductAggregationRepository productAggregationRepository;
 
+    @Inject
+    private SerializationSettings serializationSettings;
+
+    @PostConstruct
+    public void provideSerializationSettings() {
+        this.serializationSettings.fixSerializationScope(PyhProduct.class, PyhProductState.class, PyhProductAggregation.class, PyhProductAggregationPart.class,
+                PyhProductImage.class);
+    }
+
     @PostConstruct
     public void tempAddSomeData() {
         final CompanyType supermarket = new CompanyType("Supermarket", "Where you can buy your groceries");
@@ -80,7 +92,7 @@ public class ShoppingImpl implements Shopping {
         s.addShopDepartment(new ShopDepartment(s, d, 1));
         this.shopRepository.save(s);
 
-        final ProductAggregation pa = this.productAggregationRepository.save(new ProductAggregation("Pindakaas", "Zoet broodbeleg pindakaas"));
+        final ProductAggregation pa = this.productAggregationRepository.save(new ProductAggregation("Pindakaas", "Zoet broodbeleg pindakaas", 2, 4));
         pa.addAggregationPart(new ProductAggregationPart(pa, p2, BigDecimal.ONE, 1));
         pa.addAggregationPart(new ProductAggregationPart(pa, p3, BigDecimal.ONE, 2));
         this.productAggregationRepository.save(pa);
@@ -89,13 +101,12 @@ public class ShoppingImpl implements Shopping {
     @Override
     public Collection<PyhProduct> getProducts() {
         return StreamUtil.fromIterable(this.productRepository.findAll())
-                .map(product -> new PyhProductImpl(product))
                 .collect(Collectors.toList());
     }
 
     @Override
     public PyhProduct getProduct(final int productId) {
-        return new PyhProductImpl(this.productRepository.findOne(productId));
+        return this.productRepository.findOne(productId);
     }
 
     @Override

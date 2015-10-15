@@ -6,9 +6,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
 import com.programyourhome.shop.model.ImageMimeType;
+import com.programyourhome.shop.model.PyhProductImage;
 
 @Embeddable
-public class ProductImage {
+public class ProductImage implements PyhProductImage {
 
     // TODO: smarter annotation or validator that checks that if either field is not null, both aren't.
 
@@ -30,6 +31,7 @@ public class ProductImage {
         this.imageBase64 = imageBase64;
     }
 
+    @Override
     public ImageMimeType getImageMimeType() {
         return this.imageMimeType;
     }
@@ -38,6 +40,7 @@ public class ProductImage {
         this.imageMimeType = imageMimeType;
     }
 
+    @Override
     public String getImageBase64() {
         return this.imageBase64;
     }

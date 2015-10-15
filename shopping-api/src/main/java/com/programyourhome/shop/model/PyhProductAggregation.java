@@ -10,6 +10,20 @@ public interface PyhProductAggregation {
 
     public String getDescription();
 
-    public Collection<PyhProductAggregationPart> getAggregationParts();
+    /**
+     * Get the minimum amount of items that should be 'available' of this product aggregation.
+     *
+     * @return the minimum amount
+     */
+    public int getMinimumAmount();
+
+    /**
+     * Get the maximum amount of items that should be 'available' of this product aggregation.
+     *
+     * @return the maximum amount
+     */
+    public int getMaximumAmount();
+
+    public Collection<? extends PyhProductAggregationPart> getAggregationParts();
 
 }

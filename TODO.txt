@@ -14,6 +14,7 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
   - Spring for @Inject?
   - Database driver for JDBC  
 - Persistence (sensor data in DB), current config as memory dump or so, should be restorable after midnight reboot.
+- Refactor Mock maven module to use commons-pyh and it's version of the generated mixin.
 - Add geografical data to items (floor, room, location in room, size)
 - Introduce Maven plugin that will fail the build if there are multiple versions on the classpath of the same dependency - to try to avoid classpath conflict issues
 - Property keys as static final String declarations instead of hardcoded inline
@@ -26,6 +27,16 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Internally in modules: use mapping from id to model impl value object to easily do existence checks and retrieve data
 - Workaround for using qualifier on injected beans of type Executor? (result of using Spring Boot websockets with SockJS)
 - Consider moving to a relational database for storing the static data, instead of XML. (dynamic data should be put into a database anyway)
+- Don't rely on PyhImpl to provide equals on all fields, but use the same or similar methods externally in the pollers (should be done for shopping anyway)
+- 'Cut off' any implementation details of the api implementing module by some sort of 'serializing' into a plain flat interface
+  implementing class when returning from an API call. Maybe with some AOP style (annotation) on api calls from within the server.
+  And for the simple implementing classes wasn't there a library with this (bytecode generating) feature that was often overlooked? Was is Jackson?
+  --> Yes it is: Mr. Bean: http://www.cowtowncoder.com/blog/archives/2011/08/entry_459.html
+  Actually, we might want something else or just the core of mr bean, since we don't want the whole JSON context here.
+  See AbstractTypeMaterializer: https://github.com/FasterXML/jackson-module-mrbean/blob/master/src/main/java/com/fasterxml/jackson/module/mrbean/AbstractTypeMaterializer.java
+  - After implementing this for all stuff returned by API's, you could probably get rid of the dynamic mixin stuff, since there
+    won't be any 'noise' anymore in the objects that will be serialized. (but probably better to keep it anyway, since that could always change in the
+    future and the mixin stuff whould be needed again. it doesn't break the mr. bean stuff anyway, so safe to keep it around as well)
 - Move to a more standard form of authentication, like OAuth2 Resource Owner Password Flow. Compatible with Spring Security: http://projects.spring.io/spring-security-oauth/docs/oauth2.html
 - POM file management
   - right scopes for obvious dependencies in parent pom: e.g. test for junit (hmm, or not, not really clear on child project what the scope is)

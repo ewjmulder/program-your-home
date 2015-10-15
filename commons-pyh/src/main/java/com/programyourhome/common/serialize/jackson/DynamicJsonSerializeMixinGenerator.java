@@ -1,4 +1,4 @@
-package com.programyourhome.environment.mock;
+package com.programyourhome.common.serialize.jackson;
 
 import javax.inject.Inject;
 
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Component
 public class DynamicJsonSerializeMixinGenerator {
 
-    private static final String PACKAGE = "com.programyourhome.environment.mock";
+    private static final String PACKAGE = DynamicJsonSerializeMixinGenerator.class.getPackage().getName() + ".dynamic";
     private static final String POSTFIX = "Annotated";
 
     @Inject

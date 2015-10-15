@@ -7,9 +7,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.programyourhome.shop.common.Entity;
+import com.programyourhome.shop.model.PyhProductAggregationPart;
 
 @javax.persistence.Entity
-public class ProductAggregationPart extends Entity {
+public class ProductAggregationPart extends Entity implements PyhProductAggregationPart {
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -48,10 +49,12 @@ public class ProductAggregationPart extends Entity {
         return this.aggregation;
     }
 
+    @Override
     public Product getProduct() {
         return this.product;
     }
 
+    @Override
     public BigDecimal getQuantity() {
         return this.quantity;
     }
@@ -60,6 +63,7 @@ public class ProductAggregationPart extends Entity {
         this.quantity = quantity;
     }
 
+    @Override
     public Integer getPreference() {
         return this.preference;
     }

@@ -1,4 +1,4 @@
-package com.programyourhome.environment.mock;
+package com.programyourhome.common.serialize.jackson;
 
 import org.springframework.stereotype.Component;
 

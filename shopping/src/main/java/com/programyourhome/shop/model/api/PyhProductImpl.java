@@ -1,19 +1,16 @@
 package com.programyourhome.shop.model.api;
 
 import com.programyourhome.common.model.PyhImpl;
-import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductImage;
 import com.programyourhome.shop.model.jpa.Product;
 
-public class PyhProductImpl extends PyhImpl implements PyhProduct {
+public class PyhProductImpl extends PyhImpl { // TODO: remove this class? implements PyhProduct {
 
     private final int id;
     private final String barcode;
     private final String name;
     private final String description;
     private PyhProductImage image;
-    private int minimumAmount;
-    private int maximumAmount;
 
     // TODO: constructor based on JPA entities / event store result for amount
     public PyhProductImpl(final Product product) {
@@ -25,39 +22,24 @@ public class PyhProductImpl extends PyhImpl implements PyhProduct {
         // this.
     }
 
-    @Override
     public int getId() {
         return this.id;
     }
 
-    @Override
     public String getBarcode() {
         return this.barcode;
     }
 
-    @Override
     public String getName() {
         return this.name;
     }
 
-    @Override
     public String getDescription() {
         return this.description;
     }
 
-    @Override
     public PyhProductImage getImage() {
         return this.image;
-    }
-
-    @Override
-    public int getMinimumAmount() {
-        return this.minimumAmount;
-    }
-
-    @Override
-    public int getMaximumAmount() {
-        return this.maximumAmount;
     }
 
 }

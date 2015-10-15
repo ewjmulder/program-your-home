@@ -10,10 +10,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.programyourhome.shop.common.NamedEntity;
+import com.programyourhome.shop.model.PyhProduct;
 
 @Entity
-public class Product extends NamedEntity {
+@JsonSerialize(as = PyhProduct.class)
+public class Product extends NamedEntity implements PyhProduct {
 
     @Column(unique = true, nullable = false)
     private String barcode;
@@ -47,6 +50,7 @@ public class Product extends NamedEntity {
         this.image = image;
     }
 
+    @Override
     public String getBarcode() {
         return this.barcode;
     }
@@ -63,6 +67,7 @@ public class Product extends NamedEntity {
         this.department = department;
     }
 
+    @Override
     public ProductImage getImage() {
         return this.image;
     }

@@ -11,12 +11,12 @@ import com.programyourhome.hue.model.PyhLight;
 import com.programyourhome.server.events.MapValueChangedPoller;
 
 @Component
-public class LightsChangedPoller extends MapValueChangedPoller<Integer, PyhLight> {
+public class LightChangedPoller extends MapValueChangedPoller<Integer, PyhLight> {
 
     @Inject
     private PhilipsHue philipsHue;
 
-    public LightsChangedPoller() {
+    public LightChangedPoller() {
         super(PyhLight.class, LightChangedEvent.class);
     }
 

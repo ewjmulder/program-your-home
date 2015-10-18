@@ -1,5 +1,6 @@
 package com.programyourhome.shop.model.jpa;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,16 +21,16 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
     private final Set<ProductAggregationPart> aggregationParts;
 
     @Column(nullable = false)
-    private int minimumAmount;
+    private BigDecimal minimumAmount;
 
     @Column(nullable = false)
-    private int maximumAmount;
+    private BigDecimal maximumAmount;
 
     public ProductAggregation() {
-        this(null, null, 0, 0);
+        this(null, null, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
-    public ProductAggregation(final String name, final String description, final int minimumAmount, final int maximumAmount) {
+    public ProductAggregation(final String name, final String description, final BigDecimal minimumAmount, final BigDecimal maximumAmount) {
         super(name, description);
         this.minimumAmount = minimumAmount;
         this.maximumAmount = maximumAmount;
@@ -37,20 +38,20 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
     }
 
     @Override
-    public int getMinimumAmount() {
+    public BigDecimal getMinimumAmount() {
         return this.minimumAmount;
     }
 
-    public void setMinimumAmount(final int minimumAmount) {
+    public void setMinimumAmount(final BigDecimal minimumAmount) {
         this.minimumAmount = minimumAmount;
     }
 
     @Override
-    public int getMaximumAmount() {
+    public BigDecimal getMaximumAmount() {
         return this.maximumAmount;
     }
 
-    public void setMaximumAmount(final int maximumAmount) {
+    public void setMaximumAmount(final BigDecimal maximumAmount) {
         this.maximumAmount = maximumAmount;
     }
 

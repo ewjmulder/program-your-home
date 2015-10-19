@@ -78,18 +78,22 @@ public class ShoppingImpl implements Shopping {
         final Department d2 = this.departmentRepository.save(new Department("Frisdrank", "Drankies"));
         final Department d3 = this.departmentRepository.save(new Department("Zoet beleg", "De versafdeling GFT"));
 
-        final Product p1 = this.productRepository.save(new Product("Spappel", "SPA Fruit Appel", "1234", d2, new ProductImage(ImageMimeType.JPG, "1234")));
-        final Product p2 = this.productRepository.save(new Product("Pindakaas met nootjes", "AH Pindakaas met stukjes noot", "5678", d3, new ProductImage(
-                ImageMimeType.PNG, "5678")));
-        final Product p3 = this.productRepository.save(new Product("Pindakaas zonder nootjes", "AH Pindakaas zonder stukjes noot", "90", d3, new ProductImage(
-                ImageMimeType.PNG, "5678")));
+        Product p1 = new Product("Spappel", "SPA Fruit Appel", "1234");
+        p1.setImage(new ProductImage(p1, ImageMimeType.PNG, "1234"));
+        p1 = this.productRepository.save(p1);
+        Product p2 = new Product("Pindakaas met nootjes", "AH Pindakaas met stukjes noot", "5678");
+        p2.setImage(new ProductImage(p2, ImageMimeType.PNG, "5678"));
+        p2 = this.productRepository.save(p2);
+        Product p3 = new Product("Pindakaas zonder nootjes", "AH Pindakaas zonder stukjes noot", "90");
+        p3.setImage(new ProductImage(p3, ImageMimeType.PNG, "90"));
+        p3 = this.productRepository.save(p3);
 
         final Company ah = new Company("AH", "Albert Heijn", supermarket);
         ah.addDepartment(d);
 
-        ah.addCompanyProduct(new CompanyProduct(ah, p1, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create()));
-        ah.addCompanyProduct(new CompanyProduct(ah, p2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create()));
-        ah.addCompanyProduct(new CompanyProduct(ah, p3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.30).create()));
+        ah.addCompanyProduct(new CompanyProduct(ah, p1, d2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create()));
+        ah.addCompanyProduct(new CompanyProduct(ah, p2, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create()));
+        ah.addCompanyProduct(new CompanyProduct(ah, p3, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.30).create()));
         this.companyRepository.save(ah);
 
         final Shop s = this.shopRepository.save(new Shop("Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", ah, "Hoofdstraat xx, Driebergen"));
@@ -117,10 +121,22 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public PyhProduct addProduct(final String barcode, final String name, final String description, final int departmentId,
-            final String imageMimeType, final String imageBase64) {
-        return this.productRepository.save(new Product(name, description, barcode, this.departmentRepository.findOne(departmentId), new ProductImage(
-                ImageMimeType.valueOf(imageMimeType), imageBase64)));
+    public PyhProduct addProduct(final String barcode, final String name, final String description) {
+        return this.productRepository.save(new Product(name, description, barcode));
+    }
+
+    @Override
+    public PyhProduct updateProduct(final int id, final String barcode, final String name, final String description) {
+        final Product product = this.productRepository.findOne(id);
+        product.setBarcode(barcode);
+        product.setName(name);
+        product.setDescription(description);
+        return this.productRepository.save(product);
+    }
+
+    @Override
+    public void deleteProduct(final int id) {
+        this.productRepository.delete(id);
     }
 
     @Override

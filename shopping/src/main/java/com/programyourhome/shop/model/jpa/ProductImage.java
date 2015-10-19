@@ -1,34 +1,47 @@
 package com.programyourhome.shop.model.jpa;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
+import com.programyourhome.shop.common.Entity;
 import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhProductImage;
 
-@Embeddable
-public class ProductImage implements PyhProductImage {
-
-    // TODO: smarter annotation or validator that checks that if either field is not null, both aren't.
+@javax.persistence.Entity
+public class ProductImage extends Entity implements PyhProductImage {
 
     // Set the max size of an image to 1 MB (base64 that is, so actual image file is somewhat smaller).
     private static final int MAX_IMAGE_SIZE = 1024 * 1024;
 
-    @Column(nullable = true)
+    @OneToOne
+    @JoinColumn(nullable = false)
+    private Product product;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ImageMimeType imageMimeType;
 
-    @Column(nullable = true, length = MAX_IMAGE_SIZE)
+    @Column(nullable = false, length = MAX_IMAGE_SIZE)
     private String imageBase64;
 
     public ProductImage() {
     }
 
-    public ProductImage(final ImageMimeType imageMimeType, final String imageBase64) {
+    public ProductImage(final Product product, final ImageMimeType imageMimeType, final String imageBase64) {
+        this.product = product;
         this.imageMimeType = imageMimeType;
         this.imageBase64 = imageBase64;
+    }
+
+    public Product getProduct() {
+        return this.product;
+    }
+
+    public void setProduct(final Product product) {
+        this.product = product;
     }
 
     @Override

@@ -3,12 +3,12 @@ package com.programyourhome.shop.model.jpa;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.programyourhome.shop.common.NamedEntity;
@@ -21,11 +21,7 @@ public class Product extends NamedEntity implements PyhProduct {
     @Column(unique = true, nullable = false)
     private String barcode;
 
-    @ManyToOne
-    @JoinColumn(nullable = true)
-    private Department department;
-
-    @Embedded
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "product_id")
     private ProductImage image;
 
     @OneToMany
@@ -38,16 +34,15 @@ public class Product extends NamedEntity implements PyhProduct {
     private final Set<ProductAggregationPart> aggregationParts;
 
     public Product() {
-        this(null, null, null, null, null);
+        this(null, null, null);
     }
 
-    public Product(final String name, final String description, final String barcode, final Department department, final ProductImage image) {
+    public Product(final String name, final String description, final String barcode) {
         super(name, description);
         this.companyProducts = new HashSet<>();
         this.aggregationParts = new HashSet<>();
         this.barcode = barcode;
-        this.department = department;
-        this.image = image;
+        this.image = null;
     }
 
     @Override
@@ -59,15 +54,6 @@ public class Product extends NamedEntity implements PyhProduct {
         this.barcode = barcode;
     }
 
-    public Department getDepartment() {
-        return this.department;
-    }
-
-    public void setDepartment(final Department department) {
-        this.department = department;
-    }
-
-    @Override
     public ProductImage getImage() {
         return this.image;
     }

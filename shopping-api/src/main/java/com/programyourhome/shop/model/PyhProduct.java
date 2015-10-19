@@ -10,6 +10,4 @@ public interface PyhProduct {
 
     public String getDescription();
 
-    public PyhProductImage getImage();
-
 }

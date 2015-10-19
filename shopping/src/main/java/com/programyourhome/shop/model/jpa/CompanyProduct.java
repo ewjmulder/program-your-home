@@ -21,6 +21,10 @@ public class CompanyProduct extends Entity {
     @JoinColumn(nullable = false)
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(nullable = true)
+    private Department department;
+
     @Column(nullable = true)
     @Convert(converter = MoneyConverter.class)
     private Money money;
@@ -31,12 +35,13 @@ public class CompanyProduct extends Entity {
     }
 
     public CompanyProduct(final Company company, final Product product) {
-        this(company, product, null);
+        this(company, product, null, null);
     }
 
-    public CompanyProduct(final Company company, final Product product, final Money money) {
+    public CompanyProduct(final Company company, final Product product, final Department department, final Money money) {
         this.company = company;
         this.product = product;
+        this.department = department;
         this.money = money;
     }
 
@@ -46,6 +51,14 @@ public class CompanyProduct extends Entity {
 
     public Product getProduct() {
         return this.product;
+    }
+
+    public Department getDepartment() {
+        return this.department;
+    }
+
+    public void setDepartment(final Department department) {
+        this.department = department;
     }
 
     public Money getMoney() {

@@ -13,7 +13,13 @@ public interface Shopping {
 
     public PyhProduct getProduct(int productId);
 
-    public PyhProduct addProduct(String barcode, String name, String description, int departmentId, String imageMimeType, String imageBase64);
+    public PyhProduct addProduct(String barcode, String name, String description);
+
+    // TODO: addImageToProduct
+
+    public PyhProduct updateProduct(int id, String barcode, String name, String description);
+
+    public void deleteProduct(int id);
 
     public Collection<PyhProductAggregation> getProductAggregations();
 

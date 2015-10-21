@@ -22,7 +22,7 @@ public class CacheControlWebContentInterceptor extends WebContentInterceptor {
     private Properties createCacheMappings() {
         final Properties cacheMappingProperties = new Properties();
         // Cache image files.
-        final String imageCacheString = "" + this.imageCacheInSeconds;
+        final String imageCacheString = Integer.toString(this.imageCacheInSeconds);
         cacheMappingProperties.put("/**/*.png", imageCacheString);
         cacheMappingProperties.put("/**/*.jpg", imageCacheString);
         cacheMappingProperties.put("/**/*.jpeg", imageCacheString);

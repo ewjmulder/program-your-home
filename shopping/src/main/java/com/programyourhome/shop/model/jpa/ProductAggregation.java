@@ -61,11 +61,14 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
     }
 
     public void addAggregationPart(final ProductAggregationPart aggregationPart) {
+        // TODO: Add check that prevents double products (or auto-override?)
         this.aggregationParts.add(aggregationPart);
     }
 
-    public void removeAggregationPart(final ProductAggregationPart aggregationPart) {
-        this.aggregationParts.remove(aggregationPart);
+    public void removeAggregationPart(final int productId) {
+        this.aggregationParts.stream()
+                .filter(part -> part.getProduct().getId() == productId)
+                .forEach(this.aggregationParts::remove);
     }
 
 }

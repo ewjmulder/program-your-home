@@ -110,18 +110,18 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public Collection<PyhProduct> getProducts() {
+    public Collection<Product> getProducts() {
         return StreamUtil.fromIterable(this.productRepository.findAll())
                 .collect(Collectors.toList());
     }
 
     @Override
-    public PyhProduct getProduct(final int productId) {
+    public Product getProduct(final int productId) {
         return this.productRepository.findOne(productId);
     }
 
     @Override
-    public PyhProduct addProduct(final String barcode, final String name, final String description) {
+    public Product addProduct(final String barcode, final String name, final String description) {
         return this.productRepository.save(new Product(name, description, barcode));
     }
 
@@ -140,28 +140,72 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public Collection<PyhProductAggregation> getProductAggregations() {
+    public ProductImage getProductImage(final int productId) {
+        return this.getProduct(productId).getImage();
+    }
+
+    @Override
+    public void setImageForProduct(final int productId, final ImageMimeType imageMimeType, final String imageBase64) {
+        final Product product = this.getProduct(productId);
+        product.setImage(new ProductImage(product, imageMimeType, imageBase64));
+        this.productRepository.save(product);
+    }
+
+    @Override
+    public void removeImageFromProduct(final int productId) {
+        final Product product = this.getProduct(productId);
+        product.setImage(null);
+        this.productRepository.save(product);
+    }
+
+    @Override
+    public Collection<ProductAggregation> getProductAggregations() {
         return StreamUtil.fromIterable(this.productAggregationRepository.findAll())
                 .collect(Collectors.toList());
     }
 
     @Override
-    public PyhProductAggregation getProductAggregation(final int productAggregationId) {
+    public ProductAggregation getProductAggregation(final int productAggregationId) {
         return this.productAggregationRepository.findOne(productAggregationId);
     }
 
     @Override
-    public PyhProductAggregation addProductAggregation(final String name, final String description, final BigDecimal minimumAmount,
+    public ProductAggregation addProductAggregation(final String name, final String description, final BigDecimal minimumAmount,
             final BigDecimal maximumAmount) {
         return this.productAggregationRepository.save(new ProductAggregation(name, description, minimumAmount, maximumAmount));
     }
 
     @Override
-    public PyhProductAggregation addProductToProductAggregation(final int productId, final int productAggregationId, final BigDecimal quantity,
+    public PyhProductAggregation updateProductAggregation(final int productAggregationId, final String name, final String description,
+            final BigDecimal minimumAmount, final BigDecimal maximumAmount) {
+        final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
+        productAggregation.setName(name);
+        productAggregation.setDescription(description);
+        productAggregation.setMinimumAmount(minimumAmount);
+        productAggregation.setMaximumAmount(maximumAmount);
+        return this.productAggregationRepository.save(productAggregation);
+    }
+
+    @Override
+    public void deleteProductAggregation(final int productAggregationId) {
+        this.productAggregationRepository.delete(productAggregationId);
+    }
+
+    @Override
+    public ProductAggregation setProductInProductAggregation(final int productId, final int productAggregationId, final BigDecimal quantity,
             final Integer preference) {
         final Product product = this.productRepository.findOne(productId);
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
+        productAggregation.removeAggregationPart(productId);
         productAggregation.addAggregationPart(new ProductAggregationPart(productAggregation, product, quantity, preference));
+        this.productAggregationRepository.save(productAggregation);
+        return this.getProductAggregation(productAggregationId);
+    }
+
+    @Override
+    public PyhProductAggregation deleteProductFromProductAggregation(final int productId, final int productAggregationId) {
+        final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
+        productAggregation.removeAggregationPart(productId);
         this.productAggregationRepository.save(productAggregation);
         return this.getProductAggregation(productAggregationId);
     }

@@ -3,31 +3,46 @@ package com.programyourhome.shop;
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductAggregation;
 import com.programyourhome.shop.model.PyhProductAggregationState;
+import com.programyourhome.shop.model.PyhProductImage;
 
 public interface Shopping {
 
-    public Collection<PyhProduct> getProducts();
+    // TODO: Use API interface values instead of sep params?
+
+    public Collection<? extends PyhProduct> getProducts();
 
     public PyhProduct getProduct(int productId);
 
     public PyhProduct addProduct(String barcode, String name, String description);
 
-    // TODO: addImageToProduct
-
     public PyhProduct updateProduct(int id, String barcode, String name, String description);
 
     public void deleteProduct(int id);
 
-    public Collection<PyhProductAggregation> getProductAggregations();
+    public PyhProductImage getProductImage(int productId);
+
+    public void setImageForProduct(int productId, ImageMimeType imageMimeType, String imageBase64);
+
+    public void removeImageFromProduct(int productId);
+
+    public Collection<? extends PyhProductAggregation> getProductAggregations();
 
     public PyhProductAggregation getProductAggregation(int productAggregationId);
 
     public PyhProductAggregation addProductAggregation(String name, String description, BigDecimal minimumAmount, BigDecimal maximumAmount);
 
-    public PyhProductAggregation addProductToProductAggregation(int productId, int productAggregationId, BigDecimal quantity, Integer preference);
+    public PyhProductAggregation updateProductAggregation(
+            int productAggregationId, String name, String description, BigDecimal minimumAmount, BigDecimal maximumAmount);
+
+    public void deleteProductAggregation(int productAggregationId);
+
+    public PyhProductAggregation setProductInProductAggregation(int productId, int productAggregationId, BigDecimal quantity, Integer preference);
+
+    public PyhProductAggregation deleteProductFromProductAggregation(int productId, int productAggregationId);
 
     public Collection<PyhProductAggregationState> getProductAggregationStates();
 

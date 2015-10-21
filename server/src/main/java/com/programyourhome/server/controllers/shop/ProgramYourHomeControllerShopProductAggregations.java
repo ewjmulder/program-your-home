@@ -23,7 +23,7 @@ public class ProgramYourHomeControllerShopProductAggregations extends AbstractPr
     private Shopping shopping;
 
     @RequestMapping("")
-    public ServiceResult<Collection<PyhProductAggregation>> getProductAggregations() {
+    public ServiceResult<Collection<? extends PyhProductAggregation>> getProductAggregations() {
         return this.produce("ProductAggregations", () -> this.shopping.getProductAggregations());
     }
 
@@ -36,7 +36,7 @@ public class ProgramYourHomeControllerShopProductAggregations extends AbstractPr
     public ServiceResult<PyhProductAggregation> addProductToProductAggregation(@PathVariable("id") final int productAggregationId,
             @PathVariable("productId") final int productId,
             @PathVariable("quantity") final BigDecimal quantity, @PathVariable("preference") final int preference) {
-        return this.produce("ProductAggregation", () -> this.shopping.addProductToProductAggregation(productId, productAggregationId, quantity, preference));
+        return this.produce("ProductAggregation", () -> this.shopping.setProductInProductAggregation(productId, productAggregationId, quantity, preference));
     }
 
     @RequestMapping("{id}/state")

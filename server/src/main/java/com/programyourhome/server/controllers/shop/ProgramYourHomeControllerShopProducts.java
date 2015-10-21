@@ -21,7 +21,7 @@ public class ProgramYourHomeControllerShopProducts extends AbstractProgramYourHo
     private Shopping shopping;
 
     @RequestMapping("")
-    public ServiceResult<Collection<PyhProduct>> getProducts() {
+    public ServiceResult<Collection<? extends PyhProduct>> getProducts() {
         return this.produce("Products", () -> this.shopping.getProducts());
     }
 

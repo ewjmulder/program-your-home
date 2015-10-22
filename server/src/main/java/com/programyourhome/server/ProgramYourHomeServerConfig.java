@@ -5,12 +5,20 @@ import javax.inject.Inject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.module.mrbean.MrBeanModule;
+
+/**
+ * General Spring configuration for the whole program your home server.
+ * Warning: to NOT extend WebMvcConfigurationSupport, since that will
+ * opt-out on the Spring MVC auto-configuration of Spring Boot,
+ * like registering custom Jackson modules.
+ */
 @Configuration
-public class ProgramYourHomeServerConfig extends WebMvcConfigurationSupport {
+public class ProgramYourHomeServerConfig {
 
     @Inject
     private CacheControlWebContentInterceptor cacheControlWebContentInterceptor;
@@ -20,17 +28,26 @@ public class ProgramYourHomeServerConfig extends WebMvcConfigurationSupport {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addInterceptors(final InterceptorRegistry registry) {
+                // Add interceptor for cache control.
                 registry.addInterceptor(ProgramYourHomeServerConfig.this.cacheControlWebContentInterceptor);
+            }
+
+            @Override
+            public void configurePathMatch(final PathMatchConfigurer configurer) {
+                // Avoid pathvariable parameters being truncated on dots.
+                configurer.setUseSuffixPatternMatch(false);
             }
         };
     }
 
-    @Override
+    /**
+     * Add the Mr.Bean module to the Jackson object mapper. It will automagically create
+     * implementations of interfaces for DTO data transfer.
+     * See also: https://github.com/FasterXML/jackson-module-mrbean
+     */
     @Bean
-    public RequestMappingHandlerMapping requestMappingHandlerMapping() {
-        final RequestMappingHandlerMapping mapping = super.requestMappingHandlerMapping();
-        mapping.setUseSuffixPatternMatch(false);
-        return mapping;
+    public Module createMrBeanModule() {
+        return new MrBeanModule();
     }
 
 }

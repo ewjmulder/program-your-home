@@ -27,7 +27,13 @@ public class ProductImage extends Entity implements PyhProductImage {
     @Column(nullable = false, length = MAX_IMAGE_SIZE)
     private String imageBase64;
 
-    public ProductImage() {
+    /** Only for JPA, we don't want an instance of this type to be constructed without a link to product. */
+    @SuppressWarnings("unused")
+    private ProductImage() {
+    }
+
+    public ProductImage(final Product product) {
+        this(product, null, null);
     }
 
     public ProductImage(final Product product, final ImageMimeType imageMimeType, final String imageBase64) {
@@ -38,10 +44,6 @@ public class ProductImage extends Entity implements PyhProductImage {
 
     public Product getProduct() {
         return this.product;
-    }
-
-    public void setProduct(final Product product) {
-        this.product = product;
     }
 
     @Override

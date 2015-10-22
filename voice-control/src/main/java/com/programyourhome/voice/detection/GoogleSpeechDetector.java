@@ -10,6 +10,8 @@ import java.util.List;
 import javaFlacEncoder.FLACEncoder;
 import javaFlacEncoder.FLACStreamOutputStream;
 
+import javax.inject.Inject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.fluent.Content;
@@ -38,6 +40,9 @@ public class GoogleSpeechDetector implements SpeechDetector {
     private String googleSpeechApp;
     @Value("${googleSpeechApi.key}")
     private String googleSpeechKey;
+
+    @Inject
+    private ObjectMapper objectMapper;
 
     private PyhAudioFormat audioFormat;
     private FLACEncoder encoder;
@@ -134,7 +139,7 @@ public class GoogleSpeechDetector implements SpeechDetector {
             // Two lines, if multiple and/or partly confident transcripts are given. In that case the first line contains no information.
             transcriptsResponse = googleResponseStringLines[1];
         }
-        final GoogleSpeechResponse googleSpeechResponse = new ObjectMapper().readValue(transcriptsResponse, GoogleSpeechResponse.class);
+        final GoogleSpeechResponse googleSpeechResponse = this.objectMapper.readValue(transcriptsResponse, GoogleSpeechResponse.class);
         return googleSpeechResponse;
     }
 

@@ -7,7 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -21,16 +21,15 @@ public class Product extends NamedEntity implements PyhProduct {
     @Column(unique = true, nullable = false)
     private String barcode;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "product_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private ProductImage image;
 
-    @OneToMany
+    @ManyToMany
     @JoinColumn(name = "product_id")
     private final Set<CompanyProduct> companyProducts;
 
     // Modeled as a collection to allow for one product to be a part of several aggregations.
-    @OneToMany
-    @JoinColumn(name = "product_id")
+    @ManyToMany(mappedBy = "product")
     private final Set<ProductAggregationPart> aggregationParts;
 
     public Product() {
@@ -52,6 +51,10 @@ public class Product extends NamedEntity implements PyhProduct {
 
     public void setBarcode(final String barcode) {
         this.barcode = barcode;
+    }
+
+    public boolean hasImage() {
+        return this.image != null;
     }
 
     public ProductImage getImage() {

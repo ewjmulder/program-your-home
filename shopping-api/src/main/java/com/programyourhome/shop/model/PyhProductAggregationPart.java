@@ -1,8 +1,6 @@
 package com.programyourhome.shop.model;
 
-import java.math.BigDecimal;
-
-public interface PyhProductAggregationPart {
+public interface PyhProductAggregationPart extends PyhProductAggregationPartProperties {
 
     /**
      * Get the product that is part of the aggregation. It's assumed that in the API
@@ -12,9 +10,5 @@ public interface PyhProductAggregationPart {
      * @return the product
      */
     public PyhProduct getProduct();
-
-    public BigDecimal getQuantity();
-
-    public Integer getPreference();
 
 }

@@ -1,6 +1,6 @@
 package com.programyourhome.common.util;
 
-public class ValueRangeUtil {
+public final class ValueRangeUtil {
 
     private static final int BASIS_POINTS_MIN_VALUE = 0;
     private static final int BASIS_POINTS_MAX_VALUE = 10000;

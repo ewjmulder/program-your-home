@@ -1,10 +1,14 @@
 C:\Program Files\EventStore-3.3.0>
 EventStore.ClusterNode.exe --db "D:\Prive\Program Your Home\EventStoreData\DB" --log "D:\Prive\Program Your Home\EventStoreData\Logs"
 
+- Add tostring builder for entity objects - only display non-lazy fields!!
+- When using @Transactional (or probably even not then) save repo calls on existing entities aren't needed, since they will be saved on session close automatically
+  - So remove save's evrywhere where not needed.
 - Split product and image into sep entities and sep CRUD calls for performance and size of JSON responses
 - Move common stuff to commons-pyh-jpa
 - Make department dependent on company? pro: easier linking & thinking, con: departments in same branch overlap a lot
 - Sequence per entity instead of overall?
+- Use extra interface identifyable (and maybe nameable) to reduce duplication in API interfaces?
 - Use this: https://geteventstore.com/blog/20140904/event-store-3.0.0-client-api-for-jvm-clients/index.html?
   - https://github.com/valdasraps/esj
 - Technical TODO after first 'poc' working:

@@ -32,6 +32,7 @@ public class ProductAggregationStateChangedPoller extends MapValueChangedPoller<
 
     @Override
     public long getIntervalInMillis() {
+        // FIXME: incorporate new insight that products have the amount and aggregations have a 'deduced' amount
         // TODO: make configurable. Should not be too often, since it will trigger a lot of EventStore processing.
         // More like 5 or 10 seconds.
         return this.millis(1000);

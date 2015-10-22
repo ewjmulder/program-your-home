@@ -15,6 +15,8 @@ import com.programyourhome.server.response.ServiceResultTry;
 
 public abstract class AbstractProgramYourHomeController {
 
+    protected static final String MIME_JSON = "application/json";
+
     @Inject
     private ServerConfigHolder configHolder;
 

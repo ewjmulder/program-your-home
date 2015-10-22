@@ -23,13 +23,13 @@ public class ProductAggregationPart extends Entity implements PyhProductAggregat
     // How much this product 'adds' to the aggregation.
     // For example: whole bread = 1, half bread = 0.5
     @Column(nullable = true)
-    private BigDecimal quantity;
+    private BigDecimal contribution;
 
     // How much this product is preferred in the aggregation. (higher values = more preferred)
     @Column(nullable = true)
     private Integer preference;
 
-    /** Only for JPA, we don't want an instance of this type to be constructor without links to productaggregation and product. */
+    /** Only for JPA, we don't want an instance of this type to be constructed without links to productaggregation and product. */
     @SuppressWarnings("unused")
     private ProductAggregationPart() {
     }
@@ -38,10 +38,10 @@ public class ProductAggregationPart extends Entity implements PyhProductAggregat
         this(aggregation, product, null, null);
     }
 
-    public ProductAggregationPart(final ProductAggregation aggregation, final Product product, final BigDecimal quantity, final Integer preference) {
+    public ProductAggregationPart(final ProductAggregation aggregation, final Product product, final BigDecimal contribution, final Integer preference) {
         this.aggregation = aggregation;
         this.product = product;
-        this.quantity = quantity;
+        this.contribution = contribution;
         this.preference = preference;
     }
 
@@ -55,12 +55,12 @@ public class ProductAggregationPart extends Entity implements PyhProductAggregat
     }
 
     @Override
-    public BigDecimal getQuantity() {
-        return this.quantity;
+    public BigDecimal getContribution() {
+        return this.contribution;
     }
 
-    public void setQuantity(final BigDecimal quantity) {
-        this.quantity = quantity;
+    public void setContribution(final BigDecimal contribution) {
+        this.contribution = contribution;
     }
 
     @Override

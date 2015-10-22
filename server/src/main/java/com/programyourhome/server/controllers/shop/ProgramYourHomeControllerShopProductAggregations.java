@@ -1,18 +1,21 @@
 package com.programyourhome.server.controllers.shop;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 
 import javax.inject.Inject;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 import com.programyourhome.server.response.ServiceResult;
 import com.programyourhome.shop.Shopping;
 import com.programyourhome.shop.model.PyhProductAggregation;
+import com.programyourhome.shop.model.PyhProductAggregationPartProperties;
+import com.programyourhome.shop.model.PyhProductAggregationProperties;
 import com.programyourhome.shop.model.PyhProductAggregationState;
 
 @RestController
@@ -22,38 +25,48 @@ public class ProgramYourHomeControllerShopProductAggregations extends AbstractPr
     @Inject
     private Shopping shopping;
 
-    @RequestMapping("")
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public ServiceResult<Collection<? extends PyhProductAggregation>> getProductAggregations() {
         return this.produce("ProductAggregations", () -> this.shopping.getProductAggregations());
     }
 
-    @RequestMapping("{id}")
+    @RequestMapping(value = "{id}", method = RequestMethod.GET)
     public ServiceResult<PyhProductAggregation> getProductAggregation(@PathVariable("id") final int productAggregationId) {
         return this.produce("ProductAggregation", () -> this.shopping.getProductAggregation(productAggregationId));
     }
 
-    @RequestMapping("{id}/addProduct/{productId}/quantity/{quantity}/preference/{preference}")
-    public ServiceResult<PyhProductAggregation> addProductToProductAggregation(@PathVariable("id") final int productAggregationId,
-            @PathVariable("productId") final int productId,
-            @PathVariable("quantity") final BigDecimal quantity, @PathVariable("preference") final int preference) {
-        return this.produce("ProductAggregation", () -> this.shopping.setProductInProductAggregation(productId, productAggregationId, quantity, preference));
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MIME_JSON)
+    public ServiceResult<PyhProductAggregation> createProductAggregation(@RequestBody final PyhProductAggregationProperties productAggregationProperties) {
+        return this.produce("ProductAggregation", () -> this.shopping.createProductAggregation(productAggregationProperties));
     }
 
-    @RequestMapping("{id}/state")
+    @RequestMapping(value = "{id}", method = RequestMethod.PUT, consumes = MIME_JSON)
+    public ServiceResult<PyhProductAggregation> updateProductAggregation(@PathVariable("id") final int productAggregationId,
+            @RequestBody final PyhProductAggregationProperties productAggregationProperties) {
+        return this.produce("ProductAggregation", () -> this.shopping.updateProductAggregation(productAggregationId, productAggregationProperties));
+    }
+
+    @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
+    public ServiceResult<Void> deleteProductAggregation(@PathVariable("id") final int productAggregationId) {
+        return this.run(() -> this.shopping.deleteProductAggregation(productAggregationId));
+    }
+
+    @RequestMapping(value = "{id}/products/{productId}", method = RequestMethod.POST, consumes = MIME_JSON)
+    public ServiceResult<PyhProductAggregation> setProductInProductAggregation(@PathVariable("id") final int productAggregationId,
+            @PathVariable("productId") final int productId, @RequestBody final PyhProductAggregationPartProperties productAggregationPartProperties) {
+        return this.produce("ProductAggregation",
+                () -> this.shopping.setProductInProductAggregation(productId, productAggregationId, productAggregationPartProperties));
+    }
+
+    @RequestMapping(value = "{id}/products/{productId}", method = RequestMethod.DELETE)
+    public ServiceResult<PyhProductAggregation> removeProductFromProductAggregation(@PathVariable("id") final int productAggregationId,
+            @PathVariable("productId") final int productId) {
+        return this.produce("ProductAggregation", () -> this.shopping.removeProductFromProductAggregation(productId, productAggregationId));
+    }
+
+    @RequestMapping(value = "{id}/state", method = RequestMethod.GET)
     public ServiceResult<PyhProductAggregationState> getProductAggregationState(@PathVariable("id") final int productAggregationId) {
         return this.produce("ProductAggregationState", () -> this.shopping.getProductAggregationState(productAggregationId));
-    }
-
-    @RequestMapping("{id}/state/add/{amount}")
-    public ServiceResult<PyhProductAggregationState> addToProductAggregation(@PathVariable("id") final int productAggregationId,
-            @PathVariable("amount") final BigDecimal amount) {
-        return this.produce("ProductAggregationState", () -> this.shopping.addToProductAggregationState(productAggregationId, amount));
-    }
-
-    @RequestMapping("{id}/state/remove/{amount}")
-    public ServiceResult<PyhProductAggregationState> removeFromProductAggregation(@PathVariable("id") final int productAggregationId,
-            @PathVariable("amount") final BigDecimal amount) {
-        return this.produce("ProductAggregationState", () -> this.shopping.removeFromProductAggregationState(productAggregationId, amount));
     }
 
 }

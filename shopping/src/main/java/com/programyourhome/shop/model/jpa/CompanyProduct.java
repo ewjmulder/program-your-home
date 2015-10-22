@@ -29,7 +29,7 @@ public class CompanyProduct extends Entity {
     @Convert(converter = MoneyConverter.class)
     private Money money;
 
-    /** Only for JPA, we don't want an instance of this type to be constructor without links to company and product. */
+    /** Only for JPA, we don't want an instance of this type to be constructed without links to company and product. */
     @SuppressWarnings("unused")
     private CompanyProduct() {
     }

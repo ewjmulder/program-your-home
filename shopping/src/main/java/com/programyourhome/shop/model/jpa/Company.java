@@ -18,15 +18,15 @@ public class Company extends NamedEntity {
     @JoinColumn(nullable = false)
     private CompanyType type;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "company_id")
     private final Set<Shop> shops;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "company_id")
     private final Set<Department> departments;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "company_id")
     private final Set<CompanyProduct> companyProducts;
 

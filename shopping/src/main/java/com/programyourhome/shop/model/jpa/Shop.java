@@ -25,7 +25,7 @@ public class Shop extends NamedEntity {
 
     // TODO: Add GPS coordinates
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "shop_id")
     private final Set<ShopDepartment> shopDepartments;
 

@@ -3,7 +3,10 @@ package com.programyourhome.common.util;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class StreamUtil {
+public final class StreamUtil {
+
+    public StreamUtil() {
+    }
 
     /**
      * Convenience method to create a Stream from an Iterator.

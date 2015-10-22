@@ -4,19 +4,21 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.javamoney.moneta.internal.MoneyAmountBuilder;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.serialize.SerializationSettings;
+import com.programyourhome.common.util.BeanCopier;
 import com.programyourhome.common.util.StreamUtil;
 import com.programyourhome.shop.dao.CompanyRepository;
 import com.programyourhome.shop.dao.CompanyTypeRepository;
-import com.programyourhome.shop.dao.DepartmentRepository;
 import com.programyourhome.shop.dao.ProductAggregationRepository;
 import com.programyourhome.shop.dao.ProductRepository;
 import com.programyourhome.shop.dao.ShopRepository;
@@ -24,9 +26,14 @@ import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductAggregation;
 import com.programyourhome.shop.model.PyhProductAggregationPart;
+import com.programyourhome.shop.model.PyhProductAggregationPartProperties;
+import com.programyourhome.shop.model.PyhProductAggregationProperties;
 import com.programyourhome.shop.model.PyhProductAggregationState;
 import com.programyourhome.shop.model.PyhProductImage;
+import com.programyourhome.shop.model.PyhProductProperties;
+import com.programyourhome.shop.model.PyhProductState;
 import com.programyourhome.shop.model.api.PyhProductAggregationStateImpl;
+import com.programyourhome.shop.model.api.PyhProductStateImpl;
 import com.programyourhome.shop.model.jpa.Company;
 import com.programyourhome.shop.model.jpa.CompanyProduct;
 import com.programyourhome.shop.model.jpa.CompanyType;
@@ -39,6 +46,7 @@ import com.programyourhome.shop.model.jpa.Shop;
 import com.programyourhome.shop.model.jpa.ShopDepartment;
 
 @Component
+@Transactional
 public class ShoppingImpl implements Shopping {
 
     @Inject
@@ -51,9 +59,6 @@ public class ShoppingImpl implements Shopping {
     private CompanyTypeRepository companyTypeRepository;
 
     @Inject
-    private DepartmentRepository departmentRepository;
-
-    @Inject
     private ShopRepository shopRepository;
 
     @Inject
@@ -62,21 +67,19 @@ public class ShoppingImpl implements Shopping {
     @Inject
     private SerializationSettings serializationSettings;
 
+    @Inject
+    private BeanCopier beanCopier;
+
     @PostConstruct
     public void provideSerializationSettings() {
         this.serializationSettings.fixSerializationScope(PyhProduct.class, PyhProductAggregationState.class, PyhProductAggregation.class,
-                PyhProductAggregationPart.class,
-                PyhProductImage.class);
+                PyhProductAggregationPart.class, PyhProductImage.class);
     }
 
     @PostConstruct
     public void tempAddSomeData() {
         final CompanyType supermarket = new CompanyType("Supermarket", "Where you can buy your groceries");
         this.companyTypeRepository.save(supermarket);
-
-        final Department d = this.departmentRepository.save(new Department("Groente & Fruit", "De versafdeling GFT"));
-        final Department d2 = this.departmentRepository.save(new Department("Frisdrank", "Drankies"));
-        final Department d3 = this.departmentRepository.save(new Department("Zoet beleg", "De versafdeling GFT"));
 
         Product p1 = new Product("Spappel", "SPA Fruit Appel", "1234");
         p1.setImage(new ProductImage(p1, ImageMimeType.PNG, "1234"));
@@ -89,7 +92,12 @@ public class ShoppingImpl implements Shopping {
         p3 = this.productRepository.save(p3);
 
         final Company ah = new Company("AH", "Albert Heijn", supermarket);
-        ah.addDepartment(d);
+        final Department d1 = new Department(ah, "Groente & Fruit", "De versafdeling GFT");
+        final Department d2 = new Department(ah, "Frisdrank", "Drankies");
+        final Department d3 = new Department(ah, "Zoet beleg", "Belegjes");
+        ah.addDepartment(d1);
+        ah.addDepartment(d2);
+        ah.addDepartment(d3);
 
         ah.addCompanyProduct(new CompanyProduct(ah, p1, d2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create()));
         ah.addCompanyProduct(new CompanyProduct(ah, p2, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create()));
@@ -97,15 +105,13 @@ public class ShoppingImpl implements Shopping {
         this.companyRepository.save(ah);
 
         final Shop s = this.shopRepository.save(new Shop("Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", ah, "Hoofdstraat xx, Driebergen"));
-        s.addShopDepartment(new ShopDepartment(s, d, 1));
+        s.addShopDepartment(new ShopDepartment(s, d1, 1));
         this.shopRepository.save(s);
 
         final ProductAggregation pa = this.productAggregationRepository.save(new ProductAggregation("Pindakaas", "Zoet broodbeleg pindakaas", BigDecimal
                 .valueOf(2), BigDecimal.valueOf(4)));
         pa.addAggregationPart(new ProductAggregationPart(pa, p2, BigDecimal.ONE, 1));
-        this.stock.put(pa.getId(), BigDecimal.ZERO);
         pa.addAggregationPart(new ProductAggregationPart(pa, p3, BigDecimal.ONE, 2));
-        this.stock.put(pa.getId(), BigDecimal.ZERO);
         this.productAggregationRepository.save(pa);
     }
 
@@ -121,22 +127,19 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public Product addProduct(final String barcode, final String name, final String description) {
-        return this.productRepository.save(new Product(name, description, barcode));
+    public Product createProduct(final PyhProductProperties pyhProductProperties) {
+        return this.productRepository.save(this.beanCopier.copyToNew(pyhProductProperties, Product.class));
     }
 
     @Override
-    public PyhProduct updateProduct(final int id, final String barcode, final String name, final String description) {
-        final Product product = this.productRepository.findOne(id);
-        product.setBarcode(barcode);
-        product.setName(name);
-        product.setDescription(description);
-        return this.productRepository.save(product);
+    public PyhProduct updateProduct(final int productId, final PyhProductProperties pyhProductProperties) {
+        final Product product = this.productRepository.findOne(productId);
+        return this.productRepository.save(this.beanCopier.copyTo(pyhProductProperties, product));
     }
 
     @Override
-    public void deleteProduct(final int id) {
-        this.productRepository.delete(id);
+    public void deleteProduct(final int productId) {
+        this.productRepository.delete(productId);
     }
 
     @Override
@@ -145,10 +148,16 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public void setImageForProduct(final int productId, final ImageMimeType imageMimeType, final String imageBase64) {
+    public PyhProductImage setImageForProduct(final int productId, final PyhProductImage pyhProductImage) {
         final Product product = this.getProduct(productId);
-        product.setImage(new ProductImage(product, imageMimeType, imageBase64));
+        if (product.hasImage()) {
+            this.beanCopier.copyTo(pyhProductImage, product.getImage());
+        } else {
+            final ProductImage productImage = new ProductImage(product);
+            product.setImage(this.beanCopier.copyTo(pyhProductImage, productImage));
+        }
         this.productRepository.save(product);
+        return product.getImage();
     }
 
     @Override
@@ -170,19 +179,14 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public ProductAggregation addProductAggregation(final String name, final String description, final BigDecimal minimumAmount,
-            final BigDecimal maximumAmount) {
-        return this.productAggregationRepository.save(new ProductAggregation(name, description, minimumAmount, maximumAmount));
+    public ProductAggregation createProductAggregation(final PyhProductAggregationProperties pyhProductAggregationProperties) {
+        return this.productAggregationRepository.save(this.beanCopier.copyToNew(pyhProductAggregationProperties, ProductAggregation.class));
     }
 
     @Override
-    public PyhProductAggregation updateProductAggregation(final int productAggregationId, final String name, final String description,
-            final BigDecimal minimumAmount, final BigDecimal maximumAmount) {
+    public PyhProductAggregation updateProductAggregation(final int productAggregationId, final PyhProductAggregationProperties pyhProductAggregationProperties) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
-        productAggregation.setName(name);
-        productAggregation.setDescription(description);
-        productAggregation.setMinimumAmount(minimumAmount);
-        productAggregation.setMaximumAmount(maximumAmount);
+        this.beanCopier.copyTo(pyhProductAggregationProperties, productAggregation);
         return this.productAggregationRepository.save(productAggregation);
     }
 
@@ -192,22 +196,47 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public ProductAggregation setProductInProductAggregation(final int productId, final int productAggregationId, final BigDecimal quantity,
-            final Integer preference) {
+    public ProductAggregation setProductInProductAggregation(final int productId, final int productAggregationId,
+            final PyhProductAggregationPartProperties pyhProductAggregationPartProperties) {
         final Product product = this.productRepository.findOne(productId);
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
-        productAggregation.removeAggregationPart(productId);
-        productAggregation.addAggregationPart(new ProductAggregationPart(productAggregation, product, quantity, preference));
-        this.productAggregationRepository.save(productAggregation);
-        return this.getProductAggregation(productAggregationId);
+        final Optional<ProductAggregationPart> optionalProductAggregationPart = productAggregation.findAggregationPart(productId);
+        if (optionalProductAggregationPart.isPresent()) {
+            this.beanCopier.copyTo(pyhProductAggregationPartProperties, optionalProductAggregationPart.get());
+        } else {
+            final ProductAggregationPart productAggregationPart = new ProductAggregationPart(productAggregation, product);
+            productAggregation.addAggregationPart(this.beanCopier.copyTo(pyhProductAggregationPartProperties, productAggregationPart));
+        }
+        return this.productAggregationRepository.save(productAggregation);
     }
 
     @Override
-    public PyhProductAggregation deleteProductFromProductAggregation(final int productId, final int productAggregationId) {
+    public PyhProductAggregation removeProductFromProductAggregation(final int productId, final int productAggregationId) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
         productAggregation.removeAggregationPart(productId);
-        this.productAggregationRepository.save(productAggregation);
-        return this.getProductAggregation(productAggregationId);
+        return this.productAggregationRepository.save(productAggregation);
+    }
+
+    // FIXME: temp for test
+    private final Map<Integer, Integer> stock = new HashMap<>();
+
+    // TODO: testing:
+    // add/remove product items
+    // get state of product
+    // get state of product aggregation (contribution check)
+    // one product in multiple aggregations (check arithmetic)
+    @Override
+    public Collection<PyhProductState> getProductStates() {
+        return StreamUtil.fromIterable(this.productRepository.findAll())
+                .map(Product::getId)
+                .map(this::getProductState)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PyhProductState getProductState(final int productId) {
+        // TODO Call to EventStore
+        return new PyhProductStateImpl(productId, this.stock.getOrDefault(productId, 0));
     }
 
     @Override
@@ -220,26 +249,37 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public PyhProductAggregationState getProductAggregationState(final int productAggregationId) {
-        return new PyhProductAggregationStateImpl(productAggregationId, this.stock.get(productAggregationId));
-    }
-
-    // FIXME: temp for test
-    private final Map<Integer, BigDecimal> stock = new HashMap<>();
-
-    @Override
-    public PyhProductAggregationState addToProductAggregationState(final int productAggregationId, final BigDecimal amount) {
-        // TODO Call to EventStore
-        final BigDecimal oldAmount = this.stock.get(productAggregationId);
-        this.stock.put(productAggregationId, oldAmount.add(amount));
-        return this.getProductAggregationState(productAggregationId);
+        final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
+        final BigDecimal amount = productAggregation.getAggregationParts().stream()
+                // For every part, get the corresponding aggregation amount by multiplying the contribution with the current product amount.
+                .map(part -> part.getContribution().multiply(BigDecimal.valueOf(this.getProductState(part.getProduct().getId()).getAmount())))
+                .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
+        return new PyhProductAggregationStateImpl(productAggregationId, amount);
     }
 
     @Override
-    public PyhProductAggregationState removeFromProductAggregationState(final int productAggregationId, final BigDecimal amount) {
-        // TODO Call to EventStore
-        final BigDecimal oldAmount = this.stock.get(productAggregationId);
-        this.stock.put(productAggregationId, oldAmount.subtract(amount));
-        return this.getProductAggregationState(productAggregationId);
+    public PyhProductState addProductItem(final String barcode) {
+        return this.addProductItem(this.productRepository.findByBarcode(barcode).getId());
+    }
+
+    @Override
+    public PyhProductState addProductItem(final int productId) {
+        final int currentValue = this.stock.computeIfAbsent(productId, p -> 0);
+        this.stock.put(productId, currentValue + 1);
+        return this.getProductState(productId);
+    }
+
+    @Override
+    public PyhProductState removeProductItem(final String barcode) {
+        return this.removeProductItem(this.productRepository.findByBarcode(barcode).getId());
+    }
+
+    @Override
+    public PyhProductState removeProductItem(final int productId) {
+        // TODO Call to EventStore, todo: not below zero
+        final int currentValue = this.stock.computeIfAbsent(productId, p -> 0);
+        this.stock.put(productId, currentValue - 1);
+        return this.getProductState(productId);
     }
 
 }

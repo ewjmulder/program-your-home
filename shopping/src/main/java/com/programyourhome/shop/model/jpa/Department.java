@@ -14,12 +14,12 @@ public class Department extends NamedEntity {
     private final Company company;
 
     public Department() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public Department(final String name, final String desciption) {
+    public Department(final Company company, final String name, final String desciption) {
         super(name, desciption);
-        this.company = null;
+        this.company = company;
     }
 
     public Company getCompany() {

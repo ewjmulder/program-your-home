@@ -1,13 +1,8 @@
 package com.programyourhome.shop.model;
 
-public interface PyhProduct {
+
+public interface PyhProduct extends PyhProductProperties {
 
     public int getId();
-
-    public String getBarcode();
-
-    public String getName();
-
-    public String getDescription();
 
 }

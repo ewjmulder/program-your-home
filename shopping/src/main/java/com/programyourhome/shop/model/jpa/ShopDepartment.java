@@ -20,7 +20,7 @@ public class ShopDepartment extends Entity {
     @Column(nullable = true, unique = true)
     private Integer sequence;
 
-    /** Only for JPA, we don't want an instance of this type to be constructor without links to shop and department. */
+    /** Only for JPA, we don't want an instance of this type to be constructed without links to shop and department. */
     @SuppressWarnings("unused")
     private ShopDepartment() {
     }

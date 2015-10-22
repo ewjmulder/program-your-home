@@ -2,7 +2,7 @@ package com.programyourhome.common.util;
 
 import java.time.LocalTime;
 
-public class LocalTimeUtil {
+public final class LocalTimeUtil {
 
     private LocalTimeUtil() {
     }

@@ -14,6 +14,7 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
   - Spring for @Inject?
   - Database driver for JDBC  
 - Persistence (sensor data in DB), current config as memory dump or so, should be restorable after midnight reboot.
+- Use @Service instead of Bean for all service implementing classes in all modules (like ShoppingImpl, PhilipsHueImpl, etc)
 - Refactor Mock maven module to use commons-pyh and it's version of the generated mixin.
 - Add geografical data to items (floor, room, location in room, size)
 - Introduce Maven plugin that will fail the build if there are multiple versions on the classpath of the same dependency - to try to avoid classpath conflict issues

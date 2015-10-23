@@ -13,8 +13,6 @@ import com.programyourhome.shop.model.PyhProductState;
 
 public interface Shopping {
 
-    // TODO: Use API interface values instead of sep params?
-
     public Collection<? extends PyhProduct> getProducts();
 
     public PyhProduct getProduct(int productId);
@@ -63,19 +61,12 @@ public interface Shopping {
 
     /*
      * TODO: add other data as getters to service
-     * Open questions: duplicate all data in Pyh...Impl classes or let JPA classes implement interfaces?
-     * Pro: easy, no duplication
-     * Con: lazy loading problems
-     * --> Idea/tryout: split state in sep interface and API call. Eventually for all resources.
-     * Adapt BasePage.js for this new behavior (and whole UI of course)
-     * TODO:
-     * - remove methods
-     * - update methods
-     * - all data creation and linking that is possible
      * - company
+     * - companytype
      * - shop
      * - department
-     * - etc
+     * - companyproduct
+     * - shopdepartment
      */
 
 }

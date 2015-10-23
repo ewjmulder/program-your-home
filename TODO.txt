@@ -7,7 +7,7 @@ X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Document all various comments in some kind of format (Github Flavored MD?)
 - Document configuration decisions: properties file for technical stuff (connection info, account info, datasources, etc.)
 - PYH Utils: extract the common module functionality
-- Split static and dynamic data for all PYH modules, so introduce LightState, DeviceState etc and split the API calls for this information.
+- Split static and dynamic data for all PYH modules, so introduce LightState, DeviceState etc and split the API calls for this information. (see shopping for example)
 - Add dependencies on specific general API's only at bootstrap level, they should only be needed at runtime 
   - Hibernate for JPA
   - Moneta for Money API?

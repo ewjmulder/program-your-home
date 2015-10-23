@@ -5,9 +5,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.programyourhome.shop.common.NamedEntity;
+import com.programyourhome.shop.model.PyhDepartment;
 
 @Entity
-public class Department extends NamedEntity {
+public class Department extends NamedEntity implements PyhDepartment {
 
     @ManyToOne
     @JoinColumn(nullable = false)

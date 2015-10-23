@@ -8,9 +8,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
 import com.programyourhome.shop.common.NamedEntity;
+import com.programyourhome.shop.model.PyhCompanyType;
 
 @Entity
-public class CompanyType extends NamedEntity {
+public class CompanyType extends NamedEntity implements PyhCompanyType {
 
     @OneToMany
     @JoinColumn(name = "companytype_id")

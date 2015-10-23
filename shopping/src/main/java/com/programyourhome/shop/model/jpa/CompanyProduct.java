@@ -6,12 +6,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.javamoney.moneta.Money;
+import org.javamoney.moneta.internal.MoneyAmountBuilder;
 
 import com.programyourhome.shop.common.Entity;
 import com.programyourhome.shop.common.MoneyConverter;
+import com.programyourhome.shop.model.Currency;
+import com.programyourhome.shop.model.PyhCompanyProduct;
+import com.programyourhome.shop.model.PyhMonetaryAmount;
+import com.programyourhome.shop.model.api.PyhMonetaryAmountImpl;
 
 @javax.persistence.Entity
-public class CompanyProduct extends Entity {
+public class CompanyProduct extends Entity implements PyhCompanyProduct {
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -27,7 +32,7 @@ public class CompanyProduct extends Entity {
 
     @Column(nullable = true)
     @Convert(converter = MoneyConverter.class)
-    private Money money;
+    private Money price;
 
     /** Only for JPA, we don't want an instance of this type to be constructed without links to company and product. */
     @SuppressWarnings("unused")
@@ -38,21 +43,23 @@ public class CompanyProduct extends Entity {
         this(company, product, null, null);
     }
 
-    public CompanyProduct(final Company company, final Product product, final Department department, final Money money) {
+    public CompanyProduct(final Company company, final Product product, final Department department, final Money price) {
         this.company = company;
         this.product = product;
         this.department = department;
-        this.money = money;
+        this.price = price;
     }
 
     public Company getCompany() {
         return this.company;
     }
 
+    @Override
     public Product getProduct() {
         return this.product;
     }
 
+    @Override
     public Department getDepartment() {
         return this.department;
     }
@@ -61,12 +68,13 @@ public class CompanyProduct extends Entity {
         this.department = department;
     }
 
-    public Money getMoney() {
-        return this.money;
+    @Override
+    public PyhMonetaryAmount getPrice() {
+        return new PyhMonetaryAmountImpl(Currency.valueOf(this.price.getCurrency().getCurrencyCode()), this.price.getNumberStripped());
     }
 
-    public void setMoney(final Money money) {
-        this.money = money;
+    public void setPrice(final PyhMonetaryAmount monetaryAmount) {
+        this.price = new MoneyAmountBuilder().setCurrency(monetaryAmount.getCurrency().name()).setNumber(monetaryAmount.getAmount()).create();
     }
 
 }

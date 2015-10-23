@@ -10,9 +10,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.programyourhome.shop.common.NamedEntity;
+import com.programyourhome.shop.model.PyhCompany;
 
 @Entity
-public class Company extends NamedEntity {
+public class Company extends NamedEntity implements PyhCompany {
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -42,6 +43,7 @@ public class Company extends NamedEntity {
         this.type = type;
     }
 
+    @Override
     public CompanyType getType() {
         return this.type;
     }
@@ -50,6 +52,20 @@ public class Company extends NamedEntity {
         this.type = type;
     }
 
+    @Override
+    public Set<Shop> getShops() {
+        return this.shops;
+    }
+
+    public void addShop(final Shop shop) {
+        this.shops.add(shop);
+    }
+
+    public void removeShop(final Shop shop) {
+        this.shops.remove(shop);
+    }
+
+    @Override
     public Set<Department> getDepartments() {
         return this.departments;
     }
@@ -62,6 +78,7 @@ public class Company extends NamedEntity {
         this.departments.remove(department);
     }
 
+    @Override
     public Set<CompanyProduct> getCompanyProducts() {
         return this.companyProducts;
     }

@@ -11,9 +11,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.programyourhome.shop.common.NamedEntity;
+import com.programyourhome.shop.model.PyhShop;
 
 @Entity
-public class Shop extends NamedEntity {
+public class Shop extends NamedEntity implements PyhShop {
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -48,6 +49,7 @@ public class Shop extends NamedEntity {
         this.company = company;
     }
 
+    @Override
     public String getAddress() {
         return this.address;
     }

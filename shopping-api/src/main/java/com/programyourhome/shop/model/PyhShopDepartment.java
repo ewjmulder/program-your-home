@@ -1,6 +1,6 @@
 package com.programyourhome.shop.model;
 
-public interface PyhShopDepartment extends PyhShopDepartmentPropertiesBase {
+public interface PyhShopDepartment extends PyhShopDepartmentProperties {
 
     /**
      * Get the department that is part of joined relation. It's assumed that in the API

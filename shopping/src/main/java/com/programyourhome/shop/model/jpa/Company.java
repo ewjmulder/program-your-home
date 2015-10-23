@@ -1,6 +1,8 @@
 package com.programyourhome.shop.model.jpa;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -19,16 +21,13 @@ public class Company extends NamedEntity implements PyhCompany {
     @JoinColumn(nullable = false)
     private CompanyType type;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "company_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "company")
     private final Set<Shop> shops;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "company_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "company")
     private final Set<Department> departments;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "company_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "company")
     private final Set<CompanyProduct> companyProducts;
 
     public Company() {
@@ -57,6 +56,12 @@ public class Company extends NamedEntity implements PyhCompany {
         return this.shops;
     }
 
+    public Shop getShop(final int shopId) {
+        return this.shops.stream()
+                .filter(shop -> shop.getId() == shopId)
+                .findFirst().orElse(null);
+    }
+
     public void addShop(final Shop shop) {
         this.shops.add(shop);
     }
@@ -68,6 +73,12 @@ public class Company extends NamedEntity implements PyhCompany {
     @Override
     public Set<Department> getDepartments() {
         return this.departments;
+    }
+
+    public Department getDepartment(final int departmentId) {
+        return this.departments.stream()
+                .filter(department -> department.getId() == departmentId)
+                .findFirst().orElse(null);
     }
 
     public void addDepartment(final Department department) {
@@ -83,12 +94,20 @@ public class Company extends NamedEntity implements PyhCompany {
         return this.companyProducts;
     }
 
+    public Optional<CompanyProduct> findCompanyProduct(final int productId) {
+        return this.companyProducts.stream()
+                .filter(companyProduct -> companyProduct.getProduct().getId() == productId)
+                .findFirst();
+    }
+
     public void addCompanyProduct(final CompanyProduct companyProduct) {
         this.companyProducts.add(companyProduct);
     }
 
-    public void removeCompanyProduct(final CompanyProduct companyProduct) {
-        this.companyProducts.remove(companyProduct);
+    public void removeCompanyProduct(final int productId) {
+        new ArrayList<>(this.companyProducts).stream()
+                .filter(companyProduct -> companyProduct.getProduct().getId() == productId)
+                .forEach(this.companyProducts::remove);
     }
 
 }

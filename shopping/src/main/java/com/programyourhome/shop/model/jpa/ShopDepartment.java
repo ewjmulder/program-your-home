@@ -18,7 +18,7 @@ public class ShopDepartment extends Entity implements PyhShopDepartment {
     @JoinColumn(nullable = false)
     private Department department;
 
-    @Column(nullable = true, unique = true)
+    @Column(nullable = true)
     private Integer sequence;
 
     /** Only for JPA, we don't want an instance of this type to be constructed without links to shop and department. */

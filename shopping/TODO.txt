@@ -1,8 +1,11 @@
 C:\Program Files\EventStore-3.3.0>
 EventStore.ClusterNode.exe --db "D:\Prive\Program Your Home\EventStoreData\DB" --log "D:\Prive\Program Your Home\EventStoreData\Logs"
 
-- @Transactional now only works at the class level, why not on on method level?
-  - Plus: when to use javax and spring one's?
+- All owned collections as maps with key id (but how to add new?)
+- Convenience method(s) on own repo interface, eg findAll returns Collection/Set instead of Iterable
+X @Transactional now only works at the class level, why not on on method level?
+  X Plus: when to use javax and spring one's?
+  --> Java ones are fine and a full replacement. Problem arose due to self-invocation in the class, so proxy could not pick up on the method call
 - Add tostring builder for entity objects - only display non-lazy fields!!
 - When using @Transactional (or probably even not then) save repo calls on existing entities aren't needed, since they will be saved on session close automatically
   - So remove save's evrywhere where not needed.

@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
@@ -24,8 +23,7 @@ public class Product extends NamedEntity implements PyhProduct {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private ProductImage image;
 
-    @ManyToMany
-    @JoinColumn(name = "product_id")
+    @ManyToMany(mappedBy = "product")
     private final Set<CompanyProduct> companyProducts;
 
     // Modeled as a collection to allow for one product to be a part of several aggregations.

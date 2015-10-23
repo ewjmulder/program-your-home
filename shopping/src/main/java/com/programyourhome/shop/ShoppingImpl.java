@@ -21,8 +21,15 @@ import com.programyourhome.shop.dao.CompanyRepository;
 import com.programyourhome.shop.dao.CompanyTypeRepository;
 import com.programyourhome.shop.dao.ProductAggregationRepository;
 import com.programyourhome.shop.dao.ProductRepository;
-import com.programyourhome.shop.dao.ShopRepository;
 import com.programyourhome.shop.model.ImageMimeType;
+import com.programyourhome.shop.model.PyhCompany;
+import com.programyourhome.shop.model.PyhCompanyProduct;
+import com.programyourhome.shop.model.PyhCompanyProductProperties;
+import com.programyourhome.shop.model.PyhCompanyProperties;
+import com.programyourhome.shop.model.PyhCompanyType;
+import com.programyourhome.shop.model.PyhCompanyTypeProperties;
+import com.programyourhome.shop.model.PyhDepartment;
+import com.programyourhome.shop.model.PyhDepartmentProperties;
 import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductAggregation;
 import com.programyourhome.shop.model.PyhProductAggregationPart;
@@ -32,6 +39,10 @@ import com.programyourhome.shop.model.PyhProductAggregationState;
 import com.programyourhome.shop.model.PyhProductImage;
 import com.programyourhome.shop.model.PyhProductProperties;
 import com.programyourhome.shop.model.PyhProductState;
+import com.programyourhome.shop.model.PyhShop;
+import com.programyourhome.shop.model.PyhShopDepartment;
+import com.programyourhome.shop.model.PyhShopDepartmentProperties;
+import com.programyourhome.shop.model.PyhShopProperties;
 import com.programyourhome.shop.model.api.PyhProductAggregationStateImpl;
 import com.programyourhome.shop.model.api.PyhProductStateImpl;
 import com.programyourhome.shop.model.jpa.Company;
@@ -57,9 +68,6 @@ public class ShoppingImpl implements Shopping {
 
     @Inject
     private CompanyTypeRepository companyTypeRepository;
-
-    @Inject
-    private ShopRepository shopRepository;
 
     @Inject
     private ProductAggregationRepository productAggregationRepository;
@@ -102,11 +110,10 @@ public class ShoppingImpl implements Shopping {
         ah.addCompanyProduct(new CompanyProduct(ah, p1, d2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create()));
         ah.addCompanyProduct(new CompanyProduct(ah, p2, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create()));
         ah.addCompanyProduct(new CompanyProduct(ah, p3, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.30).create()));
-        this.companyRepository.save(ah);
-
-        final Shop s = this.shopRepository.save(new Shop("Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", ah, "Hoofdstraat xx, Driebergen"));
+        final Shop s = new Shop("Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", ah, "Hoofdstraat xx, Driebergen");
         s.addShopDepartment(new ShopDepartment(s, d1, 1));
-        this.shopRepository.save(s);
+        ah.addShop(s);
+        this.companyRepository.save(ah);
 
         final ProductAggregation pa = this.productAggregationRepository.save(new ProductAggregation("Pindakaas", "Zoet broodbeleg pindakaas", BigDecimal
                 .valueOf(2), BigDecimal.valueOf(4)));
@@ -127,14 +134,14 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public Product createProduct(final PyhProductProperties pyhProductProperties) {
-        return this.productRepository.save(this.beanCopier.copyToNew(pyhProductProperties, Product.class));
+    public Product createProduct(final PyhProductProperties productProperties) {
+        return this.productRepository.save(this.beanCopier.copyToNew(productProperties, Product.class));
     }
 
     @Override
-    public PyhProduct updateProduct(final int productId, final PyhProductProperties pyhProductProperties) {
+    public PyhProduct updateProduct(final int productId, final PyhProductProperties productProperties) {
         final Product product = this.productRepository.findOne(productId);
-        return this.productRepository.save(this.beanCopier.copyTo(pyhProductProperties, product));
+        return this.productRepository.save(this.beanCopier.copyTo(productProperties, product));
     }
 
     @Override
@@ -179,15 +186,14 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public ProductAggregation createProductAggregation(final PyhProductAggregationProperties pyhProductAggregationProperties) {
-        return this.productAggregationRepository.save(this.beanCopier.copyToNew(pyhProductAggregationProperties, ProductAggregation.class));
+    public ProductAggregation createProductAggregation(final PyhProductAggregationProperties productAggregationProperties) {
+        return this.productAggregationRepository.save(this.beanCopier.copyToNew(productAggregationProperties, ProductAggregation.class));
     }
 
     @Override
-    public PyhProductAggregation updateProductAggregation(final int productAggregationId, final PyhProductAggregationProperties pyhProductAggregationProperties) {
+    public PyhProductAggregation updateProductAggregation(final int productAggregationId, final PyhProductAggregationProperties productAggregationProperties) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
-        this.beanCopier.copyTo(pyhProductAggregationProperties, productAggregation);
-        return this.productAggregationRepository.save(productAggregation);
+        return this.productAggregationRepository.save(this.beanCopier.copyTo(productAggregationProperties, productAggregation));
     }
 
     @Override
@@ -196,22 +202,32 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public ProductAggregation setProductInProductAggregation(final int productId, final int productAggregationId,
-            final PyhProductAggregationPartProperties pyhProductAggregationPartProperties) {
-        final Product product = this.productRepository.findOne(productId);
+    public Collection<? extends PyhProductAggregationPart> getProductAggregationParts(final int productAggregationId) {
+        return this.productAggregationRepository.findOne(productAggregationId).getAggregationParts();
+    }
+
+    @Override
+    public PyhProductAggregationPart getProductAggregationPart(final int productAggregationId, final int productId) {
+        return this.productAggregationRepository.findOne(productAggregationId).findAggregationPart(productId).get();
+    }
+
+    @Override
+    public ProductAggregation setProductInProductAggregation(final int productAggregationId, final int productId,
+            final PyhProductAggregationPartProperties productAggregationPartProperties) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
+        final Product product = this.productRepository.findOne(productId);
         final Optional<ProductAggregationPart> optionalProductAggregationPart = productAggregation.findAggregationPart(productId);
         if (optionalProductAggregationPart.isPresent()) {
-            this.beanCopier.copyTo(pyhProductAggregationPartProperties, optionalProductAggregationPart.get());
+            this.beanCopier.copyTo(productAggregationPartProperties, optionalProductAggregationPart.get());
         } else {
             final ProductAggregationPart productAggregationPart = new ProductAggregationPart(productAggregation, product);
-            productAggregation.addAggregationPart(this.beanCopier.copyTo(pyhProductAggregationPartProperties, productAggregationPart));
+            productAggregation.addAggregationPart(this.beanCopier.copyTo(productAggregationPartProperties, productAggregationPart));
         }
         return this.productAggregationRepository.save(productAggregation);
     }
 
     @Override
-    public PyhProductAggregation removeProductFromProductAggregation(final int productId, final int productAggregationId) {
+    public PyhProductAggregation removeProductFromProductAggregation(final int productAggregationId, final int productId) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
         productAggregation.removeAggregationPart(productId);
         return this.productAggregationRepository.save(productAggregation);
@@ -280,6 +296,196 @@ public class ShoppingImpl implements Shopping {
         final int currentValue = this.stock.computeIfAbsent(productId, p -> 0);
         this.stock.put(productId, currentValue - 1);
         return this.getProductState(productId);
+    }
+
+    @Override
+    public Collection<? extends PyhCompanyType> getCompanyTypes() {
+        return StreamUtil.fromIterable(this.companyTypeRepository.findAll())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PyhCompanyType getCompanyType(final int companyTypeId) {
+        return this.companyTypeRepository.findOne(companyTypeId);
+    }
+
+    @Override
+    public PyhCompanyType createCompanyType(final PyhCompanyTypeProperties companyTypeProperties) {
+        return this.companyTypeRepository.save(this.beanCopier.copyToNew(companyTypeProperties, CompanyType.class));
+    }
+
+    @Override
+    public PyhCompanyType updateCompanyType(final int companyTypeId, final PyhCompanyTypeProperties companyTypeProperties) {
+        final CompanyType companyType = this.companyTypeRepository.findOne(companyTypeId);
+        return this.companyTypeRepository.save(this.beanCopier.copyTo(companyTypeProperties, companyType));
+    }
+
+    @Override
+    public void deleteCompanyType(final int companyTypeId) {
+        this.companyTypeRepository.delete(companyTypeId);
+    }
+
+    @Override
+    public Collection<? extends PyhCompany> getCompanies() {
+        return StreamUtil.fromIterable(this.companyRepository.findAll())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PyhCompany getCompany(final int companyId) {
+        return this.companyRepository.findOne(companyId);
+    }
+
+    @Override
+    public PyhCompany createCompany(final PyhCompanyProperties companyProperties) {
+        final Company company = new Company();
+        company.setType(this.companyTypeRepository.findOne(companyProperties.getCompanyTypeId()));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public PyhCompany updateCompany(final int companyId, final PyhCompanyProperties companyProperties) {
+        final Company company = this.companyRepository.findOne(companyId);
+        company.setType(this.companyTypeRepository.findOne(companyProperties.getCompanyTypeId()));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public void deleteCompany(final int companyId) {
+        this.companyRepository.delete(companyId);
+    }
+
+    @Override
+    public Collection<? extends PyhShop> getShops(final int companyId) {
+        return this.companyRepository.findOne(companyId).getShops();
+    }
+
+    @Override
+    public PyhShop getShop(final int companyId, final int shopId) {
+        return this.companyRepository.findOne(companyId).getShop(shopId);
+    }
+
+    @Override
+    public PyhCompany addShop(final int companyId, final PyhShopProperties shopProperties) {
+        final Company company = this.companyRepository.findOne(companyId);
+        company.addShop(this.beanCopier.copyToNew(shopProperties, Shop.class));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public PyhCompany updateShop(final int companyId, final int shopId, final PyhShopProperties shopProperties) {
+        final Company company = this.companyRepository.findOne(companyId);
+        final Shop shop = company.getShop(shopId);
+        company.addShop(this.beanCopier.copyTo(shopProperties, shop));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public PyhCompany deleteShop(final int companyId, final int shopId) {
+        final Company company = this.companyRepository.findOne(companyId);
+        company.removeShop(company.getShop(shopId));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public Collection<? extends PyhDepartment> getDepartments(final int companyId) {
+        return this.companyRepository.findOne(companyId).getDepartments();
+    }
+
+    @Override
+    public PyhDepartment getDepartment(final int companyId, final int departmentId) {
+        return this.companyRepository.findOne(companyId).getDepartment(departmentId);
+    }
+
+    @Override
+    public PyhCompany addDepartment(final int companyId, final PyhDepartmentProperties departmentProperties) {
+        final Company company = this.companyRepository.findOne(companyId);
+        company.addDepartment(this.beanCopier.copyToNew(departmentProperties, Department.class));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public PyhCompany updateDepartment(final int companyId, final int departmentId, final PyhDepartmentProperties departmentProperties) {
+        final Company company = this.companyRepository.findOne(companyId);
+        final Department department = company.getDepartment(departmentId);
+        company.addDepartment(this.beanCopier.copyTo(departmentProperties, department));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public PyhCompany deleteDepartment(final int companyId, final int departmentId) {
+        final Company company = this.companyRepository.findOne(companyId);
+        company.removeDepartment(company.getDepartment(departmentId));
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public Collection<? extends PyhShopDepartment> getShopDepartments(final int companyId, final int shopId) {
+        return this.companyRepository.findOne(companyId).getShop(shopId).getShopDepartments();
+    }
+
+    @Override
+    public PyhShopDepartment getShopDepartment(final int companyId, final int shopId, final int departmentId) {
+        return this.companyRepository.findOne(companyId).getShop(shopId).findShopDepartment(departmentId).get();
+    }
+
+    @Override
+    public PyhShop setDepartmentInShopDepartment(final int companyId, final int shopId, final int departmentId,
+            final PyhShopDepartmentProperties shopDepartmentProperties) {
+        final Company company = this.companyRepository.findOne(companyId);
+        final Shop shop = company.getShop(shopId);
+        final Department department = company.getDepartment(departmentId);
+        final Optional<ShopDepartment> optionalShopDepartment = shop.findShopDepartment(departmentId);
+        if (optionalShopDepartment.isPresent()) {
+            this.beanCopier.copyTo(shopDepartmentProperties, optionalShopDepartment.get());
+        } else {
+            final ShopDepartment shopDepartment = new ShopDepartment(shop, department);
+            shop.addShopDepartment(this.beanCopier.copyTo(shopDepartmentProperties, shopDepartment));
+        }
+        final Company savedCompany = this.companyRepository.save(company);
+        return savedCompany.getShop(shopId);
+    }
+
+    @Override
+    public PyhShop removeDepartmentFromShopDepartment(final int companyId, final int shopId, final int departmentId) {
+        final Company company = this.companyRepository.findOne(companyId);
+        final Shop shop = company.getShop(shopId);
+        shop.removeShopDepartment(departmentId);
+        final Company savedCompany = this.companyRepository.save(company);
+        return savedCompany.getShop(shopId);
+    }
+
+    @Override
+    public Collection<? extends PyhCompanyProduct> getCompanyProducts(final int companyId) {
+        return this.companyRepository.findOne(companyId).getCompanyProducts();
+    }
+
+    @Override
+    public PyhCompanyProduct getCompanyProduct(final int companyId, final int productId) {
+        return this.companyRepository.findOne(companyId).findCompanyProduct(productId).get();
+    }
+
+    @Override
+    public PyhCompany setProductInCompanyProduct(final int companyId, final int productId, final PyhCompanyProductProperties companyProductProperties) {
+        final Company company = this.companyRepository.findOne(companyId);
+        final Product product = this.productRepository.findOne(productId);
+        final Department department = company.getDepartment(companyProductProperties.getDepartmentId());
+        final Optional<CompanyProduct> optionalCompanyProduct = company.findCompanyProduct(productId);
+        final CompanyProduct companyProduct = optionalCompanyProduct.orElseGet(() -> {
+            final CompanyProduct newCompanyProduct = new CompanyProduct(company, product);
+            company.addCompanyProduct(newCompanyProduct);
+            return newCompanyProduct;
+        });
+        companyProduct.setDepartment(department);
+        companyProduct.setPrice(companyProductProperties.getPrice());
+        return this.companyRepository.save(company);
+    }
+
+    @Override
+    public PyhCompany removeProductFromCompanyProduct(final int companyId, final int productId) {
+        final Company company = this.companyRepository.findOne(companyId);
+        company.removeCompanyProduct(productId);
+        return this.companyRepository.save(company);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.programyourhome.shop.model.jpa;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -26,8 +27,7 @@ public class Shop extends NamedEntity implements PyhShop {
 
     // TODO: Add GPS coordinates
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "shop_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "shop")
     private final Set<ShopDepartment> shopDepartments;
 
     public Shop() {
@@ -62,12 +62,20 @@ public class Shop extends NamedEntity implements PyhShop {
         return this.shopDepartments;
     }
 
+    public Optional<ShopDepartment> findShopDepartment(final int departmentId) {
+        return this.shopDepartments.stream()
+                .filter(shopDepartment -> shopDepartment.getDepartment().getId() == departmentId)
+                .findFirst();
+    }
+
     public void addShopDepartment(final ShopDepartment shopDepartment) {
         this.shopDepartments.add(shopDepartment);
     }
 
-    public void removeShopDepartment(final ShopDepartment shopDepartment) {
-        this.shopDepartments.remove(shopDepartment);
+    public void removeShopDepartment(final int departmentId) {
+        new HashSet<>(this.shopDepartments).stream()
+                .filter(shopDepartment -> shopDepartment.getDepartment().getId() == departmentId)
+                .forEach(this.shopDepartments::remove);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.programyourhome.shop.model;
 
-public interface PyhShopDepartmentProperties extends PyhShopDepartmentPropertiesBase {
+public interface PyhShopDepartmentProperties {
 
-    public int getDepartmentId();
+    public Integer getSequence();
 
 }

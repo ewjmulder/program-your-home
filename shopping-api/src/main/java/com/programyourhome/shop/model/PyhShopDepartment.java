@@ -3,9 +3,9 @@ package com.programyourhome.shop.model;
 public interface PyhShopDepartment extends PyhShopDepartmentProperties {
 
     /**
-     * Get the department that is part of joined relation. It's assumed that in the API
-     * this object will always be 'navigated to' from the shop side, never from
-     * the department side. That's why there is no getShop method.
+     * Get the department that is part of joined relation. The default is that
+     * this object will be 'navigated to' from the shop side, not from
+     * the department side.
      *
      * @return the department
      */

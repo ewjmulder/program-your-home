@@ -54,7 +54,6 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
         this.maximumAmount = maximumAmount;
     }
 
-    @Override
     public Set<ProductAggregationPart> getAggregationParts() {
         return this.aggregationParts;
     }
@@ -71,8 +70,8 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
 
     public void removeAggregationPart(final int productId) {
         new HashSet<>(this.aggregationParts).stream()
-                .filter(part -> part.getProduct().getId() == productId)
-                .forEach(this.aggregationParts::remove);
+        .filter(part -> part.getProduct().getId() == productId)
+        .forEach(this.aggregationParts::remove);
     }
 
 }

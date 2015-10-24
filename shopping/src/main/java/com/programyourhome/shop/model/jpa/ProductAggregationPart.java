@@ -8,9 +8,10 @@ import javax.persistence.ManyToOne;
 
 import com.programyourhome.shop.common.Entity;
 import com.programyourhome.shop.model.PyhProductAggregationPart;
+import com.programyourhome.shop.model.PyhProductAggregationPartToProductAggregation;
 
 @javax.persistence.Entity
-public class ProductAggregationPart extends Entity implements PyhProductAggregationPart {
+public class ProductAggregationPart extends Entity implements PyhProductAggregationPart, PyhProductAggregationPartToProductAggregation {
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -45,7 +46,8 @@ public class ProductAggregationPart extends Entity implements PyhProductAggregat
         this.preference = preference;
     }
 
-    public ProductAggregation getAggregation() {
+    @Override
+    public ProductAggregation getProductAggregation() {
         return this.aggregation;
     }
 

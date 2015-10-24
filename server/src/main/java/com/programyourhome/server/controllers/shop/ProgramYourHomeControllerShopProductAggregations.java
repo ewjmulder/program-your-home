@@ -14,6 +14,7 @@ import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 import com.programyourhome.server.response.ServiceResult;
 import com.programyourhome.shop.Shopping;
 import com.programyourhome.shop.model.PyhProductAggregation;
+import com.programyourhome.shop.model.PyhProductAggregationPart;
 import com.programyourhome.shop.model.PyhProductAggregationPartProperties;
 import com.programyourhome.shop.model.PyhProductAggregationProperties;
 import com.programyourhome.shop.model.PyhProductAggregationState;
@@ -51,17 +52,22 @@ public class ProgramYourHomeControllerShopProductAggregations extends AbstractPr
         return this.run(() -> this.shopping.deleteProductAggregation(productAggregationId));
     }
 
-    @RequestMapping(value = "{id}/products/{productId}", method = RequestMethod.POST, consumes = MIME_JSON)
-    public ServiceResult<PyhProductAggregation> setProductInProductAggregation(@PathVariable("id") final int productAggregationId,
-            @PathVariable("productId") final int productId, @RequestBody final PyhProductAggregationPartProperties productAggregationPartProperties) {
-        return this.produce("ProductAggregation",
-                () -> this.shopping.setProductInProductAggregation(productId, productAggregationId, productAggregationPartProperties));
+    @RequestMapping(value = "{id}/productAggregationParts", method = RequestMethod.GET)
+    public ServiceResult<Collection<? extends PyhProductAggregation>> getProductAggregationParts() {
+        return this.produce("ProductAggregations", () -> this.shopping.getProductAggregations());
     }
 
-    @RequestMapping(value = "{id}/products/{productId}", method = RequestMethod.DELETE)
-    public ServiceResult<PyhProductAggregation> removeProductFromProductAggregation(@PathVariable("id") final int productAggregationId,
+    @RequestMapping(value = "{id}/productAggregationParts/{productId}", method = RequestMethod.POST, consumes = MIME_JSON)
+    public ServiceResult<PyhProductAggregationPart> setProductInProductAggregationPart(@PathVariable("id") final int productAggregationId,
+            @PathVariable("productId") final int productId, @RequestBody final PyhProductAggregationPartProperties productAggregationPartProperties) {
+        return this.produce("ProductAggregation",
+                () -> this.shopping.setProductInProductAggregationPart(productId, productAggregationId, productAggregationPartProperties));
+    }
+
+    @RequestMapping(value = "{id}/productAggregationParts/{productId}", method = RequestMethod.DELETE)
+    public ServiceResult<Void> removeProductFromProductAggregationPart(@PathVariable("id") final int productAggregationId,
             @PathVariable("productId") final int productId) {
-        return this.produce("ProductAggregation", () -> this.shopping.removeProductFromProductAggregation(productId, productAggregationId));
+        return this.run(() -> this.shopping.removeProductFromProductAggregationPart(productId, productAggregationId));
     }
 
     @RequestMapping(value = "{id}/state", method = RequestMethod.GET)

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
 import com.programyourhome.server.response.ServiceResult;
 import com.programyourhome.shop.Shopping;
+import com.programyourhome.shop.model.PyhCompanyProductToCompany;
 import com.programyourhome.shop.model.PyhProduct;
+import com.programyourhome.shop.model.PyhProductAggregationPartToProductAggregation;
 import com.programyourhome.shop.model.PyhProductImage;
 import com.programyourhome.shop.model.PyhProductProperties;
 import com.programyourhome.shop.model.PyhProductState;
@@ -41,13 +43,24 @@ public class ProgramYourHomeControllerShopProducts extends AbstractProgramYourHo
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.PUT, consumes = MIME_JSON)
-    public ServiceResult<PyhProduct> updateProduct(@PathVariable("id") final int productId, @RequestBody final PyhProductProperties product) {
-        return this.produce("Product", () -> this.shopping.updateProduct(productId, product));
+    public ServiceResult<PyhProduct> updateProduct(@PathVariable("id") final int productId, @RequestBody final PyhProductProperties productProperties) {
+        return this.produce("Product", () -> this.shopping.updateProduct(productId, productProperties));
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     public ServiceResult<Void> deleteProduct(@PathVariable("id") final int productId) {
         return this.run(() -> this.shopping.deleteProduct(productId));
+    }
+
+    @RequestMapping(value = "{id}/productAggregationParts", method = RequestMethod.GET)
+    public ServiceResult<Collection<? extends PyhProductAggregationPartToProductAggregation>> getProductAggregationParts(
+            @PathVariable("id") final int productId) {
+        return this.produce("ProductAggregationParts", () -> this.shopping.getProductAggregationPartsToProductAggregation(productId));
+    }
+
+    @RequestMapping(value = "{id}/companyProducts", method = RequestMethod.GET)
+    public ServiceResult<Collection<? extends PyhCompanyProductToCompany>> getCompanyProducts(@PathVariable("id") final int productId) {
+        return this.produce("CompanyProducts", () -> this.shopping.getCompanyProductsToCompany(productId));
     }
 
     @RequestMapping(value = "{id}/image", method = RequestMethod.GET)

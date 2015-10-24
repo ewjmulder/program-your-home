@@ -23,12 +23,12 @@ public class Product extends NamedEntity implements PyhProduct {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private ProductImage image;
 
-    @ManyToMany(mappedBy = "product")
-    private final Set<CompanyProduct> companyProducts;
-
     // Modeled as a collection to allow for one product to be a part of several aggregations.
     @ManyToMany(mappedBy = "product")
     private final Set<ProductAggregationPart> aggregationParts;
+
+    @ManyToMany(mappedBy = "product")
+    private final Set<CompanyProduct> companyProducts;
 
     public Product() {
         this(null, null, null);
@@ -36,8 +36,8 @@ public class Product extends NamedEntity implements PyhProduct {
 
     public Product(final String name, final String description, final String barcode) {
         super(name, description);
-        this.companyProducts = new HashSet<>();
         this.aggregationParts = new HashSet<>();
+        this.companyProducts = new HashSet<>();
         this.barcode = barcode;
         this.image = null;
     }
@@ -63,12 +63,12 @@ public class Product extends NamedEntity implements PyhProduct {
         this.image = image;
     }
 
-    public Set<CompanyProduct> getCompanyProducts() {
-        return this.companyProducts;
-    }
-
     public Set<ProductAggregationPart> getAggregationParts() {
         return this.aggregationParts;
+    }
+
+    public Set<CompanyProduct> getCompanyProducts() {
+        return this.companyProducts;
     }
 
 }

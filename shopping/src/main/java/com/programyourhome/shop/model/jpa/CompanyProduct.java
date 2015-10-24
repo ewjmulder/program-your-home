@@ -12,11 +12,12 @@ import com.programyourhome.shop.common.Entity;
 import com.programyourhome.shop.common.MoneyConverter;
 import com.programyourhome.shop.model.Currency;
 import com.programyourhome.shop.model.PyhCompanyProduct;
+import com.programyourhome.shop.model.PyhCompanyProductToCompany;
 import com.programyourhome.shop.model.PyhMonetaryAmount;
 import com.programyourhome.shop.model.api.PyhMonetaryAmountImpl;
 
 @javax.persistence.Entity
-public class CompanyProduct extends Entity implements PyhCompanyProduct {
+public class CompanyProduct extends Entity implements PyhCompanyProduct, PyhCompanyProductToCompany {
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -50,6 +51,7 @@ public class CompanyProduct extends Entity implements PyhCompanyProduct {
         this.price = price;
     }
 
+    @Override
     public Company getCompany() {
         return this.company;
     }

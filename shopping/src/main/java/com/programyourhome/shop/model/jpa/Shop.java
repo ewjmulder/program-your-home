@@ -19,7 +19,7 @@ public class Shop extends NamedEntity implements PyhShop {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private Company company;
+    private final Company company;
 
     // TODO: Normalize address
     @Column(nullable = true, length = 512)
@@ -30,11 +30,17 @@ public class Shop extends NamedEntity implements PyhShop {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "shop")
     private final Set<ShopDepartment> shopDepartments;
 
-    public Shop() {
+    /** Only for JPA, we don't want an instance of this type to be constructed without a link to company. */
+    @SuppressWarnings("unused")
+    private Shop() {
         this(null, null, null, null);
     }
 
-    public Shop(final String name, final String desciption, final Company company, final String address) {
+    public Shop(final Company company) {
+        this(company, null, null, null);
+    }
+
+    public Shop(final Company company, final String name, final String desciption, final String address) {
         super(name, desciption);
         this.shopDepartments = new HashSet<>();
         this.company = company;
@@ -43,10 +49,6 @@ public class Shop extends NamedEntity implements PyhShop {
 
     public Company getCompany() {
         return this.company;
-    }
-
-    public void setCompany(final Company company) {
-        this.company = company;
     }
 
     @Override
@@ -74,8 +76,8 @@ public class Shop extends NamedEntity implements PyhShop {
 
     public void removeShopDepartment(final int departmentId) {
         new HashSet<>(this.shopDepartments).stream()
-                .filter(shopDepartment -> shopDepartment.getDepartment().getId() == departmentId)
-                .forEach(this.shopDepartments::remove);
+        .filter(shopDepartment -> shopDepartment.getDepartment().getId() == departmentId)
+        .forEach(this.shopDepartments::remove);
     }
 
 }

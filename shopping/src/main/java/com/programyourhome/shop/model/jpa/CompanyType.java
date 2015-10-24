@@ -24,4 +24,8 @@ public class CompanyType extends NamedEntity implements PyhCompanyType {
         this.companies = new HashSet<>();
     }
 
+    public Set<Company> getCompanies() {
+        return this.companies;
+    }
+
 }

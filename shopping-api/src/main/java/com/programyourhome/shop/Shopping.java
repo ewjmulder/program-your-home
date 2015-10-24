@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.programyourhome.shop.model.PyhCompany;
 import com.programyourhome.shop.model.PyhCompanyProduct;
 import com.programyourhome.shop.model.PyhCompanyProductProperties;
+import com.programyourhome.shop.model.PyhCompanyProductToCompany;
 import com.programyourhome.shop.model.PyhCompanyProperties;
 import com.programyourhome.shop.model.PyhCompanyType;
 import com.programyourhome.shop.model.PyhCompanyTypeProperties;
@@ -14,6 +15,7 @@ import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductAggregation;
 import com.programyourhome.shop.model.PyhProductAggregationPart;
 import com.programyourhome.shop.model.PyhProductAggregationPartProperties;
+import com.programyourhome.shop.model.PyhProductAggregationPartToProductAggregation;
 import com.programyourhome.shop.model.PyhProductAggregationProperties;
 import com.programyourhome.shop.model.PyhProductAggregationState;
 import com.programyourhome.shop.model.PyhProductImage;
@@ -22,6 +24,7 @@ import com.programyourhome.shop.model.PyhProductState;
 import com.programyourhome.shop.model.PyhShop;
 import com.programyourhome.shop.model.PyhShopDepartment;
 import com.programyourhome.shop.model.PyhShopDepartmentProperties;
+import com.programyourhome.shop.model.PyhShopDepartmentToShop;
 import com.programyourhome.shop.model.PyhShopProperties;
 
 public interface Shopping {
@@ -35,6 +38,10 @@ public interface Shopping {
     public PyhProduct updateProduct(int productId, PyhProductProperties product);
 
     public void deleteProduct(int productId);
+
+    public Collection<? extends PyhProductAggregationPartToProductAggregation> getProductAggregationPartsToProductAggregation(int productId);
+
+    public Collection<? extends PyhCompanyProductToCompany> getCompanyProductsToCompany(int productId);
 
     public PyhProductImage getProductImage(int productId);
 
@@ -56,9 +63,9 @@ public interface Shopping {
 
     public PyhProductAggregationPart getProductAggregationPart(int productAggregationId, int productId);
 
-    public PyhProductAggregation setProductInProductAggregation(int productAggregationId, int productId, PyhProductAggregationPartProperties aggregationPart);
+    public PyhProductAggregationPart setProductInProductAggregationPart(int productAggregationId, int productId, PyhProductAggregationPartProperties aggregationPart);
 
-    public PyhProductAggregation removeProductFromProductAggregation(int productAggregationId, int productId);
+    public void removeProductFromProductAggregationPart(int productAggregationId, int productId);
 
     public Collection<PyhProductState> getProductStates();
 
@@ -86,6 +93,8 @@ public interface Shopping {
 
     public void deleteCompanyType(int companyTypeId);
 
+    public Collection<? extends PyhCompany> getCompanies(int companyTypeId);
+
     public Collection<? extends PyhCompany> getCompanies();
 
     public PyhCompany getCompany(int companyId);
@@ -100,36 +109,39 @@ public interface Shopping {
 
     public PyhShop getShop(final int companyId, final int shopId);
 
-    public PyhCompany addShop(final int companyId, final PyhShopProperties shopProperties);
+    public PyhShop addShop(final int companyId, final PyhShopProperties shopProperties);
 
-    public PyhCompany updateShop(final int companyId, final int shopId, final PyhShopProperties shopProperties);
+    public PyhShop updateShop(final int companyId, final int shopId, final PyhShopProperties shopProperties);
 
-    public PyhCompany deleteShop(final int companyId, final int shopId);
+    public void deleteShop(final int companyId, final int shopId);
 
     public Collection<? extends PyhDepartment> getDepartments(int companyId);
 
     public PyhDepartment getDepartment(final int companyId, final int departmentId);
 
-    public PyhCompany addDepartment(final int companyId, final PyhDepartmentProperties shopProperties);
+    public PyhDepartment addDepartment(final int companyId, final PyhDepartmentProperties shopProperties);
 
-    public PyhCompany updateDepartment(final int companyId, final int departmentId, final PyhDepartmentProperties shopProperties);
+    public PyhDepartment updateDepartment(final int companyId, final int departmentId, final PyhDepartmentProperties shopProperties);
 
-    public PyhCompany deleteDepartment(final int companyId, final int departmentId);
+    public void deleteDepartment(final int companyId, final int departmentId);
+
+    public Collection<? extends PyhShopDepartmentToShop> getShopDepartmentsToShop(final int companyId, int departmentId);
 
     public Collection<? extends PyhShopDepartment> getShopDepartments(final int companyId, int shopId);
 
     public PyhShopDepartment getShopDepartment(final int companyId, int shopId, int departmentId);
 
-    public PyhShop setDepartmentInShopDepartment(final int companyId, int shopId, int departmentId, PyhShopDepartmentProperties shopDepartmentProperties);
+    public PyhShopDepartment setDepartmentInShopDepartment(final int companyId, int shopId, int departmentId,
+            PyhShopDepartmentProperties shopDepartmentProperties);
 
-    public PyhShop removeDepartmentFromShopDepartment(final int companyId, int shopId, int departmentId);
+    public void removeDepartmentFromShopDepartment(final int companyId, int shopId, int departmentId);
 
     public Collection<? extends PyhCompanyProduct> getCompanyProducts(final int companyId);
 
     public PyhCompanyProduct getCompanyProduct(final int companyId, int productId);
 
-    public PyhCompany setProductInCompanyProduct(int companyId, int productId, PyhCompanyProductProperties aggregationPart);
+    public PyhCompanyProduct setProductInCompanyProduct(int companyId, int productId, PyhCompanyProductProperties aggregationPart);
 
-    public PyhCompany removeProductFromCompanyProduct(int companyId, int productId);
+    public void removeProductFromCompanyProduct(int companyId, int productId);
 
 }

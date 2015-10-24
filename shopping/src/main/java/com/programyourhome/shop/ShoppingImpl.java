@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.javamoney.moneta.internal.MoneyAmountBuilder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.programyourhome.common.serialize.SerializationSettings;
 import com.programyourhome.common.util.BeanCopier;
@@ -25,6 +25,7 @@ import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhCompany;
 import com.programyourhome.shop.model.PyhCompanyProduct;
 import com.programyourhome.shop.model.PyhCompanyProductProperties;
+import com.programyourhome.shop.model.PyhCompanyProductToCompany;
 import com.programyourhome.shop.model.PyhCompanyProperties;
 import com.programyourhome.shop.model.PyhCompanyType;
 import com.programyourhome.shop.model.PyhCompanyTypeProperties;
@@ -34,6 +35,7 @@ import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductAggregation;
 import com.programyourhome.shop.model.PyhProductAggregationPart;
 import com.programyourhome.shop.model.PyhProductAggregationPartProperties;
+import com.programyourhome.shop.model.PyhProductAggregationPartToProductAggregation;
 import com.programyourhome.shop.model.PyhProductAggregationProperties;
 import com.programyourhome.shop.model.PyhProductAggregationState;
 import com.programyourhome.shop.model.PyhProductImage;
@@ -42,6 +44,7 @@ import com.programyourhome.shop.model.PyhProductState;
 import com.programyourhome.shop.model.PyhShop;
 import com.programyourhome.shop.model.PyhShopDepartment;
 import com.programyourhome.shop.model.PyhShopDepartmentProperties;
+import com.programyourhome.shop.model.PyhShopDepartmentToShop;
 import com.programyourhome.shop.model.PyhShopProperties;
 import com.programyourhome.shop.model.api.PyhProductAggregationStateImpl;
 import com.programyourhome.shop.model.api.PyhProductStateImpl;
@@ -56,7 +59,24 @@ import com.programyourhome.shop.model.jpa.ProductImage;
 import com.programyourhome.shop.model.jpa.Shop;
 import com.programyourhome.shop.model.jpa.ShopDepartment;
 
-@Component
+/**
+ * Implementation of the Shopping service interface.
+ *
+ * Please note the dynamic use of (un)fixing the serialization scope of join table entities. This is to allow the same
+ * entity type to be serialized in 2 different views. This could be solved using direct JsonView annotations on the
+ * interface or entity classes, but we prefer not to 'spoil' the clean interface definition.
+ * Alternative is to use another dynamic influence that can be configured at initialization time and does not need to be
+ * changed anymore after that. If needed, have a closer look at:
+ * http://wiki.fasterxml.com/JacksonJsonViews
+ * http://wiki.fasterxml.com/JacksonFeatureJsonFilter
+ * http://wiki.fasterxml.com/JacksonMixInAnnotations
+ *
+ * NB: This does not work, since deserializers will be cached once used. Workaround is to clear cache (for that type),
+ * but no public API for that in Jackson. Could be done through reflection, but that is getting nastier and nastier.
+ * Better find another solution using JsonView on Mixins or so.
+ * http://stackoverflow.com/questions/8475980/using-jackson-json-views-without-annotating-original-bean-class
+ */
+@Service
 @Transactional
 public class ShoppingImpl implements Shopping {
 
@@ -81,7 +101,8 @@ public class ShoppingImpl implements Shopping {
     @PostConstruct
     public void provideSerializationSettings() {
         this.serializationSettings.fixSerializationScope(PyhProduct.class, PyhProductAggregationState.class, PyhProductAggregation.class,
-                PyhProductAggregationPart.class, PyhProductImage.class);
+                PyhProductAggregationPart.class, PyhProductAggregationPartToProductAggregation.class, PyhProductImage.class, PyhCompanyType.class,
+                PyhCompany.class, PyhShop.class, PyhDepartment.class, PyhShopDepartment.class, PyhShopDepartmentToShop.class);
     }
 
     @PostConstruct
@@ -110,7 +131,7 @@ public class ShoppingImpl implements Shopping {
         ah.addCompanyProduct(new CompanyProduct(ah, p1, d2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create()));
         ah.addCompanyProduct(new CompanyProduct(ah, p2, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create()));
         ah.addCompanyProduct(new CompanyProduct(ah, p3, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.30).create()));
-        final Shop s = new Shop("Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", ah, "Hoofdstraat xx, Driebergen");
+        final Shop s = new Shop(ah, "Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", "Hoofdstraat xx, Driebergen");
         s.addShopDepartment(new ShopDepartment(s, d1, 1));
         ah.addShop(s);
         this.companyRepository.save(ah);
@@ -119,7 +140,12 @@ public class ShoppingImpl implements Shopping {
                 .valueOf(2), BigDecimal.valueOf(4)));
         pa.addAggregationPart(new ProductAggregationPart(pa, p2, BigDecimal.ONE, 1));
         pa.addAggregationPart(new ProductAggregationPart(pa, p3, BigDecimal.ONE, 2));
+        final ProductAggregation pa2 = this.productAggregationRepository.save(new ProductAggregation("Test aggr", "desc", BigDecimal
+                .valueOf(3), BigDecimal.valueOf(10)));
+        pa2.addAggregationPart(new ProductAggregationPart(pa2, p1, BigDecimal.ONE, 1));
+        pa2.addAggregationPart(new ProductAggregationPart(pa2, p3, BigDecimal.TEN, 2));
         this.productAggregationRepository.save(pa);
+        this.productAggregationRepository.save(pa2);
     }
 
     @Override
@@ -147,6 +173,20 @@ public class ShoppingImpl implements Shopping {
     @Override
     public void deleteProduct(final int productId) {
         this.productRepository.delete(productId);
+    }
+
+    @Override
+    public Collection<? extends PyhProductAggregationPartToProductAggregation> getProductAggregationPartsToProductAggregation(final int productId) {
+        this.serializationSettings.unfixSerializationScope(PyhProductAggregationPart.class);
+        this.serializationSettings.fixSerializationScope(PyhProductAggregationPartToProductAggregation.class);
+        return this.productRepository.findOne(productId).getAggregationParts();
+    }
+
+    @Override
+    public Collection<? extends PyhCompanyProductToCompany> getCompanyProductsToCompany(final int productId) {
+        this.serializationSettings.unfixSerializationScope(PyhCompanyProduct.class);
+        this.serializationSettings.fixSerializationScope(PyhCompanyProductToCompany.class);
+        return this.productRepository.findOne(productId).getCompanyProducts();
     }
 
     @Override
@@ -203,16 +243,20 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Collection<? extends PyhProductAggregationPart> getProductAggregationParts(final int productAggregationId) {
+        this.serializationSettings.unfixSerializationScope(PyhProductAggregationPartToProductAggregation.class);
+        this.serializationSettings.fixSerializationScope(PyhProductAggregationPart.class);
         return this.productAggregationRepository.findOne(productAggregationId).getAggregationParts();
     }
 
     @Override
     public PyhProductAggregationPart getProductAggregationPart(final int productAggregationId, final int productId) {
+        this.serializationSettings.unfixSerializationScope(PyhProductAggregationPartToProductAggregation.class);
+        this.serializationSettings.fixSerializationScope(PyhProductAggregationPart.class);
         return this.productAggregationRepository.findOne(productAggregationId).findAggregationPart(productId).get();
     }
 
     @Override
-    public ProductAggregation setProductInProductAggregation(final int productAggregationId, final int productId,
+    public ProductAggregationPart setProductInProductAggregationPart(final int productAggregationId, final int productId,
             final PyhProductAggregationPartProperties productAggregationPartProperties) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
         final Product product = this.productRepository.findOne(productId);
@@ -223,24 +267,19 @@ public class ShoppingImpl implements Shopping {
             final ProductAggregationPart productAggregationPart = new ProductAggregationPart(productAggregation, product);
             productAggregation.addAggregationPart(this.beanCopier.copyTo(productAggregationPartProperties, productAggregationPart));
         }
-        return this.productAggregationRepository.save(productAggregation);
+        return this.productAggregationRepository.save(productAggregation).findAggregationPart(productId).get();
     }
 
     @Override
-    public PyhProductAggregation removeProductFromProductAggregation(final int productAggregationId, final int productId) {
+    public void removeProductFromProductAggregationPart(final int productAggregationId, final int productId) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
         productAggregation.removeAggregationPart(productId);
-        return this.productAggregationRepository.save(productAggregation);
+        this.productAggregationRepository.save(productAggregation);
     }
 
     // FIXME: temp for test
     private final Map<Integer, Integer> stock = new HashMap<>();
 
-    // TODO: testing:
-    // add/remove product items
-    // get state of product
-    // get state of product aggregation (contribution check)
-    // one product in multiple aggregations (check arithmetic)
     @Override
     public Collection<PyhProductState> getProductStates() {
         return StreamUtil.fromIterable(this.productRepository.findAll())
@@ -326,6 +365,11 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
+    public Collection<? extends PyhCompany> getCompanies(final int companyTypeId) {
+        return this.companyTypeRepository.findOne(companyTypeId).getCompanies();
+    }
+
+    @Override
     public Collection<? extends PyhCompany> getCompanies() {
         return StreamUtil.fromIterable(this.companyRepository.findAll())
                 .collect(Collectors.toList());
@@ -339,6 +383,8 @@ public class ShoppingImpl implements Shopping {
     @Override
     public PyhCompany createCompany(final PyhCompanyProperties companyProperties) {
         final Company company = new Company();
+        company.setName(companyProperties.getName());
+        company.setDescription(companyProperties.getDescription());
         company.setType(this.companyTypeRepository.findOne(companyProperties.getCompanyTypeId()));
         return this.companyRepository.save(company);
     }
@@ -346,6 +392,8 @@ public class ShoppingImpl implements Shopping {
     @Override
     public PyhCompany updateCompany(final int companyId, final PyhCompanyProperties companyProperties) {
         final Company company = this.companyRepository.findOne(companyId);
+        company.setName(companyProperties.getName());
+        company.setDescription(companyProperties.getDescription());
         company.setType(this.companyTypeRepository.findOne(companyProperties.getCompanyTypeId()));
         return this.companyRepository.save(company);
     }
@@ -366,25 +414,25 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public PyhCompany addShop(final int companyId, final PyhShopProperties shopProperties) {
+    public PyhShop addShop(final int companyId, final PyhShopProperties shopProperties) {
         final Company company = this.companyRepository.findOne(companyId);
-        company.addShop(this.beanCopier.copyToNew(shopProperties, Shop.class));
-        return this.companyRepository.save(company);
+        company.addShop(this.beanCopier.copyTo(shopProperties, new Shop(company)));
+        return this.companyRepository.save(company).getShop(shopProperties.getName());
     }
 
     @Override
-    public PyhCompany updateShop(final int companyId, final int shopId, final PyhShopProperties shopProperties) {
+    public PyhShop updateShop(final int companyId, final int shopId, final PyhShopProperties shopProperties) {
         final Company company = this.companyRepository.findOne(companyId);
         final Shop shop = company.getShop(shopId);
         company.addShop(this.beanCopier.copyTo(shopProperties, shop));
-        return this.companyRepository.save(company);
+        return this.companyRepository.save(company).getShop(shopId);
     }
 
     @Override
-    public PyhCompany deleteShop(final int companyId, final int shopId) {
+    public void deleteShop(final int companyId, final int shopId) {
         final Company company = this.companyRepository.findOne(companyId);
         company.removeShop(company.getShop(shopId));
-        return this.companyRepository.save(company);
+        this.companyRepository.save(company);
     }
 
     @Override
@@ -398,39 +446,50 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public PyhCompany addDepartment(final int companyId, final PyhDepartmentProperties departmentProperties) {
+    public PyhDepartment addDepartment(final int companyId, final PyhDepartmentProperties departmentProperties) {
         final Company company = this.companyRepository.findOne(companyId);
-        company.addDepartment(this.beanCopier.copyToNew(departmentProperties, Department.class));
-        return this.companyRepository.save(company);
+        company.addDepartment(this.beanCopier.copyTo(departmentProperties, new Department(company)));
+        return this.companyRepository.save(company).getDepartment(departmentProperties.getName());
     }
 
     @Override
-    public PyhCompany updateDepartment(final int companyId, final int departmentId, final PyhDepartmentProperties departmentProperties) {
+    public PyhDepartment updateDepartment(final int companyId, final int departmentId, final PyhDepartmentProperties departmentProperties) {
         final Company company = this.companyRepository.findOne(companyId);
         final Department department = company.getDepartment(departmentId);
         company.addDepartment(this.beanCopier.copyTo(departmentProperties, department));
-        return this.companyRepository.save(company);
+        return this.companyRepository.save(company).getDepartment(departmentId);
     }
 
     @Override
-    public PyhCompany deleteDepartment(final int companyId, final int departmentId) {
+    public void deleteDepartment(final int companyId, final int departmentId) {
         final Company company = this.companyRepository.findOne(companyId);
         company.removeDepartment(company.getDepartment(departmentId));
-        return this.companyRepository.save(company);
+        this.companyRepository.save(company);
+    }
+
+    @Override
+    public Collection<? extends PyhShopDepartmentToShop> getShopDepartmentsToShop(final int companyId, final int departmentId) {
+        this.serializationSettings.unfixSerializationScope(PyhShopDepartment.class);
+        this.serializationSettings.fixSerializationScope(PyhShopDepartmentToShop.class);
+        return this.companyRepository.findOne(companyId).getDepartment(departmentId).getShopDepartments();
     }
 
     @Override
     public Collection<? extends PyhShopDepartment> getShopDepartments(final int companyId, final int shopId) {
+        this.serializationSettings.unfixSerializationScope(PyhShopDepartmentToShop.class);
+        this.serializationSettings.fixSerializationScope(PyhShopDepartment.class);
         return this.companyRepository.findOne(companyId).getShop(shopId).getShopDepartments();
     }
 
     @Override
     public PyhShopDepartment getShopDepartment(final int companyId, final int shopId, final int departmentId) {
+        this.serializationSettings.unfixSerializationScope(PyhShopDepartmentToShop.class);
+        this.serializationSettings.fixSerializationScope(PyhShopDepartment.class);
         return this.companyRepository.findOne(companyId).getShop(shopId).findShopDepartment(departmentId).get();
     }
 
     @Override
-    public PyhShop setDepartmentInShopDepartment(final int companyId, final int shopId, final int departmentId,
+    public PyhShopDepartment setDepartmentInShopDepartment(final int companyId, final int shopId, final int departmentId,
             final PyhShopDepartmentProperties shopDepartmentProperties) {
         final Company company = this.companyRepository.findOne(companyId);
         final Shop shop = company.getShop(shopId);
@@ -443,30 +502,34 @@ public class ShoppingImpl implements Shopping {
             shop.addShopDepartment(this.beanCopier.copyTo(shopDepartmentProperties, shopDepartment));
         }
         final Company savedCompany = this.companyRepository.save(company);
-        return savedCompany.getShop(shopId);
+        return savedCompany.getShop(shopId).findShopDepartment(departmentId).get();
     }
 
     @Override
-    public PyhShop removeDepartmentFromShopDepartment(final int companyId, final int shopId, final int departmentId) {
+    public void removeDepartmentFromShopDepartment(final int companyId, final int shopId, final int departmentId) {
         final Company company = this.companyRepository.findOne(companyId);
         final Shop shop = company.getShop(shopId);
         shop.removeShopDepartment(departmentId);
         final Company savedCompany = this.companyRepository.save(company);
-        return savedCompany.getShop(shopId);
+        savedCompany.getShop(shopId);
     }
 
     @Override
     public Collection<? extends PyhCompanyProduct> getCompanyProducts(final int companyId) {
+        this.serializationSettings.unfixSerializationScope(PyhCompanyProductToCompany.class);
+        this.serializationSettings.fixSerializationScope(PyhCompanyProduct.class);
         return this.companyRepository.findOne(companyId).getCompanyProducts();
     }
 
     @Override
     public PyhCompanyProduct getCompanyProduct(final int companyId, final int productId) {
+        this.serializationSettings.unfixSerializationScope(PyhCompanyProductToCompany.class);
+        this.serializationSettings.fixSerializationScope(PyhCompanyProduct.class);
         return this.companyRepository.findOne(companyId).findCompanyProduct(productId).get();
     }
 
     @Override
-    public PyhCompany setProductInCompanyProduct(final int companyId, final int productId, final PyhCompanyProductProperties companyProductProperties) {
+    public PyhCompanyProduct setProductInCompanyProduct(final int companyId, final int productId, final PyhCompanyProductProperties companyProductProperties) {
         final Company company = this.companyRepository.findOne(companyId);
         final Product product = this.productRepository.findOne(productId);
         final Department department = company.getDepartment(companyProductProperties.getDepartmentId());
@@ -478,14 +541,14 @@ public class ShoppingImpl implements Shopping {
         });
         companyProduct.setDepartment(department);
         companyProduct.setPrice(companyProductProperties.getPrice());
-        return this.companyRepository.save(company);
+        return this.companyRepository.save(company).findCompanyProduct(productId).get();
     }
 
     @Override
-    public PyhCompany removeProductFromCompanyProduct(final int companyId, final int productId) {
+    public void removeProductFromCompanyProduct(final int companyId, final int productId) {
         final Company company = this.companyRepository.findOne(companyId);
         company.removeCompanyProduct(productId);
-        return this.companyRepository.save(company);
+        this.companyRepository.save(company);
     }
 
 }

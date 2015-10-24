@@ -24,8 +24,13 @@ public class Company extends NamedEntity implements PyhCompany {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "company")
     private final Set<Shop> shops;
 
+    // This is and explicit deviation from the naming scheme, because otherwise when the departments of the company are deleted,
+    // that will trigger a update on the ShopDepartment's with that department. That results in a integrity violation, even though
+    // those ShopDepartment's are to be deleted in the same operation anyway.
+    // Giving the departments collection a name which is further in the alphabet then 'shops' will reverse the deletion order and prevent
+    // the problem from happening. Very ugly workaround of course, so a better solution is very welcome!
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "company")
-    private final Set<Department> departments;
+    private final Set<Department> theDepartments;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "company")
     private final Set<CompanyProduct> companyProducts;
@@ -37,7 +42,7 @@ public class Company extends NamedEntity implements PyhCompany {
     public Company(final String name, final String desciption, final CompanyType type) {
         super(name, desciption);
         this.shops = new HashSet<>();
-        this.departments = new HashSet<>();
+        this.theDepartments = new HashSet<>();
         this.companyProducts = new HashSet<>();
         this.type = type;
     }
@@ -51,7 +56,6 @@ public class Company extends NamedEntity implements PyhCompany {
         this.type = type;
     }
 
-    @Override
     public Set<Shop> getShops() {
         return this.shops;
     }
@@ -59,6 +63,12 @@ public class Company extends NamedEntity implements PyhCompany {
     public Shop getShop(final int shopId) {
         return this.shops.stream()
                 .filter(shop -> shop.getId() == shopId)
+                .findFirst().orElse(null);
+    }
+
+    public Shop getShop(final String shopName) {
+        return this.shops.stream()
+                .filter(shop -> shop.getName().equals(shopName))
                 .findFirst().orElse(null);
     }
 
@@ -70,26 +80,30 @@ public class Company extends NamedEntity implements PyhCompany {
         this.shops.remove(shop);
     }
 
-    @Override
     public Set<Department> getDepartments() {
-        return this.departments;
+        return this.theDepartments;
     }
 
     public Department getDepartment(final int departmentId) {
-        return this.departments.stream()
+        return this.theDepartments.stream()
                 .filter(department -> department.getId() == departmentId)
                 .findFirst().orElse(null);
     }
 
+    public Department getDepartment(final String departmentName) {
+        return this.theDepartments.stream()
+                .filter(department -> department.getName().equals(departmentName))
+                .findFirst().orElse(null);
+    }
+
     public void addDepartment(final Department department) {
-        this.departments.add(department);
+        this.theDepartments.add(department);
     }
 
     public void removeDepartment(final Department department) {
-        this.departments.remove(department);
+        this.theDepartments.remove(department);
     }
 
-    @Override
     public Set<CompanyProduct> getCompanyProducts() {
         return this.companyProducts;
     }

@@ -6,9 +6,10 @@ import javax.persistence.ManyToOne;
 
 import com.programyourhome.shop.common.Entity;
 import com.programyourhome.shop.model.PyhShopDepartment;
+import com.programyourhome.shop.model.PyhShopDepartmentToShop;
 
 @javax.persistence.Entity
-public class ShopDepartment extends Entity implements PyhShopDepartment {
+public class ShopDepartment extends Entity implements PyhShopDepartment, PyhShopDepartmentToShop {
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -36,6 +37,7 @@ public class ShopDepartment extends Entity implements PyhShopDepartment {
         this.sequence = sequence;
     }
 
+    @Override
     public Shop getShop() {
         return this.shop;
     }

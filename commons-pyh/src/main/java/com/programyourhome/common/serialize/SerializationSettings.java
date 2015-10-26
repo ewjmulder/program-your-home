@@ -15,11 +15,4 @@ public interface SerializationSettings {
      */
     public void fixSerializationScope(Class<?>... classes);
 
-    /**
-     * Undo fixing the serialization scope for a specific class. Useful if you want to have dynamic control at runtime.
-     *
-     * @param classes the classes to unfix the serialization scope for
-     */
-    public void unfixSerializationScope(Class<?>... classes);
-
 }

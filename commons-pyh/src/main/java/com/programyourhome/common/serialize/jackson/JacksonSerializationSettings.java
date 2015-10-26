@@ -29,13 +29,4 @@ public class JacksonSerializationSettings implements SerializationSettings {
         Arrays.stream(classes).forEach(clazz -> this.objectMapper.addMixInAnnotations(clazz, this.classGenerator.generateClass(clazz)));
     }
 
-    @Override
-    public void unfixSerializationScope(final Class<?>... classes) {
-        Arrays.stream(classes).forEach(clazz -> this.objectMapper.addMixInAnnotations(clazz, null));
-        // TODO: clear cache entry for class?
-        // this.objectMapper.getSerializerProvider().getConfig()....
-        // TODO: this with view thingy seems more like it!
-        // this.objectMapper.getSerializationConfig().withView(view)
-    }
-
 }

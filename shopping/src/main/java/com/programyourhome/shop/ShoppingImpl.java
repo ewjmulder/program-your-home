@@ -14,6 +14,8 @@ import javax.transaction.Transactional;
 import org.javamoney.moneta.internal.MoneyAmountBuilder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.programyourhome.common.serialize.SerializationSettings;
 import com.programyourhome.common.util.BeanCopier;
 import com.programyourhome.common.util.StreamUtil;
@@ -98,11 +100,16 @@ public class ShoppingImpl implements Shopping {
     @Inject
     private BeanCopier beanCopier;
 
+    @Inject
+    private ObjectMapper objectMapper;
+
     @PostConstruct
     public void provideSerializationSettings() {
         this.serializationSettings.fixSerializationScope(PyhProduct.class, PyhProductAggregationState.class, PyhProductAggregation.class,
                 PyhProductAggregationPart.class, PyhProductAggregationPartToProductAggregation.class, PyhProductImage.class, PyhCompanyType.class,
                 PyhCompany.class, PyhShop.class, PyhDepartment.class, PyhShopDepartment.class, PyhShopDepartmentToShop.class);
+        this.objectMapper.addMixInAnnotations(CompanyProduct.class, CompanyProductJsonView.class);
+        this.objectMapper.enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
     }
 
     @PostConstruct
@@ -177,15 +184,12 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Collection<? extends PyhProductAggregationPartToProductAggregation> getProductAggregationPartsToProductAggregation(final int productId) {
-        this.serializationSettings.unfixSerializationScope(PyhProductAggregationPart.class);
-        this.serializationSettings.fixSerializationScope(PyhProductAggregationPartToProductAggregation.class);
         return this.productRepository.findOne(productId).getAggregationParts();
     }
 
     @Override
     public Collection<? extends PyhCompanyProductToCompany> getCompanyProductsToCompany(final int productId) {
-        this.serializationSettings.unfixSerializationScope(PyhCompanyProduct.class);
-        this.serializationSettings.fixSerializationScope(PyhCompanyProductToCompany.class);
+        this.objectMapper.setConfig(this.objectMapper.getSerializationConfig().withView(WriterToCompany.class));
         return this.productRepository.findOne(productId).getCompanyProducts();
     }
 
@@ -243,15 +247,11 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Collection<? extends PyhProductAggregationPart> getProductAggregationParts(final int productAggregationId) {
-        this.serializationSettings.unfixSerializationScope(PyhProductAggregationPartToProductAggregation.class);
-        this.serializationSettings.fixSerializationScope(PyhProductAggregationPart.class);
         return this.productAggregationRepository.findOne(productAggregationId).getAggregationParts();
     }
 
     @Override
     public PyhProductAggregationPart getProductAggregationPart(final int productAggregationId, final int productId) {
-        this.serializationSettings.unfixSerializationScope(PyhProductAggregationPartToProductAggregation.class);
-        this.serializationSettings.fixSerializationScope(PyhProductAggregationPart.class);
         return this.productAggregationRepository.findOne(productAggregationId).findAggregationPart(productId).get();
     }
 
@@ -469,22 +469,16 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Collection<? extends PyhShopDepartmentToShop> getShopDepartmentsToShop(final int companyId, final int departmentId) {
-        this.serializationSettings.unfixSerializationScope(PyhShopDepartment.class);
-        this.serializationSettings.fixSerializationScope(PyhShopDepartmentToShop.class);
         return this.companyRepository.findOne(companyId).getDepartment(departmentId).getShopDepartments();
     }
 
     @Override
     public Collection<? extends PyhShopDepartment> getShopDepartments(final int companyId, final int shopId) {
-        this.serializationSettings.unfixSerializationScope(PyhShopDepartmentToShop.class);
-        this.serializationSettings.fixSerializationScope(PyhShopDepartment.class);
         return this.companyRepository.findOne(companyId).getShop(shopId).getShopDepartments();
     }
 
     @Override
     public PyhShopDepartment getShopDepartment(final int companyId, final int shopId, final int departmentId) {
-        this.serializationSettings.unfixSerializationScope(PyhShopDepartmentToShop.class);
-        this.serializationSettings.fixSerializationScope(PyhShopDepartment.class);
         return this.companyRepository.findOne(companyId).getShop(shopId).findShopDepartment(departmentId).get();
     }
 
@@ -516,15 +510,12 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Collection<? extends PyhCompanyProduct> getCompanyProducts(final int companyId) {
-        this.serializationSettings.unfixSerializationScope(PyhCompanyProductToCompany.class);
-        this.serializationSettings.fixSerializationScope(PyhCompanyProduct.class);
+        this.objectMapper.setConfig(this.objectMapper.getSerializationConfig().withView(WriterToProduct.class));
         return this.companyRepository.findOne(companyId).getCompanyProducts();
     }
 
     @Override
     public PyhCompanyProduct getCompanyProduct(final int companyId, final int productId) {
-        this.serializationSettings.unfixSerializationScope(PyhCompanyProductToCompany.class);
-        this.serializationSettings.fixSerializationScope(PyhCompanyProduct.class);
         return this.companyRepository.findOne(companyId).findCompanyProduct(productId).get();
     }
 

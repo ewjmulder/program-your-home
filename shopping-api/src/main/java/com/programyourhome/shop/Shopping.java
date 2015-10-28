@@ -1,7 +1,9 @@
 package com.programyourhome.shop;
 
+import java.util.Arrays;
 import java.util.Collection;
 
+import com.programyourhome.api.PyhApi;
 import com.programyourhome.shop.model.PyhCompany;
 import com.programyourhome.shop.model.PyhCompanyProduct;
 import com.programyourhome.shop.model.PyhCompanyProductProperties;
@@ -27,7 +29,20 @@ import com.programyourhome.shop.model.PyhShopDepartmentProperties;
 import com.programyourhome.shop.model.PyhShopDepartmentToShop;
 import com.programyourhome.shop.model.PyhShopProperties;
 
-public interface Shopping {
+public interface Shopping extends PyhApi {
+
+    @Override
+    public default String getName() {
+        return "Shopping";
+    }
+
+    @Override
+    public default Collection<Class<?>> getModelInterfaces() {
+        return Arrays.asList(PyhProduct.class, PyhCompanyProduct.class, PyhCompanyProductToCompany.class, PyhProductAggregation.class,
+                PyhProductAggregationPart.class, PyhProductAggregationPartToProductAggregation.class, PyhProductImage.class, PyhCompanyType.class,
+                PyhCompany.class, PyhShop.class, PyhDepartment.class, PyhShopDepartment.class, PyhShopDepartmentToShop.class,
+                PyhProductState.class, PyhProductAggregationState.class);
+    }
 
     public Collection<? extends PyhProduct> getProducts();
 
@@ -63,7 +78,8 @@ public interface Shopping {
 
     public PyhProductAggregationPart getProductAggregationPart(int productAggregationId, int productId);
 
-    public PyhProductAggregationPart setProductInProductAggregationPart(int productAggregationId, int productId, PyhProductAggregationPartProperties aggregationPart);
+    public PyhProductAggregationPart setProductInProductAggregationPart(int productAggregationId, int productId,
+            PyhProductAggregationPartProperties aggregationPart);
 
     public void removeProductFromProductAggregationPart(int productAggregationId, int productId);
 

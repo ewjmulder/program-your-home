@@ -14,8 +14,6 @@ import javax.transaction.Transactional;
 import org.javamoney.moneta.internal.MoneyAmountBuilder;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.programyourhome.common.serialize.SerializationSettings;
 import com.programyourhome.common.util.BeanCopier;
 import com.programyourhome.common.util.StreamUtil;
@@ -100,18 +98,6 @@ public class ShoppingImpl implements Shopping {
     @Inject
     private BeanCopier beanCopier;
 
-    @Inject
-    private ObjectMapper objectMapper;
-
-    @PostConstruct
-    public void provideSerializationSettings() {
-        this.serializationSettings.fixSerializationScope(PyhProduct.class, PyhProductAggregationState.class, PyhProductAggregation.class,
-                PyhProductAggregationPart.class, PyhProductAggregationPartToProductAggregation.class, PyhProductImage.class, PyhCompanyType.class,
-                PyhCompany.class, PyhShop.class, PyhDepartment.class, PyhShopDepartment.class, PyhShopDepartmentToShop.class);
-        this.objectMapper.addMixInAnnotations(CompanyProduct.class, CompanyProductJsonView.class);
-        this.objectMapper.enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-    }
-
     @PostConstruct
     public void tempAddSomeData() {
         final CompanyType supermarket = new CompanyType("Supermarket", "Where you can buy your groceries");
@@ -189,7 +175,6 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Collection<? extends PyhCompanyProductToCompany> getCompanyProductsToCompany(final int productId) {
-        this.objectMapper.setConfig(this.objectMapper.getSerializationConfig().withView(WriterToCompany.class));
         return this.productRepository.findOne(productId).getCompanyProducts();
     }
 
@@ -510,7 +495,6 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Collection<? extends PyhCompanyProduct> getCompanyProducts(final int companyId) {
-        this.objectMapper.setConfig(this.objectMapper.getSerializationConfig().withView(WriterToProduct.class));
         return this.companyRepository.findOne(companyId).getCompanyProducts();
     }
 

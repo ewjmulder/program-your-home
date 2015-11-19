@@ -13,7 +13,7 @@ touch $LOG_FILE
 chown vagrant:vagrant $LOG_FILE
 
 #TODO
-#- Start LIRC
+#- Start LIRC lircd
 #- Start postgres (or auto configure to start at boot time)
 #- Start event store (or auto configure to start at boot time)
 #- Start Spring boot PYH server

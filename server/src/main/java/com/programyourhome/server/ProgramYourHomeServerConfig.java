@@ -18,7 +18,7 @@ import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
 /**
  * General Spring configuration for the whole program your home server.
- * Warning: to NOT extend WebMvcConfigurationSupport, since that will
+ * Warning: do NOT extend WebMvcConfigurationSupport, since that will
  * opt-out on the Spring MVC auto-configuration of Spring Boot,
  * like registering custom Jackson modules.
  */
@@ -33,7 +33,7 @@ public class ProgramYourHomeServerConfig {
     private ObjectMapper objectMapper;
 
     @Bean
-    public WebMvcConfigurerAdapter getAdaptorBean() {
+    public WebMvcConfigurerAdapter webMvcConfigurerAdapterBean() {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addInterceptors(final InterceptorRegistry registry) {

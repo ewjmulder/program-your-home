@@ -1,5 +1,13 @@
 C:\Program Files\EventStore-3.3.0>
-EventStore.ClusterNode.exe --db "D:\Prive\Program Your Home\EventStoreData\DB" --log "D:\Prive\Program Your Home\EventStoreData\Logs"
+EventStore.ClusterNode.exe --db "D:\Prive\Program Your Home\EventStoreData\DB" --log "D:\Prive\Program Your Home\EventStoreData\Logs" --run-projections=ALL
+
+ES-EventType: increase/decrease
+
+application/json
+
+{
+  "amount": 1
+}  
 
 - All owned collections as maps with key id (but how to add new?)
 - Convenience method(s) on own repo interface, eg findAll returns Collection/Set instead of Iterable

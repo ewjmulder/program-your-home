@@ -2,6 +2,7 @@ Technical / architecture TODO:
 - Add checkstyle plugin / eclipse settings for lots of stuff including javadoc
 X Set JAVA_HOME back to Java 8 after Scala Coursera is done
 - Rename all packages in api? -> hm, no, then impl should be there as well, not nice. or api as subpackge of module?
+- Release branch in Github: merge from master for every release + tags with number. HEAD of release branch is latest 'production' version
 - Split the DB usage into several datasources/entitymanagers/transactionmanager, see: http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-two-datasources
 - Property files only need to be imported once, and it can be any (Spring) class. Plus Spring boot config can be in there as well!
 - Check usage of synchronized, same thread can (of course) still enter synchronized methods of the same class! (particularly with looping and adding/removing)

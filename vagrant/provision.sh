@@ -28,7 +28,7 @@ echo "Installing git"
 echo "Installing maven"
 #sudo apt-get install --yes maven >> $LOG_FILE 2>&1
 
-echo "Installing Java 8" # Oracle edition
+echo "Installing Java 8" # Oracle edition (note: installing after maven, so it will upgrade to this Java version as well)
 #sudo add-apt-repository ppa:webupd8team/java >> $LOG_FILE 2>&1
 #sudo apt-get update >> $LOG_FILE 2>&1
 # Needs auto-answers to accept the licence.
@@ -89,15 +89,25 @@ sleep 5
 # Create the product stock projection.
 curl --silent --show-error --request POST --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
 
-echo "Cloning program-your-home from the Github repo"
-#TODO
+echo "Cloning hue-brigde-smulator from the Github repo and building"
+git clone https://github.com/ewjmulder/hue-bridge-simulator.git >> $LOG_FILE 2>&1
+cd hue-bridge-simulator >> $LOG_FILE 2>&1
+# Build the entire hue-bridge-simulator project
+mvn clean install >> $LOG_FILE 2>&1
 
-#TODO:
-# Git clone of the github repo
-#- auto-install 3rd party libs in maven repo
-
-# TODO: Side thought: add README.md in vagrant folder explaining that it's probably a good idea to not run vagrant inside the git cloned folder,
-# but copy paste the whole vagrant folder elsewhere, change config where needed and run from there!
+echo "Cloning program-your-home from the Github repo and building"
+git clone https://github.com/ewjmulder/program-your-home.git >> $LOG_FILE 2>&1
+cd program-your-home >> $LOG_FILE 2>&1
+# Checkout the release branch
+git checkout release >> $LOG_FILE 2>&1
+# Install 3rd party libraries in local maven repo
+cd philips-hue/lib >> $LOG_FILE 2>&1
+. install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
+cd ../../voice-control/lib >> $LOG_FILE 2>&1
+. install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
+# Build the entire program-your-home project
+cd ../.. >> $LOG_FILE 2>&1
+mvn clean install >> $LOG_FILE 2>&1
 
 echo "Finished Program Your Home provisioning script."
 echo "If you experience any problems with the setup, please check the logfile (/home/vagrant/"$LOG_FILE") for any error messages."

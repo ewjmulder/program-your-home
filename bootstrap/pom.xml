@@ -26,7 +26,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>javaw</executable>
+                    <executable>java</executable>
                     <arguments>
                         <argument>-Djava.net.preferIPv4Stack=true</argument>
                         <argument>-Dpyh.properties.location=${pyh.properties.location}</argument>

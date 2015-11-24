@@ -92,8 +92,12 @@ curl --silent --show-error --request POST --user admin:changeit --data @/vagrant
 echo "Cloning hue-brigde-smulator from the Github repo and building"
 git clone https://github.com/ewjmulder/hue-bridge-simulator.git >> $LOG_FILE 2>&1
 cd hue-bridge-simulator >> $LOG_FILE 2>&1
-# Build the entire hue-bridge-simulator project
+# Build the entire hue-bridge-simulator project.
 mvn clean install >> $LOG_FILE 2>&1
+# Reset working folder to home directory.
+cd ~/
+# Copy the properties file. TODO: find better location
+cp /vagrant/config/hue-bridge-simulator/simulator.properties ./
 
 echo "Cloning program-your-home from the Github repo and building"
 git clone https://github.com/ewjmulder/program-your-home.git >> $LOG_FILE 2>&1
@@ -108,6 +112,8 @@ cd ../../voice-control/lib >> $LOG_FILE 2>&1
 # Build the entire program-your-home project
 cd ../.. >> $LOG_FILE 2>&1
 mvn clean install >> $LOG_FILE 2>&1
+# Reset working folder to home directory.
+cd ~/
 
 echo "Finished Program Your Home provisioning script."
 echo "If you experience any problems with the setup, please check the logfile (/home/vagrant/"$LOG_FILE") for any error messages."

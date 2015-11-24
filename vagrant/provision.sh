@@ -6,6 +6,7 @@
 # Note: although not needed here, sudo is added anyway
 # for ease of use of copy/pasting these commands to the terminal
 # TODO: User/environment specifics should be configurable!
+# TODO: Create and use a 'pyh' user throughout the PYH git cloning/building so it's not all under root.
 
 echo "Starting Program Your Home provisioning script"
 
@@ -90,28 +91,28 @@ sleep 5
 curl --silent --show-error --request POST --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
 
 echo "Cloning hue-brigde-smulator from the Github repo and building"
-git clone https://github.com/ewjmulder/hue-bridge-simulator.git >> $LOG_FILE 2>&1
+sudo git clone https://github.com/ewjmulder/hue-bridge-simulator.git >> $LOG_FILE 2>&1
 cd hue-bridge-simulator >> $LOG_FILE 2>&1
 # Build the entire hue-bridge-simulator project.
-mvn clean install >> $LOG_FILE 2>&1
+sudo mvn clean install >> $LOG_FILE 2>&1
 # Reset working folder to home directory.
 cd ~/
 # Copy the properties file. TODO: find better location
-cp /vagrant/config/hue-bridge-simulator/simulator.properties ./
+sudo cp /vagrant/config/hue-bridge-simulator/simulator.properties ./
 
 echo "Cloning program-your-home from the Github repo and building"
-git clone https://github.com/ewjmulder/program-your-home.git >> $LOG_FILE 2>&1
+sudo git clone https://github.com/ewjmulder/program-your-home.git >> $LOG_FILE 2>&1
 cd program-your-home >> $LOG_FILE 2>&1
 # Checkout the release branch
-git checkout release >> $LOG_FILE 2>&1
+sudo git checkout release >> $LOG_FILE 2>&1
 # Install 3rd party libraries in local maven repo
 cd philips-hue/lib >> $LOG_FILE 2>&1
-. install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
+sudo bash install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
 cd ../../voice-control/lib >> $LOG_FILE 2>&1
-. install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
-# Build the entire program-your-home project
+sudo bash install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
 cd ../.. >> $LOG_FILE 2>&1
-mvn clean install >> $LOG_FILE 2>&1
+# Build the entire program-your-home project
+sudo mvn clean install >> $LOG_FILE 2>&1
 # Reset working folder to home directory.
 cd ~/
 

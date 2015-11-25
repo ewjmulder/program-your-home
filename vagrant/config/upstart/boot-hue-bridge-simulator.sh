@@ -5,7 +5,7 @@
 #####################################
 
 # TODO: proper path
-cd /home/vagrant/hue-bridge-simulator/server
+cd /home/pyh/hue-bridge-simulator/server
 
 # TODO: find better location
-mvn exec:java -Dsimulator.properties.location="/home/vagrant/simulator.properties"
+mvn exec:java -Dsimulator.properties.location="/home/pyh/simulator.properties"

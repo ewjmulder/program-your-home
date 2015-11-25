@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.ServerRunner;
 
 public class TestStandalone extends NanoHTTPD {
 
@@ -21,7 +20,7 @@ public class TestStandalone extends NanoHTTPD {
 
     public static void main(final String[] args) {
         final TestStandalone server = new TestStandalone(args[0], Integer.parseInt(args[1]));
-        ServerRunner.executeInstance(server);
+        TestServerRunner.executeInstance(server);
     }
 
     public TestStandalone(final String host, final int port) {

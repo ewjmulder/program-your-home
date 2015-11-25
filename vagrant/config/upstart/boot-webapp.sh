@@ -5,6 +5,6 @@
 ###################################
 
 # TODO: proper path
-cd /home/vagrant/program-your-home/webapp
+cd /home/vagrant/program-your-home/web-app
 
-mvn -l web-app.log exec:java -Dexec.mainClass=com.programyourhome.webapp.TestStandalone -Dexec.args=\"0.0.0.0 80\" -Dexec.classpathScope=test
+mvn -l web-app.log exec:java -Dexec.mainClass=com.programyourhome.webapp.TestStandalone -Dexec.args="192.168.2.37 80" -Dexec.classpathScope=test

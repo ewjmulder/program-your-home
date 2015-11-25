@@ -56,6 +56,10 @@ sudo dpkg -i lirc_0.*.deb >> $LOG_FILE 2>&1
 # After much tinkering, trial & error it turns out we only need to set the remote and transmitter driver for LIRC to work correctly.
 sudo cp /vagrant/config/lirc/hardware.conf /etc/lirc/hardware.conf >> $LOG_FILE 2>&1
 
+echo "Starting iguanaworks and lirc services. Please note: IR will only work after a reboot!"
+sudo /etc/init.d/iguanaIR start >> $LOG_FILE 2>&1
+sudo /etc/init.d/lirc start >> $LOG_FILE 2>&1
+
 echo "Installing & configuring PostgreSQL"
 sudo apt-get install --yes postgresql postgresql-contrib >> $LOG_FILE 2>&1
 # Listen on all interfaces, so the database is reachable from the outside.

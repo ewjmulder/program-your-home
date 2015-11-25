@@ -16,7 +16,7 @@ public class SunDegreeChangedPoller extends ValueChangedPoller<BigDecimal> {
     private SunDegreeSensor sunDegreeSensor;
 
     public SunDegreeChangedPoller() {
-        super(BigDecimal.class, SunDegreeValueChangedEvent.class);
+        super(BigDecimal.class, SunDegreeChangedEvent.class);
     }
 
     @Override

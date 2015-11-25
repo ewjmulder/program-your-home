@@ -15,7 +15,7 @@ public class MousePositionChangedPoller extends ValueChangedPoller<PyhPoint> {
     private PcInstructor pcInstructor;
 
     public MousePositionChangedPoller() {
-        super(PyhPoint.class, MousePositionValueChangedEvent.class);
+        super(PyhPoint.class, MousePositionChangedEvent.class);
     }
 
     @Override

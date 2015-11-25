@@ -14,7 +14,6 @@ LOG_FILE="provisioning_"$(date "+%Y-%m-%d_%H-%M-%S.log")
 
 echo "Creating log file for this provisioning run:" $LOG_FILE
 sudo touch $LOG_FILE
-sudo chown vagrant:vagrant $LOG_FILE
 
 TIMEZONE=$(< /vagrant/config/os/timezone)
 echo "Setting timezone to "$TIMEZONE
@@ -90,31 +89,42 @@ sleep 5
 # Create the product stock projection.
 curl --silent --show-error --request POST --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
 
+echo "Creating new user 'pyh'"
+sudo adduser --disabled-password --shell /bin/bash --gecos "" pyh >> $LOG_FILE 2>&1
+
 echo "Cloning hue-brigde-smulator from the Github repo and building"
-sudo git clone https://github.com/ewjmulder/hue-bridge-simulator.git >> $LOG_FILE 2>&1
+cd /home/pyh
+sudo -u pyh git clone https://github.com/ewjmulder/hue-bridge-simulator.git >> $LOG_FILE 2>&1
 cd hue-bridge-simulator >> $LOG_FILE 2>&1
 # Build the entire hue-bridge-simulator project.
-sudo mvn clean install >> $LOG_FILE 2>&1
-# Reset working folder to home directory.
-cd ~/
+sudo -u pyh mvn clean install >> $LOG_FILE 2>&1
 # Copy the properties file. TODO: find better location
-sudo cp /vagrant/config/hue-bridge-simulator/simulator.properties ./
+sudo -u pyh cp /vagrant/config/hue-bridge-simulator/simulator.properties ./
 
 echo "Cloning program-your-home from the Github repo and building"
-sudo git clone https://github.com/ewjmulder/program-your-home.git >> $LOG_FILE 2>&1
+cd /home/pyh
+sudo -u pyh git clone https://github.com/ewjmulder/program-your-home.git >> $LOG_FILE 2>&1
 cd program-your-home >> $LOG_FILE 2>&1
 # Checkout the release branch
-sudo git checkout release >> $LOG_FILE 2>&1
+sudo -u pyh git checkout release >> $LOG_FILE 2>&1
 # Install 3rd party libraries in local maven repo
 cd philips-hue/lib >> $LOG_FILE 2>&1
-sudo bash install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
+sudo -u pyh bash install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
 cd ../../voice-control/lib >> $LOG_FILE 2>&1
-sudo bash install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
+sudo -u pyh bash install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
 cd ../.. >> $LOG_FILE 2>&1
 # Build the entire program-your-home project
-sudo mvn clean install >> $LOG_FILE 2>&1
-# Reset working folder to home directory.
-cd ~/
+sudo -u pyh mvn clean install >> $LOG_FILE 2>&1
+
+echo "Setting up Program Your Home applications as services and starting these services"
+sudo cp /vagrant/config/upstart/pyh-server.conf /etc/init/ >> $LOG_FILE 2>&1
+sudo cp /vagrant/config/upstart/pyh-hbs.conf /etc/init/ >> $LOG_FILE 2>&1
+sudo cp /vagrant/config/upstart/pyh-webapp.conf /etc/init/ >> $LOG_FILE 2>&1
+# Both pyh-hbs and pyh-webapp will start because they trigger on pyh-server's start.
+sudo start pyh-server >> $LOG_FILE 2>&1
+
+# Change ownership to vagrant of everything we've done in the vagrant home directory.
+sudo chown -R vagrant:vagrant /home/vagrant >> $LOG_FILE 2>&1
 
 echo "Finished Program Your Home provisioning script."
 echo "If you experience any problems with the setup, please check the logfile (/home/vagrant/"$LOG_FILE") for any error messages."

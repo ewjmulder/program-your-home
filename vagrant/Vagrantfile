@@ -24,8 +24,6 @@ Vagrant.configure(2) do |config|
   # your network.
   config.vm.network "public_network", bridge: 'Intel(R) Centrino(R) Wireless-N 2230', mac: "aabbccddeeff"
 
-  # TODO: Fix memory issues! Then tryout everything together.
-
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
@@ -40,11 +38,13 @@ Vagrant.configure(2) do |config|
     # Display the VirtualBox GUI when booting the machine
     #vb.gui = true
 
+    # Customize the amount of memory and cpus on the VM:
+    vb.memory = 2048
+    vb.cpus = 2
+  
+    # Enable USB support and add custom filters.
     vb.customize ['modifyvm', :id, '--usb', 'on']
     vb.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'IguanaWorks USB IR Transceiver', '--manufacturer', 'IguanaWorks']
-  
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
   end
   #
   # View the documentation for the provider you are using for more

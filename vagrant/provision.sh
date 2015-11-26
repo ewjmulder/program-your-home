@@ -91,7 +91,7 @@ sudo service eventstore start >> $LOG_FILE 2>&1
 # Wait a while to let the Event Store service boot up.
 sleep 5
 # Create the product stock projection.
-curl --silent --show-error --request POST --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
+curl POST --silent --show-error --request --data-binary --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
 
 echo "Creating new user 'pyh'"
 sudo adduser --disabled-password --shell /bin/bash --gecos "" pyh >> $LOG_FILE 2>&1
@@ -119,6 +119,14 @@ sudo -u pyh bash install-jars-in-maven-repo.sh >> $LOG_FILE 2>&1
 cd ../.. >> $LOG_FILE 2>&1
 # Build the entire program-your-home project
 sudo -u pyh mvn clean install >> $LOG_FILE 2>&1
+
+echo "Adding remotes configuration to LIRC"
+# Create a symlink between the location where LIRC reads it's remotes config and the place where they are in the project.
+sudo mkdir /etc/lirc/lircd.conf.d/ >> $LOG_FILE 2>&1
+sudo ln -s /home/pyh/program-your-home/infra-red/src/main/resources/com/programyourhome/config/infra-red/remotes/ /etc/lirc/lircd.conf.d/ >> $LOG_FILE 2>&1
+# Restart LIRC to use the new remote configs.
+sudo /etc/init.d/iguanaIR restart >> $LOG_FILE 2>&1
+
 
 echo "Setting up Program Your Home applications as services and starting these services"
 sudo cp /vagrant/config/upstart/pyh-server.conf /etc/init/ >> $LOG_FILE 2>&1

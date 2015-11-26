@@ -50,6 +50,8 @@ echo lirc lirc/transmitter select None | sudo /usr/bin/debconf-set-selections >>
 sudo apt-get install --yes --force-yes iguanair >> $LOG_FILE 2>&1
 
 echo "Adding 'iguanaIR' driver support to LIRC"
+# Unfortunately, this version of LIRC does not support the lircd.conf.d folder.
+# Eventually, we'd want to upgrade to a higher version on LIRC, which hopefully also has out-of-the-box support for the IguanaIR driver
 sudo apt-get build-dep --yes lirc >> $LOG_FILE 2>&1
 sudo apt-get -b source lirc >> $LOG_FILE 2>&1
 sudo dpkg -i lirc_0.*.deb >> $LOG_FILE 2>&1
@@ -91,7 +93,7 @@ sudo service eventstore start >> $LOG_FILE 2>&1
 # Wait a while to let the Event Store service boot up.
 sleep 5
 # Create the product stock projection.
-curl POST --silent --show-error --request --data-binary --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
+curl --silent --show-error --request POST --data-binary --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
 
 echo "Creating new user 'pyh'"
 sudo adduser --disabled-password --shell /bin/bash --gecos "" pyh >> $LOG_FILE 2>&1
@@ -121,12 +123,20 @@ cd ../.. >> $LOG_FILE 2>&1
 sudo -u pyh mvn clean install >> $LOG_FILE 2>&1
 
 echo "Adding remotes configuration to LIRC"
-# Create a symlink between the location where LIRC reads it's remotes config and the place where they are in the project.
-sudo mkdir /etc/lirc/lircd.conf.d/ >> $LOG_FILE 2>&1
-sudo ln -s /home/pyh/program-your-home/infra-red/src/main/resources/com/programyourhome/config/infra-red/remotes/ /etc/lirc/lircd.conf.d/ >> $LOG_FILE 2>&1
+### Can only be done in a higher LIRC version than currently installed, see comment above.
+## Create a symlink between the location where LIRC reads it's remotes config and the place where they are in the project.
+#sudo ln -s /home/pyh/program-your-home/infra-red/src/main/resources/com/programyourhome/config/infra-red/remotes /etc/lirc/lircd.conf.d >> $LOG_FILE 2>&1
+###
+# Alternative: combine all remote files into one lircd.conf file. Downside: will not autorefresh remote info when changes are made.
+# Clear current contents
+echo "" | sudo tee /etc/lirc/lircd.conf >> $LOG_FILE 2>&1
+cd /home/pyh/program-your-home/infra-red/src/main/resources/com/programyourhome/config/infra-red/remotes
+# Loop through all remote conf files and append their contents to the main LIRC config file.
+for filename in *.conf;
+	do cat ${filename} | sudo tee -a /etc/lirc/lircd.conf >> $LOG_FILE 2>&1;
+done
 # Restart LIRC to use the new remote configs.
 sudo /etc/init.d/iguanaIR restart >> $LOG_FILE 2>&1
-
 
 echo "Setting up Program Your Home applications as services and starting these services"
 sudo cp /vagrant/config/upstart/pyh-server.conf /etc/init/ >> $LOG_FILE 2>&1

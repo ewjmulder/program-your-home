@@ -7,7 +7,7 @@ import com.programyourhome.server.ProgramYourHomeServer;
 
 @RestController
 @RequestMapping("meta")
-public class ProgramYourHomeControllerMeta extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerMeta extends AbstractProgramYourHomeServerController {
 
     // TODO: more specific health/status check info and other meta service (logs / data / etc)
 

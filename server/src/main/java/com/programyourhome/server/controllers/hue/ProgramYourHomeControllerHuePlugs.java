@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.PyhPlug;
-import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 
 @RestController
 @RequestMapping("hue/plugs")
-public class ProgramYourHomeControllerHuePlugs extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerHuePlugs extends AbstractProgramYourHomeServerController {
 
     @Inject
     private PhilipsHue philipsHue;

@@ -18,7 +18,7 @@ import com.programyourhome.voice.model.PyhLanguage;
 
 @RestController
 @RequestMapping("voice")
-public class ProgramYourHomeControllerVoice extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerVoice extends AbstractProgramYourHomeServerController {
 
     @Inject
     private VoiceControl voiceControl;

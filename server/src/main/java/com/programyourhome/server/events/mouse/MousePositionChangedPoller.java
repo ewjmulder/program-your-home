@@ -1,32 +1,26 @@
 package com.programyourhome.server.events.mouse;
 
-import javax.inject.Inject;
 
-import org.springframework.stereotype.Component;
+//FIXME: do will still want this? If so, change how this works
+//@Component
+public class MousePositionChangedPoller {// extends ValueChangedPoller<PyhPoint> {
 
-import com.programyourhome.pc.PcInstructor;
-import com.programyourhome.pc.model.PyhPoint;
-import com.programyourhome.server.events.ValueChangedPoller;
+    // @Inject
+    // private PcInstructor pcInstructor;
 
-@Component
-public class MousePositionChangedPoller extends ValueChangedPoller<PyhPoint> {
-
-    @Inject
-    private PcInstructor pcInstructor;
-
-    public MousePositionChangedPoller() {
-        super(PyhPoint.class, MousePositionChangedEvent.class);
-    }
-
-    @Override
-    protected PyhPoint getCurrentValue() {
-        return this.pcInstructor.getMousePosition();
-    }
-
-    @Override
-    public long getIntervalInMillis() {
-        // TODO: make configurable
-        return this.seconds(1);
-    }
+    // public MousePositionChangedPoller() {
+    // super(PyhPoint.class, MousePositionChangedEvent.class);
+    // }
+    //
+    // @Override
+    // protected PyhPoint getCurrentValue() {
+    // return this.pcInstructor.getMousePosition();
+    // }
+    //
+    // @Override
+    // public long getIntervalInMillis() {
+    // // TODO: make configurable
+    // return this.seconds(1);
+    // }
 
 }

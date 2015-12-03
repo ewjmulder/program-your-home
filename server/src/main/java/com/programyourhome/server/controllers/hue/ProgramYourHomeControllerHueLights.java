@@ -9,16 +9,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.model.PyhLight;
 import com.programyourhome.hue.model.PyhPlug;
-import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
-import com.programyourhome.server.response.ServiceResult;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 
 @RestController
 @RequestMapping("hue/lights")
-public class ProgramYourHomeControllerHueLights extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerHueLights extends AbstractProgramYourHomeServerController {
 
     @Inject
     private PhilipsHue philipsHue;

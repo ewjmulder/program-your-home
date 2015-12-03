@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.common.functional.FailableConsumer;
+import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.hue.PhilipsHue;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.server.activities.ActivityCenter;
@@ -19,12 +20,11 @@ import com.programyourhome.server.activities.model.PyhActivity;
 import com.programyourhome.server.config.model.Activity;
 import com.programyourhome.server.config.model.Activity.Modules;
 import com.programyourhome.server.config.model.InfraRedActivityConfig;
-import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
-import com.programyourhome.server.response.ServiceResult;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 
 @RestController
 @RequestMapping("main/activities")
-public class ProgramYourHomeControllerMainActivities extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerMainActivities extends AbstractProgramYourHomeServerController {
 
     @Inject
     private PhilipsHue philipsHue;

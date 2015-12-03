@@ -112,13 +112,13 @@ public class ServiceCleanupReturnValueAspect {
     @PostConstruct
     public void init() {
         this.applicationContext.getBeansOfType(PyhApi.class).values().stream()
-                .forEach(bean -> this.pyhModelInterfaces.addAll(bean.getModelInterfaces()));
+        .forEach(bean -> this.pyhModelInterfaces.addAll(bean.getModelInterfaces()));
     }
 
     // TODO: find best way to include all service/modules in the pointcut. Use ||
     // or try some combined defining way, like a common package name, annotation, etc.
 
-    // All public methods on all subclasses of PyhApiBase.
+    // All public methods on all classes that implement PyhApi.
     @Around("execution(public * com.programyourhome.api.PyhApi+.*(..))")
     public Object cleanupReturnValue(final ProceedingJoinPoint joinPoint) throws Throwable {
         // First, let the service method operate normally.
@@ -130,7 +130,7 @@ public class ServiceCleanupReturnValueAspect {
 
     // TODO: very clear comments on how this works.
 
-    // TODO: get all PyhApiBase implementations, pointcut on all PyhApi annotated classes (hmm, shouldn't that be higher up then as well?
+    // TODO: get all PyhApi implementations, pointcut on all PyhApi annotated classes (hmm, shouldn't that be higher up then as well?
 
     @SuppressWarnings("unchecked")
     // Important: synchronized, because of encountered LinkageError "attempted duplicate class definition for name" when using MrBean

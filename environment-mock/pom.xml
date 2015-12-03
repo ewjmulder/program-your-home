@@ -68,11 +68,6 @@
             <artifactId>voice-control-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pc-instructor-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
     </dependencies>
 

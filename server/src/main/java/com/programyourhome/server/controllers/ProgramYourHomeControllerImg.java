@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("img")
-public class ProgramYourHomeControllerImg extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerImg extends AbstractProgramYourHomeServerController {
 
     // The .* in {filename:.*} is needed to receive the full filename, otherwise the file extension is dropped.
     @RequestMapping(value = "icons/{filename:.*}", method = RequestMethod.GET)

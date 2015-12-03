@@ -93,7 +93,7 @@ sudo service eventstore start >> $LOG_FILE 2>&1
 # Wait a while to let the Event Store service boot up.
 sleep 5
 # Create the product stock projection.
-curl --silent --show-error --request POST --data-binary --user admin:changeit --data @/vagrant/config/eventstore/product-stock.js http://localhost:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
+curl --silent --show-error --request POST --user admin:changeit --data-binary @/vagrant/config/eventstore/product-stock.js http://192.168.2.37:2113/projections/continuous?name=product-stock\&enabled=yes\&checkpoints=yes\&emit=no >> $LOG_FILE 2>&1
 
 echo "Creating new user 'pyh'"
 sudo adduser --disabled-password --shell /bin/bash --gecos "" pyh >> $LOG_FILE 2>&1

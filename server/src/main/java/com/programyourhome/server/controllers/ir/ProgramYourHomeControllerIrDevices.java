@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.ir.InfraRed;
 import com.programyourhome.ir.model.PyhDevice;
-import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
-import com.programyourhome.server.response.ServiceResult;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 
 @RestController
 @RequestMapping("ir/devices")
-public class ProgramYourHomeControllerIrDevices extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerIrDevices extends AbstractProgramYourHomeServerController {
 
     @Inject
     private InfraRed infraRed;

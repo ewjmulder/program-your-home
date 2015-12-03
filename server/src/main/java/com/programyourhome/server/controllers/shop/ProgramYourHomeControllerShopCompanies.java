@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
-import com.programyourhome.server.response.ServiceResult;
+import com.programyourhome.common.response.ServiceResult;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 import com.programyourhome.shop.Shopping;
 import com.programyourhome.shop.model.PyhCompany;
 import com.programyourhome.shop.model.PyhCompanyProduct;
@@ -27,7 +27,7 @@ import com.programyourhome.shop.model.PyhShopProperties;
 
 @RestController
 @RequestMapping("shop/companies")
-public class ProgramYourHomeControllerShopCompanies extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerShopCompanies extends AbstractProgramYourHomeServerController {
 
     @Inject
     private Shopping shopping;

@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programyourhome.sensors.SunDegreeSensor;
-import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 
 @RestController
 @RequestMapping("sensors/sunDegree")
-public class ProgramYourHomeControllerSensorSunDegree extends AbstractProgramYourHomeController {
+public class ProgramYourHomeControllerSensorSunDegree extends AbstractProgramYourHomeServerController {
 
     @Inject
     private SunDegreeSensor sunDegreeSensor;

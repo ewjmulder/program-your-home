@@ -15,11 +15,11 @@ import com.programyourhome.huebridgesimulator.model.menu.MenuItem;
 import com.programyourhome.huebridgesimulator.model.menu.SimColor;
 import com.programyourhome.server.activities.ActivityCenter;
 import com.programyourhome.server.config.model.Activity;
-import com.programyourhome.server.controllers.AbstractProgramYourHomeController;
+import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 
 @RestController
 @RequestMapping("huebridgesimulator")
-public class HueBridgeSimulatorController extends AbstractProgramYourHomeController {
+public class HueBridgeSimulatorController extends AbstractProgramYourHomeServerController {
 
     @Inject
     private ActivityCenter activityCenter;

@@ -51,7 +51,7 @@ public class ProgramYourHomeControllerError extends AbstractProgramYourHomeContr
         final String exception = (String) errorAttributes.get("exception");
         final String message = (String) errorAttributes.get("message");
         // Specific 'not found' message for either a direct 404 or a proxied 404.
-        if (status == 404 || (exception.endsWith("HttpClientErrorException") && message.startsWith("404"))) {
+        if (status == 404 || (exception != null && exception.endsWith("HttpClientErrorException") && message.startsWith("404"))) {
             errorMessage = "No mapping found for path: '" + errorAttributes.get("path") + "'.";
         } else {
             if (exception != null) {

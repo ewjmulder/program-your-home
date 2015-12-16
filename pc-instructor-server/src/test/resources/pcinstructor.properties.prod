@@ -1,0 +1,4 @@
+server.address          = 192.168.2.32
+server.port             = 31412
+
+spring.jackson.deserialization.fail_on_unknown_properties = true

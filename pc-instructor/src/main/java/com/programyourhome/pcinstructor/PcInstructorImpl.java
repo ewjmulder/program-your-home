@@ -12,10 +12,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.functional.FailableRunnable;
+import com.programyourhome.pcinstructor.model.MouseButton;
+import com.programyourhome.pcinstructor.model.MouseScroll;
 import com.programyourhome.pcinstructor.model.PyhDimension;
 import com.programyourhome.pcinstructor.model.PyhDimensionImpl;
 import com.programyourhome.pcinstructor.model.PyhPoint;
 import com.programyourhome.pcinstructor.model.PyhPointImpl;
+import com.programyourhome.pcinstructor.model.ScrollDirection;
 
 @Component
 public class PcInstructorImpl implements PcInstructor {
@@ -64,6 +67,19 @@ public class PcInstructorImpl implements PcInstructor {
     }
 
     @Override
+    public void clickMouseButton(final MouseButton mouseButton) {
+        if (mouseButton == MouseButton.LEFT) {
+            this.clickLeftMouseButton();
+        } else if (mouseButton == MouseButton.MIDDLE) {
+            this.clickMiddleMouseButton();
+        } else if (mouseButton == MouseButton.RIGHT) {
+            this.clickRightMouseButton();
+        } else {
+            throw new IllegalArgumentException("Unknown mouse button: " + mouseButton);
+        }
+    }
+
+    @Override
     public void clickLeftMouseButton() {
         this.clickMouseButton(MOUSE_BUTTON_LEFT);
     }
@@ -83,6 +99,17 @@ public class PcInstructorImpl implements PcInstructor {
             this.robot.mousePress(buttonMask);
             this.robot.mouseRelease(buttonMask);
         });
+    }
+
+    @Override
+    public void scrollMouse(final MouseScroll mouseScroll) {
+        if (mouseScroll.getDirection() == ScrollDirection.UP) {
+            this.scrollMouseUp(mouseScroll.getAmount());
+        } else if (mouseScroll.getDirection() == ScrollDirection.DOWN) {
+            this.scrollMouseDown(mouseScroll.getAmount());
+        } else {
+            throw new IllegalArgumentException("Unknown scroll direction: " + mouseScroll.getDirection());
+        }
     }
 
     @Override

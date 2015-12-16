@@ -1,0 +1,10 @@
+server.address          = 127.0.0.1
+server.port             = 31412
+
+spring.jackson.deserialization.fail_on_unknown_properties = true
+
+
+logging.level.com.programyourhome = TRACE
+
+#Doesn't seem to work...
+logging.level.com.springframework = DEBUG

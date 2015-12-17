@@ -29,4 +29,9 @@ public class JacksonSerializationSettings implements SerializationSettings {
         Arrays.stream(classes).forEach(clazz -> this.objectMapper.addMixInAnnotations(clazz, this.classGenerator.generateClass(clazz)));
     }
 
+    @Override
+    public void fixSerializationScopeTo(final Class<?> fromClass, final Class<?> toClass) {
+        this.objectMapper.addMixInAnnotations(fromClass, this.classGenerator.generateClass(toClass));
+    }
+
 }

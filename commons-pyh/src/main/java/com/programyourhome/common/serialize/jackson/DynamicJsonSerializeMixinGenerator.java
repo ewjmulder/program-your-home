@@ -1,5 +1,8 @@
 package com.programyourhome.common.serialize.jackson;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -19,7 +22,17 @@ public class DynamicJsonSerializeMixinGenerator {
     @Inject
     private ByteArrayClassLoader classDefinitionLoader;
 
+    private final Map<Class<?>, Class<?>> generatedClasses;
+
+    public DynamicJsonSerializeMixinGenerator() {
+        this.generatedClasses = new HashMap<>();
+    }
+
     public Class<?> generateClass(final Class<?> forType) {
+        if (this.generatedClasses.containsKey(forType)) {
+            return this.generatedClasses.get(forType);
+        }
+
         final ClassWriter classWriter = new ClassWriter(0);
 
         // Build a Java 8 type.
@@ -37,7 +50,9 @@ public class DynamicJsonSerializeMixinGenerator {
         classWriter.visitEnd();
 
         final byte[] classBytes = classWriter.toByteArray();
-        return this.classDefinitionLoader.defineClass(generatedClassName, classBytes);
+        final Class<?> generatedClass = this.classDefinitionLoader.defineClass(generatedClassName, classBytes);
+        this.generatedClasses.put(forType, generatedClass);
+        return generatedClass;
     }
 
     private String getFullyQualifiedEnhanced(final Class<?> clazz) {

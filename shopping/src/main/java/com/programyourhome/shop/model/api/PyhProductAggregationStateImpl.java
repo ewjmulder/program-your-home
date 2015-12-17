@@ -4,29 +4,28 @@ import java.math.BigDecimal;
 
 import com.programyourhome.common.model.PyhImpl;
 import com.programyourhome.shop.model.PyhProductAggregationState;
+import com.programyourhome.shop.model.PyhProductSize;
+import com.programyourhome.shop.model.jpa.ProductAggregation;
+import com.programyourhome.shop.model.jpa.ProductSize;
 
 public class PyhProductAggregationStateImpl extends PyhImpl implements PyhProductAggregationState {
 
-    private final int id;
+    private final ProductAggregation productAggregation;
     private final BigDecimal amount;
 
-    public PyhProductAggregationStateImpl(final int id, final int amount) {
-        this(id, BigDecimal.valueOf(amount));
-    }
-
-    public PyhProductAggregationStateImpl(final int id, final BigDecimal amount) {
-        this.id = id;
+    public PyhProductAggregationStateImpl(final ProductAggregation productAggregation, final BigDecimal amount) {
+        this.productAggregation = productAggregation;
         this.amount = amount;
     }
 
     @Override
     public int getId() {
-        return this.id;
+        return this.productAggregation.getId();
     }
 
     @Override
-    public BigDecimal getAmount() {
-        return this.amount;
+    public PyhProductSize getSize() {
+        return new ProductSize(this.amount, this.productAggregation.getSizeUnit());
     }
 
 }

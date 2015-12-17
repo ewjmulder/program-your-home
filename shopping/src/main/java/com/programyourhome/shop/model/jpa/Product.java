@@ -1,5 +1,6 @@
 package com.programyourhome.shop.model.jpa;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,8 @@ import javax.persistence.OneToOne;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.programyourhome.shop.common.NamedEntity;
 import com.programyourhome.shop.model.PyhProduct;
+import com.programyourhome.shop.model.PyhProductSize;
+import com.programyourhome.shop.model.size.SizeUnit;
 
 @Entity
 @JsonSerialize(as = PyhProduct.class)
@@ -19,6 +22,12 @@ public class Product extends NamedEntity implements PyhProduct {
 
     @Column(unique = true, nullable = false)
     private String barcode;
+
+    @Column(nullable = false)
+    private BigDecimal sizeAmount;
+
+    @Column(nullable = false)
+    private SizeUnit sizeUnit;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private ProductImage image;
@@ -31,14 +40,16 @@ public class Product extends NamedEntity implements PyhProduct {
     private final Set<CompanyProduct> companyProducts;
 
     public Product() {
-        this(null, null, null);
+        this(null, null, null, null, null);
     }
 
-    public Product(final String name, final String description, final String barcode) {
+    public Product(final String name, final String description, final String barcode, final BigDecimal sizeAmount, final SizeUnit sizeUnit) {
         super(name, description);
         this.aggregationParts = new HashSet<>();
         this.companyProducts = new HashSet<>();
         this.barcode = barcode;
+        this.sizeAmount = sizeAmount;
+        this.sizeUnit = sizeUnit;
         this.image = null;
     }
 
@@ -49,6 +60,27 @@ public class Product extends NamedEntity implements PyhProduct {
 
     public void setBarcode(final String barcode) {
         this.barcode = barcode;
+    }
+
+    @Override
+    public PyhProductSize getSize() {
+        return new ProductSize(this.sizeAmount, this.sizeUnit);
+    }
+
+    public BigDecimal getSizeAmount() {
+        return this.sizeAmount;
+    }
+
+    public void setSizeAmount(final BigDecimal sizeAmount) {
+        this.sizeAmount = sizeAmount;
+    }
+
+    public SizeUnit getSizeUnit() {
+        return this.sizeUnit;
+    }
+
+    public void setSizeUnit(final SizeUnit sizeUnit) {
+        this.sizeUnit = sizeUnit;
     }
 
     public boolean hasImage() {

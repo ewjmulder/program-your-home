@@ -8,4 +8,6 @@ public interface PyhProductProperties {
 
     public String getDescription();
 
+    public PyhProductSizeProperties getSize();
+
 }

@@ -15,4 +15,6 @@ public interface SerializationSettings {
      */
     public void fixSerializationScope(Class<?>... classes);
 
+    public void fixSerializationScopeTo(final Class<?> fromClass, final Class<?> toClass);
+
 }

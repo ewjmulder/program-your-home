@@ -46,6 +46,7 @@ import com.programyourhome.shop.model.PyhShopDepartment;
 import com.programyourhome.shop.model.PyhShopDepartmentProperties;
 import com.programyourhome.shop.model.PyhShopDepartmentToShop;
 import com.programyourhome.shop.model.PyhShopProperties;
+import com.programyourhome.shop.model.SizeUnitIdentification;
 import com.programyourhome.shop.model.api.PyhProductAggregationStateImpl;
 import com.programyourhome.shop.model.api.PyhProductStateImpl;
 import com.programyourhome.shop.model.jpa.Company;
@@ -58,6 +59,13 @@ import com.programyourhome.shop.model.jpa.ProductAggregationPart;
 import com.programyourhome.shop.model.jpa.ProductImage;
 import com.programyourhome.shop.model.jpa.Shop;
 import com.programyourhome.shop.model.jpa.ShopDepartment;
+import com.programyourhome.shop.model.size.AreaUnit;
+import com.programyourhome.shop.model.size.LengthUnit;
+import com.programyourhome.shop.model.size.PieceUnit;
+import com.programyourhome.shop.model.size.SizeUnit;
+import com.programyourhome.shop.model.size.UnitType;
+import com.programyourhome.shop.model.size.VolumeUnit;
+import com.programyourhome.shop.model.size.WeightUnit;
 
 /**
  * Implementation of the Shopping service interface.
@@ -99,17 +107,30 @@ public class ShoppingImpl implements Shopping {
     private BeanCopier beanCopier;
 
     @PostConstruct
+    public void init() {
+        this.serializationSettings.fixSerializationScopeTo(WeightUnit.class, UnitType.class);
+        this.serializationSettings.fixSerializationScopeTo(VolumeUnit.class, UnitType.class);
+        this.serializationSettings.fixSerializationScopeTo(AreaUnit.class, UnitType.class);
+        this.serializationSettings.fixSerializationScopeTo(LengthUnit.class, UnitType.class);
+        this.serializationSettings.fixSerializationScopeTo(PieceUnit.class, UnitType.class);
+    }
+
+    @PostConstruct
     public void tempAddSomeData() {
         final CompanyType supermarket = new CompanyType("Supermarket", "Where you can buy your groceries");
         this.companyTypeRepository.save(supermarket);
 
-        Product p1 = new Product("Spappel", "SPA Fruit Appel", "1234");
+        Product p1 = new Product("Spappel", "SPA Fruit Appel", "1234", BigDecimal.valueOf(1.5), SizeUnit.VOLUME_LITER);
         p1.setImage(new ProductImage(p1, ImageMimeType.PNG, "1234"));
         p1 = this.productRepository.save(p1);
-        Product p2 = new Product("Pindakaas met nootjes", "AH Pindakaas met stukjes noot", "5678");
+        Product p11 = new Product("Spappel blikje", "SPA Fruit Appel Blikje", "12345", BigDecimal.valueOf(330), SizeUnit.VOLUME_MILLILITER);
+        p11.setImage(new ProductImage(p11, ImageMimeType.PNG, "12345"));
+        p11 = this.productRepository.save(p11);
+
+        Product p2 = new Product("Pindakaas met nootjes", "AH Pindakaas met stukjes noot", "5678", BigDecimal.valueOf(400), SizeUnit.WEIGHT_GRAM);
         p2.setImage(new ProductImage(p2, ImageMimeType.PNG, "5678"));
         p2 = this.productRepository.save(p2);
-        Product p3 = new Product("Pindakaas zonder nootjes", "AH Pindakaas zonder stukjes noot", "90");
+        Product p3 = new Product("Pindakaas zonder nootjes", "AH Pindakaas zonder stukjes noot", "90", BigDecimal.valueOf(0.5), SizeUnit.WEIGHT_KILOGRAM);
         p3.setImage(new ProductImage(p3, ImageMimeType.PNG, "90"));
         p3 = this.productRepository.save(p3);
 
@@ -129,14 +150,14 @@ public class ShoppingImpl implements Shopping {
         ah.addShop(s);
         this.companyRepository.save(ah);
 
-        final ProductAggregation pa = this.productAggregationRepository.save(new ProductAggregation("Pindakaas", "Zoet broodbeleg pindakaas", BigDecimal
-                .valueOf(2), BigDecimal.valueOf(4)));
-        pa.addAggregationPart(new ProductAggregationPart(pa, p2, BigDecimal.ONE, 1));
-        pa.addAggregationPart(new ProductAggregationPart(pa, p3, BigDecimal.ONE, 2));
-        final ProductAggregation pa2 = this.productAggregationRepository.save(new ProductAggregation("Test aggr", "desc", BigDecimal
-                .valueOf(3), BigDecimal.valueOf(10)));
-        pa2.addAggregationPart(new ProductAggregationPart(pa2, p1, BigDecimal.ONE, 1));
-        pa2.addAggregationPart(new ProductAggregationPart(pa2, p3, BigDecimal.TEN, 2));
+        final ProductAggregation pa = this.productAggregationRepository.save(new ProductAggregation("Pindakaas", "Zoet broodbeleg pindakaas",
+                SizeUnit.WEIGHT_KILOGRAM, BigDecimal.valueOf(2), BigDecimal.valueOf(4)));
+        pa.addAggregationPart(new ProductAggregationPart(pa, p2, 1));
+        pa.addAggregationPart(new ProductAggregationPart(pa, p3, 2));
+        final ProductAggregation pa2 = this.productAggregationRepository.save(new ProductAggregation("Test aggr", "desc",
+                SizeUnit.VOLUME_LITER, BigDecimal.valueOf(3), BigDecimal.valueOf(10)));
+        pa2.addAggregationPart(new ProductAggregationPart(pa2, p1, 1));
+        pa2.addAggregationPart(new ProductAggregationPart(pa2, p11, 2));
         this.productAggregationRepository.save(pa);
         this.productAggregationRepository.save(pa2);
     }
@@ -154,13 +175,28 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public Product createProduct(final PyhProductProperties productProperties) {
-        return this.productRepository.save(this.beanCopier.copyToNew(productProperties, Product.class));
+        final Product product = this.beanCopier.copyToNew(productProperties, Product.class);
+        return this.productRepository.save(this.updateWithSize(product, productProperties));
     }
 
     @Override
     public PyhProduct updateProduct(final int productId, final PyhProductProperties productProperties) {
         final Product product = this.productRepository.findOne(productId);
-        return this.productRepository.save(this.beanCopier.copyTo(productProperties, product));
+        this.beanCopier.copyTo(productProperties, product);
+        return this.productRepository.save(this.updateWithSize(product, productProperties));
+    }
+
+    private Product updateWithSize(final Product product, final PyhProductProperties productProperties) {
+        product.setSizeAmount(productProperties.getSize().getAmount());
+        product.setSizeUnit(this.findSizeUnit(product.getSize()));
+        return product;
+    }
+
+    private SizeUnit findSizeUnit(final SizeUnitIdentification sizeUnitIdentification) {
+        return SizeUnit.findByIdentification(
+                sizeUnitIdentification.getSizeType(),
+                sizeUnitIdentification.getUnit().getTypeName(),
+                sizeUnitIdentification.getUnit().getAbbreviation());
     }
 
     @Override
@@ -216,13 +252,17 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public ProductAggregation createProductAggregation(final PyhProductAggregationProperties productAggregationProperties) {
-        return this.productAggregationRepository.save(this.beanCopier.copyToNew(productAggregationProperties, ProductAggregation.class));
+        final ProductAggregation productAggregation = this.beanCopier.copyToNew(productAggregationProperties, ProductAggregation.class);
+        productAggregation.setSizeUnit(this.findSizeUnit(productAggregationProperties));
+        return this.productAggregationRepository.save(productAggregation);
     }
 
     @Override
     public PyhProductAggregation updateProductAggregation(final int productAggregationId, final PyhProductAggregationProperties productAggregationProperties) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
-        return this.productAggregationRepository.save(this.beanCopier.copyTo(productAggregationProperties, productAggregation));
+        this.beanCopier.copyTo(productAggregationProperties, productAggregation);
+        productAggregation.setSizeUnit(this.findSizeUnit(productAggregationProperties));
+        return this.productAggregationRepository.save(productAggregation);
     }
 
     @Override
@@ -291,10 +331,18 @@ public class ShoppingImpl implements Shopping {
     public PyhProductAggregationState getProductAggregationState(final int productAggregationId) {
         final ProductAggregation productAggregation = this.productAggregationRepository.findOne(productAggregationId);
         final BigDecimal amount = productAggregation.getAggregationParts().stream()
-                // For every part, get the corresponding aggregation amount by multiplying the contribution with the current product amount.
-                .map(part -> part.getContribution().multiply(BigDecimal.valueOf(this.getProductState(part.getProduct().getId()).getAmount())))
+                // For every part, get the corresponding aggregation amount by unit corrected calculation based on the current product amount.
+                .map(this::calculateAggregationAmount)
                 .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
-        return new PyhProductAggregationStateImpl(productAggregationId, amount);
+        return new PyhProductAggregationStateImpl(productAggregation, amount);
+    }
+
+    private BigDecimal calculateAggregationAmount(final ProductAggregationPart part) {
+        final BigDecimal productAmount = BigDecimal.valueOf(this.getProductState(part.getProduct().getId()).getAmount());
+        final BigDecimal productAmountInSmallestUnit = productAmount
+                .multiply(part.getProduct().getSizeAmount())
+                .multiply(part.getProduct().getSize().getUnit().getAmountInSmallestUnit());
+        return productAmountInSmallestUnit.divide(part.getProductAggregation().getSizeUnit().getUnit().getAmountInSmallestUnit());
     }
 
     @Override

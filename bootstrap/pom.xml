@@ -91,11 +91,6 @@
                 </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>pc-instructor</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
                     <artifactId>shopping</artifactId>
                     <version>${project.version}</version>
                 </dependency>

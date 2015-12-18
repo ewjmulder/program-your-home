@@ -1,4 +1,4 @@
-package com.programyourhome.shop.model.api;
+package com.programyourhome.shop.model.pojo;
 
 import java.math.BigDecimal;
 

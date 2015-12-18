@@ -14,7 +14,7 @@ import com.programyourhome.shop.model.Currency;
 import com.programyourhome.shop.model.PyhCompanyProduct;
 import com.programyourhome.shop.model.PyhCompanyProductToCompany;
 import com.programyourhome.shop.model.PyhMonetaryAmount;
-import com.programyourhome.shop.model.api.PyhMonetaryAmountImpl;
+import com.programyourhome.shop.model.pojo.PyhMonetaryAmountImpl;
 
 @javax.persistence.Entity
 public class CompanyProduct extends Entity implements PyhCompanyProduct, PyhCompanyProductToCompany {

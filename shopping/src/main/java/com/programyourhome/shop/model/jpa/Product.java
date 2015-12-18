@@ -8,16 +8,15 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.programyourhome.shop.common.NamedEntity;
 import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductSize;
 import com.programyourhome.shop.model.size.SizeUnit;
 
 @Entity
-@JsonSerialize(as = PyhProduct.class)
 public class Product extends NamedEntity implements PyhProduct {
 
     @Column(unique = true, nullable = false)
@@ -32,6 +31,9 @@ public class Product extends NamedEntity implements PyhProduct {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private ProductImage image;
 
+    @OneToMany(mappedBy = "product")
+    private final Set<BulkProduct> bulkProducts;
+
     // Modeled as a collection to allow for one product to be a part of several aggregations.
     @ManyToMany(mappedBy = "product")
     private final Set<ProductAggregationPart> aggregationParts;
@@ -45,6 +47,7 @@ public class Product extends NamedEntity implements PyhProduct {
 
     public Product(final String name, final String description, final String barcode, final BigDecimal sizeAmount, final SizeUnit sizeUnit) {
         super(name, description);
+        this.bulkProducts = new HashSet<>();
         this.aggregationParts = new HashSet<>();
         this.companyProducts = new HashSet<>();
         this.barcode = barcode;
@@ -93,6 +96,18 @@ public class Product extends NamedEntity implements PyhProduct {
 
     public void setImage(final ProductImage image) {
         this.image = image;
+    }
+
+    public Set<BulkProduct> getBulkProducts() {
+        return this.bulkProducts;
+    }
+
+    public void addBulkProduct(final BulkProduct bulkProduct) {
+        this.bulkProducts.add(bulkProduct);
+    }
+
+    public void removeBulkProduct(final BulkProduct bulkProduct) {
+        this.bulkProducts.remove(bulkProduct);
     }
 
     public Set<ProductAggregationPart> getAggregationParts() {

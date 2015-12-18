@@ -1,4 +1,4 @@
-package com.programyourhome.shop.model.api;
+package com.programyourhome.shop.model.pojo;
 
 import com.programyourhome.common.model.PyhImpl;
 import com.programyourhome.shop.model.PyhProductState;

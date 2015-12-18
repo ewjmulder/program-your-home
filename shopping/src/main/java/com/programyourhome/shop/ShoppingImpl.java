@@ -17,11 +17,15 @@ import org.springframework.stereotype.Service;
 import com.programyourhome.common.serialize.SerializationSettings;
 import com.programyourhome.common.util.BeanCopier;
 import com.programyourhome.common.util.StreamUtil;
+import com.programyourhome.shop.common.StockChange;
+import com.programyourhome.shop.dao.BulkProductRepository;
 import com.programyourhome.shop.dao.CompanyRepository;
 import com.programyourhome.shop.dao.CompanyTypeRepository;
 import com.programyourhome.shop.dao.ProductAggregationRepository;
 import com.programyourhome.shop.dao.ProductRepository;
 import com.programyourhome.shop.model.ImageMimeType;
+import com.programyourhome.shop.model.PyhBulkProduct;
+import com.programyourhome.shop.model.PyhBulkProductProperties;
 import com.programyourhome.shop.model.PyhCompany;
 import com.programyourhome.shop.model.PyhCompanyProduct;
 import com.programyourhome.shop.model.PyhCompanyProductProperties;
@@ -46,7 +50,8 @@ import com.programyourhome.shop.model.PyhShopDepartment;
 import com.programyourhome.shop.model.PyhShopDepartmentProperties;
 import com.programyourhome.shop.model.PyhShopDepartmentToShop;
 import com.programyourhome.shop.model.PyhShopProperties;
-import com.programyourhome.shop.model.SizeUnitIdentification;
+import com.programyourhome.shop.model.PyhSizeUnitIdentification;
+import com.programyourhome.shop.model.jpa.BulkProduct;
 import com.programyourhome.shop.model.jpa.Company;
 import com.programyourhome.shop.model.jpa.CompanyProduct;
 import com.programyourhome.shop.model.jpa.CompanyType;
@@ -92,6 +97,9 @@ public class ShoppingImpl implements Shopping {
     private ProductRepository productRepository;
 
     @Inject
+    private BulkProductRepository bulkProductRepository;
+
+    @Inject
     private CompanyRepository companyRepository;
 
     @Inject
@@ -125,6 +133,7 @@ public class ShoppingImpl implements Shopping {
         p1 = this.productRepository.save(p1);
         Product p11 = new Product("Spappel blikje", "SPA Fruit Appel Blikje", "12345", BigDecimal.valueOf(330), SizeUnit.VOLUME_MILLILITER);
         p11.setImage(new ProductImage(p11, ImageMimeType.PNG, "12345"));
+        p11.addBulkProduct(new BulkProduct(p11, "6-pack spappel blikjes", "SPA Fruit Appel Blikjes in een 6 pack", "123456", 6));
         p11 = this.productRepository.save(p11);
 
         Product p2 = new Product("Pindakaas met nootjes", "AH Pindakaas met stukjes noot", "5678", BigDecimal.valueOf(400), SizeUnit.WEIGHT_GRAM);
@@ -188,13 +197,12 @@ public class ShoppingImpl implements Shopping {
 
     private Product updateWithSize(final Product product, final PyhProductProperties productProperties) {
         product.setSizeAmount(productProperties.getSize().getAmount());
-        product.setSizeUnit(this.findSizeUnit(product.getSize()));
+        product.setSizeUnit(this.findSizeUnit(productProperties.getSize()));
         return product;
     }
 
-    private SizeUnit findSizeUnit(final SizeUnitIdentification sizeUnitIdentification) {
+    private SizeUnit findSizeUnit(final PyhSizeUnitIdentification sizeUnitIdentification) {
         return SizeUnit.findByIdentification(
-                sizeUnitIdentification.getSizeType(),
                 sizeUnitIdentification.getUnit().getTypeName(),
                 sizeUnitIdentification.getUnit().getAbbreviation());
     }
@@ -202,6 +210,38 @@ public class ShoppingImpl implements Shopping {
     @Override
     public void deleteProduct(final int productId) {
         this.productRepository.delete(productId);
+    }
+
+    @Override
+    public Collection<? extends PyhBulkProduct> getBulkProducts(final int productId) {
+        return this.productRepository.findOne(productId).getBulkProducts();
+    }
+
+    @Override
+    public PyhBulkProduct getBulkProduct(final int productId, final int bulkProductId) {
+        return this.productRepository.findOne(productId).findBulkProduct(bulkProductId).get();
+    }
+
+    @Override
+    public PyhBulkProduct addBulkProduct(final int productId, final PyhBulkProductProperties bulkProductProperties) {
+        final Product product = this.productRepository.findOne(productId);
+        product.addBulkProduct(this.beanCopier.copyTo(bulkProductProperties, new BulkProduct(product)));
+        return this.productRepository.save(product).findBulkProduct(bulkProductProperties.getName()).get();
+    }
+
+    @Override
+    public PyhBulkProduct updateBulkProduct(final int productId, final int bulkProductId, final PyhBulkProductProperties bulkProductProperties) {
+        final Product product = this.productRepository.findOne(productId);
+        final BulkProduct bulkProduct = product.findBulkProduct(bulkProductId).get();
+        this.beanCopier.copyTo(bulkProductProperties, bulkProduct);
+        return this.productRepository.save(product).findBulkProduct(bulkProductId).get();
+    }
+
+    @Override
+    public void deleteBulkProduct(final int productId, final int bulkProductId) {
+        final Product product = this.productRepository.findOne(productId);
+        product.removeBulkProduct(product.findBulkProduct(bulkProductId).get());
+        this.productRepository.save(product);
     }
 
     @Override
@@ -346,28 +386,44 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public PyhProductState addProductItem(final String barcode) {
-        return this.addProductItem(this.productRepository.findByBarcode(barcode).getId());
+    public PyhProductState incrementByBarcode(final String barcode) {
+        final StockChange stockChange = this.getStockChange(barcode);
+        return this.incrementByProductId(stockChange.getProductId(), stockChange.getAmount());
     }
 
     @Override
-    public PyhProductState addProductItem(final int productId) {
+    public PyhProductState incrementByProductId(final int productId, final int amount) {
+        // TODO Call to EventStore
         final int currentValue = this.stock.computeIfAbsent(productId, p -> 0);
-        this.stock.put(productId, currentValue + 1);
+        this.stock.put(productId, currentValue + amount);
         return this.getProductState(productId);
     }
 
     @Override
-    public PyhProductState removeProductItem(final String barcode) {
-        return this.removeProductItem(this.productRepository.findByBarcode(barcode).getId());
+    public PyhProductState decrementByBarcode(final String barcode) {
+        final StockChange stockChange = this.getStockChange(barcode);
+        return this.decrementByProductId(stockChange.getProductId(), stockChange.getAmount());
     }
 
     @Override
-    public PyhProductState removeProductItem(final int productId) {
+    public PyhProductState decrementByProductId(final int productId, final int amount) {
         // TODO Call to EventStore, todo: not below zero
         final int currentValue = this.stock.computeIfAbsent(productId, p -> 0);
-        this.stock.put(productId, currentValue - 1);
+        this.stock.put(productId, currentValue - amount);
         return this.getProductState(productId);
+    }
+
+    private StockChange getStockChange(final String barcode) {
+        final Product product = this.productRepository.findByBarcode(barcode);
+        StockChange stockChange;
+        if (product != null) {
+            stockChange = new StockChange(product.getId(), 1);
+        } else {
+            // If the barcode does not match on a product, it must be a bulk product.
+            final BulkProduct bulkProduct = this.bulkProductRepository.findByBarcode(barcode);
+            stockChange = new StockChange(bulkProduct.getProduct().getId(), bulkProduct.getAmount());
+        }
+        return stockChange;
     }
 
     @Override
@@ -443,28 +499,28 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public PyhShop getShop(final int companyId, final int shopId) {
-        return this.companyRepository.findOne(companyId).getShop(shopId);
+        return this.companyRepository.findOne(companyId).findShop(shopId).get();
     }
 
     @Override
     public PyhShop addShop(final int companyId, final PyhShopProperties shopProperties) {
         final Company company = this.companyRepository.findOne(companyId);
         company.addShop(this.beanCopier.copyTo(shopProperties, new Shop(company)));
-        return this.companyRepository.save(company).getShop(shopProperties.getName());
+        return this.companyRepository.save(company).findShop(shopProperties.getName()).get();
     }
 
     @Override
     public PyhShop updateShop(final int companyId, final int shopId, final PyhShopProperties shopProperties) {
         final Company company = this.companyRepository.findOne(companyId);
-        final Shop shop = company.getShop(shopId);
-        company.addShop(this.beanCopier.copyTo(shopProperties, shop));
-        return this.companyRepository.save(company).getShop(shopId);
+        final Shop shop = company.findShop(shopId).get();
+        this.beanCopier.copyTo(shopProperties, shop);
+        return this.companyRepository.save(company).findShop(shopId).get();
     }
 
     @Override
     public void deleteShop(final int companyId, final int shopId) {
         final Company company = this.companyRepository.findOne(companyId);
-        company.removeShop(company.getShop(shopId));
+        company.removeShop(company.findShop(shopId).get());
         this.companyRepository.save(company);
     }
 
@@ -475,52 +531,52 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public PyhDepartment getDepartment(final int companyId, final int departmentId) {
-        return this.companyRepository.findOne(companyId).getDepartment(departmentId);
+        return this.companyRepository.findOne(companyId).findDepartment(departmentId).get();
     }
 
     @Override
     public PyhDepartment addDepartment(final int companyId, final PyhDepartmentProperties departmentProperties) {
         final Company company = this.companyRepository.findOne(companyId);
         company.addDepartment(this.beanCopier.copyTo(departmentProperties, new Department(company)));
-        return this.companyRepository.save(company).getDepartment(departmentProperties.getName());
+        return this.companyRepository.save(company).findDepartment(departmentProperties.getName()).get();
     }
 
     @Override
     public PyhDepartment updateDepartment(final int companyId, final int departmentId, final PyhDepartmentProperties departmentProperties) {
         final Company company = this.companyRepository.findOne(companyId);
-        final Department department = company.getDepartment(departmentId);
-        company.addDepartment(this.beanCopier.copyTo(departmentProperties, department));
-        return this.companyRepository.save(company).getDepartment(departmentId);
+        final Department department = company.findDepartment(departmentId).get();
+        this.beanCopier.copyTo(departmentProperties, department);
+        return this.companyRepository.save(company).findDepartment(departmentId).get();
     }
 
     @Override
     public void deleteDepartment(final int companyId, final int departmentId) {
         final Company company = this.companyRepository.findOne(companyId);
-        company.removeDepartment(company.getDepartment(departmentId));
+        company.removeDepartment(company.findDepartment(departmentId).get());
         this.companyRepository.save(company);
     }
 
     @Override
     public Collection<? extends PyhShopDepartmentToShop> getShopDepartmentsToShop(final int companyId, final int departmentId) {
-        return this.companyRepository.findOne(companyId).getDepartment(departmentId).getShopDepartments();
+        return this.companyRepository.findOne(companyId).findDepartment(departmentId).get().getShopDepartments();
     }
 
     @Override
     public Collection<? extends PyhShopDepartment> getShopDepartments(final int companyId, final int shopId) {
-        return this.companyRepository.findOne(companyId).getShop(shopId).getShopDepartments();
+        return this.companyRepository.findOne(companyId).findShop(shopId).get().getShopDepartments();
     }
 
     @Override
     public PyhShopDepartment getShopDepartment(final int companyId, final int shopId, final int departmentId) {
-        return this.companyRepository.findOne(companyId).getShop(shopId).findShopDepartment(departmentId).get();
+        return this.companyRepository.findOne(companyId).findShop(shopId).get().findShopDepartment(departmentId).get();
     }
 
     @Override
     public PyhShopDepartment setDepartmentInShopDepartment(final int companyId, final int shopId, final int departmentId,
             final PyhShopDepartmentProperties shopDepartmentProperties) {
         final Company company = this.companyRepository.findOne(companyId);
-        final Shop shop = company.getShop(shopId);
-        final Department department = company.getDepartment(departmentId);
+        final Shop shop = company.findShop(shopId).get();
+        final Department department = company.findDepartment(departmentId).get();
         final Optional<ShopDepartment> optionalShopDepartment = shop.findShopDepartment(departmentId);
         if (optionalShopDepartment.isPresent()) {
             this.beanCopier.copyTo(shopDepartmentProperties, optionalShopDepartment.get());
@@ -529,16 +585,15 @@ public class ShoppingImpl implements Shopping {
             shop.addShopDepartment(this.beanCopier.copyTo(shopDepartmentProperties, shopDepartment));
         }
         final Company savedCompany = this.companyRepository.save(company);
-        return savedCompany.getShop(shopId).findShopDepartment(departmentId).get();
+        return savedCompany.findShop(shopId).get().findShopDepartment(departmentId).get();
     }
 
     @Override
     public void removeDepartmentFromShopDepartment(final int companyId, final int shopId, final int departmentId) {
         final Company company = this.companyRepository.findOne(companyId);
-        final Shop shop = company.getShop(shopId);
+        final Shop shop = company.findShop(shopId).get();
         shop.removeShopDepartment(departmentId);
-        final Company savedCompany = this.companyRepository.save(company);
-        savedCompany.getShop(shopId);
+        this.companyRepository.save(company);
     }
 
     @Override
@@ -555,7 +610,7 @@ public class ShoppingImpl implements Shopping {
     public PyhCompanyProduct setProductInCompanyProduct(final int companyId, final int productId, final PyhCompanyProductProperties companyProductProperties) {
         final Company company = this.companyRepository.findOne(companyId);
         final Product product = this.productRepository.findOne(productId);
-        final Department department = company.getDepartment(companyProductProperties.getDepartmentId());
+        final Department department = company.findDepartment(companyProductProperties.getDepartmentId()).get();
         final Optional<CompanyProduct> optionalCompanyProduct = company.findCompanyProduct(productId);
         final CompanyProduct companyProduct = optionalCompanyProduct.orElseGet(() -> {
             final CompanyProduct newCompanyProduct = new CompanyProduct(company, product);

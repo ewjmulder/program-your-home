@@ -60,16 +60,16 @@ public class Company extends NamedEntity implements PyhCompany {
         return this.shops;
     }
 
-    public Shop getShop(final int shopId) {
+    public Optional<Shop> findShop(final int shopId) {
         return this.shops.stream()
                 .filter(shop -> shop.getId() == shopId)
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
-    public Shop getShop(final String shopName) {
+    public Optional<Shop> findShop(final String shopName) {
         return this.shops.stream()
                 .filter(shop -> shop.getName().equals(shopName))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
     public void addShop(final Shop shop) {
@@ -84,16 +84,16 @@ public class Company extends NamedEntity implements PyhCompany {
         return this.theDepartments;
     }
 
-    public Department getDepartment(final int departmentId) {
+    public Optional<Department> findDepartment(final int departmentId) {
         return this.theDepartments.stream()
                 .filter(department -> department.getId() == departmentId)
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
-    public Department getDepartment(final String departmentName) {
+    public Optional<Department> findDepartment(final String departmentName) {
         return this.theDepartments.stream()
                 .filter(department -> department.getName().equals(departmentName))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
     public void addDepartment(final Department department) {

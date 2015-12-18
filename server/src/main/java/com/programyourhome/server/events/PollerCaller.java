@@ -11,9 +11,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class PollerCaller {
 
     @Inject

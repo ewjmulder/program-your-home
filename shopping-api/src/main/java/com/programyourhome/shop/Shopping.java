@@ -1,9 +1,10 @@
 package com.programyourhome.shop;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import com.programyourhome.api.PyhApi;
+import com.programyourhome.shop.model.PyhBulkProduct;
+import com.programyourhome.shop.model.PyhBulkProductProperties;
 import com.programyourhome.shop.model.PyhCompany;
 import com.programyourhome.shop.model.PyhCompanyProduct;
 import com.programyourhome.shop.model.PyhCompanyProductProperties;
@@ -36,14 +37,6 @@ public interface Shopping extends PyhApi {
         return "Shopping";
     }
 
-    @Override
-    public default Collection<Class<?>> getModelInterfaces() {
-        return Arrays.asList(PyhProduct.class, PyhCompanyProduct.class, PyhCompanyProductToCompany.class, PyhProductAggregation.class,
-                PyhProductAggregationPart.class, PyhProductAggregationPartToProductAggregation.class, PyhProductImage.class, PyhCompanyType.class,
-                PyhCompany.class, PyhShop.class, PyhDepartment.class, PyhShopDepartment.class, PyhShopDepartmentToShop.class,
-                PyhProductState.class, PyhProductAggregationState.class);
-    }
-
     public Collection<? extends PyhProduct> getProducts();
 
     public PyhProduct getProduct(int productId);
@@ -53,6 +46,16 @@ public interface Shopping extends PyhApi {
     public PyhProduct updateProduct(int productId, PyhProductProperties product);
 
     public void deleteProduct(int productId);
+
+    public Collection<? extends PyhBulkProduct> getBulkProducts(int productId);
+
+    public PyhBulkProduct getBulkProduct(final int productId, final int bulkProductId);
+
+    public PyhBulkProduct addBulkProduct(final int productId, final PyhBulkProductProperties bulkProductProperties);
+
+    public PyhBulkProduct updateBulkProduct(final int productId, final int bulkProductId, final PyhBulkProductProperties bulkProductProperties);
+
+    public void deleteBulkProduct(final int productId, final int bulkProductId);
 
     public Collection<? extends PyhProductAggregationPartToProductAggregation> getProductAggregationPartsToProductAggregation(int productId);
 
@@ -91,13 +94,13 @@ public interface Shopping extends PyhApi {
 
     public PyhProductAggregationState getProductAggregationState(int productAggregationId);
 
-    public PyhProductState addProductItem(int productId);
+    public PyhProductState incrementByProductId(int productId, final int amount);
 
-    public PyhProductState addProductItem(String barcode);
+    public PyhProductState incrementByBarcode(String barcode);
 
-    public PyhProductState removeProductItem(int productId);
+    public PyhProductState decrementByProductId(int productId, final int amount);
 
-    public PyhProductState removeProductItem(String barcode);
+    public PyhProductState decrementByBarcode(String barcode);
 
     public Collection<? extends PyhCompanyType> getCompanyTypes();
 

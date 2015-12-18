@@ -2,7 +2,7 @@ package com.programyourhome.shop.model;
 
 import java.math.BigDecimal;
 
-public interface PyhProductAggregationProperties extends SizeUnitIdentification {
+public interface PyhProductAggregationProperties extends PyhSizeUnitIdentification {
 
     public String getName();
 

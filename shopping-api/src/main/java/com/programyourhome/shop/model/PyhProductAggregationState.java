@@ -9,6 +9,6 @@ public interface PyhProductAggregationState {
      *
      * @return the 'available' size
      */
-    public PyhProductSize getSize();
+    public PyhProductSizeProperties getSize();
 
 }

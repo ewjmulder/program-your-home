@@ -42,13 +42,12 @@ public enum SizeUnit {
         return this.unit;
     }
 
-    public static SizeUnit findByIdentification(final SizeType sizeType, final String unitTypeName, final String unitAbbreviation) {
+    public static SizeUnit findByIdentification(final String unitTypeName, final String unitAbbreviation) {
         return Arrays.stream(SizeUnit.values())
-                .filter(sizeUnit -> sizeUnit.getSizeType().equals(sizeType)
-                        && sizeUnit.getUnit().getTypeName().equals(unitTypeName)
+                .filter(sizeUnit -> sizeUnit.getUnit().getTypeName().equals(unitTypeName)
                         && sizeUnit.getUnit().getAbbreviation().equals(unitAbbreviation))
-                        .findFirst()
-                        .orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
 }

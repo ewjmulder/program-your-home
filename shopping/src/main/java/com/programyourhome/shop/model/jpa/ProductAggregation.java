@@ -42,6 +42,14 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
         this.minimumAmount = minimumAmount;
         this.maximumAmount = maximumAmount;
         this.aggregationParts = new HashSet<>();
+        this.validate();
+    }
+
+    // TODO: Use Hibernate Validation (JSR thingy) for genericly solving these kinds of validations?
+    private void validate() {
+        if (this.minimumAmount != null && this.maximumAmount != null && this.minimumAmount.compareTo(this.maximumAmount) > 0) {
+            throw new IllegalArgumentException("Minimum amount cannot be more than maximum amount.");
+        }
     }
 
     public SizeUnit getSizeUnit() {
@@ -52,7 +60,6 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
         this.sizeUnit = sizeUnit;
     }
 
-    @Override
     public SizeType getSizeType() {
         return this.sizeUnit.getSizeType();
     }
@@ -69,6 +76,7 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
 
     public void setMinimumAmount(final BigDecimal minimumAmount) {
         this.minimumAmount = minimumAmount;
+        this.validate();
     }
 
     @Override
@@ -78,6 +86,7 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
 
     public void setMaximumAmount(final BigDecimal maximumAmount) {
         this.maximumAmount = maximumAmount;
+        this.validate();
     }
 
     public Set<ProductAggregationPart> getAggregationParts() {
@@ -99,8 +108,8 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
 
     public void removeAggregationPart(final int productId) {
         new HashSet<>(this.aggregationParts).stream()
-                .filter(part -> part.getProduct().getId() == productId)
-                .forEach(this.aggregationParts::remove);
+        .filter(part -> part.getProduct().getId() == productId)
+        .forEach(this.aggregationParts::remove);
     }
 
 }

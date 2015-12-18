@@ -2,6 +2,7 @@ package com.programyourhome.shop.model.jpa;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -31,7 +32,7 @@ public class Product extends NamedEntity implements PyhProduct {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private ProductImage image;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
     private final Set<BulkProduct> bulkProducts;
 
     // Modeled as a collection to allow for one product to be a part of several aggregations.
@@ -98,8 +99,21 @@ public class Product extends NamedEntity implements PyhProduct {
         this.image = image;
     }
 
+    // @Override
     public Set<BulkProduct> getBulkProducts() {
         return this.bulkProducts;
+    }
+
+    public Optional<BulkProduct> findBulkProduct(final int bulkProductId) {
+        return this.bulkProducts.stream()
+                .filter(bulkProduct -> bulkProduct.getId() == bulkProductId)
+                .findFirst();
+    }
+
+    public Optional<BulkProduct> findBulkProduct(final String bulkProductName) {
+        return this.bulkProducts.stream()
+                .filter(bulkProduct -> bulkProduct.getName().equals(bulkProductName))
+                .findFirst();
     }
 
     public void addBulkProduct(final BulkProduct bulkProduct) {

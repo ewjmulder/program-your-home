@@ -3,7 +3,7 @@ package com.programyourhome.shop.model.jpa;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import com.programyourhome.shop.common.NamedEntity;
 import com.programyourhome.shop.model.PyhBulkProduct;
@@ -11,7 +11,7 @@ import com.programyourhome.shop.model.PyhBulkProduct;
 @Entity
 public class BulkProduct extends NamedEntity implements PyhBulkProduct {
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(nullable = false)
     private final Product product;
 

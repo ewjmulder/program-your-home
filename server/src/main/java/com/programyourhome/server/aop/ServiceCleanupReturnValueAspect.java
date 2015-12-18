@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -35,7 +34,6 @@ import org.springframework.util.ClassUtils;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
-import com.programyourhome.api.PyhApi;
 
 @Aspect
 @Component
@@ -94,10 +92,7 @@ public class ServiceCleanupReturnValueAspect {
     private Map<Class, Class> collectionTypeChooser = new HashMap<>();
     private Map<Class, Class> mapTypeChooser = new HashMap<>();
 
-    private final Set<Class> pyhModelInterfaces;
-
     public ServiceCleanupReturnValueAspect() {
-        this.pyhModelInterfaces = new HashSet<>();
         this.collectionTypeChooser = new HashMap<>();
         this.mapTypeChooser = new HashMap<>();
 
@@ -107,12 +102,6 @@ public class ServiceCleanupReturnValueAspect {
 
         this.mapTypeChooser.put(Map.class, HashMap.class);
         this.mapTypeChooser.put(SortedMap.class, TreeMap.class);
-    }
-
-    @PostConstruct
-    public void init() {
-        this.applicationContext.getBeansOfType(PyhApi.class).values().stream()
-        .forEach(bean -> this.pyhModelInterfaces.addAll(bean.getModelInterfaces()));
     }
 
     // TODO: find best way to include all service/modules in the pointcut. Use ||
@@ -177,8 +166,11 @@ public class ServiceCleanupReturnValueAspect {
                     ((Map) value).entrySet().stream().forEach(
                             entry -> ((Map) cleanedValue).put(this.cleanupValue(((Map.Entry) entry).getKey(), (Class) keyTypeInMap, keyTypeInMap),
                                     this.cleanupValue(((Map.Entry) entry).getValue(), (Class) valueTypeInMap, valueTypeInMap)));
-                } else if (this.pyhModelInterfaces.contains(definedClass)) {
-                    // If we encounter an interface type that is part of the pyh model: apply cleaning to the object.
+                } else if (definedClass.isInterface()) {
+                    // If we encounter an interface type: apply cleaning to the object.
+                    // We don't check if the type is our 'own' interface type, because this logic should be universally applicable.
+                    // We take the stand here that an interface object returned from a service, should never be more than a POJO
+                    // and you should not be able to call any 'functional logic' methods on it.
                     // First, create a 'clean' interface implementation class, using the MrBean Jackson module.
                     final Class interfaceImplementation = this.mrBeanModule.getMaterializer().resolveAbstractType(this.objectMapper.getDeserializationConfig(),
                             this.objectMapper.getTypeFactory().constructSimpleType(definedClass, new JavaType[0])).getRawClass();

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 import com.programyourhome.shop.Shopping;
+import com.programyourhome.shop.model.PyhBulkProduct;
+import com.programyourhome.shop.model.PyhBulkProductProperties;
 import com.programyourhome.shop.model.PyhCompanyProductToCompany;
 import com.programyourhome.shop.model.PyhProduct;
 import com.programyourhome.shop.model.PyhProductAggregationPartToProductAggregation;
@@ -52,6 +54,33 @@ public class ProgramYourHomeControllerShopProducts extends AbstractProgramYourHo
         return this.run(() -> this.shopping.deleteProduct(productId));
     }
 
+    @RequestMapping(value = "{id}/bulkProducts", method = RequestMethod.GET)
+    public ServiceResult<Collection<? extends PyhBulkProduct>> getBulkProducts(@PathVariable("id") final int productId) {
+        return this.produce("BulkProducts", () -> this.shopping.getBulkProducts(productId));
+    }
+
+    @RequestMapping(value = "{id}/bulkProducts/{bulkProductId}", method = RequestMethod.GET)
+    public ServiceResult<PyhBulkProduct> getBulkProduct(@PathVariable("id") final int productId, @PathVariable("bulkProductId") final int bulkProductId) {
+        return this.produce("BulkProduct", () -> this.shopping.getBulkProduct(productId, bulkProductId));
+    }
+
+    @RequestMapping(value = "{id}/bulkProducts", method = RequestMethod.POST, consumes = MIME_JSON)
+    public ServiceResult<PyhBulkProduct> createBulkProduct(@PathVariable("id") final int productId,
+            @RequestBody final PyhBulkProductProperties bulkProductProperties) {
+        return this.produce("BulkProduct", () -> this.shopping.addBulkProduct(productId, bulkProductProperties));
+    }
+
+    @RequestMapping(value = "{id}/bulkProducts/{bulkProductId}", method = RequestMethod.PUT, consumes = MIME_JSON)
+    public ServiceResult<PyhBulkProduct> updateBulkProduct(@PathVariable("id") final int productId, @PathVariable("bulkProductId") final int bulkProductId,
+            @RequestBody final PyhBulkProductProperties bulkProductProperties) {
+        return this.produce("BulkProduct", () -> this.shopping.updateBulkProduct(productId, bulkProductId, bulkProductProperties));
+    }
+
+    @RequestMapping(value = "{id}/bulkProducts/{bulkProductId}", method = RequestMethod.DELETE)
+    public ServiceResult<Void> deleteBulkProduct(@PathVariable("id") final int productId, @PathVariable("bulkProductId") final int bulkProductId) {
+        return this.run(() -> this.shopping.deleteBulkProduct(productId, bulkProductId));
+    }
+
     @RequestMapping(value = "{id}/productAggregationParts", method = RequestMethod.GET)
     public ServiceResult<Collection<? extends PyhProductAggregationPartToProductAggregation>> getProductAggregationParts(
             @PathVariable("id") final int productId) {
@@ -84,23 +113,23 @@ public class ProgramYourHomeControllerShopProducts extends AbstractProgramYourHo
     }
 
     @RequestMapping(value = "increment/{barcode}", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> addProductItem(@PathVariable("barcode") final String barcode) {
-        return this.produce("ProductState", () -> this.shopping.addProductItem(barcode));
+    public ServiceResult<PyhProductState> incrementByBarcode(@PathVariable("barcode") final String barcode) {
+        return this.produce("ProductState", () -> this.shopping.incrementByBarcode(barcode));
     }
 
     @RequestMapping(value = "decrement/{barcode}", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> removeProductItem(@PathVariable("id") final String barcode) {
-        return this.produce("ProductState", () -> this.shopping.removeProductItem(barcode));
+    public ServiceResult<PyhProductState> decrementByBarcode(@PathVariable("barcode") final String barcode) {
+        return this.produce("ProductState", () -> this.shopping.decrementByBarcode(barcode));
     }
 
     @RequestMapping(value = "{id}/increment", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> addProductItem(@PathVariable("id") final int productId) {
-        return this.produce("ProductState", () -> this.shopping.addProductItem(productId));
+    public ServiceResult<PyhProductState> incrementByProductId(@PathVariable("id") final int productId) {
+        return this.produce("ProductState", () -> this.shopping.incrementByProductId(productId, 1));
     }
 
     @RequestMapping(value = "{id}/decrement", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> removeProductItem(@PathVariable("id") final int productId) {
-        return this.produce("ProductState", () -> this.shopping.removeProductItem(productId));
+    public ServiceResult<PyhProductState> decrementByProductId(@PathVariable("id") final int productId) {
+        return this.produce("ProductState", () -> this.shopping.decrementByProductId(productId, 1));
     }
 
 }

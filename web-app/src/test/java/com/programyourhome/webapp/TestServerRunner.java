@@ -38,7 +38,7 @@ import java.io.IOException;
 import fi.iki.elonen.NanoHTTPD;
 
 public class TestServerRunner {
-    public static void run(final Class serverClass) {
+    public static void run(final Class<?> serverClass) {
         try {
             executeInstance((NanoHTTPD) serverClass.newInstance());
         } catch (final Exception e) {

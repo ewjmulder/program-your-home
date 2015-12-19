@@ -2,8 +2,6 @@ package com.programyourhome.shop;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -14,15 +12,16 @@ import javax.transaction.Transactional;
 import org.javamoney.moneta.internal.MoneyAmountBuilder;
 import org.springframework.stereotype.Service;
 
+import com.programyourhome.common.eventstore.EventStore;
 import com.programyourhome.common.serialize.SerializationSettings;
 import com.programyourhome.common.util.BeanCopier;
 import com.programyourhome.common.util.StreamUtil;
-import com.programyourhome.shop.common.StockChange;
 import com.programyourhome.shop.dao.BulkProductRepository;
 import com.programyourhome.shop.dao.CompanyRepository;
 import com.programyourhome.shop.dao.CompanyTypeRepository;
 import com.programyourhome.shop.dao.ProductAggregationRepository;
 import com.programyourhome.shop.dao.ProductRepository;
+import com.programyourhome.shop.model.EventAmount;
 import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhBulkProduct;
 import com.programyourhome.shop.model.PyhBulkProductProperties;
@@ -51,6 +50,9 @@ import com.programyourhome.shop.model.PyhShopDepartmentProperties;
 import com.programyourhome.shop.model.PyhShopDepartmentToShop;
 import com.programyourhome.shop.model.PyhShopProperties;
 import com.programyourhome.shop.model.PyhSizeUnitIdentification;
+import com.programyourhome.shop.model.StockChange;
+import com.programyourhome.shop.model.StockCount;
+import com.programyourhome.shop.model.StockEventType;
 import com.programyourhome.shop.model.jpa.BulkProduct;
 import com.programyourhome.shop.model.jpa.Company;
 import com.programyourhome.shop.model.jpa.CompanyProduct;
@@ -93,6 +95,10 @@ import com.programyourhome.shop.model.size.WeightUnit;
 @Transactional
 public class ShoppingImpl implements Shopping {
 
+    private static final String PRODUCT_PROJECTION_NAME = "product-stock";
+    private static final String STREAM_PREFIX = "product-";
+    private static final String PRODUCT_PROJECTION_PARTITION_PREFIX = STREAM_PREFIX;
+
     @Inject
     private ProductRepository productRepository;
 
@@ -113,6 +119,9 @@ public class ShoppingImpl implements Shopping {
 
     @Inject
     private BeanCopier beanCopier;
+
+    @Inject
+    private EventStore eventStore;
 
     @PostConstruct
     public void init() {
@@ -342,9 +351,6 @@ public class ShoppingImpl implements Shopping {
         this.productAggregationRepository.save(productAggregation);
     }
 
-    // FIXME: temp for test
-    private final Map<Integer, Integer> stock = new HashMap<>();
-
     @Override
     public Collection<PyhProductState> getProductStates() {
         return StreamUtil.fromIterable(this.productRepository.findAll())
@@ -355,8 +361,9 @@ public class ShoppingImpl implements Shopping {
 
     @Override
     public PyhProductState getProductState(final int productId) {
-        // TODO Call to EventStore
-        return new PyhProductStateImpl(productId, this.stock.getOrDefault(productId, 0));
+        final StockCount stockCount = this.eventStore.getProjectionState(
+                PRODUCT_PROJECTION_NAME, PRODUCT_PROJECTION_PARTITION_PREFIX + productId, StockCount.class);
+        return new PyhProductStateImpl(productId, stockCount.getCount());
     }
 
     @Override
@@ -386,30 +393,32 @@ public class ShoppingImpl implements Shopping {
     }
 
     @Override
-    public PyhProductState incrementByBarcode(final String barcode) {
+    public PyhProductState increaseByBarcode(final String barcode) {
         final StockChange stockChange = this.getStockChange(barcode);
-        return this.incrementByProductId(stockChange.getProductId(), stockChange.getAmount());
+        return this.increaseByProductId(stockChange.getProductId(), stockChange.getAmount());
     }
 
     @Override
-    public PyhProductState incrementByProductId(final int productId, final int amount) {
-        // TODO Call to EventStore
-        final int currentValue = this.stock.computeIfAbsent(productId, p -> 0);
-        this.stock.put(productId, currentValue + amount);
-        return this.getProductState(productId);
+    public PyhProductState increaseByProductId(final int productId, final int amount) {
+        return this.postEvent(productId, StockEventType.INCREASE, amount);
     }
 
     @Override
-    public PyhProductState decrementByBarcode(final String barcode) {
+    public PyhProductState decreaseByBarcode(final String barcode) {
         final StockChange stockChange = this.getStockChange(barcode);
-        return this.decrementByProductId(stockChange.getProductId(), stockChange.getAmount());
+        return this.decreaseByProductId(stockChange.getProductId(), stockChange.getAmount());
     }
 
     @Override
-    public PyhProductState decrementByProductId(final int productId, final int amount) {
-        // TODO Call to EventStore, todo: not below zero
-        final int currentValue = this.stock.computeIfAbsent(productId, p -> 0);
-        this.stock.put(productId, currentValue - amount);
+    public PyhProductState decreaseByProductId(final int productId, final int amount) {
+        if (this.getProductState(productId).getAmount() - amount < 0) {
+            throw new IllegalStateException("Product stock cannot be decreased below zero.");
+        }
+        return this.postEvent(productId, StockEventType.DECREASE, amount);
+    }
+
+    private PyhProductState postEvent(final int productId, final StockEventType stockEventType, final int amount) {
+        this.eventStore.postEvent(STREAM_PREFIX + productId, stockEventType.getTypeName(), new EventAmount(amount));
         return this.getProductState(productId);
     }
 

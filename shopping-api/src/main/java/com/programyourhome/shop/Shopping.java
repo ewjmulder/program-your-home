@@ -94,13 +94,13 @@ public interface Shopping extends PyhApi {
 
     public PyhProductAggregationState getProductAggregationState(int productAggregationId);
 
-    public PyhProductState incrementByProductId(int productId, final int amount);
+    public PyhProductState increaseByProductId(int productId, final int amount);
 
-    public PyhProductState incrementByBarcode(String barcode);
+    public PyhProductState increaseByBarcode(String barcode);
 
-    public PyhProductState decrementByProductId(int productId, final int amount);
+    public PyhProductState decreaseByProductId(int productId, final int amount);
 
-    public PyhProductState decrementByBarcode(String barcode);
+    public PyhProductState decreaseByBarcode(String barcode);
 
     public Collection<? extends PyhCompanyType> getCompanyTypes();
 

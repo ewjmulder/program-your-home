@@ -6,7 +6,6 @@
 # Note: although not needed here, sudo is added anyway
 # for ease of use of copy/pasting these commands to the terminal
 # TODO: User/environment specifics should be configurable!
-# TODO: Create and use a 'pyh' user throughout the PYH git cloning/building so it's not all under root.
 
 echo "Starting Program Your Home provisioning script"
 
@@ -123,8 +122,9 @@ cd ../.. >> $LOG_FILE 2>&1
 sudo -u pyh mvn clean install >> $LOG_FILE 2>&1
 
 echo "Adding remotes configuration to LIRC"
-### Can only be done in a higher LIRC version than currently installed, see comment above.
-## Create a symlink between the location where LIRC reads it's remotes config and the place where they are in the project.
+###
+# Commented line below (lircd.conf.d) can only be done in a higher LIRC version than currently installed, see comment above.
+# Create a symlink between the location where LIRC reads it's remotes config and the place where they are in the project.
 #sudo ln -s /home/pyh/program-your-home/infra-red/src/main/resources/com/programyourhome/config/infra-red/remotes /etc/lirc/lircd.conf.d >> $LOG_FILE 2>&1
 ###
 # Alternative: combine all remote files into one lircd.conf file. Downside: will not autorefresh remote info when changes are made.

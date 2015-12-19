@@ -112,24 +112,24 @@ public class ProgramYourHomeControllerShopProducts extends AbstractProgramYourHo
         return this.produce("ProductState", () -> this.shopping.getProductState(productId));
     }
 
-    @RequestMapping(value = "increment/{barcode}", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> incrementByBarcode(@PathVariable("barcode") final String barcode) {
-        return this.produce("ProductState", () -> this.shopping.incrementByBarcode(barcode));
+    @RequestMapping(value = "addBarcodeToStock/{barcode}", method = RequestMethod.POST)
+    public ServiceResult<PyhProductState> addBarcodeToStock(@PathVariable("barcode") final String barcode) {
+        return this.produce("ProductState", () -> this.shopping.increaseByBarcode(barcode));
     }
 
-    @RequestMapping(value = "decrement/{barcode}", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> decrementByBarcode(@PathVariable("barcode") final String barcode) {
-        return this.produce("ProductState", () -> this.shopping.decrementByBarcode(barcode));
+    @RequestMapping(value = "removeBarcodeFromStock/{barcode}", method = RequestMethod.POST)
+    public ServiceResult<PyhProductState> removeBarcodeFromStock(@PathVariable("barcode") final String barcode) {
+        return this.produce("ProductState", () -> this.shopping.decreaseByBarcode(barcode));
     }
 
-    @RequestMapping(value = "{id}/increment", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> incrementByProductId(@PathVariable("id") final int productId) {
-        return this.produce("ProductState", () -> this.shopping.incrementByProductId(productId, 1));
+    @RequestMapping(value = "{id}/addToStock", method = RequestMethod.POST)
+    public ServiceResult<PyhProductState> addProductToStock(@PathVariable("id") final int productId) {
+        return this.produce("ProductState", () -> this.shopping.increaseByProductId(productId, 1));
     }
 
-    @RequestMapping(value = "{id}/decrement", method = RequestMethod.POST)
-    public ServiceResult<PyhProductState> decrementByProductId(@PathVariable("id") final int productId) {
-        return this.produce("ProductState", () -> this.shopping.decrementByProductId(productId, 1));
+    @RequestMapping(value = "{id}/removeFromStock", method = RequestMethod.POST)
+    public ServiceResult<PyhProductState> removeProductFromStock(@PathVariable("id") final int productId) {
+        return this.produce("ProductState", () -> this.shopping.decreaseByProductId(productId, 1));
     }
 
 }

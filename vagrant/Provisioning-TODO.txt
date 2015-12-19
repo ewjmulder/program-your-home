@@ -1,15 +1,15 @@
 Issues in provisioning:
-- PcInstructor doesn't work on headless java -> should be a separate running module.
+X PcInstructor doesn't work on headless java -> should be a separate running module.
   - This obviously needs refactoring!
 - Why is event store taking 20% CPU?
   - Weird, changed 0.0.0.0 to 192.168.2.37
   - TODO: Test with some different settings, most notably projections on/off
   - TODO: Ask on some kind of forum, these guys seem to be eager to help
-- product-stock.js needs /r/n because Event Store is a Windows based product
+X product-stock.js needs /r/n because Event Store is a Windows based product
   - file already is PC style, probably curl changes that. possible solution: --data-binary in curl POST -> mistaken reorder at first
   - --data should have been --data-binary, fixed now and works!
-- remotes config not in /etc/lirc/lircd.conf
+X remotes config not in /etc/lirc/lircd.conf
   - Tried a symlinc from /etc/lirc/lircd.conf.d/ to remotes in pyh repo -> nope, not supported by 0.9.0 version
   - New try: append all .conf files in repo to lircd.conf -> worked!
-- exec bash .....sh instead of -c "bash .....sh" ?
+X exec bash .....sh instead of -c "bash .....sh" ?
   - Tried it -> worked!

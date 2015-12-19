@@ -1,4 +1,4 @@
-package com.programyourhome.shop.common;
+package com.programyourhome.shop.model;
 
 public class StockChange {
 

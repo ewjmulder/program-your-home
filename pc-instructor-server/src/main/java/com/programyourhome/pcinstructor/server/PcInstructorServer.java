@@ -10,7 +10,7 @@ import org.springframework.boot.SpringApplication;
 public class PcInstructorServer {
 
     public static void startServer(final Class<?> springBootApplicationClass) {
-        final String usageMessage = "Please provide the correct path to the simulator property location with: -Dpcinstructor.properties.location=/path/to/file";
+        final String usageMessage = "Please provide the correct path to the pc instructor property location with: -Dpcinstructor.properties.location=/path/to/file";
         final String simulatorPropertyLocation = System.getProperty("pcinstructor.properties.location");
         if (simulatorPropertyLocation == null) {
             System.out.println("No value provided for property 'pcinstructor.properties.location'.");

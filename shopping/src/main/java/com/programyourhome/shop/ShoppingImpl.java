@@ -160,9 +160,9 @@ public class ShoppingImpl implements Shopping {
         ah.addDepartment(d2);
         ah.addDepartment(d3);
 
-        ah.addCompanyProduct(new CompanyProduct(ah, p1, d2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create()));
-        ah.addCompanyProduct(new CompanyProduct(ah, p2, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create()));
-        ah.addCompanyProduct(new CompanyProduct(ah, p3, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.30).create()));
+        ah.addCompanyProduct(new CompanyProduct(ah, p1, d2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create(), null));
+        ah.addCompanyProduct(new CompanyProduct(ah, p2, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create(), null));
+        ah.addCompanyProduct(new CompanyProduct(ah, p3, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.30).create(), null));
         final Shop s = new Shop(ah, "Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", "Hoofdstraat xx, Driebergen");
         s.addShopDepartment(new ShopDepartment(s, d1, 1));
         ah.addShop(s);
@@ -628,6 +628,7 @@ public class ShoppingImpl implements Shopping {
         });
         companyProduct.setDepartment(department);
         companyProduct.setPrice(companyProductProperties.getPrice());
+        companyProduct.setIdentifier(companyProductProperties.getIdentifier());
         return this.companyRepository.save(company).findCompanyProduct(productId).get();
     }
 

@@ -27,8 +27,8 @@ public class BarcodeScanDetector {
         while (true) {
             // final String barcode = this.reader.readLine();
             // TODO: throw events and have trigger and log listeners
-            // TODO: Use AH.nl or set in ideas or so.
-            Runtime.getRuntime().exec("curl -X POST http://192.168.2.100:3737/shop/products/addBarcodeToStock/" + barcode);
+            // TODO: Use AH.nl or set in ideas or so. -> don't do that directly, but use identifier + script to fill image and/or price
+            // Runtime.getRuntime().exec("curl -X POST http://192.168.2.100:3737/shop/products/addBarcodeToStock/" + barcode);
             // this.printer.println(LocalDateTime.now() + ": " + barcode);
         }
     }

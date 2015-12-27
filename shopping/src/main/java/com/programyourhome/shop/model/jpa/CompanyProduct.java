@@ -35,20 +35,24 @@ public class CompanyProduct extends Entity implements PyhCompanyProduct, PyhComp
     @Convert(converter = MoneyConverter.class)
     private Money price;
 
+    @Column(nullable = true)
+    private String identifier;
+
     /** Only for JPA, we don't want an instance of this type to be constructed without links to company and product. */
     @SuppressWarnings("unused")
     private CompanyProduct() {
     }
 
     public CompanyProduct(final Company company, final Product product) {
-        this(company, product, null, null);
+        this(company, product, null, null, null);
     }
 
-    public CompanyProduct(final Company company, final Product product, final Department department, final Money price) {
+    public CompanyProduct(final Company company, final Product product, final Department department, final Money price, final String identifier) {
         this.company = company;
         this.product = product;
         this.department = department;
         this.price = price;
+        this.identifier = identifier;
     }
 
     @Override
@@ -77,6 +81,15 @@ public class CompanyProduct extends Entity implements PyhCompanyProduct, PyhComp
 
     public void setPrice(final PyhMonetaryAmount monetaryAmount) {
         this.price = new MoneyAmountBuilder().setCurrency(monetaryAmount.getCurrency().name()).setNumber(monetaryAmount.getAmount()).create();
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    public void setIdentifier(final String identifier) {
+        this.identifier = identifier;
     }
 
 }

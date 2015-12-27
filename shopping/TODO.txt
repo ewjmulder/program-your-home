@@ -13,7 +13,9 @@ application/json
 
 Get project stock state:
 /projection/product-stock/state?partition=product-x
-
+ 
+- Handle initial no stock for a product (instead of nullpointer)
+- Nice setup + put in Git of raspberry stuff
 - All owned collections as maps with key id (but how to add new?)
 - Convenience method(s) on own repo interface, eg findAll returns Collection/Set instead of Iterable
 X @Transactional now only works at the class level, why not on on method level?

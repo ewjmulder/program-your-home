@@ -3,6 +3,7 @@ package com.programyourhome.shop;
 import java.util.Collection;
 
 import com.programyourhome.api.PyhApi;
+import com.programyourhome.shop.model.PyhBarcodeSearchResult;
 import com.programyourhome.shop.model.PyhBulkProduct;
 import com.programyourhome.shop.model.PyhBulkProductProperties;
 import com.programyourhome.shop.model.PyhCompany;
@@ -40,6 +41,8 @@ public interface Shopping extends PyhApi {
     public Collection<? extends PyhProduct> getProducts();
 
     public PyhProduct getProduct(int productId);
+
+    public PyhBarcodeSearchResult searchProductByBarcode(String barcode);
 
     public PyhProduct createProduct(PyhProductProperties productProperties);
 

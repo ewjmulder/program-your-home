@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.server.controllers.AbstractProgramYourHomeServerController;
 import com.programyourhome.shop.Shopping;
+import com.programyourhome.shop.model.PyhBarcodeSearchResult;
 import com.programyourhome.shop.model.PyhBulkProduct;
 import com.programyourhome.shop.model.PyhBulkProductProperties;
 import com.programyourhome.shop.model.PyhCompanyProductToCompany;
@@ -37,6 +38,11 @@ public class ProgramYourHomeControllerShopProducts extends AbstractProgramYourHo
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     public ServiceResult<PyhProduct> getProduct(@PathVariable("id") final int productId) {
         return this.produce("Product", () -> this.shopping.getProduct(productId));
+    }
+
+    @RequestMapping(value = "barcode/{barcode}", method = RequestMethod.GET)
+    public ServiceResult<PyhBarcodeSearchResult> searchProductByBarcode(@PathVariable("barcode") final String barcode) {
+        return this.produce("BarcodeSearchResult", () -> this.shopping.searchProductByBarcode(barcode));
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = MIME_JSON)

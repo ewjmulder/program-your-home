@@ -23,6 +23,7 @@ import com.programyourhome.shop.dao.ProductAggregationRepository;
 import com.programyourhome.shop.dao.ProductRepository;
 import com.programyourhome.shop.model.EventAmount;
 import com.programyourhome.shop.model.ImageMimeType;
+import com.programyourhome.shop.model.PyhBarcodeSearchResult;
 import com.programyourhome.shop.model.PyhBulkProduct;
 import com.programyourhome.shop.model.PyhBulkProductProperties;
 import com.programyourhome.shop.model.PyhCompany;
@@ -64,6 +65,7 @@ import com.programyourhome.shop.model.jpa.ProductAggregationPart;
 import com.programyourhome.shop.model.jpa.ProductImage;
 import com.programyourhome.shop.model.jpa.Shop;
 import com.programyourhome.shop.model.jpa.ShopDepartment;
+import com.programyourhome.shop.model.pojo.PyhBarcodeSearchResultImpl;
 import com.programyourhome.shop.model.pojo.PyhProductAggregationStateImpl;
 import com.programyourhome.shop.model.pojo.PyhProductStateImpl;
 import com.programyourhome.shop.model.size.AreaUnit;
@@ -189,6 +191,23 @@ public class ShoppingImpl implements Shopping {
     @Override
     public Product getProduct(final int productId) {
         return this.productRepository.findOne(productId);
+    }
+
+    @Override
+    public PyhBarcodeSearchResult searchProductByBarcode(final String barcode) {
+        PyhBarcodeSearchResult searchResult;
+        final Product product = this.productRepository.findByBarcode(barcode);
+        if (product != null) {
+            searchResult = PyhBarcodeSearchResultImpl.product(product);
+        } else {
+            final BulkProduct bulkProduct = this.bulkProductRepository.findByBarcode(barcode);
+            if (bulkProduct != null) {
+                searchResult = PyhBarcodeSearchResultImpl.bulkProduct(bulkProduct);
+            } else {
+                searchResult = PyhBarcodeSearchResultImpl.none();
+            }
+        }
+        return searchResult;
     }
 
     @Override
@@ -424,13 +443,17 @@ public class ShoppingImpl implements Shopping {
 
     private StockChange getStockChange(final String barcode) {
         final Product product = this.productRepository.findByBarcode(barcode);
-        StockChange stockChange;
+        final StockChange stockChange;
         if (product != null) {
             stockChange = new StockChange(product.getId(), 1);
         } else {
             // If the barcode does not match on a product, it must be a bulk product.
             final BulkProduct bulkProduct = this.bulkProductRepository.findByBarcode(barcode);
-            stockChange = new StockChange(bulkProduct.getProduct().getId(), bulkProduct.getAmount());
+            if (bulkProduct != null) {
+                stockChange = new StockChange(bulkProduct.getProduct().getId(), bulkProduct.getAmount());
+            } else {
+                throw new IllegalArgumentException("No (bulk)product found for barcode: ' " + barcode + "'.");
+            }
         }
         return stockChange;
     }

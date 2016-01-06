@@ -29,6 +29,16 @@ public class BarcodeScannerController extends AbstractProgramYourHomeController 
     @Inject
     private BarcodeEventPublisher barcodeEventPublisher;
 
+    /**
+     * This provides an easy way the see if the REST service is reachable.
+     *
+     * @return the text string 'pong'
+     */
+    @RequestMapping(value = "status/ping", method = RequestMethod.GET)
+    public String pingService() {
+        return "pong";
+    }
+
     @RequestMapping(value = "mode", method = RequestMethod.GET)
     public ServiceResult<ProcessorMode> getMode() {
         return this.produce("Mode", () -> this.barcodeProcessor.getMode());

@@ -1,39 +1,29 @@
 package com.programyourhome.common.response;
 
-public class ServiceResult<T> {
+public interface ServiceResult<T> {
 
-    private final boolean success;
-    private final T payload;
-    private final String error;
+    /**
+     * Whether or not the service call completed successfully.
+     *
+     * @return success (true) or error (false)
+     */
+    public boolean isSuccess();
 
-    private ServiceResult(final boolean success, final T payload, final String error) {
-        this.success = success;
-        this.payload = payload;
-        this.error = error;
-    }
+    /**
+     * Get an error message.
+     * Will be null on success, should be filled on error (isSuccess is false).
+     *
+     * @return an error message
+     */
+    public String getError();
 
-    public boolean isSuccess() {
-        return this.success;
-    }
-
-    public Object getPayload() {
-        return this.payload;
-    }
-
-    public String getError() {
-        return this.error;
-    }
-
-    public static <T> ServiceResult<T> success() {
-        return new ServiceResult<>(true, null, null);
-    }
-
-    public static <T> ServiceResult<T> success(final T payload) {
-        return new ServiceResult<>(true, payload, null);
-    }
-
-    public static <T> ServiceResult<T> error(final String message) {
-        return new ServiceResult<>(false, null, message);
-    }
+    /**
+     * Get the payload of the service result.
+     * Will be null on error (isSuccess is false).
+     * On success, this can be either be null (void service call) or filled with a service return value.
+     *
+     * @return the payload
+     */
+    public T getPayload();
 
 }

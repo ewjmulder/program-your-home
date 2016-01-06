@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.javamoney.moneta.internal.MoneyAmountBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.programyourhome.common.eventstore.EventStore;
@@ -122,7 +123,12 @@ public class ShoppingImpl implements Shopping {
     @Inject
     private BeanCopier beanCopier;
 
-    @Inject
+    @Value("${eventstore.host}")
+    private String host;
+
+    @Value("${eventstore.port}")
+    private int port;
+
     private EventStore eventStore;
 
     @PostConstruct
@@ -132,6 +138,8 @@ public class ShoppingImpl implements Shopping {
         this.serializationSettings.fixSerializationScopeTo(AreaUnit.class, UnitType.class);
         this.serializationSettings.fixSerializationScopeTo(LengthUnit.class, UnitType.class);
         this.serializationSettings.fixSerializationScopeTo(PieceUnit.class, UnitType.class);
+
+        this.eventStore = new EventStore(this.host, this.port);
     }
 
     @PostConstruct

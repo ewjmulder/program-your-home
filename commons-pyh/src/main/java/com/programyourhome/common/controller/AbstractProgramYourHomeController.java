@@ -18,7 +18,7 @@ public abstract class AbstractProgramYourHomeController {
     }
 
     public <T> ServiceResult<T> produce(final String type, final FailableSupplier<T> supplier) {
-        return this.produce(type, supplier, "Exception while producing.");
+        return this.produce(type, supplier, "Exception while producing " + type);
     }
 
     public <T> ServiceResult<T> produce(final String type, final FailableSupplier<T> supplier, final String errorMessage) {

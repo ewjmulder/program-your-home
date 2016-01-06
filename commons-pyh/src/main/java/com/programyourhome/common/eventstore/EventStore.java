@@ -2,13 +2,10 @@ package com.programyourhome.common.eventstore;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@Component
 public class EventStore {
 
     private static final String PATH_STREAM = "streams/%s/incoming/%s";
@@ -16,15 +13,14 @@ public class EventStore {
     private static final String QUERY_PROJECTION_PARTITION = "partition=%s";
     private static final String EVENT_TYPE_HEADER_NAME = "ES-EventType";
 
-    @Value("${eventstore.host}")
-    private String host;
-
-    @Value("${eventstore.port}")
-    private int port;
+    private final String host;
+    private final int port;
 
     private final RestTemplate restTemplate;
 
-    public EventStore() {
+    public EventStore(final String host, final int port) {
+        this.host = host;
+        this.port = port;
         this.restTemplate = new RestTemplate();
     }
 

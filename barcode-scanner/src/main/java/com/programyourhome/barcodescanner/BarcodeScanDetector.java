@@ -3,25 +3,19 @@ package com.programyourhome.barcodescanner;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
-
-import com.programyourhome.barcodescanner.event.MetaBarcodeScannedEvent;
-import com.programyourhome.barcodescanner.event.ProductBarcodeScannedEvent;
 
 @Component
 public class BarcodeScanDetector {
 
     @Inject
-    private ApplicationEventPublisher eventPublisher;
+    private BarcodeEventPublisher barcodeEventPublisher;
 
     @Inject
     private TaskScheduler taskScheduler;
@@ -53,15 +47,7 @@ public class BarcodeScanDetector {
             // Forever, read standard in to detect barcode scanning.
             while (true) {
                 final String barcode = reader.readLine();
-                final Optional<MetaBarcode> optionalMetaBarcode = Arrays.stream(MetaBarcode.values())
-                        .filter(metaBarcode -> metaBarcode.getBarcode().equals(barcode))
-                        .findAny();
-                // If this is a meta barcode, throw a meta barcode event, otherwise a normal one.
-                if (optionalMetaBarcode.isPresent()) {
-                    this.eventPublisher.publishEvent(new MetaBarcodeScannedEvent(optionalMetaBarcode.get()));
-                } else {
-                    this.eventPublisher.publishEvent(new ProductBarcodeScannedEvent(barcode));
-                }
+                this.barcodeEventPublisher.publishBarcodeEvent(barcode);
             }
         } catch (final IOException e) {
             // No way to recover from an IOException on standard in, so we'll just crash.

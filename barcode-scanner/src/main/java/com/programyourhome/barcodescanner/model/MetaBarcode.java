@@ -1,4 +1,4 @@
-package com.programyourhome.barcodescanner;
+package com.programyourhome.barcodescanner.model;
 
 public enum MetaBarcode {
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.programyourhome.common.response.ServiceResultImpl;
 import com.programyourhome.common.response.ServiceResult;
 
 @RestController
@@ -60,7 +61,7 @@ public class ProgramYourHomeControllerError extends AbstractProgramYourHomeContr
                 errorMessage = "Error on server: '" + message + "'.";
             }
         }
-        return ServiceResult.error(errorMessage);
+        return ServiceResultImpl.error(errorMessage);
     }
 
     private Map<String, Object> getErrorAttributes(final HttpServletRequest request) {

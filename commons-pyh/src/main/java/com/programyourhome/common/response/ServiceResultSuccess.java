@@ -34,7 +34,7 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
 
     @Override
     public ServiceResult<T> result() {
-        return ServiceResult.success(this.value);
+        return ServiceResultImpl.success(this.value);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
         ServiceResult<R> result;
         try {
             final R payload = function.apply(this.value);
-            result = ServiceResult.success(payload);
+            result = ServiceResultImpl.success(payload);
         } catch (final Exception e) {
             result = new ServiceResultError<R>(errorMessage, e).result();
         }
@@ -135,7 +135,7 @@ public class ServiceResultSuccess<T> implements ServiceResultTry<T> {
         ServiceResult<Void> result;
         try {
             consumer.accept(this.value);
-            result = ServiceResult.success();
+            result = ServiceResultImpl.success();
         } catch (final Exception e) {
             result = new ServiceResultError<Void>(errorMessage, e).result();
         }

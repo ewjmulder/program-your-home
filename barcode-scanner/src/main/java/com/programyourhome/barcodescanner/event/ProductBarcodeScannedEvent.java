@@ -1,5 +1,7 @@
 package com.programyourhome.barcodescanner.event;
 
+import java.util.Date;
+
 import org.springframework.context.ApplicationEvent;
 
 @SuppressWarnings("serial")
@@ -16,6 +18,11 @@ public class ProductBarcodeScannedEvent extends ApplicationEvent {
 
     public String getBarcode() {
         return this.barcode;
+    }
+
+    @Override
+    public String toString() {
+        return new Date(this.getTimestamp()).toString() + " - PROD - " + this.barcode;
     }
 
 }

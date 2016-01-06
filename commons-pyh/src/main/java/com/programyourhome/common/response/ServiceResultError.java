@@ -42,7 +42,7 @@ public class ServiceResultError<T> implements ServiceResultTry<T> {
 
     @Override
     public ServiceResult<T> result() {
-        return ServiceResult.error(this.errorMessage);
+        return ServiceResultImpl.error(this.errorMessage);
     }
 
     @Override

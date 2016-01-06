@@ -1,13 +1,47 @@
 package com.programyourhome.barcodescanner.controller;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-public class BarcodeScannerController {
+import com.programyourhome.barcodescanner.BarcodeEventPublisher;
+import com.programyourhome.barcodescanner.BarcodeProcessor;
+import com.programyourhome.barcodescanner.ScannedBarcodeLogger;
+import com.programyourhome.barcodescanner.model.ProcessorMode;
+import com.programyourhome.common.controller.AbstractProgramYourHomeController;
+import com.programyourhome.common.response.ServiceResult;
 
-    // TODO:
-    // - get status / get mode
-    // - get log of scanned barcodes / events
-    // - simulate a barcode scan
+@RestController
+@RequestMapping("barcodescanner")
+public class BarcodeScannerController extends AbstractProgramYourHomeController {
+
+    @Inject
+    private BarcodeProcessor barcodeProcessor;
+
+    @Inject
+    private ScannedBarcodeLogger scannedBarcodeLogger;
+
+    @Inject
+    private BarcodeEventPublisher barcodeEventPublisher;
+
+    @RequestMapping(value = "mode", method = RequestMethod.GET)
+    public ServiceResult<ProcessorMode> getMode() {
+        return this.produce("Mode", () -> this.barcodeProcessor.getMode());
+    }
+
+    @RequestMapping(value = "log", method = RequestMethod.GET)
+    public ServiceResult<List<String>> getLog() {
+        return this.produce("LogLines", () -> this.scannedBarcodeLogger.getLogLines());
+    }
+
+    @RequestMapping(value = "barcodeScanned/{barcode}", method = RequestMethod.POST)
+    public ServiceResult<Void> simulateBarcodeScan(@PathVariable("barcode") final String barcode) {
+        return this.run(() -> this.barcodeEventPublisher.publishBarcodeEvent(barcode));
+    }
 
 }

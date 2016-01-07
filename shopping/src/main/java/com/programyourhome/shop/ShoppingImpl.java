@@ -9,7 +9,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import org.javamoney.moneta.internal.MoneyAmountBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +22,6 @@ import com.programyourhome.shop.dao.CompanyTypeRepository;
 import com.programyourhome.shop.dao.ProductAggregationRepository;
 import com.programyourhome.shop.dao.ProductRepository;
 import com.programyourhome.shop.model.EventAmount;
-import com.programyourhome.shop.model.ImageMimeType;
 import com.programyourhome.shop.model.PyhBarcodeSearchResult;
 import com.programyourhome.shop.model.PyhBulkProduct;
 import com.programyourhome.shop.model.PyhBulkProductProperties;
@@ -140,54 +138,6 @@ public class ShoppingImpl implements Shopping {
         this.serializationSettings.fixSerializationScopeTo(PieceUnit.class, UnitType.class);
 
         this.eventStore = new EventStore(this.host, this.port);
-    }
-
-    @PostConstruct
-    public void tempAddSomeData() {
-        final CompanyType supermarket = new CompanyType("Supermarket", "Where you can buy your groceries");
-        this.companyTypeRepository.save(supermarket);
-
-        Product p1 = new Product("Spappel", "SPA Fruit Appel", "1234", BigDecimal.valueOf(1.5), SizeUnit.VOLUME_LITER);
-        p1.setImage(new ProductImage(p1, ImageMimeType.PNG, "1234"));
-        p1 = this.productRepository.save(p1);
-        Product p11 = new Product("Spappel blikje", "SPA Fruit Appel Blikje", "12345", BigDecimal.valueOf(330), SizeUnit.VOLUME_MILLILITER);
-        p11.setImage(new ProductImage(p11, ImageMimeType.PNG, "12345"));
-        p11.addBulkProduct(new BulkProduct(p11, "6-pack spappel blikjes", "SPA Fruit Appel Blikjes in een 6 pack", "123456", 6));
-        p11 = this.productRepository.save(p11);
-
-        Product p2 = new Product("Pindakaas met nootjes", "AH Pindakaas met stukjes noot", "5678", BigDecimal.valueOf(400), SizeUnit.WEIGHT_GRAM);
-        p2.setImage(new ProductImage(p2, ImageMimeType.PNG, "5678"));
-        p2 = this.productRepository.save(p2);
-        Product p3 = new Product("Pindakaas zonder nootjes", "AH Pindakaas zonder stukjes noot", "90", BigDecimal.valueOf(0.5), SizeUnit.WEIGHT_KILOGRAM);
-        p3.setImage(new ProductImage(p3, ImageMimeType.PNG, "90"));
-        p3 = this.productRepository.save(p3);
-
-        final Company ah = new Company("AH", "Albert Heijn", supermarket);
-        final Department d1 = new Department(ah, "Groente & Fruit", "De versafdeling GFT");
-        final Department d2 = new Department(ah, "Frisdrank", "Drankies");
-        final Department d3 = new Department(ah, "Zoet beleg", "Belegjes");
-        ah.addDepartment(d1);
-        ah.addDepartment(d2);
-        ah.addDepartment(d3);
-
-        ah.addCompanyProduct(new CompanyProduct(ah, p1, d2, new MoneyAmountBuilder().setCurrency("EUR").setNumber(1.20).create(), null));
-        ah.addCompanyProduct(new CompanyProduct(ah, p2, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.35).create(), null));
-        ah.addCompanyProduct(new CompanyProduct(ah, p3, d3, new MoneyAmountBuilder().setCurrency("EUR").setNumber(2.30).create(), null));
-        final Shop s = new Shop(ah, "Hoofdstraat Driebergen", "De AH aan de hoofdstraat in Driebergen", "Hoofdstraat xx, Driebergen");
-        s.addShopDepartment(new ShopDepartment(s, d1, 1));
-        ah.addShop(s);
-        this.companyRepository.save(ah);
-
-        final ProductAggregation pa = this.productAggregationRepository.save(new ProductAggregation("Pindakaas", "Zoet broodbeleg pindakaas",
-                SizeUnit.WEIGHT_KILOGRAM, BigDecimal.valueOf(2), BigDecimal.valueOf(4)));
-        pa.addAggregationPart(new ProductAggregationPart(pa, p2, 1));
-        pa.addAggregationPart(new ProductAggregationPart(pa, p3, 2));
-        final ProductAggregation pa2 = this.productAggregationRepository.save(new ProductAggregation("Test aggr", "desc",
-                SizeUnit.VOLUME_LITER, BigDecimal.valueOf(3), BigDecimal.valueOf(10)));
-        pa2.addAggregationPart(new ProductAggregationPart(pa2, p1, 1));
-        pa2.addAggregationPart(new ProductAggregationPart(pa2, p11, 2));
-        this.productAggregationRepository.save(pa);
-        this.productAggregationRepository.save(pa2);
     }
 
     @Override

@@ -4,13 +4,12 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-import org.springframework.stereotype.Component;
-
 import com.programyourhome.server.events.MapValueChangedPoller;
 import com.programyourhome.shop.Shopping;
 import com.programyourhome.shop.model.PyhProductAggregationState;
 
-@Component
+//TODO: Fix: equals method outside of PyhImpl. Now not working anymore because it's a MrBean object.
+//@Component
 public class ProductAggregationStateChangedPoller extends MapValueChangedPoller<Integer, PyhProductAggregationState> {
 
     @Inject

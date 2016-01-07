@@ -61,6 +61,9 @@ public class InfraRedImpl implements InfraRed {
     @Value("${winlirc.port}")
     private int winlircPort;
 
+    @Value("${lirc.type}")
+    private LircType lircType;
+
     @Value("${keyPressInterval}")
     private int keyPressInterval;
 
@@ -88,7 +91,7 @@ public class InfraRedImpl implements InfraRed {
 
     public void initClient() {
         try {
-            this.winLircClient.connect(this.winlircHost, this.winlircPort);
+            this.winLircClient.connect(this.lircType, this.winlircHost, this.winlircPort);
         } catch (final IOException e) {
             throw new IllegalStateException("IOException while connecting the WinLIRC client.", e);
         }
@@ -218,9 +221,9 @@ public class InfraRedImpl implements InfraRed {
             this.deviceStates.get(deviceId).turnOn();
             this.pressRemoteKeyType(deviceId, KeyType.POWER);
             this.getDeviceById(deviceId).getEventSequences().stream()
-                    .filter(eventSequence -> eventSequence.getType() == EventSequenceType.AFTER_POWER_ON)
-                    .flatMap(eventSequence -> eventSequence.getPressKeys().stream())
-                    .forEach(keyId -> this.pressRemoteKeyId(deviceId, keyId));
+            .filter(eventSequence -> eventSequence.getType() == EventSequenceType.AFTER_POWER_ON)
+            .flatMap(eventSequence -> eventSequence.getPressKeys().stream())
+            .forEach(keyId -> this.pressRemoteKeyId(deviceId, keyId));
         }
     }
 

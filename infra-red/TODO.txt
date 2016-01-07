@@ -3,3 +3,5 @@
 - Colored keys as seperate group!
 - All remote definition files should have a newline at the end, otherwise combining script will create invalid results
   - document or adapt script (provision.sh) to add a newline after each file
+- Remove references to WinLIRC and make general LIRC, since we support that as well
+- Make a setting for WinLIRC / LIRC, since the protocol used is slightly different

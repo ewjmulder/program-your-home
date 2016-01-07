@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
+import com.programyourhome.ir.LircType;
+
 @Component
 public class WinLIRCClient {
 
@@ -51,12 +53,15 @@ public class WinLIRCClient {
     // actual refresh
     // If not sighup, print the received data and quit, since that is an unknown state atm. If no data ready to be read, that refresh action is done.
 
+    // TODO: Why not have the type, host and port props in here with @Value?
+
     private final Log log = LogFactory.getLog(this.getClass());
 
     @Inject
     @Qualifier("PyhExecutor")
     private TaskScheduler refreshScheduler;
 
+    private LircType lircType;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
@@ -76,7 +81,8 @@ public class WinLIRCClient {
         return this.remotes.values();
     }
 
-    public void connect(final String host, final int port) throws IOException {
+    public void connect(final LircType lircType, final String host, final int port) throws IOException {
+        this.lircType = lircType;
         this.socket = new Socket(host, port);
         this.out = new PrintWriter(this.socket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -116,7 +122,10 @@ public class WinLIRCClient {
 
     // TODO: validation of these values against the internal config
     private List<String> retrieveKeys(final WinLIRCRemote remote) throws IOException {
-        return this.sendCommand(COMMAND_LIST + " " + remote.getName()).getData();
+        return this.sendCommand(COMMAND_LIST + " " + remote.getName()).getData().stream()
+                // Difference between lirc and winlirc: lirc has a code before the key name.
+                .map(remoteLine -> this.lircType == LircType.WINLIRC ? remoteLine : remoteLine.split(" ")[1])
+                .collect(Collectors.toList());
     }
 
     public void pressRemoteKey(final String remoteName, final String key) {

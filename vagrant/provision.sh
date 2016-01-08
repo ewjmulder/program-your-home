@@ -35,31 +35,38 @@ echo debconf shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/deb
 echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo /usr/bin/debconf-set-selections >> $LOG_FILE 2>&1
 sudo apt-get install --yes oracle-java8-installer >> $LOG_FILE 2>&1
 
-echo "Installing IguanaIR & LIRC"
-# The following commands are taken from the Iguanaworks wiki pages on how to install on Ubuntu:
-# http://www.iguanaworks.net/wiki/doku.php?id=usbir:gettingstarted
-# http://www.iguanaworks.net/wiki/doku.php?id=usbir:compilelirc#compiling_under_ubuntu_deb
-# Note: IguanaIR transceiver must be connected during boot time or otherwise iguanaIR deamon must be restarted (at least in VM environment)
-echo "deb http://iguanaworks.net/downloads/debian binary-amd64/" | sudo tee /etc/apt/sources.list.d/iguanaworks.list >> $LOG_FILE 2>&1
-sudo apt-get update >> $LOG_FILE 2>&1
-# Needs auto-answers for selecting remote and transmitter. We select None for both, since we'll override the hardware.conf anyway.
-echo lirc lirc/remote select None | sudo /usr/bin/debconf-set-selections >> $LOG_FILE 2>&1
-echo lirc lirc/transmitter select None | sudo /usr/bin/debconf-set-selections >> $LOG_FILE 2>&1
-# Use --force-yes to install this unauthenticated package
-sudo apt-get install --yes --force-yes iguanair >> $LOG_FILE 2>&1
 
-echo "Adding 'iguanaIR' driver support to LIRC"
-# Unfortunately, this version of LIRC does not support the lircd.conf.d folder.
-# Eventually, we'd want to upgrade to a higher version on LIRC, which hopefully also has out-of-the-box support for the IguanaIR driver
-sudo apt-get build-dep --yes lirc >> $LOG_FILE 2>&1
-sudo apt-get -b source lirc >> $LOG_FILE 2>&1
-sudo dpkg -i lirc_0.*.deb >> $LOG_FILE 2>&1
-# After much tinkering, trial & error it turns out we only need to set the remote and transmitter driver for LIRC to work correctly.
-sudo cp /vagrant/config/lirc/hardware.conf /etc/lirc/hardware.conf >> $LOG_FILE 2>&1
+##### Update: disabled LIRC and IguanaIR installation. First of all, it's a bad idea to have the PYH server itself
+# run the Lirc, it should be on the machine that is near the devices. Secondly, it was working, but had big delays in actual IR
+# actions, resulting in unstable behavior.
+#####
+#echo "Installing IguanaIR & LIRC"
+## The following commands are taken from the Iguanaworks wiki pages on how to install on Ubuntu:
+## http://www.iguanaworks.net/wiki/doku.php?id=usbir:gettingstarted
+## http://www.iguanaworks.net/wiki/doku.php?id=usbir:compilelirc#compiling_under_ubuntu_deb
+## Note: IguanaIR transceiver must be connected during boot time or otherwise iguanaIR deamon must be restarted (at least in VM environment)
+#echo "deb http://iguanaworks.net/downloads/debian binary-amd64/" | sudo tee /etc/apt/sources.list.d/iguanaworks.list >> $LOG_FILE 2>&1
+#sudo apt-get update >> $LOG_FILE 2>&1
+## Needs auto-answers for selecting remote and transmitter. We select None for both, since we'll override the hardware.conf anyway.
+#echo lirc lirc/remote select None | sudo /usr/bin/debconf-set-selections >> $LOG_FILE 2>&1
+#echo lirc lirc/transmitter select None | sudo /usr/bin/debconf-set-selections >> $LOG_FILE 2>&1
+## Use --force-yes to install this unauthenticated package
+#sudo apt-get install --yes --force-yes iguanair >> $LOG_FILE 2>&1
+#
+#echo "Adding 'iguanaIR' driver support to LIRC"
+## Unfortunately, this version of LIRC does not support the lircd.conf.d folder.
+## Eventually, we'd want to upgrade to a higher version on LIRC, which hopefully also has out-of-the-box support for the IguanaIR driver
+#sudo apt-get build-dep --yes lirc >> $LOG_FILE 2>&1
+#sudo apt-get -b source lirc >> $LOG_FILE 2>&1
+#sudo dpkg -i lirc_0.*.deb >> $LOG_FILE 2>&1
+## After much tinkering, trial & error it turns out we only need to set the remote and transmitter driver for LIRC to work correctly.
+#sudo cp /vagrant/config/lirc/hardware.conf /etc/lirc/hardware.conf >> $LOG_FILE 2>&1
+#
+#echo "Starting iguanaworks and lirc services. Please note: IR will only work after a reboot!"
+#sudo /etc/init.d/iguanaIR start >> $LOG_FILE 2>&1
+#sudo /etc/init.d/lirc start >> $LOG_FILE 2>&1
+#####
 
-echo "Starting iguanaworks and lirc services. Please note: IR will only work after a reboot!"
-sudo /etc/init.d/iguanaIR start >> $LOG_FILE 2>&1
-sudo /etc/init.d/lirc start >> $LOG_FILE 2>&1
 
 echo "Installing & configuring PostgreSQL"
 sudo apt-get install --yes postgresql postgresql-contrib >> $LOG_FILE 2>&1

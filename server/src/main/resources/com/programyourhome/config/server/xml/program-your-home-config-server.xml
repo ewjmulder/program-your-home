@@ -338,7 +338,7 @@
             <activity>
                 <id>3</id>
                 <name>Wii</name>
-                <description>Spelen met de Wii</description>
+                <description>Play on the Wii.</description>
                 <icon>wii.png</icon>
                 <modules>
                     <infraRed>
@@ -348,7 +348,12 @@
                                 <turnOn>true</turnOn>
                                 <input>AV 6</input>
                             </device>
+                            <device>
+                                <id>3</id>
+                                <turnOn>true</turnOn>
+                            </device>
                         </devices>
+                        <volumeControl>1</volumeControl>
                     </infraRed>
                 </modules>
             </activity>

@@ -42,9 +42,13 @@ Vagrant.configure(2) do |config|
     vb.memory = 2048
     vb.cpus = 2
   
+    
     # Enable USB support and add custom filters.
-    vb.customize ['modifyvm', :id, '--usb', 'on']
-    vb.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'IguanaWorks USB IR Transceiver', '--manufacturer', 'IguanaWorks']
+    # Update: disabled USB support and disabled IguanaWorks 'takeover'. First of all, it's a bad idea to have the PYH server itself
+    # run the Lirc, it should be on the machine that is near the devices. Secondly, it was working, but had big delays in actual IR
+    # actions, resulting in unstable behavior.
+    #vb.customize ['modifyvm', :id, '--usb', 'on']
+    #vb.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'IguanaWorks USB IR Transceiver', '--manufacturer', 'IguanaWorks']
   end
   #
   # View the documentation for the provider you are using for more
@@ -55,6 +59,4 @@ Vagrant.configure(2) do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", path: "provision.sh"
 
-  # Starting the poc project
-  #config.vm.provision "shell", path: "boot.sh", run: "always", privileged: false
 end

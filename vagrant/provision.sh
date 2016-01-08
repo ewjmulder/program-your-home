@@ -158,4 +158,6 @@ sudo chown -R vagrant:vagrant /home/vagrant >> $LOG_FILE 2>&1
 echo "Finished Program Your Home provisioning script."
 echo "If you experience any problems with the setup, please check the logfile ("$LOG_FILE") for any error messages."
 
-echo "Please restart the VM with the IguanaWorks USB dongle plugged in the host machine to enable IR support"
+##### Update: disabled LIRC and IguanaIR installation. See above for details.
+#echo "Please restart the VM with the IguanaWorks USB dongle plugged in the host machine to enable IR support"
+#####

@@ -337,16 +337,16 @@
             </activity>
             <activity>
                 <id>3</id>
-                <name>Test activity</name>
-                <description>Just for testing</description>
-                <icon>night.png</icon>
+                <name>Wii</name>
+                <description>Spelen met de Wii</description>
+                <icon>wii.png</icon>
                 <modules>
                     <infraRed>
                         <devices>
                             <device>
                                 <id>1</id>
                                 <turnOn>true</turnOn>
-                                <input>HDMI 1</input>
+                                <input>AV 6</input>
                             </device>
                         </devices>
                     </infraRed>

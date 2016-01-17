@@ -26,7 +26,8 @@ public class PcInstructorServer {
         final SpringApplication application = new SpringApplication(springBootApplicationClass);
         // Headless should be disabled to use the java.awt.Robot.
         application.setHeadless(false);
-        application.run(new String[0]);
+        // TODO: Solve with real log level settings, doesn't work well with current config.
+        application.run(new String[] { "--debug" });
     }
 
 }

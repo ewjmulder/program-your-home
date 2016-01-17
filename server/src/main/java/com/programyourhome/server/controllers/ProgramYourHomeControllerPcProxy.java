@@ -69,7 +69,7 @@ public class ProgramYourHomeControllerPcProxy extends AbstractProgramYourHomeSer
      * @return
      * @throws URISyntaxException
      */
-    @RequestMapping(value = "/**", produces = "application/json", method = { RequestMethod.PUT, RequestMethod.POST })
+    @RequestMapping(value = "/**", consumes = "application/json", produces = "application/json", method = { RequestMethod.PUT, RequestMethod.POST })
     public String proxyWithRequestBody(@RequestBody final String body, final HttpMethod method, final HttpServletRequest request) throws Exception {
         return this.proxy(method, request, body);
     }

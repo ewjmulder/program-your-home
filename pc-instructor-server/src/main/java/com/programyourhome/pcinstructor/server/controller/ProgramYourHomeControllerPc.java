@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programyourhome.common.controller.AbstractProgramYourHomeController;
 import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.pcinstructor.PcInstructor;
+import com.programyourhome.pcinstructor.model.KeyPress;
 import com.programyourhome.pcinstructor.model.MouseClick;
 import com.programyourhome.pcinstructor.model.MouseScroll;
 import com.programyourhome.pcinstructor.model.PyhDimension;
@@ -56,8 +57,13 @@ public class ProgramYourHomeControllerPc extends AbstractProgramYourHomeControll
     }
 
     @RequestMapping(value = "mouse/scroll", method = RequestMethod.POST, consumes = MIME_JSON)
-    public ServiceResult<Void> scrollMouseUp(@RequestBody final MouseScroll mouseScroll) {
+    public ServiceResult<Void> scrollMouse(@RequestBody final MouseScroll mouseScroll) {
         return this.run(() -> this.pcInstructor.scrollMouse(mouseScroll));
+    }
+
+    @RequestMapping(value = "key/press", method = RequestMethod.POST, consumes = MIME_JSON)
+    public ServiceResult<Void> pressKey(@RequestBody final KeyPress keyPress) {
+        return this.run(() -> this.pcInstructor.pressKey(keyPress));
     }
 
 }

@@ -8,25 +8,25 @@ import org.springframework.stereotype.Component;
 
 import com.programyourhome.server.events.MapValueChangedPoller;
 import com.programyourhome.shop.Shopping;
-import com.programyourhome.shop.model.PyhProductAggregationState;
+import com.programyourhome.shop.model.PyhProductState;
 
 @Component
-public class ProductAggregationStateChangedPoller extends MapValueChangedPoller<Integer, PyhProductAggregationState> {
+public class ProductStateChangedPoller extends MapValueChangedPoller<Integer, PyhProductState> {
 
     @Inject
     private Shopping shopping;
 
-    public ProductAggregationStateChangedPoller() {
-        super(PyhProductAggregationState.class, ProductAggregationStateChangedEvent.class);
+    public ProductStateChangedPoller() {
+        super(PyhProductState.class, ProductStateChangedEvent.class);
     }
 
     @Override
-    protected Collection<PyhProductAggregationState> getCurrentCollection() {
-        return this.shopping.getProductAggregationStates();
+    protected Collection<PyhProductState> getCurrentCollection() {
+        return this.shopping.getProductStates();
     }
 
     @Override
-    protected Integer getKey(final PyhProductAggregationState item) {
+    protected Integer getKey(final PyhProductState item) {
         return item.getId();
     }
 

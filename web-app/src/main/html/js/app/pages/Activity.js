@@ -52,6 +52,17 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 				this.drawTouchPadImage(rmbContentElement, "touchpad-rmb.png");
 				this.configureTouchEvents();
 			}
+			if (activity.keyboardActivity) {
+				var typeInputElement = document.getElementById("type-activity-" + activityId);
+				$(typeInputElement).keyup(function (event) {
+					// If any actual character entry has been made.
+					if (typeInputElement.value.length > 0) {
+						var character = typeInputElement.value[0];
+						api.pressCharacterKey(character);
+						typeInputElement.value = "";
+					}
+				});
+			}
 		}
 		
 		this.drawTouchPadImage = function (contentElement, imageFilename) {

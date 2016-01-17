@@ -6,12 +6,15 @@ import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.functional.FailableRunnable;
+import com.programyourhome.pcinstructor.model.KeyPress;
 import com.programyourhome.pcinstructor.model.MouseButton;
 import com.programyourhome.pcinstructor.model.MouseScroll;
 import com.programyourhome.pcinstructor.model.PyhDimension;
@@ -22,6 +25,9 @@ import com.programyourhome.pcinstructor.model.ScrollDirection;
 
 @Component
 public class PcInstructorImpl implements PcInstructor {
+
+    // TODO: make configurable
+    private static final int DEFAULT_KEY_PRESS_MILLIS = 50;
 
     private static final int MOUSE_BUTTON_LEFT = InputEvent.BUTTON1_DOWN_MASK;
     private static final int MOUSE_BUTTON_MIDDLE = InputEvent.BUTTON2_DOWN_MASK;
@@ -52,13 +58,13 @@ public class PcInstructorImpl implements PcInstructor {
     }
 
     @Override
-    public void moveMouseAbsolute(final int x, final int y) {
+    public synchronized void moveMouseAbsolute(final int x, final int y) {
         this.log.trace("Moving mouse (absolute) to position: (" + x + ", " + y + ").");
         this.tryRobot(() -> this.robot.mouseMove(x, y));
     }
 
     @Override
-    public void moveMouseRelative(final int dx, final int dy) {
+    public synchronized void moveMouseRelative(final int dx, final int dy) {
         final PyhPoint mousePosition = this.getMousePosition();
         final int newX = mousePosition.getX() + dx;
         final int newY = mousePosition.getY() + dy;
@@ -67,7 +73,7 @@ public class PcInstructorImpl implements PcInstructor {
     }
 
     @Override
-    public void clickMouseButton(final MouseButton mouseButton) {
+    public synchronized void clickMouseButton(final MouseButton mouseButton) {
         if (mouseButton == MouseButton.LEFT) {
             this.clickLeftMouseButton();
         } else if (mouseButton == MouseButton.MIDDLE) {
@@ -80,21 +86,21 @@ public class PcInstructorImpl implements PcInstructor {
     }
 
     @Override
-    public void clickLeftMouseButton() {
+    public synchronized void clickLeftMouseButton() {
         this.clickMouseButton(MOUSE_BUTTON_LEFT);
     }
 
     @Override
-    public void clickMiddleMouseButton() {
+    public synchronized void clickMiddleMouseButton() {
         this.clickMouseButton(MOUSE_BUTTON_MIDDLE);
     }
 
     @Override
-    public void clickRightMouseButton() {
+    public synchronized void clickRightMouseButton() {
         this.clickMouseButton(MOUSE_BUTTON_RIGHT);
     }
 
-    public void clickMouseButton(final int buttonMask) {
+    private void clickMouseButton(final int buttonMask) {
         this.tryRobot(() -> {
             this.robot.mousePress(buttonMask);
             this.robot.mouseRelease(buttonMask);
@@ -102,7 +108,7 @@ public class PcInstructorImpl implements PcInstructor {
     }
 
     @Override
-    public void scrollMouse(final MouseScroll mouseScroll) {
+    public synchronized void scrollMouse(final MouseScroll mouseScroll) {
         if (mouseScroll.getDirection() == ScrollDirection.UP) {
             this.scrollMouseUp(mouseScroll.getAmount());
         } else if (mouseScroll.getDirection() == ScrollDirection.DOWN) {
@@ -113,14 +119,44 @@ public class PcInstructorImpl implements PcInstructor {
     }
 
     @Override
-    public void scrollMouseUp(final int amount) {
+    public synchronized void scrollMouseUp(final int amount) {
         // A negative amount means up.
         this.tryRobot(() -> this.robot.mouseWheel(-1 * amount));
     }
 
     @Override
-    public void scrollMouseDown(final int amount) {
+    public synchronized void scrollMouseDown(final int amount) {
         this.tryRobot(() -> this.robot.mouseWheel(amount));
+    }
+
+    @Override
+    public synchronized void pressKey(final KeyPress keyPress) {
+        this.tryRobot(() -> {
+            this.conditionalKeyFunction(keyPress.isShift(), KeyEvent.VK_SHIFT, this.robot::keyPress);
+            this.conditionalKeyFunction(keyPress.isControl(), KeyEvent.VK_CONTROL, this.robot::keyPress);
+            this.conditionalKeyFunction(keyPress.isAlt(), KeyEvent.VK_ALT, this.robot::keyPress);
+            this.conditionalKeyFunction(keyPress.isSuper(), KeyEvent.VK_WINDOWS, this.robot::keyPress);
+            this.robot.keyPress(keyPress.getKey().getKeyCode());
+
+            // Wait for the specified key-press time.
+            if (keyPress.getMillis() != null) {
+                this.robot.delay(keyPress.getMillis());
+            } else {
+                this.robot.delay(DEFAULT_KEY_PRESS_MILLIS);
+            }
+
+            this.robot.keyRelease(keyPress.getKey().getKeyCode());
+            this.conditionalKeyFunction(keyPress.isSuper(), KeyEvent.VK_WINDOWS, this.robot::keyRelease);
+            this.conditionalKeyFunction(keyPress.isAlt(), KeyEvent.VK_ALT, this.robot::keyRelease);
+            this.conditionalKeyFunction(keyPress.isControl(), KeyEvent.VK_CONTROL, this.robot::keyRelease);
+            this.conditionalKeyFunction(keyPress.isShift(), KeyEvent.VK_SHIFT, this.robot::keyRelease);
+        });
+    }
+
+    private void conditionalKeyFunction(final boolean condition, final int keyCode, final Consumer<Integer> keyFunction) {
+        if (condition) {
+            keyFunction.accept(keyCode);
+        }
     }
 
     private void tryRobot(final FailableRunnable<Exception> tryBlock) {

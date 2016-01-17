@@ -1,5 +1,6 @@
 package com.programyourhome.pcinstructor;
 
+import com.programyourhome.pcinstructor.model.KeyPress;
 import com.programyourhome.pcinstructor.model.MouseButton;
 import com.programyourhome.pcinstructor.model.MouseScroll;
 import com.programyourhome.pcinstructor.model.PyhDimension;
@@ -29,10 +30,10 @@ public interface PcInstructor {
 
     public void scrollMouseDown(int amount);
 
-    // TODO: scrolling, pressing keys
+    public void pressKey(KeyPress keyPress);
 
     // TODO: other PC commands, like booting a program, etc.
 
-    // TODO: a way to get info on current running system? (mouse position, open programs, etc)
+    // TODO: a way to get info on current running system? (open programs, etc)
 
 }

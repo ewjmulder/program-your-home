@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -48,7 +49,7 @@ public abstract class ValueChangedPoller<T> implements Poller {
     public void poll() {
         final T currentValue = this.getCurrentValue();
         // Design choice: we don't publish an event if there is no old value yet.
-        if (this.lastPolledValue != null && !currentValue.equals(this.lastPolledValue)) {
+        if (this.lastPolledValue != null && !EqualsBuilder.reflectionEquals(this.lastPolledValue, currentValue, false)) {
             try {
                 // Get the declared constructor with 2 arguments of type T: the old and the new value.
                 final Constructor<? extends ValueChangedEvent<T>> constructor =

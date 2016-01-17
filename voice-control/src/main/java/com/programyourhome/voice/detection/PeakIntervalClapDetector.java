@@ -9,7 +9,7 @@ import com.programyourhome.voice.format.PyhAudioFormat;
 @Scope("prototype")
 public class PeakIntervalClapDetector implements ClapDetector {
 
-    // TODO: 80/50/10 works quite nicely, but it can still miss a slightly silent clap that does not produce enough peaks
+    // TODO: 95/50/10 works quite nicely, but it can still miss a slightly silent clap that does not produce enough peaks
     // above the 80% mark. Idea: more general analysis of peaks over time to detect typical clapping pattern (see audacity)
     // For instance: take sections of 20 millis, from the moment of the first peak and over 10 of these sections,
     // take the average volume percentage. Of those 10 averages, you should be able to draw the conclusion if it

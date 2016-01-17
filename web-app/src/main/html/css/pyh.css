@@ -54,20 +54,6 @@ img.grayscale {
 a.button,
 span.button,
 select,
-input[type="text"]
-{
-	box-sizing: border-box;
-	border-radius: 5px;
-	text-transform: none;
-	text-indent: 0;
-	font-weight: bold;
-	vertical-align: middle;
-	line-height: 20px;
-	display: block;
-	height: 40px;
-	width: 100%;
-	padding: 10px;
-}
 a.button,
 span.button
 {

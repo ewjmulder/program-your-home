@@ -14,14 +14,14 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 	var Resource = enums.Resource;
 	var RestVerb = enums.RestVerb;
 	
+	//TODO: get rid of non-REST params in urls
 	var SET_CHANNEL_DEVICE = "ir/devices/{0}/channel/set/{1}";
 	var SET_CHANNEL_ACTIVITY = "main/activities/{0}/channel/set/{1}";
-	var GET_MOUSE_POSITION = "pc/mouse/position";
-	var MOUSE_MOVE_ABSOLUTE = "pc/mouse/moveAbsolute/{0},{1}";
-	var MOUSE_MOVE_RELATIVE = "pc/mouse/moveRelative/{0},{1}";
-	var MOUSE_CLICK_LEFT = "pc/mouse/click/left";
-	var MOUSE_CLICK_MIDDLE = "pc/mouse/click/middle";
-	var MOUSE_CLICK_RIGHT = "pc/mouse/click/right";
+	var MOUSE_POSITION = "pc/mouse/position";
+	var MOUSE_POSITION = "pc/mouse/position";
+	var MOUSE_POSITION_RELATIVE = "pc/mouse/position/relative";
+	var MOUSE_CLICK = "pc/mouse/click";
+	var KEY_PRESS = "pc/key/press";
 	
 	// The PYH modules that are available on the server. Filtered by what is running on the server and maybe other filters, like authorization.
 	var availableModules = [];
@@ -79,15 +79,31 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 		return rest.verb(resource, id, verbToUse);
 	};
 	
-	// Perform an action by getting a certain URL. This can be seen as a remote method invocation.
+	function put(url, data) {
+		return performAction("put", url, data);
+	};
+	
+	function post(url, data) {
+		return performAction("post", url, data);
+	};
+	
+	// Perform an action by posting or putting a certain URL with a certain payload.
+	// This can be used as an alternative to 'pure' REST, a sort of remote method invocation.
 	// There will be no return value payload, but there can be a server error.
 	// A promise is returned in case the caller wants to act on the success/failure of the action.
-	function performAction(actionUrl) {
+	function performAction(type, actionUrl, data) {
 		var loading = $.Deferred();
 		var url = config.getValue("serverUrl") + actionUrl;
 		log.trace("Performing server action url: '" + url + "'.");
-		$.get(url, function (result) {
-			util.handleServiceResult(result, loading.reject, loading.resolve);	
+		$.ajax({
+		    url: url,
+		    type: type,
+		    data: JSON.stringify(data),
+		    dataType: "json",
+		    contentType: "application/json",
+		    success: function (result) {
+				util.handleServiceResult(result, loading.reject, loading.resolve);	
+		    }
 		})
 		.fail(util.createXHRFailFunction("url: " + url))
 		.fail(loading.reject);
@@ -164,7 +180,7 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 
 		// Get the position of the mouse on the server.
 		getMousePosition: function () {
-			return getDataPromise(GET_MOUSE_POSITION);
+			return getDataPromise(MOUSE_POSITION);
 		},
 
 		// ********************************************************************
@@ -311,22 +327,37 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 		},
 		
 		moveMouseAbsolute: function (x, y) {
-			return performAction(MOUSE_MOVE_ABSOLUTE.format(x, y));
+			return put(MOUSE_POSITION, {x: x, y: y});
 		},
 		moveMouseRelative: function (dx, dy) {
-			return performAction(MOUSE_MOVE_RELATIVE.format(dx, dy));
+			return post(MOUSE_POSITION_RELATIVE, {dx: dx, dy: dy});
 		},
 		clickLeftMouseButton: function () {
-			return performAction(MOUSE_CLICK_LEFT);
+			return post(MOUSE_CLICK, {button: "LEFT"});
 		},
 		clickMiddleMouseButton: function () {
-			return performAction(MOUSE_CLICK_MIDDLE);
+			return post(MOUSE_CLICK, {button: "MIDDLE"});
 		},
 		clickRightMouseButton: function () {
-			return performAction(MOUSE_CLICK_RIGHT);
+			return post(MOUSE_CLICK, {button: "RIGHT"});
 		},
+		pressCharacterKey: function (character) {
+			// Catch any special cases:
+			if (character == ' ') {
+				this.pressSpecialKey("spacebar");
+			}
+			var shiftCombo = character >= 'A' && character <= 'Z';
+			this.pressKey(character.toUpperCase(), shiftCombo, false, false, false);
+		},
+		pressSpecialKey: function (keyName) {
+			this.pressKey(keyName, false, false, false, false);
+		},
+		pressKey: function (keyName, shiftCombo, controlCombo, altCombo, superCombo) {
+			var apiKeyName = "KEY_" + keyName.toUpperCase();
+			// 'super' is a javascript reserved keyword, hence the quotes.
+			return post(KEY_PRESS, {key: apiKeyName, shift: shiftCombo, control: controlCombo, alt: altCombo, "super": superCombo});
+		},		
 	};
-
 
 
 // End of require module.

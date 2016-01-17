@@ -58,6 +58,13 @@
 				<div style="position: absolute; top: 167px; left: 0px;" id="draw-activity-lmb-{{id}}"></div>
 				<div style="position: absolute; top: 167px; left: 130px;" id="draw-activity-rmb-{{id}}"></div>
 			</div>
+			<!-- TODO: Probably a nicer CSS trick exists for creating extra newlines / whitespace. -->
+			<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+		{{/if}}
+		{{#if keyboardActivity}}
+			Keyboard control:<br />
+			Type text: <input id="type-activity-{{id}}" type="text" size="10" /><br />
+			Special keys: <input type="button" value="Backspace" onClick="api.pressSpecialKey('backspace');" />
 		{{/if}}
 	</div>
 {{/with}}

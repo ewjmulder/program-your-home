@@ -341,13 +341,17 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 		clickRightMouseButton: function () {
 			return post(MOUSE_CLICK, {button: "RIGHT"});
 		},
-		pressCharacterKey: function (character) {
-			// Catch any special cases:
-			if (character == ' ') {
-				this.pressSpecialKey("spacebar");
+		pressCharacterKeys: function (characters) {
+			for (var i = 0; i < characters.length; i++) {
+				var character = characters.charAt(i);
+				// Catch any special cases:
+				if (character == ' ') {
+					this.pressSpecialKey("spacebar");
+				} else {
+					var shiftCombo = character >= 'A' && character <= 'Z';
+					this.pressKey(character.toUpperCase(), shiftCombo, false, false, false);
+				}
 			}
-			var shiftCombo = character >= 'A' && character <= 'Z';
-			this.pressKey(character.toUpperCase(), shiftCombo, false, false, false);
 		},
 		pressSpecialKey: function (keyName) {
 			this.pressKey(keyName, false, false, false, false);

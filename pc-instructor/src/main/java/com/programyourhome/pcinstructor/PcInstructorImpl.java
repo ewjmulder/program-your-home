@@ -132,7 +132,8 @@ public class PcInstructorImpl implements PcInstructor {
     @Override
     public synchronized void pressKey(final KeyPress keyPress) {
         this.tryRobot(() -> {
-            this.conditionalKeyFunction(keyPress.isShift(), KeyEvent.VK_SHIFT, this.robot::keyPress);
+            final boolean withShift = keyPress.isShift() || keyPress.getKey().isShift();
+            this.conditionalKeyFunction(withShift, KeyEvent.VK_SHIFT, this.robot::keyPress);
             this.conditionalKeyFunction(keyPress.isControl(), KeyEvent.VK_CONTROL, this.robot::keyPress);
             this.conditionalKeyFunction(keyPress.isAlt(), KeyEvent.VK_ALT, this.robot::keyPress);
             this.conditionalKeyFunction(keyPress.isSuper(), KeyEvent.VK_WINDOWS, this.robot::keyPress);
@@ -149,7 +150,7 @@ public class PcInstructorImpl implements PcInstructor {
             this.conditionalKeyFunction(keyPress.isSuper(), KeyEvent.VK_WINDOWS, this.robot::keyRelease);
             this.conditionalKeyFunction(keyPress.isAlt(), KeyEvent.VK_ALT, this.robot::keyRelease);
             this.conditionalKeyFunction(keyPress.isControl(), KeyEvent.VK_CONTROL, this.robot::keyRelease);
-            this.conditionalKeyFunction(keyPress.isShift(), KeyEvent.VK_SHIFT, this.robot::keyRelease);
+            this.conditionalKeyFunction(withShift, KeyEvent.VK_SHIFT, this.robot::keyRelease);
         });
     }
 

@@ -57,8 +57,7 @@ define(["jquery", "BasePage", "enums", "pages", "hammer", "log", "api"],
 				$(typeInputElement).keyup(function (event) {
 					// If any actual character entry has been made.
 					if (typeInputElement.value.length > 0) {
-						var character = typeInputElement.value[0];
-						api.pressCharacterKey(character);
+						api.pressCharacterKeys(typeInputElement.value);
 						typeInputElement.value = "";
 					}
 				});

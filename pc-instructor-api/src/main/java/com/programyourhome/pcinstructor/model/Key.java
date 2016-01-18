@@ -30,6 +30,7 @@ public enum Key {
     KEY_X(KeyEvent.VK_X),
     KEY_Y(KeyEvent.VK_Y),
     KEY_Z(KeyEvent.VK_Z),
+    
     KEY_0(KeyEvent.VK_0),
     KEY_1(KeyEvent.VK_1),
     KEY_2(KeyEvent.VK_2),
@@ -41,18 +42,36 @@ public enum Key {
     KEY_8(KeyEvent.VK_8),
     KEY_9(KeyEvent.VK_9),
 
+    KEY_TILDE(KeyEvent.VK_BACK_QUOTE, true),
+    KEY_COMMA(KeyEvent.VK_COMMA),
+    KEY_PERIOD(KeyEvent.VK_PERIOD),
+    KEY_COLON(KeyEvent.VK_COLON),
+    KEY_SEMICOLON(KeyEvent.VK_SEMICOLON),
+    KEY_SINGLE_QUOTE(KeyEvent.VK_QUOTE),
+    KEY_DOUBLE_QUOTE(KeyEvent.VK_QUOTEDBL),
+
     KEY_SPACEBAR(KeyEvent.VK_SPACE),
     KEY_BACKSPACE(KeyEvent.VK_BACK_SPACE),
     KEY_SUPER(KeyEvent.VK_WINDOWS);
 
     private int keyCode;
+    private boolean shift;
 
     private Key(final int keyCode) {
+        this(keyCode, false);
+    }
+    
+    private Key(final int keyCode, final boolean shift) {
         this.keyCode = keyCode;
+        this.shift = shift;
     }
 
     public int getKeyCode() {
         return this.keyCode;
+    }
+    
+    public boolean isShift() {
+        return shift;
     }
 
 }

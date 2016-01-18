@@ -5,8 +5,8 @@
 //
 // Note: the api implementation assumes that all callers of api methods will check beforehand if the module they are trying to reach is available or not.
 // If a called tries to reach a non-available module, the api behavior is undefined and will most probably result in an error.
-define(["jquery", "rest", "config", "util", "enums", "log"],
-		function ($, rest, config, util, enums, log) {
+define(["jquery", "rest", "ajaxQueue", "config", "util", "enums", "log"],
+		function ($, rest, ajaxQueue, config, util, enums, log) {
 	
 	// Save enum types from modules in local variables for easier accessing.
 	var HttpMethod = enums.HttpMethod;
@@ -18,10 +18,11 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 	var SET_CHANNEL_DEVICE = "ir/devices/{0}/channel/set/{1}";
 	var SET_CHANNEL_ACTIVITY = "main/activities/{0}/channel/set/{1}";
 	var MOUSE_POSITION = "pc/mouse/position";
-	var MOUSE_POSITION = "pc/mouse/position";
 	var MOUSE_POSITION_RELATIVE = "pc/mouse/position/relative";
 	var MOUSE_CLICK = "pc/mouse/click";
+	var MOUSE_SCROLL = "pc/mouse/scroll";
 	var KEY_PRESS = "pc/key/press";
+	var KEY_WRITE = "pc/key/write";
 	
 	// The PYH modules that are available on the server. Filtered by what is running on the server and maybe other filters, like authorization.
 	var availableModules = [];
@@ -83,19 +84,33 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 		return performAction("put", url, data);
 	};
 	
+	function put(url, data, queue) {
+		return performAction("put", url, data, queue);
+	};
+	
 	function post(url, data) {
 		return performAction("post", url, data);
+	};
+	
+	function post(url, data, queue) {
+		return performAction("post", url, data, queue);
+	};
+	
+	function performAction(type, actionUrl, data) {
+		// Default not in queue, so could be delivered in 'wrong' order.
+		performAction(type, actionUrl, data, false);
 	};
 	
 	// Perform an action by posting or putting a certain URL with a certain payload.
 	// This can be used as an alternative to 'pure' REST, a sort of remote method invocation.
 	// There will be no return value payload, but there can be a server error.
 	// A promise is returned in case the caller wants to act on the success/failure of the action.
-	function performAction(type, actionUrl, data) {
+	function performAction(type, actionUrl, data, queue) {
 		var loading = $.Deferred();
 		var url = config.getValue("serverUrl") + actionUrl;
 		log.trace("Performing server action url: '" + url + "'.");
-		$.ajax({
+		var ajaxMethod = queue ? $.ajaxQueue : $.ajax;
+		ajaxMethod({
 		    url: url,
 		    type: type,
 		    data: JSON.stringify(data),
@@ -327,31 +342,28 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 		},
 		
 		moveMouseAbsolute: function (x, y) {
-			return put(MOUSE_POSITION, {x: x, y: y});
+			return put(MOUSE_POSITION, {x: x, y: y}, true);
 		},
 		moveMouseRelative: function (dx, dy) {
 			return post(MOUSE_POSITION_RELATIVE, {dx: dx, dy: dy});
 		},
 		clickLeftMouseButton: function () {
-			return post(MOUSE_CLICK, {button: "LEFT"});
+			return post(MOUSE_CLICK, {button: "LEFT"}, true);
 		},
 		clickMiddleMouseButton: function () {
-			return post(MOUSE_CLICK, {button: "MIDDLE"});
+			return post(MOUSE_CLICK, {button: "MIDDLE"}, true);
 		},
 		clickRightMouseButton: function () {
-			return post(MOUSE_CLICK, {button: "RIGHT"});
+			return post(MOUSE_CLICK, {button: "RIGHT"}, true);
+		},
+		scrollMouseUp: function (amount) {
+			return post(MOUSE_SCROLL, {direction: "UP", amount: amount}, true);
+		},
+		scrollMouseDown: function (amount) {
+			return post(MOUSE_SCROLL, {direction: "DOWN", amount: amount}, true);
 		},
 		pressCharacterKeys: function (characters) {
-			for (var i = 0; i < characters.length; i++) {
-				var character = characters.charAt(i);
-				// Catch any special cases:
-				if (character == ' ') {
-					this.pressSpecialKey("spacebar");
-				} else {
-					var shiftCombo = character >= 'A' && character <= 'Z';
-					this.pressKey(character.toUpperCase(), shiftCombo, false, false, false);
-				}
-			}
+			return post(KEY_WRITE, {text: unescape(encodeURIComponent(characters))}, true);
 		},
 		pressSpecialKey: function (keyName) {
 			this.pressKey(keyName, false, false, false, false);
@@ -359,7 +371,7 @@ define(["jquery", "rest", "config", "util", "enums", "log"],
 		pressKey: function (keyName, shiftCombo, controlCombo, altCombo, superCombo) {
 			var apiKeyName = "KEY_" + keyName.toUpperCase();
 			// 'super' is a javascript reserved keyword, hence the quotes.
-			return post(KEY_PRESS, {key: apiKeyName, shift: shiftCombo, control: controlCombo, alt: altCombo, "super": superCombo});
+			return post(KEY_PRESS, {key: apiKeyName, shift: shiftCombo, control: controlCombo, alt: altCombo, "super": superCombo}, true);
 		},		
 	};
 

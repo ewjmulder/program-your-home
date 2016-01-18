@@ -16,6 +16,7 @@ import com.programyourhome.pcinstructor.model.MouseScroll;
 import com.programyourhome.pcinstructor.model.PyhDimension;
 import com.programyourhome.pcinstructor.model.PyhDistance;
 import com.programyourhome.pcinstructor.model.PyhPoint;
+import com.programyourhome.pcinstructor.model.Text;
 
 @RestController
 @RequestMapping("pc")
@@ -64,6 +65,11 @@ public class ProgramYourHomeControllerPc extends AbstractProgramYourHomeControll
     @RequestMapping(value = "key/press", method = RequestMethod.POST, consumes = MIME_JSON)
     public ServiceResult<Void> pressKey(@RequestBody final KeyPress keyPress) {
         return this.run(() -> this.pcInstructor.pressKey(keyPress));
+    }
+
+    @RequestMapping(value = "key/write", method = RequestMethod.POST, consumes = MIME_JSON)
+    public ServiceResult<Void> writeText(@RequestBody final Text text) {
+        return this.run(() -> this.pcInstructor.writeText(text.getText()));
     }
 
 }

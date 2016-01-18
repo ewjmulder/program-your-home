@@ -59,12 +59,20 @@
 				<div style="position: absolute; top: 167px; left: 130px;" id="draw-activity-rmb-{{id}}"></div>
 			</div>
 			<!-- TODO: Probably a nicer CSS trick exists for creating extra newlines / whitespace. -->
-			<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+			<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+			<input style="position: relative; z-index: 1;" type="button" value="  UP  " onClick="api.scrollMouseUp(10);" /><br />
+			<input style="position: relative; z-index: 1;" type="button" value="DOWN" onClick="api.scrollMouseDown(10);" />
+			<br /><br /><br />
 		{{/if}}
 		{{#if keyboardActivity}}
 			Keyboard control:<br />
 			Type text: <input id="type-activity-{{id}}" type="text" size="10" /><br />
-			Special keys: <input type="button" value="Backspace" onClick="api.pressSpecialKey('backspace');" />
+			Special keys:
+			<input type="button" value="Enter" onClick="api.pressSpecialKey('enter');" />
+			<input type="button" value="Backspace" onClick="api.pressSpecialKey('backspace');" />
+			<input type="button" value="Delete" onClick="api.pressSpecialKey('delete');" />
+			<input type="button" value="Home" onClick="api.pressSpecialKey('home');" />
+			<input type="button" value="End" onClick="api.pressSpecialKey('end');" />
 		{{/if}}
 	</div>
 {{/with}}

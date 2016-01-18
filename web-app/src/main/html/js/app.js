@@ -5,8 +5,9 @@ requirejs.config({
 		jquery: 'jquery-2.1.1.min',
 		mmenu: 'jquery.mmenu.min.all',
 		jqrest: 'jquery.rest.min',
+		ajaxQueue: 'jquery.ajaxQueue.min',
 		handlebars: 'handlebars-v3.0.1.min',
-		knockout: 'debug/knockout.3.3.0.debug',
+		knockout: 'knockout.3.3.0.min',
 		hammer: 'hammer-2.0.4.min',
 		toast: 'jquery.toastmessage',
 		stomp: 'stomp.min',
@@ -51,6 +52,9 @@ requirejs.config({
 			deps: ['jquery']
 		},
 		'toast': {
+			deps: ['jquery'],
+		},
+		'ajaxQueue': {
 			deps: ['jquery'],
 		},
 		// Handlebars uses an 'old school' global object, so we need to expose that.

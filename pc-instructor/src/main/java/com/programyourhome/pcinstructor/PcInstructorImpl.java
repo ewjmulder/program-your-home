@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import com.programyourhome.common.functional.FailableRunnable;
+import com.programyourhome.pcinstructor.model.Key;
 import com.programyourhome.pcinstructor.model.KeyPress;
 import com.programyourhome.pcinstructor.model.MouseButton;
 import com.programyourhome.pcinstructor.model.MouseScroll;
@@ -27,7 +28,7 @@ import com.programyourhome.pcinstructor.model.ScrollDirection;
 public class PcInstructorImpl implements PcInstructor {
 
     // TODO: make configurable
-    private static final int DEFAULT_KEY_PRESS_MILLIS = 50;
+    private static final int DEFAULT_KEY_PRESS_MILLIS = 20;
 
     private static final int MOUSE_BUTTON_LEFT = InputEvent.BUTTON1_DOWN_MASK;
     private static final int MOUSE_BUTTON_MIDDLE = InputEvent.BUTTON2_DOWN_MASK;
@@ -152,6 +153,51 @@ public class PcInstructorImpl implements PcInstructor {
             this.conditionalKeyFunction(keyPress.isControl(), KeyEvent.VK_CONTROL, this.robot::keyRelease);
             this.conditionalKeyFunction(withShift, KeyEvent.VK_SHIFT, this.robot::keyRelease);
         });
+    }
+
+    @Override
+    public void writeText(final String text) {
+        for (final char character : text.toCharArray()) {
+            // Just skip '\r' to get clean newlines in every format.
+            if (character != '\r') {
+                final Key key = Key.getKeyByCharacter(Character.toLowerCase(character));
+                if (key != null) {
+                    this.pressKey(new KeyPress() {
+                        @Override
+                        public Key getKey() {
+                            return key;
+                        }
+
+                        @Override
+                        public Integer getMillis() {
+                            return null;
+                        }
+
+                        @Override
+                        public boolean isShift() {
+                            return character >= 'A' && character <= 'Z';
+                        }
+
+                        @Override
+                        public boolean isControl() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isAlt() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isSuper() {
+                            return false;
+                        }
+                    });
+                } else {
+                    // TODO: log warning of unrecognized character.
+                }
+            }
+        }
     }
 
     private void conditionalKeyFunction(final boolean condition, final int keyCode, final Consumer<Integer> keyFunction) {

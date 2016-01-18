@@ -32,6 +32,8 @@ public interface PcInstructor {
 
     public void pressKey(KeyPress keyPress);
 
+    public void writeText(String text);
+
     // TODO: other PC commands, like booting a program, etc.
 
     // TODO: a way to get info on current running system? (open programs, etc)

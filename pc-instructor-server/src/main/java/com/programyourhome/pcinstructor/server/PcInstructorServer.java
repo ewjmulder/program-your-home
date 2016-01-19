@@ -27,7 +27,7 @@ public class PcInstructorServer {
         // Headless should be disabled to use the java.awt.Robot.
         application.setHeadless(false);
         // TODO: Solve with real log level settings, doesn't work well with current config.
-        application.run(new String[] { "--debug" });
+        application.run(new String[0]);
     }
 
 }

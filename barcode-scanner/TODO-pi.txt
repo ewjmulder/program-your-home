@@ -1,0 +1,60 @@
+TODO Raspberry inrichting:
+- Set right timezone
+- Make it no-login, boot to command line
+- Install:
+  - Java 8
+  - Git
+  - Maven 3
+- Get barcode-scanner code
+- Play with / install libraries for GPIO -> Pi4J
+
+# Na eerste boot: (voor resizen image naar volledige grootte SD kaart)
+sudo raspi-config
+-> expand filesystem SD card!!
+-> Autologis as pi user (man...) --> does not work! (use manual action)
+-> set timezone
+-> set network name
+
+#Set timezone (already done in raspi-config)
+sudo timedatectl set-timezone Europe/Amsterdam
+
+
+#Autologin:
+sudo mkdir /etc/systemd/system/getty@tty1.service.d/
+sudo nano /etc/systemd/system/getty@tty1.service.d/autologin.conf
+
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin pi --noclear %I 38400 linux
+
+systemctl enable getty@tty1.service
+
+
+#Install software (copied from provision.sh)
+sudo apt-get update
+
+echo "Installing git"
+sudo apt-get install --yes git
+
+echo "Installing maven"
+sudo apt-get install --yes maven
+
+echo "Installing Java 8" # Oracle edition (note: installing after maven, so it will upgrade to this Java version as well)
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+# Needs auto-answers to accept the licence.
+echo debconf shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo /usr/bin/debconf-set-selections
+sudo apt-get install --yes oracle-java8-installer
+
+
+#Add boot script to profile
+/home/pi/.profile
+
+# Custom PYH addition
+if [ "$SSH_CONNECTION" != "" ]; then
+  echo Logging in with ssh, so not executing barcode-scanner.sh
+else
+  echo Logging in with something that is not ssh, so executing barcode-scanner.sh
+  . /home/pi/barcode-scanner.sh
+fi

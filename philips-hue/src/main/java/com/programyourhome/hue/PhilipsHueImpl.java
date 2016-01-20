@@ -69,7 +69,6 @@ public class PhilipsHueImpl implements PhilipsHue {
 
     @PostConstruct
     public void init() {
-        // TODO: add to config?
         // TODO: document how to create the user (http://192.168.2.100/debug/clip.html):
         // POST on /api with {"devicetype": "Program Your Home Server","username": "program-your-home"}
         this.accessPoint.setIpAddress(this.bridgeIp);

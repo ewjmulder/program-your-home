@@ -35,7 +35,7 @@ public interface PyhDevice {
     // Probably easiest way to sync (power state) is when off (hmm, if only power, then why off, doesn't matter actually)
 
     // META TODO: The previous todo implies adding the dynamic device data in this same interface, but it should be split and
-    // modeled out serapately in a DeviceState class.
+    // modeled out serapately in a DeviceState class. (see also shop->products for an example of split out state)
 
     public boolean isOn();
 

@@ -10,13 +10,9 @@ import com.programyourhome.hue.model.Mood;
 import com.programyourhome.hue.util.ValueUtil;
 
 /**
- * TODO: Javadoc and explain why to use this and never to use an object gotten from the cache directly! and nore this will always turn the light on.
+ * TODO: Javadoc and explain why to use this and never to use an object gotten from the cache directly! and note this will always turn the light on.
  */
 public class PHLightStateBuilder {
-
-    // TODO: Build in safety features that will prevent you from setting the color several times?
-    // TODO: Build in safety features that will prevent you from calling the builder after build()?
-    // TODO: besides the absolute methods, add relative methods like 'soften', 'dim', etc.
 
     private final PHLight phLight;
     private final PHLightState phLightState;
@@ -29,6 +25,12 @@ public class PHLightStateBuilder {
         this.phLight = phLight;
         this.phLightState = new PHLightState();
         this.ensureLightOnState(phLight.getLastKnownLightState(), on);
+    }
+
+    private void ensureNoColorModeYet() {
+        if (this.phLightState.getColorMode() != null) {
+            throw new IllegalStateException("Cannot set the color mode twice.");
+        }
     }
 
     /**
@@ -58,6 +60,7 @@ public class PHLightStateBuilder {
     }
 
     public PHLightStateBuilder colorXY(final float x, final float y) {
+        this.ensureNoColorModeYet();
         this.phLightState.setColorMode(PHLightColorMode.COLORMODE_XY);
         this.phLightState.setX(x);
         this.phLightState.setY(y);
@@ -65,6 +68,7 @@ public class PHLightStateBuilder {
     }
 
     public PHLightStateBuilder colorHueSaturation(final int hueBasisPoints, final int saturationBasisPoints) {
+        this.ensureNoColorModeYet();
         this.phLightState.setColorMode(PHLightColorMode.COLORMODE_HUE_SATURATION);
         this.phLightState.setHue(ValueUtil.basisPointsToHue(hueBasisPoints));
         this.phLightState.setSaturation(ValueUtil.basisPointsToSaturation(saturationBasisPoints));
@@ -76,6 +80,7 @@ public class PHLightStateBuilder {
     }
 
     private PHLightStateBuilder setColorTemperature(final int temperature) {
+        this.ensureNoColorModeYet();
         this.phLightState.setColorMode(PHLightColorMode.COLORMODE_CT);
         this.phLightState.setCt(temperature);
         return this;
@@ -87,41 +92,11 @@ public class PHLightStateBuilder {
 
     /**
      * Return the actual light state object after it was build with the other methods.
-     * After calling build(), the builder object should not be used any further.
      *
      * @return the light state object that was built
      */
     public PHLightState build() {
-        // Strip the color properties based on the latest known state of the light.
-        this.stripNonColorModeSettings();
         return this.phLightState;
-    }
-
-    /**
-     * Set the color properties to null that are not relevant for the used light state.
-     */
-    // TODO: This can be removed if chosen to check that setting a color is called only once on a builder.
-    private void stripNonColorModeSettings() {
-        if (this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_CT
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_HUE_SATURATION
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_NONE
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_UNKNOWN) {
-            this.phLightState.setX(null);
-            this.phLightState.setY(null);
-        }
-        if (this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_XY
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_HUE_SATURATION
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_NONE
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_UNKNOWN) {
-            this.phLightState.setCt(null);
-        }
-        if (this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_XY
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_CT
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_NONE
-                || this.phLightState.getColorMode() == PHLightColorMode.COLORMODE_UNKNOWN) {
-            this.phLightState.setHue(null);
-            this.phLightState.setSaturation(null);
-        }
     }
 
 }

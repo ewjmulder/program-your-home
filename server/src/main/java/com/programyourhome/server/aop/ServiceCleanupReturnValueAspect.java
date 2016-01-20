@@ -104,9 +104,6 @@ public class ServiceCleanupReturnValueAspect {
         this.mapTypeChooser.put(SortedMap.class, TreeMap.class);
     }
 
-    // TODO: find best way to include all service/modules in the pointcut. Use ||
-    // or try some combined defining way, like a common package name, annotation, etc.
-
     // All public methods on all classes that implement PyhApi.
     @Around("execution(public * com.programyourhome.api.PyhApi+.*(..))")
     public Object cleanupReturnValue(final ProceedingJoinPoint joinPoint) throws Throwable {

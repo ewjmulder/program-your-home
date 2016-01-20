@@ -40,7 +40,7 @@ public class PyhDeviceImpl extends PyhImpl implements PyhDevice {
         this.isRecordDevice = device.getPrototypes().isRecord();
         this.isMenuDevice = device.getPrototypes().isMenu();
 
-        // TODO: Generify these two, possibly use some (statis) util where this key getting pattern is placed.
+        // TODO: Generify these two, possibly use some (static) util where this key getting pattern is placed.
         this.inputs = device.getRemote().getKeyMapping().getKeyGroups().stream()
                 .filter(keyGroup -> keyGroup.getGroupType() == KeyType.INPUT)
                 .flatMap(keyGroup -> keyGroup.getKeys().stream())

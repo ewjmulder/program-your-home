@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.programyourhome.common.response.ServiceResultImpl;
 import com.programyourhome.common.response.ServiceResult;
+import com.programyourhome.common.response.ServiceResultImpl;
 
 @RestController
 public class ProgramYourHomeControllerError extends AbstractProgramYourHomeController implements ErrorController {
 
-    // TODO: change HTTP Methods to specific GET, PUT, POST, DELETE according to functionality. (keep simple URL, no put payload)
+    // TODO: change HTTP Methods to specific GET, PUT, POST, DELETE according to functionality.
+    // (keep simple URL, no put payload) --> no, no simple URL, do use payload
     // Introduce debug mode: listen on both GET and PUT, allow GET only in debug mode to easily test with browser.
 
     // TODO: exception handling for parameter parsing.

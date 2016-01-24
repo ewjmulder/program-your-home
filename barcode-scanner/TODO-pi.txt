@@ -51,6 +51,7 @@ sudo apt-get install --yes maven
 
 sudo apt-get install oracle-java8-jdk
 
+https://www.youtube.com/watch?v=irZR4nVhI_g (for enabling I2C)
 
 #TODO: git clone pyh (release branch) - use barcode scanner project
 

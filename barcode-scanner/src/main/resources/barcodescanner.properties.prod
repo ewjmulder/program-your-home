@@ -1,4 +1,4 @@
-server.address          = 192.168.2.55
+server.address          = 192.168.2.42
 server.port             = 10101
 
 pyh.host = 192.168.2.37

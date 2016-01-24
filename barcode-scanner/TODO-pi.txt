@@ -8,7 +8,7 @@ TODO Raspberry inrichting:
 - Get barcode-scanner code
 - Play with / install libraries for GPIO -> Pi4J
 
-# Na eerste boot: (voor resizen image naar volledige grootte SD kaart)
+# Na eerste boot: (voor resizen image naar volledige grootte SD kaart) (zou ook via ssh moeten kunnen)
 sudo raspi-config
 -> expand filesystem SD card!!
 -> Autologis as pi user (man...) --> does not work! (use manual action)
@@ -27,7 +27,7 @@ sudo nano /etc/systemd/system/getty@tty1.service.d/autologin.conf
 ExecStart=
 ExecStart=-/sbin/agetty --autologin pi --noclear %I 38400 linux
 
-systemctl enable getty@tty1.service
+sudo systemctl enable getty@tty1.service
 
 
 #Install software (copied from provision.sh)
@@ -39,22 +39,28 @@ sudo apt-get install --yes git
 echo "Installing maven"
 sudo apt-get install --yes maven
 
-echo "Installing Java 8" # Oracle edition (note: installing after maven, so it will upgrade to this Java version as well)
-sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get update
-# Needs auto-answers to accept the licence.
-echo debconf shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo /usr/bin/debconf-set-selections
-sudo apt-get install --yes oracle-java8-installer
+#echo "Installing Java 8" # Oracle edition (note: installing after maven, so it will upgrade to this Java version as well)
+#sudo add-apt-repository ppa:webupd8team/java
+#sudo apt-get update
+## Needs auto-answers to accept the licence.
+#echo debconf shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+#echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo /usr/bin/debconf-set-selections
+#sudo apt-get install --yes oracle-java8-installer
 
+--> Above does not work on the pi (add-apt-repository does not exist)
+
+sudo apt-get install oracle-java8-jdk
+
+
+#TODO: git clone pyh (release branch) - use barcode scanner project
 
 #Add boot script to profile
 /home/pi/.profile
 
 # Custom PYH addition
 if [ "$SSH_CONNECTION" != "" ]; then
-  echo Logging in with ssh, so not executing barcode-scanner.sh
+  echo Logging in with ssh, so not executing start.sh
 else
-  echo Logging in with something that is not ssh, so executing barcode-scanner.sh
-  . /home/pi/barcode-scanner.sh
+  echo Logging in with something that is not ssh, so executing start.sh
+  . /home/pi/program-your-home/barcodce-scanner/start.sh
 fi

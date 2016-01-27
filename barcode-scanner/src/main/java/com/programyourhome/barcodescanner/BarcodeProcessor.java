@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,8 +15,12 @@ import com.programyourhome.barcodescanner.event.ProductBarcodeScannedEvent;
 import com.programyourhome.barcodescanner.model.BarcodeSearchServiceResult;
 import com.programyourhome.barcodescanner.model.MetaBarcode;
 import com.programyourhome.barcodescanner.model.ProcessorMode;
+import com.programyourhome.barcodescanner.model.ProductStateServiceResult;
+import com.programyourhome.barcodescanner.ui.LcdDisplay;
 import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.shop.model.BarcodeSearchResultType;
+import com.programyourhome.shop.model.PyhBarcodeSearchResult;
+import com.programyourhome.shop.model.PyhProduct;
 
 @Component
 public class BarcodeProcessor {
@@ -29,6 +32,9 @@ public class BarcodeProcessor {
 
     @Inject
     private RestTemplate restTemplate;
+
+    @Inject
+    private LcdDisplay lcdDisplay;
 
     private ProcessorMode mode;
 
@@ -54,18 +60,17 @@ public class BarcodeProcessor {
 
     @EventListener(ProductBarcodeScannedEvent.class)
     public void processBarcode(final ProductBarcodeScannedEvent event) throws URISyntaxException {
-        final URI uri = new URI("http", null, this.pyhHost, this.pyhPort, "/shop/products/barcode/" + event.getBarcode(), null, null);
-        final ResponseEntity<BarcodeSearchServiceResult> searchResult = this.restTemplate.getForEntity(uri, BarcodeSearchServiceResult.class);
-        final BarcodeSearchResultType resultType = searchResult.getBody().getPayload().getResultType();
+        final PyhBarcodeSearchResult result = this.searchProduct(event.getBarcode());
+        final BarcodeSearchResultType resultType = result.getResultType();
         System.out.println("resultType: " + resultType);
         if (resultType == BarcodeSearchResultType.NONE) {
             System.out.println("No product found for barcode: " + event.getBarcode());
-            // TODO: Display not-found message on 16x2 screen or LED or sound.
+            this.lcdDisplay.show("Product", "not found");
         } else {
-            System.out.println("Product found for barcode: " + searchResult.getBody().getPayload().getProduct().getName());
+            final PyhProduct product = result.getProduct();
+            System.out.println("Product found for barcode: " + product.getName());
             if (this.mode == ProcessorMode.INFO) {
-                // TODO: What to do on info mode? Display product on 16x2 screen or LED or sound.
-                System.out.println("Mode == INFO");
+                this.lcdDisplay.show(product.getName(), "[INFO] Stock: " + this.getStock(product));
             } else {
                 final String updatePath;
                 if (this.mode == ProcessorMode.ADD_TO_STOCK) {
@@ -79,15 +84,22 @@ public class BarcodeProcessor {
                 }
                 final ServiceResult<?> updateResult = this.updateStock(event.getBarcode(), updatePath);
                 if (updateResult.isSuccess()) {
-                    // TODO: Display success message on 16x2 screen or LED or sound.
-                    System.out.println("Update success!");
+                    this.lcdDisplay.show(product.getName(), "[NEW] Stock: " + this.getStock(product));
                 } else {
-                    // updateResult.getError() - contains error message
-                    // TODO: Display error message on 16x2 screen or LED or sound.
-                    System.out.println("Update error: " + updateResult.getError());
+                    this.lcdDisplay.show("ERROR", updateResult.getError());
                 }
             }
         }
+    }
+
+    private PyhBarcodeSearchResult searchProduct(final String barcode) throws URISyntaxException {
+        final URI uri = new URI("http", null, this.pyhHost, this.pyhPort, "/shop/products/barcode/" + barcode, null, null);
+        return this.restTemplate.getForEntity(uri, BarcodeSearchServiceResult.class).getBody().getPayload();
+    }
+
+    private int getStock(final PyhProduct product) throws URISyntaxException {
+        final URI uri = new URI("http", null, this.pyhHost, this.pyhPort, "/shop/products/" + product.getId() + "/state", null, null);
+        return this.restTemplate.getForEntity(uri, ProductStateServiceResult.class).getBody().getPayload().getAmount();
     }
 
     private ServiceResult<?> updateStock(final String barcode, final String updatePath) throws URISyntaxException {

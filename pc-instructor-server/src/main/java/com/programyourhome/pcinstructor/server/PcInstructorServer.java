@@ -11,15 +11,15 @@ public class PcInstructorServer {
 
     public static void startServer(final Class<?> springBootApplicationClass) {
         final String usageMessage = "Please provide the correct path to the pc instructor property location with: -Dpcinstructor.properties.location=/path/to/file";
-        final String simulatorPropertyLocation = System.getProperty("pcinstructor.properties.location");
-        if (simulatorPropertyLocation == null) {
+        final String pcinstructorPropertyLocation = System.getProperty("pcinstructor.properties.location");
+        if (pcinstructorPropertyLocation == null) {
             System.out.println("No value provided for property 'pcinstructor.properties.location'.");
             System.out.println(usageMessage);
             System.exit(-1);
         }
-        final File propertiesFile = new File(simulatorPropertyLocation);
+        final File propertiesFile = new File(pcinstructorPropertyLocation);
         if (!propertiesFile.exists()) {
-            System.out.println("Property file not found: '" + simulatorPropertyLocation + "'.");
+            System.out.println("Property file not found: '" + pcinstructorPropertyLocation + "'.");
             System.out.println(usageMessage);
             System.exit(-1);
         }

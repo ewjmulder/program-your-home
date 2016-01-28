@@ -38,6 +38,7 @@ public class LcdDisplayImpl implements LcdDisplay {
         this.lcd = new I2CLcdDisplay(2, 16, I2CBus.BUS_1, i2cAddress, 3, 0, 1, 2, 7, 6, 5, 4);
 
         this.lastUpdate = LocalDateTime.MIN;
+        this.show("Application", "booted and ready");
         this.taskScheduler.scheduleWithFixedDelay(this::detectInactivity, 1000);
     }
 
@@ -47,7 +48,7 @@ public class LcdDisplayImpl implements LcdDisplay {
     }
 
     public void clear(final boolean backlight) {
-        this.lcd.setBacklight(true);
+        this.lcd.setBacklight(backlight);
         this.lcd.clear();
     }
 
@@ -56,7 +57,7 @@ public class LcdDisplayImpl implements LcdDisplay {
         this.clear(true);
         this.lcd.setCursorPosition(0, 0);
         this.lcd.write(textLine1);
-        this.lcd.setCursorPosition(0, 1);
+        this.lcd.setCursorPosition(1, 0);
         this.lcd.write(textLine2);
 
         this.lastUpdate = LocalDateTime.now();

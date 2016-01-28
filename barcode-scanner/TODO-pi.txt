@@ -55,6 +55,8 @@ https://www.youtube.com/watch?v=irZR4nVhI_g (for enabling I2C)
 
 #TODO: git clone pyh (release branch) - use barcode scanner project
 
+#TODO: fix false barcode scans upon reboot/halt: check on only numbers in input line
+
 #For barcode scanner, following builds are needed for dependent jars in maven repo (better have own nexus at some point):
 - Pyh parent (mvn clean install -N)
 - Pyh commons

@@ -22,10 +22,10 @@ public class LcdDisplayImpl implements LcdDisplay {
     @Inject
     private TaskScheduler taskScheduler;
 
-    @Value("lcd.i2c.address.hex")
+    @Value("${lcd.i2c.address.hex}")
     private String hexI2CAddress;
 
-    @Value("lcd.sleep.after.seconds")
+    @Value("${lcd.sleep.after.seconds}")
     private int sleepAfterSeconds;
 
     private I2CLcdDisplay lcd;

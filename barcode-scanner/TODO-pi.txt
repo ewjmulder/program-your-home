@@ -55,6 +55,13 @@ https://www.youtube.com/watch?v=irZR4nVhI_g (for enabling I2C)
 
 #TODO: git clone pyh (release branch) - use barcode scanner project
 
+#For barcode scanner, following builds are needed for dependent jars in maven repo (better have own nexus at some point):
+- Pyh parent (mvn clean install -N)
+- Pyh commons
+- Pyh api
+- Shopping api
+- Barcode scanner (first mvn clean install, then mvn exec:java will work)
+
 #Add boot script to profile
 /home/pi/.profile
 
@@ -64,5 +71,5 @@ if [ "$SSH_CONNECTION" != "" ]; then
 else
   echo Logging in with something that is not ssh, so executing start.sh
   cd /home/pi/program-your-home/barcode-scanner
-  sudo start.sh
+  sudo ./start.sh
 fi

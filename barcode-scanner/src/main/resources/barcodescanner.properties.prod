@@ -3,3 +3,7 @@ server.port             = 10101
 
 pyh.host = 192.168.2.37
 pyh.port = 3737
+
+
+lcd.i2c.address.hex = 0x27
+lcd.sleep.after.seconds = 60

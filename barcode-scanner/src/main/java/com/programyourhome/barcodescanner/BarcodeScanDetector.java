@@ -8,11 +8,16 @@ import java.util.Date;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BarcodeScanDetector {
+
+    private final Log log = LogFactory.getLog(this.getClass());
 
     @Inject
     private BarcodeEventPublisher barcodeEventPublisher;
@@ -47,7 +52,14 @@ public class BarcodeScanDetector {
             // Forever, read standard in to detect barcode scanning.
             while (true) {
                 final String barcode = reader.readLine();
-                this.barcodeEventPublisher.publishBarcodeEvent(barcode);
+                // Perform a sanity check on the line read, because there can be other sources of standard input,
+                // like broadcasted user and system messages.
+                // If the line consists of just numbers, that is a very strong indication that we've indeed just scanned a barcode.
+                if (StringUtils.isNumeric(barcode)) {
+                    this.barcodeEventPublisher.publishBarcodeEvent(barcode);
+                } else {
+                    this.log.info("Non-numeric line read: '" + barcode + "'.");
+                }
             }
         } catch (final IOException e) {
             // No way to recover from an IOException on standard in, so we'll just crash.

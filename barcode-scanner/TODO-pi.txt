@@ -8,6 +8,8 @@ TODO Raspberry inrichting:
 - Get barcode-scanner code
 - Play with / install libraries for GPIO -> Pi4J
 
+# Image: latest rasbian (atm jessy) light image from the raspberry pi people themselves (foundation?)
+
 # Na eerste boot: (voor resizen image naar volledige grootte SD kaart) (zou ook via ssh moeten kunnen)
 sudo raspi-config
 -> expand filesystem SD card!!
@@ -20,7 +22,7 @@ sudo timedatectl set-timezone Europe/Amsterdam
 
 
 #Autologin:
-sudo mkdir /etc/systemd/system/getty@tty1.service.d/
+#sudo mkdir /etc/systemd/system/getty@tty1.service.d/
 sudo nano /etc/systemd/system/getty@tty1.service.d/autologin.conf
 
 [Service]
@@ -30,7 +32,7 @@ ExecStart=-/sbin/agetty --autologin pi --noclear %I 38400 linux
 sudo systemctl enable getty@tty1.service
 
 
-#Install software (copied from provision.sh)
+#Install software (copied from provision.sh but adapted a lot)
 sudo apt-get update
 
 echo "Installing git"
@@ -40,6 +42,8 @@ echo "Installing maven"
 sudo apt-get install --yes maven
 
 #echo "Installing Java 8" # Oracle edition (note: installing after maven, so it will upgrade to this Java version as well)
+# Not needed? sudo apt-get install python-software-properties
+#sudo apt-get install software-properties-common
 #sudo add-apt-repository ppa:webupd8team/java
 #sudo apt-get update
 ## Needs auto-answers to accept the licence.
@@ -48,14 +52,34 @@ sudo apt-get install --yes maven
 #sudo apt-get install --yes oracle-java8-installer
 
 --> Above does not work on the pi (add-apt-repository does not exist)
+--> Update: add-apt-repository can be installed, but ppa does not contain raspbian / jessy data!
 
-sudo apt-get install oracle-java8-jdk
+# Does work without human 'intervention'
+sudo apt-get install --yes oracle-java8-jdk
 
 https://www.youtube.com/watch?v=irZR4nVhI_g (for enabling I2C)
 
-#TODO: git clone pyh (release branch) - use barcode scanner project
+# 1. Setup /etc/modules
+sudo nano /etc/modules
+# Add 2 lines:
+i2c-bcm2708
+i2c-dev
 
-#TODO: fix false barcode scans upon reboot/halt: check on only numbers in input line
+# 2. Install i2c-tools (is this really needed when working with Pi4J?)
+sudo apt-get install --yes python-smbus
+sudo apt-get install --yes i2c-tools
+
+
+# 3. Remove i2c from blacklist
+sudo nano /etc/modprobe.d/raspi-blacklist.conf
+# Comment 2 lines:
+blacklist spi-bcm2708
+blacklist i2c-bcm2708
+
+--> Update: in Jessy, so this in the raspi-config (prob. step 1 is not needed anymore as well then)
+
+
+#TODO: git clone pyh (release branch) - use barcode scanner project
 
 #For barcode scanner, following builds are needed for dependent jars in maven repo (better have own nexus at some point):
 - Pyh parent (mvn clean install -N)
@@ -73,5 +97,5 @@ if [ "$SSH_CONNECTION" != "" ]; then
 else
   echo Logging in with something that is not ssh, so executing start.sh
   cd /home/pi/program-your-home/barcode-scanner
-  sudo ./start.sh
+  ./start.sh
 fi

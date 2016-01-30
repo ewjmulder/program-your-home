@@ -97,5 +97,5 @@ if [ "$SSH_CONNECTION" != "" ]; then
 else
   echo Logging in with something that is not ssh, so executing start.sh
   cd /home/pi/program-your-home/barcode-scanner
-  ./start.sh
+  bash ./start.sh
 fi

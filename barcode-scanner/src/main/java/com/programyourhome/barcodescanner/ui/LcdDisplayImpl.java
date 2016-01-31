@@ -38,7 +38,6 @@ public class LcdDisplayImpl implements LcdDisplay {
         this.lcd = new I2CLcdDisplay(2, 16, I2CBus.BUS_1, i2cAddress, 3, 0, 1, 2, 7, 6, 5, 4);
 
         this.lastUpdate = LocalDateTime.MIN;
-        this.show("Application", "booted and ready");
         this.taskScheduler.scheduleWithFixedDelay(this::detectInactivity, 1000);
     }
 

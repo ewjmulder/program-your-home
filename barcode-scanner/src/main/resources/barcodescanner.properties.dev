@@ -6,3 +6,15 @@ pyh.port = 3737
 
 lcd.i2c.address.hex = 0x27
 lcd.sleep.after.seconds = 10
+
+led.blink.delay = 500
+
+led.systemstate.red = 15
+led.systemstate.green = 16
+led.systemstate.blue = 1
+led.mode.red = 6
+led.mode.green = 10
+led.mode.blue = 11
+led.transaction.red = 12 (27)
+led.transaction.green = 13 (28)
+led.transaction.blue = 14 (29)

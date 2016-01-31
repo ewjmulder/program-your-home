@@ -7,3 +7,8 @@ pyh.port = 3737
 
 lcd.i2c.address.hex = 0x27
 lcd.sleep.after.seconds = 60
+
+
+led.blink.delay = 500
+
+//TODO: led gpio port numbers

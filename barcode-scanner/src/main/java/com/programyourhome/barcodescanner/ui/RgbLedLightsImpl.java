@@ -1,7 +1,11 @@
 package com.programyourhome.barcodescanner.ui;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -50,12 +54,22 @@ public class RgbLedLightsImpl implements RgbLedLights {
     @Value("${led.transaction.blue}")
     private int transactionBlue;
 
+    @Value("${led.blink.delay}")
+    private int blinkDelay;
+
     private GpioController gpio;
 
     private final Map<Led, GpioPinDigitalOutput[]> ledConfiguration;
 
+    private final Map<Led, Set<Future<?>>> blinkTaskMap;
+
     public RgbLedLightsImpl() {
         this.ledConfiguration = new HashMap<>();
+        this.blinkTaskMap = new HashMap<>();
+
+        this.blinkTaskMap.put(Led.SYSTEM_STATE, new HashSet<>());
+        this.blinkTaskMap.put(Led.MODE, new HashSet<>());
+        this.blinkTaskMap.put(Led.TRANSACTION, new HashSet<>());
     }
 
     @PostConstruct
@@ -82,18 +96,43 @@ public class RgbLedLightsImpl implements RgbLedLights {
         return this.gpio.provisionDigitalOutputPin(RaspiPin.getPinByName(GPIO_PIN_NAME_PREFIX + number));
     }
 
-    private void setLed(final Led led, final RgbLedColor color, final boolean blinking) {
+    private void addBlinkTask(final Led led, final Future<?> blinkTask) {
+        this.blinkTaskMap.get(led).add(blinkTask);
+    }
+
+    private void stopAndClearBlinkTask(final Led led) {
+        final Iterator<Future<?>> blinkTasks = this.blinkTaskMap.get(led).iterator();
+        // Cancel and remove all existing blink tasks.
+        while (blinkTasks.hasNext()) {
+            final Future<?> blinkTask = blinkTasks.next();
+            blinkTask.cancel(true);
+            blinkTasks.remove();
+        }
+    }
+
+    private synchronized void setLed(final Led led, final RgbLedColor color, final boolean blinking) {
+        // Stop any existing blink tasks for this led.
+        this.stopAndClearBlinkTask(led);
+
         final GpioPinDigitalOutput redPin = this.ledConfiguration.get(led)[0];
         final GpioPinDigitalOutput greenPin = this.ledConfiguration.get(led)[1];
         final GpioPinDigitalOutput bluePin = this.ledConfiguration.get(led)[2];
 
-        redPin.setState(color.isRed());
-        greenPin.setState(color.isGreen());
-        bluePin.setState(color.isBlue());
+        this.setState(led, redPin, blinking, color.isRed());
+        this.setState(led, greenPin, blinking, color.isGreen());
+        this.setState(led, bluePin, blinking, color.isBlue());
+    }
 
-        // TODO: blinking!?!
-        // redPin.blink(delay, duration)
-        // redPin.pulse(delay, duration)
+    private void setState(final Led led, final GpioPinDigitalOutput pin, final boolean blinking, final boolean on) {
+        if (on) {
+            if (blinking) {
+                this.addBlinkTask(led, pin.blink(this.blinkDelay));
+            } else {
+                pin.high();
+            }
+        } else {
+            pin.low();
+        }
     }
 
     @Override

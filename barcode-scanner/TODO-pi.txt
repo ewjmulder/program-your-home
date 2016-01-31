@@ -92,6 +92,8 @@ blacklist i2c-bcm2708
 /home/pi/.profile
 
 # Custom PYH addition
+# Start the barcode scanner after a non-ssh login. It has to be a user login instead of a system service,
+# since otherwise the standard in (which is used by the barcode scanner) will not be properly 'attached' to the server process.
 if [ "$SSH_CONNECTION" != "" ]; then
   echo Logging in with ssh, so not executing start.sh
 else

@@ -1,6 +1,7 @@
 package com.programyourhome.barcodescanner.server;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.springframework.boot.SpringApplication;
 
@@ -9,7 +10,7 @@ import org.springframework.boot.SpringApplication;
  */
 public class BarcodeScannerServer {
 
-    public static void startServer(final Class<?> springBootApplicationClass) {
+    public static void startServer(final Class<?> springBootApplicationClass) throws IOException {
         final String usageMessage = "Please provide the correct path to the barcode scanner property location with: -Dbarcodescanner.properties.location=/path/to/file";
         final String barcodeScannerPropertyLocation = System.getProperty("barcodescanner.properties.location");
         if (barcodeScannerPropertyLocation == null) {

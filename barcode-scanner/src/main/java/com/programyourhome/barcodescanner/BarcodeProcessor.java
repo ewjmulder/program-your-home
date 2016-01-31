@@ -17,6 +17,7 @@ import com.programyourhome.barcodescanner.model.MetaBarcode;
 import com.programyourhome.barcodescanner.model.ProcessorMode;
 import com.programyourhome.barcodescanner.model.ProductStateServiceResult;
 import com.programyourhome.barcodescanner.ui.LcdDisplay;
+import com.programyourhome.barcodescanner.ui.RgbLedLights;
 import com.programyourhome.common.response.ServiceResult;
 import com.programyourhome.shop.model.BarcodeSearchResultType;
 import com.programyourhome.shop.model.PyhBarcodeSearchResult;
@@ -31,10 +32,13 @@ public class BarcodeProcessor {
     private int pyhPort;
 
     @Inject
-    private RestTemplate restTemplate;
+    private LcdDisplay lcdDisplay;
 
     @Inject
-    private LcdDisplay lcdDisplay;
+    private RgbLedLights ledLights;
+
+    @Inject
+    private RestTemplate restTemplate;
 
     private ProcessorMode mode;
 
@@ -51,10 +55,16 @@ public class BarcodeProcessor {
         final MetaBarcode metaBarcode = event.getMetaBarcode();
         if (metaBarcode == MetaBarcode.SET_MODE_INFO) {
             this.mode = ProcessorMode.INFO;
+            this.lcdDisplay.show("Mode set to:", "Info");
+            this.ledLights.setModeInfo();
         } else if (metaBarcode == MetaBarcode.SET_MODE_ADD_TO_STOCK) {
             this.mode = ProcessorMode.ADD_TO_STOCK;
+            this.lcdDisplay.show("Mode set to:", "Add to stock");
+            this.ledLights.setModeAddToStock();
         } else if (metaBarcode == MetaBarcode.SET_MODE_REMOVE_FROM_STOCK) {
             this.mode = ProcessorMode.REMOVE_FROM_STOCK;
+            this.lcdDisplay.show("Mode set to:", "Remove frm stock");
+            this.ledLights.setModeRemoveFromStock();
         }
     }
 

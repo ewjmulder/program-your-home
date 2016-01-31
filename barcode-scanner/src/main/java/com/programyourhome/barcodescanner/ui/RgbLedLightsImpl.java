@@ -166,6 +166,7 @@ public class RgbLedLightsImpl implements RgbLedLights {
     }
 
     @Override
+    // None not needed, use pulse (with future in map to disable when new one comes in)
     public void setTransactionNone() {
         this.setLed(Led.TRANSACTION, RgbLedColor.OFF, false);
     }

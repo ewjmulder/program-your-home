@@ -14,8 +14,6 @@ public interface RgbLedLights {
 
     public void setModeRemoveFromStock();
 
-    public void setTransactionNone();
-
     public void setTransactionProcessing();
 
     public void setTransactionOk();

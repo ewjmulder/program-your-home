@@ -6,8 +6,11 @@ import java.net.URISyntaxException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,6 +29,8 @@ import com.programyourhome.shop.model.PyhProduct;
 
 @Component
 public class BarcodeProcessor {
+
+    private final Log log = LogFactory.getLog(this.getClass());
 
     private static final String PRODUCTS_BASE_PATH = "/shop/products/";
     private static final String SEARCH_PRODUCT_PATH = PRODUCTS_BASE_PATH + "barcode/%s";
@@ -89,6 +94,7 @@ public class BarcodeProcessor {
         try {
             this.doProcessBarcode(event);
         } catch (final Exception e) {
+            this.log.error("Exception while processing barcode.", e);
             this.lcdDisplay.show("System Error", e.getClass().getSimpleName() + ": " + e.getMessage());
             this.ledLights.setTransactionError();
         }
@@ -97,33 +103,37 @@ public class BarcodeProcessor {
     private void doProcessBarcode(final ProductBarcodeScannedEvent event) {
         final PyhBarcodeSearchResult result = this.searchProduct(event.getBarcode());
         final BarcodeSearchResultType resultType = result.getResultType();
-        System.out.println("resultType: " + resultType);
         if (resultType == BarcodeSearchResultType.NONE) {
-            System.out.println("No product found for barcode: " + event.getBarcode());
+            this.log.debug("No product found for barcode: " + event.getBarcode());
             this.lcdDisplay.show("Product", "not found");
             this.ledLights.setTransactionError();
         } else {
             final PyhProduct product = result.getProduct();
-            System.out.println("Product found for barcode: " + product.getName());
+            this.log.debug("Product found for barcode: " + product.getName());
             if (this.mode == ProcessorMode.INFO) {
-                this.lcdDisplay.show(product.getName(), "[INFO] Stock: " + this.getStock(product));
+                final int currentStockAmount = this.getStock(product);
+                this.log.debug("Info mode, stock: " + currentStockAmount);
+                this.lcdDisplay.show(product.getName(), "[INFO] Stock: " + currentStockAmount);
                 this.ledLights.setTransactionOk();
             } else {
                 final String updatePath;
                 if (this.mode == ProcessorMode.ADD_TO_STOCK) {
-                    System.out.println("Mode == ADD_TO_STOCK");
+                    this.log.debug("Mode == ADD_TO_STOCK");
                     updatePath = ADD_TO_STOCK_PATH;
                 } else if (this.mode == ProcessorMode.REMOVE_FROM_STOCK) {
-                    System.out.println("Mode == REMOVE_FROM_STOCK");
+                    this.log.debug("Mode == REMOVE_FROM_STOCK");
                     updatePath = REMOVE_FROM_STOCK_PATH;
                 } else {
                     throw new IllegalStateException("Unknown mode: " + this.mode);
                 }
                 final ServiceResult<?> updateResult = this.updateStock(event.getBarcode(), updatePath);
                 if (updateResult.isSuccess()) {
-                    this.lcdDisplay.show(product.getName(), "[NEW] Stock: " + this.getStock(product));
+                    final int newStockAmount = this.getStock(product);
+                    this.log.debug("Stock updated to: " + newStockAmount);
+                    this.lcdDisplay.show(product.getName(), "[NEW] Stock: " + newStockAmount);
                     this.ledLights.setTransactionOk();
                 } else {
+                    this.log.error("Error while updating stock: " + updateResult.getError());
                     this.lcdDisplay.show("System Error", updateResult.getError());
                     this.ledLights.setTransactionError();
                 }
@@ -132,25 +142,27 @@ public class BarcodeProcessor {
     }
 
     private PyhBarcodeSearchResult searchProduct(final String barcode) {
-        return this.getServicePayload(BarcodeSearchServiceResult.class, SEARCH_PRODUCT_PATH, barcode);
+        return this.getServicePayload(HttpMethod.GET, BarcodeSearchServiceResult.class, SEARCH_PRODUCT_PATH, barcode);
     }
 
     private int getStock(final PyhProduct product) {
-        return this.getServicePayload(ProductStateServiceResult.class, GET_STOCK_PATH, product.getId()).getAmount();
+        return this.getServicePayload(HttpMethod.GET, ProductStateServiceResult.class, GET_STOCK_PATH, product.getId()).getAmount();
     }
 
     private ServiceResult<?> updateStock(final String barcode, final String updatePath) {
-        return this.getServiceResult(ServiceResult.class, UPDATE_STOCK_PATH, updatePath, barcode);
+        return this.getServiceResult(HttpMethod.POST, ServiceResult.class, UPDATE_STOCK_PATH, updatePath, barcode);
     }
 
-    private <P, T extends ServiceResult<P>> P getServicePayload(final Class<T> resultClass, final String urlToFormat, final Object... args) {
-        return this.getServiceResult(resultClass, urlToFormat, args).getPayload();
+    private <P, T extends ServiceResult<P>> P getServicePayload(
+            final HttpMethod method, final Class<T> resultClass, final String urlToFormat, final Object... args) {
+        return this.getServiceResult(method, resultClass, urlToFormat, args).getPayload();
     }
 
-    private <T extends ServiceResult<?>> T getServiceResult(final Class<T> resultClass, final String urlToFormat, final Object... args) {
+    private <T extends ServiceResult<?>> T getServiceResult(
+            final HttpMethod method, final Class<T> resultClass, final String urlToFormat, final Object... args) {
         try {
             final URI uri = new URI("http", null, this.pyhHost, this.pyhPort, String.format(urlToFormat, args), null, null);
-            return this.restTemplate.postForEntity(uri, null, resultClass).getBody();
+            return this.restTemplate.exchange(uri, method, null, resultClass).getBody();
         } catch (final URISyntaxException e) {
             throw new IllegalStateException("URISyntaxException while calling product service.", e);
         }

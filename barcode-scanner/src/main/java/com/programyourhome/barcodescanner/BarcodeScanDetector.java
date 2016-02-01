@@ -49,8 +49,8 @@ public class BarcodeScanDetector {
         try {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             this.activelyScanning = true;
-            // Forever, read standard in to detect barcode scanning.
-            while (true) {
+            // While actively scanning, read standard in to detect barcodes scanned.
+            while (this.activelyScanning) {
                 final String barcode = reader.readLine();
                 // Perform a sanity check on the line read, because there can be other sources of standard input,
                 // like broadcasted user and system messages.
@@ -58,7 +58,13 @@ public class BarcodeScanDetector {
                 if (StringUtils.isNumeric(barcode)) {
                     this.barcodeEventPublisher.publishBarcodeEvent(barcode);
                 } else {
-                    this.log.info("Non-numeric line read: '" + barcode + "'.");
+                    if (barcode == null) {
+                        // End of stream reached. This must mean the machine is shutting down, so stop gracefully.
+                        this.log.info("End of standard in stream reached, assuming machine shut down.");
+                        this.activelyScanning = false;
+                    } else {
+                        this.log.info("Non-numeric line read: '" + barcode + "'.");
+                    }
                 }
             }
         } catch (final IOException e) {

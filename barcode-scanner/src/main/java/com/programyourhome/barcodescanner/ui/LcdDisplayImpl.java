@@ -54,6 +54,7 @@ public class LcdDisplayImpl implements LcdDisplay {
     @Override
     public synchronized void show(final String textLine1, final String textLine2) {
         this.clear(true);
+        // TODO: implement scrolling if line is too long (+ kill scroll task when next show is called)
         this.lcd.setCursorPosition(0, 0);
         this.lcd.write(textLine1);
         this.lcd.setCursorPosition(1, 0);

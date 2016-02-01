@@ -35,6 +35,7 @@ public class SystemStatusPoller {
     @PostConstruct
     public void init() {
         this.taskScheduler.scheduleWithFixedDelay(this::pollSystemStatus, new Date(), 1000);
+        this.ledLights.setSystemStateBooting();
     }
 
     private void pollSystemStatus() {

@@ -42,17 +42,17 @@ public class LcdDisplayImpl implements LcdDisplay {
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         this.clear(true);
     }
 
-    public void clear(final boolean backlight) {
+    public synchronized void clear(final boolean backlight) {
         this.lcd.setBacklight(backlight);
         this.lcd.clear();
     }
 
     @Override
-    public void show(final String textLine1, final String textLine2) {
+    public synchronized void show(final String textLine1, final String textLine2) {
         this.clear(true);
         this.lcd.setCursorPosition(0, 0);
         this.lcd.write(textLine1);

@@ -10,5 +10,6 @@ lcd.sleep.after.seconds = 60
 
 
 led.blink.delay = 500
+led.pulse.time = 2000
 
 //TODO: led gpio port numbers

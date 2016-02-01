@@ -27,6 +27,10 @@ public class RgbLedLightsImpl implements RgbLedLights {
         SYSTEM_STATE, MODE, TRANSACTION;
     }
 
+    private enum LedActivity {
+        NONE, PULSE, BLINK;
+    }
+
     @Value("${led.systemstate.red}")
     private int systemStateRed;
 
@@ -57,19 +61,22 @@ public class RgbLedLightsImpl implements RgbLedLights {
     @Value("${led.blink.delay}")
     private int blinkDelay;
 
+    @Value("${led.pulse.time}")
+    private int pulseTime;
+
     private GpioController gpio;
 
     private final Map<Led, GpioPinDigitalOutput[]> ledConfiguration;
 
-    private final Map<Led, Set<Future<?>>> blinkTaskMap;
+    private final Map<Led, Set<Future<?>>> ledTaskMap;
 
     public RgbLedLightsImpl() {
         this.ledConfiguration = new HashMap<>();
-        this.blinkTaskMap = new HashMap<>();
+        this.ledTaskMap = new HashMap<>();
 
-        this.blinkTaskMap.put(Led.SYSTEM_STATE, new HashSet<>());
-        this.blinkTaskMap.put(Led.MODE, new HashSet<>());
-        this.blinkTaskMap.put(Led.TRANSACTION, new HashSet<>());
+        this.ledTaskMap.put(Led.SYSTEM_STATE, new HashSet<>());
+        this.ledTaskMap.put(Led.MODE, new HashSet<>());
+        this.ledTaskMap.put(Led.TRANSACTION, new HashSet<>());
     }
 
     @PostConstruct
@@ -96,39 +103,43 @@ public class RgbLedLightsImpl implements RgbLedLights {
         return this.gpio.provisionDigitalOutputPin(RaspiPin.getPinByName(GPIO_PIN_NAME_PREFIX + number));
     }
 
-    private void addBlinkTask(final Led led, final Future<?> blinkTask) {
-        this.blinkTaskMap.get(led).add(blinkTask);
+    private void addTask(final Led led, final Future<?> task) {
+        this.ledTaskMap.get(led).add(task);
     }
 
-    private void stopAndClearBlinkTask(final Led led) {
-        final Iterator<Future<?>> blinkTasks = this.blinkTaskMap.get(led).iterator();
-        // Cancel and remove all existing blink tasks.
-        while (blinkTasks.hasNext()) {
-            final Future<?> blinkTask = blinkTasks.next();
-            blinkTask.cancel(true);
-            blinkTasks.remove();
+    private void stopAndClearTasks(final Led led) {
+        final Iterator<Future<?>> ledTasks = this.ledTaskMap.get(led).iterator();
+        // Cancel and remove all existing tasks.
+        while (ledTasks.hasNext()) {
+            final Future<?> task = ledTasks.next();
+            if (!task.isDone()) {
+                task.cancel(true);
+            }
+            ledTasks.remove();
         }
     }
 
-    private synchronized void setLed(final Led led, final RgbLedColor color, final boolean blinking) {
-        // Stop any existing blink tasks for this led.
-        this.stopAndClearBlinkTask(led);
+    private synchronized void setLed(final Led led, final RgbLedColor color, final LedActivity ledActivity) {
+        // Stop any existing tasks for this led.
+        this.stopAndClearTasks(led);
 
         final GpioPinDigitalOutput redPin = this.ledConfiguration.get(led)[0];
         final GpioPinDigitalOutput greenPin = this.ledConfiguration.get(led)[1];
         final GpioPinDigitalOutput bluePin = this.ledConfiguration.get(led)[2];
 
-        this.setState(led, redPin, blinking, color.isRed());
-        this.setState(led, greenPin, blinking, color.isGreen());
-        this.setState(led, bluePin, blinking, color.isBlue());
+        this.setState(led, redPin, color.isRed(), ledActivity);
+        this.setState(led, greenPin, color.isGreen(), ledActivity);
+        this.setState(led, bluePin, color.isBlue(), ledActivity);
     }
 
-    private void setState(final Led led, final GpioPinDigitalOutput pin, final boolean blinking, final boolean on) {
+    private void setState(final Led led, final GpioPinDigitalOutput pin, final boolean on, final LedActivity ledActivity) {
         if (on) {
-            if (blinking) {
-                this.addBlinkTask(led, pin.blink(this.blinkDelay));
-            } else {
+            if (ledActivity == LedActivity.NONE) {
                 pin.high();
+            } else if (ledActivity == LedActivity.PULSE) {
+                this.addTask(led, pin.pulse(this.pulseTime));
+            } else if (ledActivity == LedActivity.BLINK) {
+                this.addTask(led, pin.blink(this.blinkDelay));
             }
         } else {
             pin.low();
@@ -137,53 +148,52 @@ public class RgbLedLightsImpl implements RgbLedLights {
 
     @Override
     public void setSystemStateBooting() {
-        this.setLed(Led.SYSTEM_STATE, RgbLedColor.BLUE, true);
+        this.setLed(Led.SYSTEM_STATE, RgbLedColor.BLUE, LedActivity.BLINK);
     }
 
     @Override
     public void setSystemStateNormal() {
-        this.setLed(Led.SYSTEM_STATE, RgbLedColor.GREEN, false);
+        this.setLed(Led.SYSTEM_STATE, RgbLedColor.GREEN, LedActivity.NONE);
     }
 
     @Override
     public void setSystemStateError() {
-        this.setLed(Led.SYSTEM_STATE, RgbLedColor.RED, true);
+        this.setLed(Led.SYSTEM_STATE, RgbLedColor.RED, LedActivity.BLINK);
     }
 
     @Override
     public void setModeInfo() {
-        this.setLed(Led.MODE, RgbLedColor.BLUE, false);
+        this.setLed(Led.MODE, RgbLedColor.BLUE, LedActivity.NONE);
     }
 
     @Override
     public void setModeAddToStock() {
-        this.setLed(Led.MODE, RgbLedColor.GREEN, false);
+        this.setLed(Led.MODE, RgbLedColor.GREEN, LedActivity.NONE);
     }
 
     @Override
     public void setModeRemoveFromStock() {
-        this.setLed(Led.MODE, RgbLedColor.RED, false);
+        this.setLed(Led.MODE, RgbLedColor.RED, LedActivity.NONE);
     }
 
     @Override
-    // None not needed, use pulse (with future in map to disable when new one comes in)
     public void setTransactionNone() {
-        this.setLed(Led.TRANSACTION, RgbLedColor.OFF, false);
+        this.setLed(Led.TRANSACTION, RgbLedColor.OFF, LedActivity.NONE);
     }
 
     @Override
     public void setTransactionProcessing() {
-        this.setLed(Led.TRANSACTION, RgbLedColor.BLUE, true);
+        this.setLed(Led.TRANSACTION, RgbLedColor.BLUE, LedActivity.BLINK);
     }
 
     @Override
     public void setTransactionOk() {
-        this.setLed(Led.TRANSACTION, RgbLedColor.GREEN, false);
+        this.setLed(Led.TRANSACTION, RgbLedColor.GREEN, LedActivity.PULSE);
     }
 
     @Override
     public void setTransactionError() {
-        this.setLed(Led.TRANSACTION, RgbLedColor.RED, false);
+        this.setLed(Led.TRANSACTION, RgbLedColor.RED, LedActivity.PULSE);
     }
 
 }

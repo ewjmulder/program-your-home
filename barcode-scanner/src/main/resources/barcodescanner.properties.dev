@@ -8,6 +8,7 @@ lcd.i2c.address.hex = 0x27
 lcd.sleep.after.seconds = 10
 
 led.blink.delay = 500
+led.pulse.time = 2000
 
 led.systemstate.red = 15
 led.systemstate.green = 16

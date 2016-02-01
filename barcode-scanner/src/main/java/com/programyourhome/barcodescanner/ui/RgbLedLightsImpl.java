@@ -147,7 +147,7 @@ public class RgbLedLightsImpl implements RgbLedLights {
 
     @Override
     public void setSystemStateBooting() {
-        this.setLed(Led.SYSTEM_STATE, RgbLedColor.BLUE, LedActivity.BLINK);
+        this.setLed(Led.SYSTEM_STATE, RgbLedColor.BLUE, LedActivity.NONE);
     }
 
     @Override
@@ -158,6 +158,11 @@ public class RgbLedLightsImpl implements RgbLedLights {
     @Override
     public void setSystemStateError() {
         this.setLed(Led.SYSTEM_STATE, RgbLedColor.RED, LedActivity.BLINK);
+    }
+
+    @Override
+    public void setModeNone() {
+        this.setLed(Led.MODE, RgbLedColor.OFF, LedActivity.NONE);
     }
 
     @Override

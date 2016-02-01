@@ -8,6 +8,8 @@ public interface RgbLedLights {
 
     public void setSystemStateError();
 
+    public void setModeNone();
+
     public void setModeInfo();
 
     public void setModeAddToStock();

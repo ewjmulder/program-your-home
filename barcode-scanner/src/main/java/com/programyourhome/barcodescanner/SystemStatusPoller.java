@@ -3,6 +3,7 @@ package com.programyourhome.barcodescanner;
 import java.util.Date;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.springframework.scheduling.TaskScheduler;
@@ -36,6 +37,15 @@ public class SystemStatusPoller {
     public void init() {
         this.taskScheduler.scheduleWithFixedDelay(this::pollSystemStatus, new Date(), 1000);
         this.ledLights.setSystemStateBooting();
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        // Set the lights default values at shutdown, because the Pi will remember those pin states and show them
+        // during the next boot cycle.
+        this.ledLights.setSystemStateBooting();
+        this.ledLights.setModeNone();
+        this.ledLights.setTransactionNone();
     }
 
     private void pollSystemStatus() {

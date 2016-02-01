@@ -4,11 +4,11 @@ public enum RgbLedColor {
 
     OFF(false, false, false),
     RED(true, false, false),
-    GREEN(false, true, true),
+    GREEN(false, true, false),
     BLUE(false, false, true),
     YELLOW(true, true, false),
     CYAN(false, true, true),
-    PURPLE(true, false, false),
+    PURPLE(true, false, true),
     WHITE(true, true, true);
 
     private boolean red;

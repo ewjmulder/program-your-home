@@ -1,8 +1,10 @@
 package com.programyourhome.barcodescanner.ui;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -66,7 +68,7 @@ public class RgbLedLightsImpl implements RgbLedLights {
 
     private GpioController gpio;
 
-    private final Map<Led, GpioPinDigitalOutput[]> ledConfiguration;
+    private final Map<Led, List<GpioPinDigitalOutput>> ledConfiguration;
 
     private final Map<Led, Set<Future<?>>> ledTaskMap;
 
@@ -83,15 +85,12 @@ public class RgbLedLightsImpl implements RgbLedLights {
     public void init() {
         this.gpio = GpioFactory.getInstance();
 
-        this.ledConfiguration.put(Led.SYSTEM_STATE, new GpioPinDigitalOutput[] {
-                this.getPin(this.systemStateRed), this.getPin(this.systemStateGreen), this.getPin(this.systemStateBlue)
-        });
-        this.ledConfiguration.put(Led.MODE, new GpioPinDigitalOutput[] {
-                this.getPin(this.modeRed), this.getPin(this.modeGreen), this.getPin(this.modeBlue)
-        });
-        this.ledConfiguration.put(Led.TRANSACTION, new GpioPinDigitalOutput[] {
-                this.getPin(this.transactionRed), this.getPin(this.transactionGreen), this.getPin(this.transactionBlue)
-        });
+        this.ledConfiguration.put(Led.SYSTEM_STATE, Arrays.asList(
+                this.getPin(this.systemStateRed), this.getPin(this.systemStateGreen), this.getPin(this.systemStateBlue)));
+        this.ledConfiguration.put(Led.MODE, Arrays.asList(
+                this.getPin(this.modeRed), this.getPin(this.modeGreen), this.getPin(this.modeBlue)));
+        this.ledConfiguration.put(Led.TRANSACTION, Arrays.asList(
+                this.getPin(this.transactionRed), this.getPin(this.transactionGreen), this.getPin(this.transactionBlue)));
     }
 
     @PreDestroy
@@ -123,9 +122,9 @@ public class RgbLedLightsImpl implements RgbLedLights {
         // Stop any existing tasks for this led.
         this.stopAndClearTasks(led);
 
-        final GpioPinDigitalOutput redPin = this.ledConfiguration.get(led)[0];
-        final GpioPinDigitalOutput greenPin = this.ledConfiguration.get(led)[1];
-        final GpioPinDigitalOutput bluePin = this.ledConfiguration.get(led)[2];
+        final GpioPinDigitalOutput redPin = this.ledConfiguration.get(led).get(0);
+        final GpioPinDigitalOutput greenPin = this.ledConfiguration.get(led).get(1);
+        final GpioPinDigitalOutput bluePin = this.ledConfiguration.get(led).get(2);
 
         this.setState(led, redPin, color.isRed(), ledActivity);
         this.setState(led, greenPin, color.isGreen(), ledActivity);

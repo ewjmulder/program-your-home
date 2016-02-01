@@ -86,7 +86,15 @@ public class BarcodeProcessor {
     @EventListener(ProductBarcodeScannedEvent.class)
     public void processBarcode(final ProductBarcodeScannedEvent event) throws URISyntaxException {
         this.ledLights.setTransactionProcessing();
+        try {
+            this.doProcessBarcode(event);
+        } catch (final Exception e) {
+            this.lcdDisplay.show("System Error", e.getClass().getSimpleName() + ": " + e.getMessage());
+            this.ledLights.setTransactionError();
+        }
+    }
 
+    private void doProcessBarcode(final ProductBarcodeScannedEvent event) {
         final PyhBarcodeSearchResult result = this.searchProduct(event.getBarcode());
         final BarcodeSearchResultType resultType = result.getResultType();
         System.out.println("resultType: " + resultType);
@@ -123,27 +131,29 @@ public class BarcodeProcessor {
         }
     }
 
-    private PyhBarcodeSearchResult searchProduct(final String barcode) throws URISyntaxException {
+    private PyhBarcodeSearchResult searchProduct(final String barcode) {
         return this.getServicePayload(BarcodeSearchServiceResult.class, SEARCH_PRODUCT_PATH, barcode);
     }
 
-    private int getStock(final PyhProduct product) throws URISyntaxException {
+    private int getStock(final PyhProduct product) {
         return this.getServicePayload(ProductStateServiceResult.class, GET_STOCK_PATH, product.getId()).getAmount();
     }
 
-    private ServiceResult<?> updateStock(final String barcode, final String updatePath) throws URISyntaxException {
+    private ServiceResult<?> updateStock(final String barcode, final String updatePath) {
         return this.getServiceResult(ServiceResult.class, UPDATE_STOCK_PATH, updatePath, barcode);
     }
 
-    private <P, T extends ServiceResult<P>> P getServicePayload(final Class<T> resultClass, final String urlToFormat, final Object... args)
-            throws URISyntaxException {
+    private <P, T extends ServiceResult<P>> P getServicePayload(final Class<T> resultClass, final String urlToFormat, final Object... args) {
         return this.getServiceResult(resultClass, urlToFormat, args).getPayload();
     }
 
-    private <T extends ServiceResult<?>> T getServiceResult(final Class<T> resultClass, final String urlToFormat, final Object... args)
-            throws URISyntaxException {
-        final URI uri = new URI("http", null, this.pyhHost, this.pyhPort, String.format(urlToFormat, args), null, null);
-        return this.restTemplate.postForEntity(uri, null, resultClass).getBody();
+    private <T extends ServiceResult<?>> T getServiceResult(final Class<T> resultClass, final String urlToFormat, final Object... args) {
+        try {
+            final URI uri = new URI("http", null, this.pyhHost, this.pyhPort, String.format(urlToFormat, args), null, null);
+            return this.restTemplate.postForEntity(uri, null, resultClass).getBody();
+        } catch (final URISyntaxException e) {
+            throw new IllegalStateException("URISyntaxException while calling product service.", e);
+        }
     }
 
 }

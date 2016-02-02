@@ -16,7 +16,7 @@ led.blink.delay = 500
 led.pulse.time = 2000
 
 scroll.delay.initial = 1000
-scroll.delay.character = 200
+scroll.delay.character = 150
 
 
 //TODO: led gpio port numbers

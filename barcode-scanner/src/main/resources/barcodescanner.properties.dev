@@ -15,7 +15,7 @@ led.blink.delay = 500
 led.pulse.time = 5000
 
 scroll.delay.initial = 1000
-scroll.delay.character = 200
+scroll.delay.character = 150
 
 led.systemstate.red = 15
 led.systemstate.green = 16

@@ -1,5 +1,6 @@
 package com.programyourhome.barcodescanner;
 
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -95,8 +96,13 @@ public class BarcodeProcessor {
             this.doProcessBarcode(event);
         } catch (final Exception e) {
             this.log.error("Exception while processing barcode.", e);
-            this.lcdDisplay.show("System Error", e.getClass().getSimpleName() + ": " + e.getMessage());
             this.ledLights.setTransactionError();
+            // Handle some special cases separately.
+            if (e.getCause() instanceof SocketTimeoutException) {
+                this.lcdDisplay.show("PYH server", "not reachable");
+            } else {
+                this.lcdDisplay.show("System Error", e.getClass().getSimpleName() + ": " + e.getMessage());
+            }
         }
     }
 

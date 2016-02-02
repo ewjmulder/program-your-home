@@ -14,6 +14,9 @@ lcd.sleep.after.seconds = 10
 led.blink.delay = 500
 led.pulse.time = 5000
 
+scroll.delay.initial = 1000
+scroll.delay.character = 200
+
 led.systemstate.red = 15
 led.systemstate.green = 16
 led.systemstate.blue = 1

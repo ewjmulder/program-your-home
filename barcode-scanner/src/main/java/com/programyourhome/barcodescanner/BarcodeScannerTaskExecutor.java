@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class BarcodeScannerTaskExecutor extends ThreadPoolTaskScheduler {
 
     public BarcodeScannerTaskExecutor() {
-        this.setPoolSize(5);
+        this.setPoolSize(10);
     }
 
 }

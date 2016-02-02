@@ -95,6 +95,9 @@ public class RgbLedLightsImpl implements RgbLedLights {
 
     @PreDestroy
     public void cleanup() {
+        this.stopAndClearTasks(Led.SYSTEM_STATE);
+        this.stopAndClearTasks(Led.MODE);
+        this.stopAndClearTasks(Led.TRANSACTION);
         this.gpio.shutdown();
     }
 

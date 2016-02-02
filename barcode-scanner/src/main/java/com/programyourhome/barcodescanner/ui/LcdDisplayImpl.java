@@ -1,10 +1,17 @@
 package com.programyourhome.barcodescanner.ui;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -19,6 +26,8 @@ import com.pi4j.io.i2c.I2CBus;
 @Component
 public class LcdDisplayImpl implements LcdDisplay {
 
+    private static final int ROW_WIDTH = 16;
+
     @Inject
     private TaskScheduler taskScheduler;
 
@@ -28,9 +37,17 @@ public class LcdDisplayImpl implements LcdDisplay {
     @Value("${lcd.sleep.after.seconds}")
     private int sleepAfterSeconds;
 
+    @Value("${scroll.delay.initial}")
+    private int scrollInitialDelay;
+
+    @Value("${scroll.delay.character}")
+    private int scrollCharacterDelay;
+
     private I2CLcdDisplay lcd;
 
     private LocalDateTime lastUpdate;
+
+    private Set<Future<?>> scrollingTasks;
 
     @PostConstruct
     public void init() throws Exception {
@@ -39,6 +56,23 @@ public class LcdDisplayImpl implements LcdDisplay {
 
         this.lastUpdate = LocalDateTime.MIN;
         this.taskScheduler.scheduleWithFixedDelay(this::detectInactivity, 1000);
+        this.scrollingTasks = new HashSet<>();
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        this.clearScrollingTasks();
+    }
+
+    private synchronized void clearScrollingTasks() {
+        final Iterator<Future<?>> iter = this.scrollingTasks.iterator();
+        while (iter.hasNext()) {
+            final Future<?> scrollingTask = iter.next();
+            if (!scrollingTask.isDone()) {
+                scrollingTask.cancel(true);
+            }
+            iter.remove();
+        }
     }
 
     @Override
@@ -47,6 +81,7 @@ public class LcdDisplayImpl implements LcdDisplay {
     }
 
     public synchronized void clear(final boolean backlight) {
+        this.clearScrollingTasks();
         this.lcd.setBacklight(backlight);
         this.lcd.clear();
     }
@@ -54,13 +89,32 @@ public class LcdDisplayImpl implements LcdDisplay {
     @Override
     public synchronized void show(final String textLine1, final String textLine2) {
         this.clear(true);
-        // TODO: implement scrolling if line is too long (+ kill scroll task when next show is called)
-        this.lcd.setCursorPosition(0, 0);
-        this.lcd.write(textLine1);
-        this.lcd.setCursorPosition(1, 0);
-        this.lcd.write(textLine2);
-
+        this.writeLine(0, textLine1);
+        this.writeLine(1, textLine2);
         this.lastUpdate = LocalDateTime.now();
+    }
+
+    private void writeLine(final int row, final String text) {
+        this.lcd.setCursorPosition(row, 0);
+        if (text.length() <= ROW_WIDTH) {
+            this.lcd.write(text);
+        } else {
+            this.lcd.write(text.substring(0, ROW_WIDTH));
+            final MutableInt scrollPosition = new MutableInt(0);
+            this.scrollingTasks.add(this.taskScheduler.scheduleWithFixedDelay(() -> {
+                scrollPosition.increment();
+                this.lcd.setCursorPosition(row, 0);
+                this.lcd.write(text.substring(scrollPosition.getValue(), ROW_WIDTH));
+                if (text.length() - scrollPosition.getValue() <= ROW_WIDTH) {
+                    this.clearScrollingTasks();
+                }
+                this.lastUpdate = LocalDateTime.now();
+            }, this.getScrollStart(), this.scrollCharacterDelay));
+        }
+    }
+
+    private Date getScrollStart() {
+        return new Date(System.currentTimeMillis() + this.scrollInitialDelay);
     }
 
     private void detectInactivity() {

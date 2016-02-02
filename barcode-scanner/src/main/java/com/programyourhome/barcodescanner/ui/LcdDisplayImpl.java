@@ -104,7 +104,7 @@ public class LcdDisplayImpl implements LcdDisplay {
             this.scrollingTasks.add(this.taskScheduler.scheduleWithFixedDelay(() -> {
                 scrollPosition.increment();
                 this.lcd.setCursorPosition(row, 0);
-                this.lcd.write(text.substring(scrollPosition.getValue(), ROW_WIDTH));
+                this.lcd.write(text.substring(scrollPosition.getValue(), scrollPosition.getValue() + ROW_WIDTH));
                 if (text.length() - scrollPosition.getValue() <= ROW_WIDTH) {
                     this.clearScrollingTasks();
                 }

@@ -8,6 +8,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -27,6 +29,7 @@ public class Product extends NamedEntity implements PyhProduct {
     private BigDecimal sizeAmount;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private SizeUnit sizeUnit;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product")
@@ -100,6 +103,7 @@ public class Product extends NamedEntity implements PyhProduct {
     }
 
     // @Override
+    @Override
     public Set<BulkProduct> getBulkProducts() {
         return this.bulkProducts;
     }

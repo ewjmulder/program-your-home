@@ -8,6 +8,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 
 import com.programyourhome.shop.common.NamedEntity;
@@ -23,6 +25,7 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
     private final Set<ProductAggregationPart> aggregationParts;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private SizeUnit sizeUnit;
 
     @Column(nullable = false)
@@ -108,8 +111,8 @@ public class ProductAggregation extends NamedEntity implements PyhProductAggrega
 
     public void removeAggregationPart(final int productId) {
         new HashSet<>(this.aggregationParts).stream()
-        .filter(part -> part.getProduct().getId() == productId)
-        .forEach(this.aggregationParts::remove);
+                .filter(part -> part.getProduct().getId() == productId)
+                .forEach(this.aggregationParts::remove);
     }
 
 }

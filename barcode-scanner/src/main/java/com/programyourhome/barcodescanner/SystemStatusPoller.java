@@ -42,7 +42,7 @@ public class SystemStatusPoller {
     @PreDestroy
     public void shutdown() {
         // Set the lights default values at shutdown, because the Pi will remember those pin states and show them
-        // during the next boot cycle.
+        // during the next boot cycle. (unfortunately, reboot-remembering is not the case, but still ok to set to default)
         this.ledLights.setSystemStateBooting();
         this.ledLights.setModeNone();
         this.ledLights.setTransactionNone();

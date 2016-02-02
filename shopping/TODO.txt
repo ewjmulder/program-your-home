@@ -1,3 +1,5 @@
+CMD as Administrator!!
+
 C:\Program Files\EventStore-3.3.0>
 EventStore.ClusterNode.exe --db "D:\Prive\Program Your Home\EventStoreData\DB" --log "D:\Prive\Program Your Home\EventStoreData\Logs" --run-projections=ALL
 

@@ -76,6 +76,7 @@ sudo nano /etc/modprobe.d/raspi-blacklist.conf
 blacklist spi-bcm2708
 blacklist i2c-bcm2708
 
+??
 --> Update: in Jessy, so this in the raspi-config (prob. step 1 is not needed anymore as well then)
 
 

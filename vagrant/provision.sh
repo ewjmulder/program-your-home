@@ -84,6 +84,16 @@ sudo -u postgres psql -U postgres -d pyh -c "CREATE SCHEMA shopping AUTHORIZATIO
 sudo /etc/init.d/postgresql restart >> $LOG_FILE 2>&1
 
 echo "Installing Event Store"
+
+## NB: UPDATE: Version 3.5.0 is installed with another script, see:
+# http://docs.geteventstore.com/server/3.5.0/installing-from-debian-repositories/
+# https://packagecloud.io/EventStore/EventStore-OSS/install
+curl -s https://packagecloud.io/install/repositories/EventStore/EventStore-OSS/script.deb.sh | sudo bash
+# TODO: Edit /etc/apt/sources.list.d/EventStore_EventStore-OSS.list and set the last lines to: (cause the script tries to set the distribution to mint)
+#deb https://packagecloud.io/EventStore/EventStore-OSS/ubuntu trusty main
+#deb-src https://packagecloud.io/EventStore/EventStore-OSS/ubuntu trusty main
+sudo apt-get install --yes eventstore-oss
+
 # Add the Event Store apt key to our trusted keys.
 curl --silent --show-error https://apt-oss.geteventstore.com/eventstore.key | sudo apt-key add - >> $LOG_FILE 2>&1
 # Add the deb archive to the system.

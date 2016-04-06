@@ -79,6 +79,8 @@ blacklist i2c-bcm2708
 ??
 --> Update: in Jessy, so this in the raspi-config (prob. step 1 is not needed anymore as well then)
 
+Extra: how can you run the program, access GPIO as pi user instead of root? seems to work on the 43, check out differences, e.g. groups
+(or maybe sudo in the .profile?)
 
 #TODO: git clone pyh (release branch) - use barcode scanner project
 

@@ -28,6 +28,7 @@
         <module>voice-control</module>
         <module>spotify</module>
         <module>eneco-toon</module>
+        <module>amazon-alexa</module>
         <module>shopping</module>
 
         <module>environment-mock</module>

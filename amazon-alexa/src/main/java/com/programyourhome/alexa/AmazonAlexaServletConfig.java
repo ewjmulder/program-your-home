@@ -10,10 +10,13 @@ import com.amazon.speech.speechlet.servlet.SpeechletServlet;
 public class AmazonAlexaServletConfig {
 
 	@Bean
-	public ServletRegistrationBean servletRegistrationBean(){
-	    SpeechletServlet servlet = new SpeechletServlet();
-	    servlet.setSpeechlet(new AmazonAlexaSpeechlet());
-	    return new ServletRegistrationBean(servlet, "/alexa/*");
+	public ServletRegistrationBean servletRegistrationBean() {
+		// Disable signature check on local service. Will not work, because of proxy + useful for local testing.
+		System.setProperty("com.amazon.speech.speechlet.servlet.disableRequestSignatureCheck", "true");
+
+		SpeechletServlet servlet = new SpeechletServlet();
+		servlet.setSpeechlet(new AmazonAlexaSpeechlet());
+		return new ServletRegistrationBean(servlet, "/alexa/*");
 	}
 
 }

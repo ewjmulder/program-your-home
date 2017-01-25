@@ -3,6 +3,7 @@ package com.programyourhome.alexa;
 import java.awt.Color;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.amazon.speech.speechlet.IntentRequest;
 import com.amazon.speech.speechlet.LaunchRequest;
@@ -15,6 +16,7 @@ import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.programyourhome.hue.PhilipsHue;
 
+@Component
 public class AmazonAlexaSpeechlet implements Speechlet {
 
 	@Autowired

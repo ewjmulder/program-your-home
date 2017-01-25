@@ -1,5 +1,9 @@
 package com.programyourhome.alexa;
 
+import java.awt.Color;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.amazon.speech.speechlet.IntentRequest;
 import com.amazon.speech.speechlet.LaunchRequest;
 import com.amazon.speech.speechlet.Session;
@@ -9,9 +13,13 @@ import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
+import com.programyourhome.hue.PhilipsHue;
 
 public class AmazonAlexaSpeechlet implements Speechlet {
 
+	@Autowired
+	private PhilipsHue philipsHue;
+	
 	@Override
 	public void onSessionStarted(SessionStartedRequest request, Session session) throws SpeechletException {
 		// Nothing to do ... so far.
@@ -19,12 +27,15 @@ public class AmazonAlexaSpeechlet implements Speechlet {
 
 	@Override
 	public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
-		return buildResponse("Welcome to program you home!");
+		return buildResponse("You can control the home with your voice!");
 	}
 
 	@Override
 	public SpeechletResponse onIntent(IntentRequest request, Session session) throws SpeechletException {
-		return buildResponse("Welcome to program you home!");
+		philipsHue.setColorRGB(1, Color.RED);
+		philipsHue.setColorRGB(2, Color.GREEN);
+		philipsHue.setColorRGB(3, Color.BLUE);
+		return buildResponse("Ok! Fun light colors!");
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class PHLightStateBuilder {
     }
 
     private void ensureNoColorModeYet() {
-        if (this.phLightState.getColorMode() != null) {
+        if (this.phLightState.getColorMode() != PHLightColorMode.COLORMODE_UNKNOWN) {
             throw new IllegalStateException("Cannot set the color mode twice.");
         }
     }

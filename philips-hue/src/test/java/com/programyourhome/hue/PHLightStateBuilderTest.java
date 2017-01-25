@@ -17,9 +17,14 @@ public class PHLightStateBuilderTest {
         this.phLightStateBuilder = new PHLightStateBuilder(phLight);
     }
 
+    @Test
+    public void testCanSetColorMoodOnce() {
+        this.phLightStateBuilder.colorTemperature(0);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testCannotSetColorMoodTwice() {
         this.phLightStateBuilder.colorTemperature(0).colorXY(0, 0);
     }
-
+    
 }

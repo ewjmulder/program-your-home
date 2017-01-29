@@ -21,7 +21,7 @@ import com.programyourhome.server.controllers.AbstractProgramYourHomeServerContr
 
 @RestController
 @RequestMapping("huebridgesimulator/alexa")
-public class HueBridgeSimulatorController extends AbstractProgramYourHomeServerController {
+public class HueBridgeSimulatorControllerAlexa extends AbstractProgramYourHomeServerController {
 
     @Inject
     private ActivityCenter activityCenter;

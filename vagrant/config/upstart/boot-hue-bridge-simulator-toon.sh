@@ -7,4 +7,4 @@
 cd /home/pyh/hue-bridge-simulator/server
 
 # TODO: find better location
-mvn exec:java -Dsimulator.properties.location="/home/pyh/simulator.properties"
+mvn exec:java -Dsimulator.properties.location="/home/pyh/simulator.toon.properties"

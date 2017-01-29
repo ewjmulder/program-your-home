@@ -19,7 +19,7 @@ import com.programyourhome.server.controllers.AbstractProgramYourHomeServerContr
 
 @RestController
 @RequestMapping("huebridgesimulator/toon")
-public class HueBridgeSimulatorController extends AbstractProgramYourHomeServerController {
+public class HueBridgeSimulatorControllerToon extends AbstractProgramYourHomeServerController {
 
     @Inject
     private ActivityCenter activityCenter;

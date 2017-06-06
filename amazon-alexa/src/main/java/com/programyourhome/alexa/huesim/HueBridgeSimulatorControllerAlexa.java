@@ -30,7 +30,7 @@ public class HueBridgeSimulatorControllerAlexa extends AbstractProgramYourHomeSe
     public MenuItem[] getCurrentMenu() {
 
         Map<String, String> tempMap = new HashMap<>();
-        tempMap.put("Laptop on TV", "Laptop");
+        tempMap.put("Laptop on TV", "Computer");
         tempMap.put("Watch TV", "Television");
         tempMap.put("Wii", "Nintendo");
 
@@ -44,7 +44,7 @@ public class HueBridgeSimulatorControllerAlexa extends AbstractProgramYourHomeSe
     public void menuItemClicked(@PathVariable("name") final String activityName, @PathVariable("on") final boolean on) {
 
         Map<String, String> tempMap = new HashMap<>();
-        tempMap.put("Laptop", "Laptop on TV");
+        tempMap.put("Computer", "Laptop on TV");
         tempMap.put("Television", "Watch TV");
         tempMap.put("Nintendo", "Wii");
 

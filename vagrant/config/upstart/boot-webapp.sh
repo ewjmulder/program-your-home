@@ -12,4 +12,4 @@ git pull
 mvn clean install
 
 # Start the webapp
-mvn exec:java -Dexec.mainClass=com.programyourhome.webapp.TestStandalone -Dexec.args="192.168.2.37 8080" -Dexec.classpathScope=test
+mvn exec:java -Dexec.mainClass=com.programyourhome.webapp.TestStandalone -Dexec.args="192.168.1.77 8080" -Dexec.classpathScope=test

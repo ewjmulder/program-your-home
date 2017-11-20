@@ -229,20 +229,20 @@
             <id>3</id>
             <name>TV</name>
             <description>Television screen</description>
-            <defaultDelay>1500</defaultDelay>
+            <defaultDelay>500</defaultDelay>
             <prototypes>
+<!-- Update 2017-11-20: Set to minimal setup of Panasonic TV: need only POWER, rest is possible, but not needed -->
                 <power>true</power>
-                <input>false</input> <!-- TODO: how to process input selection on tv if there is no direct key for it? (could be simulated of course) If simulated: find a way to configure it here, since 
-                    there is no other way to get that input -->
-                <volume>true</volume>
-                <channel>true</channel>
+                <input>false</input>
+                <volume>false</volume>
+                <channel>false</channel>
                 <play>false</play>
                 <skip>false</skip>
                 <record>false</record>
-                <menu>true</menu>
+                <menu>false</menu>
             </prototypes>
             <remote>
-                <name>SAMSUNG-BN59-00685A</name>
+                <name>PANASONIC-N2QAYB-000829</name>
                 <keyMapping>
                     <keys>
                         <key>
@@ -250,206 +250,11 @@
                             <name>Power</name>
                             <winlircName>POWER</winlircName>
                             <type>power</type>
-                            <delay>18000</delay>
-                        </key>
-                        <!-- TODO make into key group? -->
-                        <key>
-                            <id>11</id>
-                            <name>Source</name>
-                            <winlircName>SOURCE</winlircName>
-                        </key>
-                        <key>
-                            <id>12</id>
-                            <name>TV</name>
-                            <winlircName>KEY_TV</winlircName>
-                        </key>
-                        <key>
-                            <id>13</id>
-                            <name>HDMI</name>
-                            <winlircName>HDMI</winlircName>
-                        </key>
-                        <key>
-                            <id>21</id>
-                            <name>Volume Up</name>
-                            <winlircName>VOLUME_UP</winlircName>
-                            <type>volumeUp</type>
-                            <delay>500</delay>
-                        </key>
-                        <key>
-                            <id>22</id>
-                            <name>Volume Down</name>
-                            <winlircName>VOLUME_DOWN</winlircName>
-                            <type>volumeDown</type>
-                            <delay>500</delay>
-                        </key>
-                        <key>
-                            <id>23</id>
-                            <name>Mute</name>
-                            <winlircName>VOLUME_MUTE</winlircName>
-                            <type>volumeMute</type>
-                            <delay>500</delay>
-                        </key>
-                        <key>
-                            <id>30</id>
-                            <name>0</name>
-                            <winlircName>KEY_0</winlircName>
-                            <type>channel0</type>
-                        </key>
-                        <key>
-                            <id>31</id>
-                            <name>1</name>
-                            <winlircName>KEY_1</winlircName>
-                            <type>channel1</type>
-                        </key>
-                        <key>
-                            <id>32</id>
-                            <name>2</name>
-                            <winlircName>KEY_2</winlircName>
-                            <type>channel2</type>
-                        </key>
-                        <key>
-                            <id>33</id>
-                            <name>3</name>
-                            <winlircName>KEY_3</winlircName>
-                            <type>channel3</type>
-                        </key>
-                        <key>
-                            <id>34</id>
-                            <name>4</name>
-                            <winlircName>KEY_4</winlircName>
-                            <type>channel4</type>
-                        </key>
-                        <key>
-                            <id>35</id>
-                            <name>5</name>
-                            <winlircName>KEY_5</winlircName>
-                            <type>channel5</type>
-                        </key>
-                        <key>
-                            <id>36</id>
-                            <name>6</name>
-                            <winlircName>KEY_6</winlircName>
-                            <type>channel6</type>
-                        </key>
-                        <key>
-                            <id>37</id>
-                            <name>7</name>
-                            <winlircName>KEY_7</winlircName>
-                            <type>channel7</type>
-                        </key>
-                        <key>
-                            <id>38</id>
-                            <name>8</name>
-                            <winlircName>KEY_8</winlircName>
-                            <type>channel8</type>
-                        </key>
-                        <key>
-                            <id>39</id>
-                            <name>9</name>
-                            <winlircName>KEY_9</winlircName>
-                            <type>channel9</type>
-                        </key>
-                        <key>
-                            <id>40</id>
-                            <name>Channel Up</name>
-                            <winlircName>CHANNEL_UP</winlircName>
-                            <type>channelUp</type>
-                        </key>
-                        <key>
-                            <id>41</id>
-                            <name>Channel Down</name>
-                            <winlircName>CHANNEL_DOWN</winlircName>
-                            <type>channelDown</type>
-                        </key>
-                        <key>
-                            <id>50</id>
-                            <name>Teletext</name>
-                            <winlircName>KEY_TELETEXT</winlircName>
-                        </key>
-                        <key>
-                            <id>51</id>
-                            <name>Menu</name>
-                            <winlircName>KEY_MENU</winlircName>
-                            <type>menuToggle</type>
-                        </key>
-                        <key>
-                            <id>52</id>
-                            <name>Up</name>
-                            <winlircName>KEY_UP</winlircName>
-                            <type>menuArrowUp</type>
-                        </key>
-                        <key>
-                            <id>53</id>
-                            <name>Down</name>
-                            <winlircName>KEY_DOWN</winlircName>
-                            <type>menuArrowDown</type>
-                        </key>
-                        <key>
-                            <id>54</id>
-                            <name>Left</name>
-                            <winlircName>KEY_LEFT</winlircName>
-                            <type>menuArrowLeft</type>
-                        </key>
-                        <key>
-                            <id>55</id>
-                            <name>Right</name>
-                            <winlircName>KEY_RIGHT</winlircName>
-                            <type>menuArrowRight</type>
-                        </key>
-                        <key>
-                            <id>56</id>
-                            <name>Enter</name>
-                            <winlircName>KEY_ENTER</winlircName>
-                            <type>menuSelect</type>
-                        </key>
-                        <key>
-                            <id>57</id>
-                            <name>Info</name>
-                            <winlircName>KEY_INFO</winlircName>
-                        </key>
-                        <key>
-                            <id>58</id>
-                            <name>Back</name>
-                            <winlircName>KEY_EXIT</winlircName>
-                            <type>menuBack</type>
-                        </key>
-                        <key>
-                            <id>61</id>
-                            <name>Red</name>
-                            <winlircName>KEY_RED</winlircName>
-                        </key>
-                        <key>
-                            <id>62</id>
-                            <name>Green</name>
-                            <winlircName>KEY_GREEN</winlircName>
-                        </key>
-                        <key>
-                            <id>63</id>
-                            <name>Yellow</name>
-                            <winlircName>KEY_YELLOW</winlircName>
-                        </key>
-                        <key>
-                            <id>64</id>
-                            <name>Blue</name>
-                            <winlircName>KEY_BLUE</winlircName>
+                            <delay>5000</delay>
                         </key>
                     </keys>
                 </keyMapping>
             </remote>
-            <eventSequences>
-                <eventSequence>
-                    <type>afterPowerOn</type>
-                    <pressKeys>
-                        <pressKey>51</pressKey>
-                        <pressKey>53</pressKey>
-                        <pressKey>55</pressKey>
-                        <pressKey>55</pressKey>
-                        <pressKey>53</pressKey>
-                        <pressKey>52</pressKey>
-                        <pressKey>51</pressKey>
-                    </pressKeys>
-                </eventSequence>
-            </eventSequences>
         </device>
         <device>
             <id>4</id>

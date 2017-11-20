@@ -307,8 +307,8 @@
             </activity>
             <activity>
                 <id>2</id>
-                <name>Watch TV</name>
-                <description>Watch Live TV or recorded programs.</description>
+                <name>External device</name>
+                <description>Watch external device on TV.</description>
                 <icon>television.png</icon>
                 <modules>
                     <infraRed>
@@ -316,22 +316,14 @@
                             <device>
                                 <id>1</id>
                                 <turnOn>true</turnOn>
-                                <input>HDMI 1</input>
+                                <input>HDMI 3</input>
                             </device>
                             <device>
                                 <id>3</id>
                                 <turnOn>true</turnOn>
                             </device>
-                            <device>
-                                <id>4</id>
-                                <turnOn>true</turnOn>
-                            </device>
                         </devices>
                         <volumeControl>1</volumeControl>
-                        <channelControl>4</channelControl>
-                        <playControl>4</playControl>
-                        <recordControl>4</recordControl>
-                        <menuControl>4</menuControl>
                     </infraRed>
                 </modules>
             </activity>

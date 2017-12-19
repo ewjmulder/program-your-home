@@ -33,6 +33,7 @@ public class HueBridgeSimulatorControllerAlexa extends AbstractProgramYourHomeSe
         tempMap.put("Laptop on TV", "Computer");
         tempMap.put("Watch TV", "Television");
         tempMap.put("Wii", "Nintendo");
+        tempMap.put("Curtains", "Curtains");
 
         return this.getServerConfig().getActivitiesConfig().getActivities().stream()
                 .map(activity -> new MenuItem(tempMap.get(activity.getName()), this.activityCenter.isActive(activity), new SimColor(Color.GREEN)))
@@ -47,6 +48,7 @@ public class HueBridgeSimulatorControllerAlexa extends AbstractProgramYourHomeSe
         tempMap.put("Computer", "Laptop on TV");
         tempMap.put("Television", "Watch TV");
         tempMap.put("Nintendo", "Wii");
+        tempMap.put("Curtains", "Curtains");
 
         final Optional<Activity> activity = this.activityCenter.findActivity(tempMap.get(activityName));
         if (activity.isPresent()) {

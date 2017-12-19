@@ -27,6 +27,9 @@ import com.programyourhome.server.config.model.LightState;
 import com.programyourhome.server.config.model.PhilipsHueActivityConfig;
 import com.programyourhome.server.events.activities.ActivityChangedEvent;
 
+import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
+
 @Component
 public class ActivityCenter {
 
@@ -58,6 +61,9 @@ public class ActivityCenter {
     @Value("${server.port}")
     private int port;
 
+    @Value("${slide.host}")
+    private String slideHost;
+
     public ActivityCenter() {
         this.activeActivity = null;
     }
@@ -79,6 +85,16 @@ public class ActivityCenter {
     // Possible solution: make (de)activation actions guaranteed in order / remove from active after all modules completed deactivation
     // Isn't that just what the task executor per module will take care of?
     public synchronized void startActivity(final Activity activity) {
+	// FIXME: temp hack for Slide curtains
+	if (activity.getName().equals("Curtains")) {
+		try {
+			String response = Request.Post("https://" + slideHost + "/rpc/Slide.SetPos").bodyString("{\"pos\": 1}", ContentType.APPLICATION_JSON).execute().returnContent().asString();
+			System.out.println("Slide response: " + response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+	}
         if (this.isActive(activity)) {
             throw new IllegalStateException("Activity already active");
         }
@@ -100,6 +116,16 @@ public class ActivityCenter {
     }
 
     public synchronized void stopActivity(final Activity activity) {
+	// FIXME: temp hack for Slide curtains
+	if (activity.getName().equals("Curtains")) {
+		try {
+			String response = Request.Post("https://" + slideHost + "/rpc/Slide.SetPos").bodyString("{\"pos\": 0}", ContentType.APPLICATION_JSON).execute().returnContent().asString();
+			System.out.println("Slide response: " + response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+	}
         if (!this.isActive(activity)) {
             throw new IllegalStateException("Activity is not active");
         }

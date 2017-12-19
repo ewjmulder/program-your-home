@@ -349,6 +349,14 @@
                     </infraRed>
                 </modules>
             </activity>
+            <activity>
+                <id>4</id>
+                <name>Curtains</name>
+                <description>Control the curtains.</description>
+                <icon>default.png</icon>
+                <modules>
+                </modules>
+            </activity>
         </activities>
     </activitiesConfig>
     <dailyRhythm>
